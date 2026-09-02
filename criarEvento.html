@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Criar Evento</title>
+
+    <link rel="stylesheet" href="criarEvento.css">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+
+        <a href="index.html" class="voltar">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+
+        <h2>Novo Evento</h2>
+
+    </header>
+
+
+    <form id="formEvento">
+
+        <div class="banner">
+
+            <label for="foto">
+
+                <i class="fa-solid fa-image"></i>
+
+                <span>Adicionar imagem</span>
+
+            </label>
+
+            <input
+                type="file"
+                id="foto"
+                hidden
+            >
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>Nome do evento</label>
+
+            <input
+                type="text"
+                id="nomeEvento"
+                placeholder="Ex: Casamento João e Maria"
+                required
+            >
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>Categoria</label>
+
+            <select id="categoria">
+
+                <option value="Casamento">
+                    Casamento
+                </option>
+
+                <option value="Aniversário">
+                    Aniversário
+                </option>
+
+                <option value="Formatura">
+                    Formatura
+                </option>
+
+                <option value="Evento Corporativo">
+                    Evento Corporativo
+                </option>
+
+                <option value="Chá de Bebê">
+                    Chá de Bebê
+                </option>
+
+                <option value="Outro">
+                    Outro
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="duplo">
+
+            <div class="campo">
+
+                <label>Data</label>
+
+                <input
+                    type="date"
+                    id="data"
+                    required
+                >
+
+            </div>
+
+
+            <div class="campo">
+
+                <label>Horário</label>
+
+                <input
+                    type="time"
+                    id="horario"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>Local</label>
+
+            <input
+                type="text"
+                id="local"
+                placeholder="Digite o endereço"
+                required
+            >
+
+        </div>
+
+
+        <div class="duplo">
+
+            <div class="campo">
+
+                <label>Número de Convidados</label>
+
+                <input
+                    type="number"
+                    id="convidados"
+                    min="0"
+                >
+
+            </div>
+
+
+            <div class="campo">
+
+                <label>Orçamento Inicial (R$)</label>
+
+                <input
+                    type="number"
+                    id="orcamento"
+                    min="0"
+                    step="0.01"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>Descrição</label>
+
+            <textarea
+                id="descricao"
+                rows="6"
+                placeholder="Descreva seu evento..."
+            ></textarea>
+
+        </div>
+
+
+        <button type="submit" id="botaoCriar">
+
+            Criar Evento
+
+        </button>
+
+
+        <p id="mensagem"></p>
+
+    </form>
+
+</div>
+
+
+<script type="module">
+
+
+    // ==========================================
+    // IMPORTS DO FIREBASE
+    // ==========================================
+
+    import { initializeApp }
+
+        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+
+    import {
+
+        getAuth,
+        onAuthStateChanged
+
+    }
+
+        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+
+    import {
+
+        getFirestore,
+        collection,
+        addDoc,
+        serverTimestamp
+
+    }
+
+        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+
+    // ==========================================
+    // CONFIGURAÇÃO DO FIREBASE
+    // ==========================================
+
+    const firebaseConfig = {
+
+        apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+
+        authDomain: "plannexus-def4c.firebaseapp.com",
+
+        projectId: "plannexus-def4c",
+
+        storageBucket: "plannexus-def4c.firebasestorage.app",
+
+        messagingSenderId: "1087555797090",
+
+        appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+
+        measurementId: "G-0FGX8KENV1"
+
+    };
+
+
+    // ==========================================
+    // INICIALIZAR FIREBASE
+    // ==========================================
+
+    const app = initializeApp(firebaseConfig);
+
+
+    // Authentication
+
+    const auth = getAuth(app);
+
+
+    // Firestore
+
+    const db = getFirestore(app);
+
+
+    // ==========================================
+    // ELEMENTOS
+    // ==========================================
+
+    const formulario =
+        document.getElementById("formEvento");
+
+    const mensagem =
+        document.getElementById("mensagem");
+
+    const botaoCriar =
+        document.getElementById("botaoCriar");
+
+
+    // ==========================================
+    // USUÁRIO LOGADO
+    // ==========================================
+
+    let usuarioAtual = null;
+
+
+    onAuthStateChanged(auth, (usuario) => {
+
+
+        if (!usuario) {
+
+            alert("Faça login para continuar!");
+
+            window.location.href = "login.html";
+
+            return;
+
+        }
+
+
+        usuarioAtual = usuario;
+
+
+        console.log("Usuário logado!");
+
+        console.log("UID:", usuario.uid);
+
+    });
+
+
+    // ==========================================
+    // CADASTRAR EVENTO
+    // ==========================================
+
+    formulario.addEventListener("submit", async (event) => {
+
+
+        event.preventDefault();
+
+
+        // Verificar novamente se existe usuário
+
+        if (!usuarioAtual) {
+
+            alert("Você precisa estar logado.");
+
+            window.location.href = "login.html";
+
+            return;
+
+        }
+
+
+        // ======================================
+        // PEGAR DADOS DO FORMULÁRIO
+        // ======================================
+
+        const nome =
+            document.getElementById("nomeEvento").value.trim();
+
+
+        const categoria =
+            document.getElementById("categoria").value;
+
+
+        const data =
+            document.getElementById("data").value;
+
+
+        const horario =
+            document.getElementById("horario").value;
+
+
+        const local =
+            document.getElementById("local").value.trim();
+
+
+        const convidados =
+            document.getElementById("convidados").value;
+
+
+        const orcamento =
+            document.getElementById("orcamento").value;
+
+
+        const descricao =
+            document.getElementById("descricao").value.trim();
+
+
+        // ======================================
+        // DESABILITAR BOTÃO
+        // ======================================
+
+        botaoCriar.disabled = true;
+
+        botaoCriar.textContent =
+            "Criando evento...";
+
+
+        try {
+
+
+            // ==================================
+            // SALVAR NO FIRESTORE
+            // ==================================
+
+            const evento = await addDoc(
+
+                collection(db, "eventos"),
+
+                {
+
+                    nome: nome,
+
+                    categoria: categoria,
+
+                    data: data,
+
+                    horario: horario,
+
+                    local: local,
+
+                    convidados:
+                        convidados
+                            ? Number(convidados)
+                            : 0,
+
+                    orcamento:
+                        orcamento
+                            ? Number(orcamento)
+                            : 0,
+
+                    descricao: descricao,
+
+                    usuarioId: usuarioAtual.uid,
+
+                    criadoEm: serverTimestamp()
+
+                }
+
+            );
+
+
+            // ==================================
+            // SUCESSO
+            // ==================================
+
+            console.log(
+                "Evento criado com ID:",
+                evento.id
+            );
+
+
+            mensagem.textContent =
+                "Evento criado com sucesso!";
+
+
+            mensagem.style.color =
+                "green";
+
+
+            // Limpar formulário
+
+            formulario.reset();
+
+
+            // Voltar para início
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "index.html";
+
+            }, 1500);
+
+
+        }
+
+
+        catch (erro) {
+
+
+            console.error(
+                "Erro ao criar evento:",
+                erro
+            );
+
+
+            mensagem.textContent =
+                "Erro ao criar evento: " +
+                erro.message;
+
+
+            mensagem.style.color =
+                "red";
+
+
+            botaoCriar.disabled = false;
+
+            botaoCriar.textContent =
+                "Criar Evento";
+
+        }
+
+    });
+
+
+</script>
+
+
+</body>
+
+</html>

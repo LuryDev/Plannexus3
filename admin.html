@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login Admin - PlanNexus</title>
+
+    <link rel="stylesheet" href="login.css">
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="login-container" id="caixa">
+
+    <h1>Bem Vindo de Volta Admin!</h1>
+
+    <h3>
+        Insira seu e-mail e senha para acessar a área administrativa
+    </h3>
+
+    <form id="loginForm">
+
+        <input
+            type="email"
+            id="email"
+            placeholder="E-mail do administrador"
+            required
+        >
+
+        <br><br>
+
+        <input
+            type="password"
+            id="senha"
+            placeholder="Senha"
+            required
+        >
+
+        <br><br>
+
+        <button
+            type="submit"
+            id="enter"
+            style="background-color: black;"
+        >
+            Entrar como Admin
+        </button>
+
+    </form>
+
+    <p id="mensagem"></p>
+
+    <p>
+        <a href="login.html" style="color: white;">
+            Voltar para o login
+        </a>
+    </p>
+
+</div>
+
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    signOut
+}
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+
+    authDomain: "plannexus-def4c.firebaseapp.com",
+
+    projectId: "plannexus-def4c",
+
+    storageBucket: "plannexus-def4c.firebasestorage.app",
+
+    messagingSenderId: "1087555797090",
+
+    appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+
+    measurementId: "G-0FGX8KENV1"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+
+const formulario =
+    document.getElementById("loginForm");
+
+const mensagem =
+    document.getElementById("mensagem");
+
+
+const EMAIL_ADMIN =
+    "admin@plannexus.com";
+
+
+formulario.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const email =
+            document.getElementById("email").value.trim();
+
+        const senha =
+            document.getElementById("senha").value;
+
+
+        try {
+
+            const resultado =
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    senha
+                );
+
+
+            const usuario =
+                resultado.user;
+
+
+            if (usuario.email !== EMAIL_ADMIN) {
+
+                await signOut(auth);
+
+                mensagem.textContent =
+                    "Acesso permitido somente ao administrador.";
+
+                return;
+
+            }
+
+
+            mensagem.textContent =
+                "Login de administrador realizado!";
+
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "indexAdmin.html";
+
+            }, 500);
+
+
+        }
+
+        catch (erro) {
+
+            console.error(erro);
+
+
+            if (
+                erro.code ===
+                "auth/invalid-credential"
+            ) {
+
+                mensagem.textContent =
+                    "E-mail ou senha incorretos.";
+
+            }
+
+            else if (
+                erro.code ===
+                "auth/invalid-email"
+            ) {
+
+                mensagem.textContent =
+                    "Digite um e-mail válido.";
+
+            }
+
+            else if (
+                erro.code ===
+                "auth/user-disabled"
+            ) {
+
+                mensagem.textContent =
+                    "Esta conta foi desativada.";
+
+            }
+
+            else {
+
+                mensagem.textContent =
+                    "Erro ao realizar login.";
+
+            }
+
+        }
+
+    }
+
+);
+
+</script>
+
+</body>
+
+</html>
+

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PlanNexus</title>
+
+    <link
+   
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+ 
+</head>
+
+<body>
+
+
+
+<div id="sair" style="display: none;">
+
+
+</div>
+
+
+<div class="app">
+
+
+
+    <header>
+        <div class="logo">
+
+            <img
+                src="fotos/logo.png"
+                alt=""
+            >
+
+        </div>
+
+
+        <div class="notification">
+
+            <i class="fa-regular fa-bell"></i>
+
+        </div>
+
+    </header>
+
+
+    <section class="banner">
+
+        <img
+            src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=900"
+            alt=""
+        >
+
+
+        <div class="banner-overlay">
+
+            <h2 id="boasVindas">
+                Bem-vindo(a)
+            </h2>
+
+        </div>
+
+    </section>
+
+
+    <div class="dots">
+
+        <span class="active"></span>
+
+        <span></span>
+
+        <span></span>
+
+        <span></span>
+
+    </div>
+
+
+ <main>
+
+    <h1>Gerencie seus eventos</h1>
+
+    <div class="search">
+
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <input
+            type="text"
+            id="pesquisaEvento"
+            placeholder="Buscar seus eventos"
+        >
+
+    </div><br>
+
+
+    <div id="listaEventos">
+
+        <p>Carregando eventos...</p>
+
+    </div>
+
+</main>
+
+    
+
+</div>
+
+
+
+<nav class="bottom-nav">
+
+
+    <a href="#">
+
+        <i class="fa-solid fa-house"></i>
+
+    </a>
+
+
+    <a
+        class="add"
+        href="#"
+        id="botaoCriarEvento"
+    >
+
+        <i class="fa-solid fa-plus"></i>
+
+    </a>
+
+
+
+    <a href="login.html" id="perfil">
+
+        <i class="fa-regular fa-user"></i>
+
+    </a>
+
+
+</nav>
+
+
+<script type="module">
+
+
+    import { initializeApp }
+
+        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+
+    import {
+
+        getAuth,
+        onAuthStateChanged,
+        signOut
+
+    }
+
+        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+
+    import {
+
+        getFirestore,
+        collection,
+        query,
+        where,
+        getDocs
+
+    }
+
+        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+
+    const firebaseConfig = {
+
+        apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+
+        authDomain: "plannexus-def4c.firebaseapp.com",
+
+        projectId: "plannexus-def4c",
+
+        storageBucket: "plannexus-def4c.firebasestorage.app",
+
+        messagingSenderId: "1087555797090",
+
+        appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+
+        measurementId: "G-0FGX8KENV1"
+
+    };
+
+
+
+    const app = initializeApp(firebaseConfig);
+
+
+    const auth = getAuth(app);
+
+
+    const db = getFirestore(app);
+
+
+    const statusLogin =
+        document.getElementById("statusLogin");
+
+
+    const areaSair =
+        document.getElementById("sair");
+
+
+    const botaoSair =
+        document.getElementById("botaoSair");
+
+
+    const botaoCriarEvento =
+        document.getElementById("botaoCriarEvento");
+
+
+    const boasVindas =
+        document.getElementById("boasVindas");
+
+
+    const listaEventos =
+        document.getElementById("listaEventos");
+
+
+    const pesquisaEvento =
+        document.getElementById("pesquisaEvento");
+
+
+
+    let usuarioAtual = null;
+
+
+    onAuthStateChanged(auth, (usuario) => {
+
+
+        if (usuario) {
+
+
+            usuarioAtual = usuario;
+
+            document.getElementById("perfil").href = "perfilPessoalAdmin.html";
+
+            console.log("Usuário logado!");
+
+            console.log("UID:", usuario.uid);
+
+
+
+
+            areaSair.style.display = "block";
+
+
+
+            boasVindas.innerHTML =
+                "Bem-vindo(a)<br>" +
+                "Admin!";
+
+
+
+            carregarEventos(usuario);
+
+
+        }
+
+        else {
+
+
+            usuarioAtual = null;
+
+            document.getElementById("perfil").href = "login.html";
+
+            console.log("Usuário não está logado.");
+
+
+
+            areaSair.style.display = "none";
+
+
+            boasVindas.innerHTML =
+                "Bem-vindo(a)";
+
+
+            listaEventos.innerHTML = `
+                <p>Faça login para visualizar seus eventos.</p>
+            `;
+
+        }
+
+    });
+
+    async function carregarEventos(usuario) {
+
+
+        try {
+
+
+            const eventosRef =
+                collection(db, "eventos");
+
+
+            const consulta =
+                query(
+                    eventosRef,
+                    where(
+                        "usuarioId",
+                        "==",
+                        usuario.uid
+                    )
+                );
+
+
+            const resultado =
+                await getDocs(consulta);
+                console.log("Quantidade de eventos encontrados:", resultado.size);
+
+resultado.forEach((documento) => {
+
+    console.log(
+        "Evento:",
+        documento.id,
+        documento.data()
+    );
+
+});
+
+
+            listaEventos.innerHTML = "";
+
+
+            if (resultado.empty) {
+
+
+                listaEventos.innerHTML = `
+                    <p>Você ainda não possui eventos.</p>
+                `;
+
+
+                return;
+
+            }
+
+
+            resultado.forEach((documento) => {
+
+
+                const evento =
+                    documento.data();
+
+
+  const card =
+    document.createElement("div");
+
+
+card.classList.add("evento");
+
+card.dataset.id = documento.id;
+
+
+card.innerHTML = `
+
+    <!-- ÍCONE DO EVENTO -->
+    <div class="evento-icone">
+        <i class="fa-solid fa-calendar-days"></i>
+    </div>
+
+    <!-- NOME DO EVENTO -->
+    <h2>
+        ${evento.nome}
+    </h2>
+
+    <!-- INFORMAÇÕES DO EVENTO -->
+    <p>
+        <i class="fa-solid fa-calendar"></i>
+        ${evento.data}
+    </p>
+
+    <p>
+        <i class="fa-solid fa-clock"></i>
+        ${evento.horario}
+    </p>
+
+    <p>
+        <i class="fa-solid fa-location-dot"></i>
+        ${evento.local}
+    </p>
+
+    <p>
+        <strong>Categoria:</strong>
+        ${evento.categoria}
+    </p>
+
+    <!-- BOTÃO PARA ABRIR O EVENTO -->
+    <button class="abrirEvento" title="Ver evento">
+        <i class="fa-solid fa-arrow-right"></i>
+    </button>
+
+`;
+listaEventos.appendChild(card);
+
+const botao = card.querySelector(".abrirEvento");
+
+botao.addEventListener("click", function(){
+
+    window.location.href =
+        "evento.html?id=" + documento.id;
+
+});
+
+});
+
+
+        }
+
+        catch (erro) {
+
+
+            console.error(
+                "Erro ao buscar eventos:",
+                erro
+            );
+
+
+            listaEventos.innerHTML = `
+                <p>Erro ao carregar eventos.</p>
+            `;
+
+        }
+
+    }
+
+
+
+
+    pesquisaEvento.addEventListener(
+        "input",
+        function() {
+
+
+            const texto =
+                pesquisaEvento.value
+                    .toLowerCase();
+
+
+            const eventos =
+                document.querySelectorAll(
+                    ".evento"
+                );
+
+
+            eventos.forEach((evento) => {
+
+
+                const nome =
+                    evento
+                        .querySelector("h2")
+                        .textContent
+                        .toLowerCase();
+
+
+                if (nome.includes(texto)) {
+
+                    evento.style.display =
+                        "block";
+
+                }
+
+                else {
+
+                    evento.style.display =
+                        "none";
+
+                }
+
+            });
+
+        }
+    );
+
+    botaoCriarEvento.addEventListener(
+        "click",
+        function(event) {
+
+
+            event.preventDefault();
+
+
+            if (usuarioAtual) {
+
+
+                window.location.href =
+                    "criarEventoAdmin.html";
+
+
+            }
+
+            else {
+
+
+                alert(
+                    "Você precisa estar logado para criar um evento."
+                );
+
+
+                window.location.href =
+                    "login.html";
+
+            }
+
+        }
+    );
+
+    botaoSair.addEventListener(
+        "click",
+        async function() {
+
+
+            try {
+
+
+                await signOut(auth);
+
+
+                window.location.href =
+                    "login.html";
+
+
+            }
+
+            catch (erro) {
+
+
+                console.error(
+                    "Erro ao sair:",
+                    erro
+                );
+
+            }
+
+        }
+    );
+</script>
+
+</body>
+
+</html>

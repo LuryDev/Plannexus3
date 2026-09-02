@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Perfil - PlanNexus</title>
+
+    <link rel="stylesheet" href="perfilPessoal.css">
+
+</head>
+
+<body>
+
+<div class="perfil-container">
+
+    <img id="foto" src="https://via.placeholder.com/120" alt="Foto do usuário">
+
+    <h1 id="nome">Carregando...</h1>
+
+    <p id="email"></p>
+
+    <p id="uid"></p>
+
+    <button id="voltar">
+        Voltar
+    </button>
+
+    <button id="sair">
+        Sair
+    </button>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+}
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+    const firebaseConfig = {
+
+        apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+
+        authDomain: "plannexus-def4c.firebaseapp.com",
+
+        projectId: "plannexus-def4c",
+
+        storageBucket: "plannexus-def4c.firebasestorage.app",
+
+        messagingSenderId: "1087555797090",
+
+        appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+
+        measurementId: "G-0FGX8KENV1"
+
+    };
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+
+    if (user) {
+
+        document.getElementById("nome").textContent =
+            user.displayName || "Usuário";
+
+        document.getElementById("email").textContent =
+            user.email;
+
+        document.getElementById("uid").textContent =
+            "UID: " + user.uid;
+
+        if (user.photoURL) {
+
+            document.getElementById("foto").src =
+                user.photoURL;
+
+        }
+
+    }
+
+    else {
+
+        window.location.href = "login.html";
+
+    }
+
+});
+
+document.getElementById("voltar").addEventListener("click", () => {
+
+    window.location.href = "index.html";
+
+});
+
+document.getElementById("sair").addEventListener("click", async () => {
+
+    await signOut(auth);
+
+    window.location.href = "login.html";
+
+});
+
+</script>
+
+</body>
+</html>

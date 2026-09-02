@@ -1,0 +1,113 @@
+/* ===========================
+        DETALHES DO EVENTO
+=========================== */
+
+.detalhesEvento{
+
+    padding-top:10px;
+
+}
+
+.voltar{
+
+    border:none;
+    background:none;
+
+    color:#5A32D3;
+
+    font-size:14px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+
+    gap:8px;
+
+    margin-bottom:25px;
+
+}
+
+
+.detalhesEvento h1{
+
+    font-size:30px;
+
+    margin-bottom:25px;
+
+    color:#222;
+
+}
+
+
+.informacoesEvento{
+
+    display:flex;
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+.info{
+
+    background:#f5f3fb;
+
+    border-radius:12px;
+
+    padding:16px;
+
+    display:flex;
+    align-items:center;
+
+    gap:15px;
+
+}
+
+
+.info > i{
+
+    width:40px;
+    height:40px;
+
+    border-radius:50%;
+
+    background:#D9C8FF;
+
+    color:#5A32D3;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+}
+
+
+.info div{
+
+    display:flex;
+    flex-direction:column;
+
+    gap:4px;
+
+}
+
+
+.info span{
+
+    color:#777;
+
+    font-size:12px;
+
+}
+
+
+.info strong{
+
+    color:#222;
+
+    font-size:15px;
+
+}

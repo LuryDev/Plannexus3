@@ -1,0 +1,275 @@
+/* ==========================================
+   RESET & VARIÁVEIS GLOBAIS
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+    --bg-app: #f4f4f8;
+    --card-bg: linear-gradient(135deg, #a491f9 0%, #4d2fb8 100%);
+    --card-hover: linear-gradient(135deg, #b3a2fc 0%, #5939ca 100%);
+    --text-white: #ffffff;
+    --text-dark: #1f1f1f;
+    --icon-circle-bg: #ffffff;
+    --icon-color: #4d2fb8;
+    --border-radius: 18px;
+    --shadow: 0 8px 20px rgba(77, 47, 184, 0.15);
+}
+
+body {
+    background-color: var(--bg-app);
+    color: var(--text-dark);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+/* ==========================================
+   CONTAINER PRINCIPAL (MOBILE WRAPPER)
+   ========================================== */
+.app {
+    width: 100%;
+    max-width: 430px; /* Largura padrão smartphone */
+    min-height: 100vh;
+    background-color: #ffffff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================
+   TOPO / BOTÃO VOLTAR
+   ========================================== */
+header {
+    width: 100%;
+    padding: 10px 0;
+}
+
+.voltar {
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.voltar:hover {
+    transform: translateX(-3px);
+}
+
+/* ==========================================
+   HEADER DO EVENTO (CARD PRINCIPAL)
+   ========================================== */
+.detalhesEvento {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ==========================================
+   HEADER DO EVENTO (CARD DO TÍTULO)
+========================================== */
+
+.card-header-evento {
+    background: linear-gradient(
+        135deg,
+        #a491f9 0%,
+        #6e51d8 50%,
+        #4d2fb8 100%
+    );
+
+    border-radius: 20px;
+
+    padding: 32px 20px;
+
+    text-align: center;
+
+    color: var(--text-white);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /* sombra principal */
+    box-shadow:
+        0 10px 25px rgba(77, 47, 184, 0.25),
+        0 4px 8px rgba(0, 0, 0, 0.08);
+
+    /* leve profundidade */
+    border: 1px solid rgba(255, 255, 255, 0.25);
+
+    position: relative;
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+/* brilho suave dentro do card */
+.card-header-evento::before {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+
+    top: -90px;
+    right: -50px;
+
+    background: rgba(255, 255, 255, 0.12);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+/* outro brilho */
+.card-header-evento::after {
+    content: "";
+    position: absolute;
+    width: 120px;
+    height: 120px;
+
+    bottom: -70px;
+    left: -40px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+}
+
+/* efeito ao passar o mouse */
+.card-header-evento:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 14px 30px rgba(77, 47, 184, 0.30),
+        0 5px 10px rgba(0, 0, 0, 0.10);
+}
+
+.logo-evento {
+    width: 70px;
+    height: 70px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.logo-evento img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.card-header-evento h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+
+    position: relative;
+    z-index: 2;
+
+    text-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.18);
+}
+
+/* ==========================================
+   LISTA DE CARDS DE NAVEGAÇÃO
+========================================== */
+
+.menu-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card-item {
+    background: linear-gradient(135deg, #a491f9 0%, #4d2fb8 100%);
+    border-radius: 18px;
+    padding: 20px;
+    min-height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(77, 47, 184, 0.15);
+    transition: transform 0.2s ease, background 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* efeito suave no card */
+.card-item:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #b3a2fc 0%, #5939ca 100%);
+}
+
+/* título do card */
+.card-item span {
+    font-size: 1.05rem;
+    font-weight: 600;
+    z-index: 2;
+    letter-spacing: 0.2px;
+}
+
+/* ==========================================
+   ÍCONE DA SETA CIRCULAR
+========================================== */
+
+.card-item .fa-chevron-right {
+    background-color: #ffffff;
+    color: #4d2fb8;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+/* ==========================================
+   CARD CONTROLE FINANCEIRO (COM GRÁFICO)
+   ========================================== */
+.card-grafico {
+    position: relative;
+}
+
+.card-info {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+}
+
+/* Ilustração de Gráfico em Linha (SVG de fundo) */
+.grafico-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 150' preserveAspectRatio='none'%3E%3Cpath d='M0,130 L80,120 L160,90 L240,110 L320,70 L400,95 L480,20 L500,10 L500,150 L0,150 Z' fill='rgba(255, 255, 255, 0.15)'/%3E%3Cpath d='M0,130 L80,120 L160,90 L240,110 L320,70 L400,95 L480,20 L500,10' fill='none' stroke='rgba(255, 255, 255, 0.7)' stroke-width='4'/%3E%3C/svg%3E") no-repeat bottom center;
+    background-size: 100% 100%;
+    z-index: 1;
+    pointer-events: none;
+}
