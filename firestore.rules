@@ -1,0 +1,52 @@
+rules_version = '2';
+
+// =============================================================
+//  REGRAS DO FIRESTORE — PlanNexus
+//  Copie este conteúdo em: Console do Firebase > Firestore Database
+//  > aba "Regras" > Publicar.
+//
+//  IMPORTANTE: regras de "eventos/{id}" NÃO valem para as
+//  subcoleções (tarefas, calendario). Por isso elas têm regra própria
+//  logo abaixo — sem isso as páginas de Tarefas e Calendário dão
+//  "permission-denied".
+// =============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() {
+      return request.auth != null;
+    }
+
+    function ehAdmin() {
+      return logado() && request.auth.token.email == "admin@plannexus.com";
+    }
+
+    function donoDoEvento(eventoId) {
+      return logado() &&
+        get(/databases/$(database)/documents/eventos/$(eventoId)).data.usuarioId == request.auth.uid;
+    }
+
+    // Perfil de cada usuário
+    match /usuarios/{uid} {
+      allow read, write: if logado() && request.auth.uid == uid;
+    }
+
+    // Eventos
+    match /eventos/{eventoId} {
+      allow create: if logado() && request.resource.data.usuarioId == request.auth.uid;
+      allow read, update, delete: if logado() &&
+        (resource.data.usuarioId == request.auth.uid || ehAdmin());
+
+      // Tarefas do evento
+      match /tarefas/{tarefaId} {
+        allow read, write: if donoDoEvento(eventoId) || ehAdmin();
+      }
+
+      // Compromissos do calendário do evento
+      match /calendario/{itemId} {
+        allow read, write: if donoDoEvento(eventoId) || ehAdmin();
+      }
+    }
+  }
+}

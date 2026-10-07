@@ -8,8 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Criar conta - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
 
-    <link rel="stylesheet" href="cadastro.css">
+    <link rel="stylesheet" href="css/cadastro.css">
 
 </head>
 
@@ -51,7 +52,7 @@
             required
         >
 
-         <button type="submit" id="enter" style="background-color: black; text-color:white;">
+         <button type="submit" id="enter" style="background-color: black;">
             Criar Conta
         </button>
 <br><br>
@@ -73,51 +74,17 @@
 
 </div>
 
+<script src="js/config.js"></script>
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    updateProfile,
-    GoogleAuthProvider,
-    signInWithPopup
-}
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-
-import {
-    getFirestore,
-    doc,
-    setDoc,
-    getDoc
-}
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-const firebaseConfig = {
-
-    apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
-
-    authDomain: "plannexus-def4c.firebaseapp.com",
-
-    projectId: "plannexus-def4c",
-
-    storageBucket: "plannexus-def4c.firebasestorage.app",
-
-    messagingSenderId: "1087555797090",
-
-    appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
-
-    measurementId: "G-0FGX8KENV1"
-
-};
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-
-const db = getFirestore(app);
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
 const provider = new GoogleAuthProvider();
 
@@ -181,7 +148,7 @@ formulario.addEventListener("submit", async function(event) {
 
         setTimeout(() => {
 
-            window.location.href = "index.html";
+            window.location.href = "inicio.html";
 
         }, 1000);
 
@@ -245,7 +212,7 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
 
         }
 
-        window.location.href = "index.html";
+        window.location.href = "inicio.html";
 
     }
 

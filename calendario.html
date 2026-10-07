@@ -2,18 +2,14 @@
 <html lang="pt-br">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Calendário - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
 
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-        rel="stylesheet">
-    <link rel="stylesheet" href="calendario.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/calendario.css">
 </head>
 
 <body>
@@ -21,37 +17,25 @@
     <div class="app">
 
         <header>
-
-            <button
-                class="voltar"
-                onclick="history.back()"
-            >
+            <a class="voltar" id="voltar" href="inicio.html" title="Voltar">
                 <i class="fa-solid fa-arrow-left"></i>
-            </button>
-
-            <h1 id="nomeEvento">
-                Carregando...
-            </h1>
-
+            </a>
+            <h1 id="nomeEvento">Carregando...</h1>
         </header>
-
 
         <main class="calendario-container">
 
-            <h2>
-                Calendário do Evento
-            </h2>
+            <div class="titulo">
+                <h2>Calendário do Evento</h2>
+                <button class="novo" id="botaoNovo">
+                    <i class="fa-solid fa-plus"></i>
+                    Novo
+                </button>
+            </div>
 
-
-            <section
-                class="lista-compromissos"
-                id="listaCompromissos"
-            >
-
-                <p>
-                    Carregando agenda...
-                </p>
-
+            <!-- Preenchido pelo JavaScript -->
+            <section class="lista-compromissos" id="listaCompromissos">
+                <p class="aviso">Carregando agenda...</p>
             </section>
 
         </main>
@@ -59,239 +43,280 @@
     </div>
 
 
+    <!-- ===================== FORMULÁRIO (JANELA) ===================== -->
+    <div class="modal" id="modal" hidden>
+        <form class="modal-caixa" id="formCompromisso">
+
+            <div class="modal-topo">
+                <h2>Novo compromisso</h2>
+                <button type="button" class="fechar" id="fecharModal" title="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <label for="tituloCompromisso">Título</label>
+            <input type="text" id="tituloCompromisso" placeholder="Ex: Prova do bolo" maxlength="80" required>
+
+            <div class="duplo">
+                <div>
+                    <label for="dataCompromisso">Data</label>
+                    <input type="date" id="dataCompromisso" required>
+                </div>
+                <div>
+                    <label for="horarioCompromisso">Horário</label>
+                    <input type="time" id="horarioCompromisso">
+                </div>
+            </div>
+
+            <label for="descricaoCompromisso">Descrição</label>
+            <textarea id="descricaoCompromisso" rows="3" placeholder="Detalhes (opcional)"></textarea>
+
+            <button type="submit" class="salvar" id="botaoSalvar">Salvar compromisso</button>
+            <p class="mensagem" id="mensagem"></p>
+
+        </form>
+    </div>
+
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
     <script type="module">
 
-        import { initializeApp }
-            from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        // FIREBASE_CONFIG vem do arquivo js/config.js
+        const app  = initializeApp(FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
 
 
-        import {
+        // ================= ELEMENTOS =================
+        const nomeEventoEl = document.getElementById("nomeEvento");
+        const listaEl      = document.getElementById("listaCompromissos");
+        const voltarEl     = document.getElementById("voltar");
+        const botaoNovo    = document.getElementById("botaoNovo");
+        const modal        = document.getElementById("modal");
+        const form         = document.getElementById("formCompromisso");
+        const botaoSalvar  = document.getElementById("botaoSalvar");
+        const mensagemEl   = document.getElementById("mensagem");
 
-            getFirestore,
-            doc,
-            getDoc,
-            collection,
-            getDocs
+        const eventoId = pegarIdDaUrl();
 
-        }
-            from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-
-        const firebaseConfig = {
-
-            apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
-
-            authDomain: "plannexus-def4c.firebaseapp.com",
-
-            projectId: "plannexus-def4c",
-
-            storageBucket: "plannexus-def4c.firebasestorage.app",
-
-            messagingSenderId: "1087555797090",
-
-            appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
-
-            measurementId: "G-0FGX8KENV1"
-
-        };
+        const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                       "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
 
-        const app =
-            initializeApp(firebaseConfig);
-
-
-        const db =
-            getFirestore(app);
-
-
-        const parametros =
-            new URLSearchParams(
-                window.location.search
-            );
-
-
-        const eventoId =
-            parametros.get("id");
-
-
-        const nomeEventoEl =
-            document.getElementById(
-                "nomeEvento"
-            );
-
-
-        const listaCompromissosEl =
-            document.getElementById(
-                "listaCompromissos"
-            );
-
-
-        async function carregarCalendario() {
+        // ================= INÍCIO =================
+        async function iniciar() {
 
             if (!eventoId) {
-
-                nomeEventoEl.textContent =
-                    "Evento não encontrado.";
-
-                listaCompromissosEl.innerHTML =
-                    "<p>Nenhum ID de evento informado na URL.</p>";
-
+                nomeEventoEl.textContent = "Evento não encontrado";
+                listaEl.innerHTML = `<p class="aviso">Abra o calendário a partir da página de um evento.</p>`;
+                botaoNovo.disabled = true;
                 return;
-
             }
 
+            voltarEl.href = "evento.html?id=" + encodeURIComponent(eventoId);
 
-            console.log(
-                "ID do evento:",
-                eventoId
-            );
-
+            await exigirLogin(auth, onAuthStateChanged);
 
             try {
-
-                const eventoRef =
-                    doc(
-                        db,
-                        "eventos",
-                        eventoId
-                    );
-
-
-                const eventoSnap =
-                    await getDoc(
-                        eventoRef
-                    );
-
+                const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
 
                 if (!eventoSnap.exists()) {
-
-                    console.error(
-                        "Documento não encontrado:",
-                        eventoId
-                    );
-
-                    nomeEventoEl.textContent =
-                        "Evento não encontrado.";
-
-                    listaCompromissosEl.innerHTML =
-                        "<p>Evento inexistente no banco de dados.</p>";
-
+                    nomeEventoEl.textContent = "Evento não encontrado";
+                    listaEl.innerHTML = `<p class="aviso">Esse evento não existe mais.</p>`;
+                    botaoNovo.disabled = true;
                     return;
-
                 }
 
+                const evento = eventoSnap.data();
+                nomeEventoEl.textContent = evento.nome || "Evento sem nome";
 
-                const evento =
-                    eventoSnap.data();
-
-
-                nomeEventoEl.textContent =
-                    evento.nome ||
-                    "Evento sem nome";
-
-
-                const calendarioRef =
-                    collection(
-                        db,
-                        "eventos",
-                        eventoId,
-                        "calendario"
-                    );
-
-
-                const calendarioSnap =
-                    await getDocs(
-                        calendarioRef
-                    );
-
-
-
-                listaCompromissosEl.innerHTML =
-                    "";
-
-
-                calendarioSnap.forEach(
-                    (docItem) => {
-
-                        const item =
-                            docItem.data();
-
-
-                        const card =
-                            document.createElement(
-                                "article"
-                            );
-
-
-                        card.className =
-                            "card-compromisso";
-
-
-                        card.innerHTML = `
-
-                            <div class="data-hora">
-
-                                <span class="data">
-
-                                    <i class="fa-regular fa-calendar"></i>
-
-                                    ${item.data || "Sem data"}
-
-                                </span>
-
-
-                                <span class="hora">
-
-                                    <i class="fa-regular fa-clock"></i>
-
-                                    ${item.horario || "Sem horário"}
-
-                                </span>
-
-                            </div>
-
-
-                            <div class="detalhes">
-
-                                <h3>
-                                    ${item.titulo || "Sem título"}
-                                </h3>
-
-                                <p>
-                                    ${item.descricao || ""}
-                                </p>
-
-                            </div>
-
-                        `;
-
-
-                        listaCompromissosEl.appendChild(
-                            card
-                        );
-
-                    }
-                );
-
+                await carregarCalendario();
             }
-
             catch (erro) {
-
-                console.error(
-                    "Erro ao carregar calendário:",
-                    erro
-                );
-
-
-                listaCompromissosEl.innerHTML =
-                    "<p>Erro ao carregar dados do calendário. Verifique o console.</p>";
-
+                mostrarErro(erro);
             }
-
         }
 
 
-        carregarCalendario();
+        // ================= CARREGAR =================
+        async function carregarCalendario() {
+
+            const snap = await getDocs(collection(db, "eventos", eventoId, "calendario"));
+
+            const itens = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+            // Ordena por data e depois por horário
+            itens.sort((a, b) =>
+                (dataParaOrdenar(a.data) + (a.horario || "99:99"))
+                    .localeCompare(dataParaOrdenar(b.data) + (b.horario || "99:99"))
+            );
+
+            desenhar(itens);
+        }
+
+
+        // ================= DESENHAR NA TELA =================
+        function desenhar(itens) {
+
+            if (itens.length === 0) {
+                listaEl.innerHTML = `
+                    <p class="aviso">
+                        Nenhum compromisso marcado.<br>
+                        Toque em <strong>Novo</strong> para adicionar.
+                    </p>`;
+                return;
+            }
+
+            listaEl.innerHTML = "";
+
+            const hoje = hojeISO();
+            let mesAnterior = null;
+
+            itens.forEach((item) => {
+
+                const dataISO = dataParaOrdenar(item.data);
+
+                // Separador de mês ("Julho de 2026")
+                const [ano, mes] = dataISO.split("-");
+                const chaveMes = ano + "-" + mes;
+
+                if (chaveMes !== mesAnterior && MESES[Number(mes) - 1]) {
+                    const separador = document.createElement("h3");
+                    separador.className = "mes";
+                    separador.textContent = `${MESES[Number(mes) - 1]} de ${ano}`;
+                    listaEl.appendChild(separador);
+                    mesAnterior = chaveMes;
+                }
+
+                const card = document.createElement("article");
+                card.className = "card-compromisso" + (dataISO < hoje ? " passado" : "");
+
+                card.innerHTML = `
+                    <div class="data-hora">
+                        <span class="data">
+                            <i class="fa-regular fa-calendar"></i>
+                            ${escaparHTML(formatarData(item.data) || "Sem data")}
+                        </span>
+                        <span class="hora">
+                            <i class="fa-regular fa-clock"></i>
+                            ${escaparHTML(item.horario || "Sem horário")}
+                        </span>
+                        ${dataISO === hoje ? `<span class="hoje">Hoje</span>` : ""}
+                    </div>
+
+                    <div class="detalhes">
+                        <h3>${escaparHTML(item.titulo || "Sem título")}</h3>
+                        ${item.descricao ? `<p>${escaparHTML(item.descricao)}</p>` : ""}
+                    </div>
+
+                    <button class="excluir" title="Excluir compromisso">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                `;
+
+                card.querySelector(".excluir").addEventListener("click", () => excluir(item));
+
+                listaEl.appendChild(card);
+            });
+        }
+
+
+        // ================= EXCLUIR =================
+        async function excluir(item) {
+            if (!confirm(`Excluir "${item.titulo}"?`)) return;
+
+            try {
+                await deleteDoc(doc(db, "eventos", eventoId, "calendario", item.id));
+                await carregarCalendario();
+            }
+            catch (erro) {
+                mostrarErro(erro);
+            }
+        }
+
+
+        // ================= NOVO COMPROMISSO =================
+        function abrirModal() {
+            form.reset();
+            mensagemEl.textContent = "";
+            modal.hidden = false;
+            document.getElementById("tituloCompromisso").focus();
+        }
+
+        function fecharModal() {
+            modal.hidden = true;
+        }
+
+        botaoNovo.addEventListener("click", abrirModal);
+        document.getElementById("fecharModal").addEventListener("click", fecharModal);
+
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) fecharModal();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !modal.hidden) fecharModal();
+        });
+
+        form.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const titulo = document.getElementById("tituloCompromisso").value.trim();
+            const data   = document.getElementById("dataCompromisso").value;
+
+            if (!titulo || !data) {
+                mensagemEl.textContent = "Preencha o título e a data.";
+                return;
+            }
+
+            botaoSalvar.disabled = true;
+            botaoSalvar.textContent = "Salvando...";
+
+            try {
+                await addDoc(collection(db, "eventos", eventoId, "calendario"), {
+                    titulo: titulo,
+                    data: data,                                                     // "AAAA-MM-DD"
+                    horario: document.getElementById("horarioCompromisso").value,  // "HH:MM"
+                    descricao: document.getElementById("descricaoCompromisso").value.trim(),
+                    criadoEm: serverTimestamp()
+                });
+
+                fecharModal();
+                await carregarCalendario();
+            }
+            catch (erro) {
+                console.error(erro);
+                mensagemEl.textContent = "Não foi possível salvar: " + erro.message;
+            }
+            finally {
+                botaoSalvar.disabled = false;
+                botaoSalvar.textContent = "Salvar compromisso";
+            }
+        });
+
+
+        // ================= ERROS =================
+        function mostrarErro(erro) {
+            console.error("Erro no calendário:", erro);
+
+            const semPermissao = erro && erro.code === "permission-denied";
+
+            listaEl.innerHTML = `
+                <p class="aviso erro">
+                    ${semPermissao
+                        ? "Sem permissão para acessar o calendário. Confira as regras do Firestore (arquivo firestore.rules)."
+                        : "Erro ao carregar o calendário. Veja o console (F12)."}
+                </p>`;
+        }
+
+
+        iniciar();
 
     </script>
 

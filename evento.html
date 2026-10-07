@@ -5,9 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evento - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="eventoLury.css">
+    <link rel="stylesheet" href="css/evento.css">
 </head>
 
 <body>
@@ -15,9 +16,9 @@
     <div class="app">
 
         <header>
-            <button class="voltar" onclick="history.back()">
+            <a class="voltar" href="inicio.html" title="Voltar">
                 <i class="fa-solid fa-arrow-left"></i>
-            </button>
+            </a>
         </header>
 
         <main class="detalhesEvento">
@@ -26,7 +27,7 @@
 
                 <div class="logo-evento">
                     <img
-                        src="https://via.placeholder.com/60x60/5A32D3/FFFFFF?text=N"
+                        src="fotos/logo.png"
                         alt="Logo Evento"
                     >
                 </div>
@@ -42,10 +43,10 @@
                     <i class="fa-solid fa-chevron-right"></i>
                 </a>
 
-<a href="tarefas.html" id="linkTarefas" class="card-item">
-    <span>Tarefas</span>
-    <i class="fa-solid fa-chevron-right"></i>
-</a>
+                <a href="#" id="linkTarefas" class="card-item">
+                    <span>Tarefas</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
 
                 <a href="#" class="card-item card-grafico">
 
@@ -69,42 +70,18 @@
 
     </div>
 
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
     <script type="module">
 
-        import { initializeApp }
-            from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-        import {
-            getFirestore,
-            doc,
-            getDoc
-        }
-            from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-
-        const firebaseConfig = {
-
-            apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
-
-            authDomain: "plannexus-def4c.firebaseapp.com",
-
-            projectId: "plannexus-def4c",
-
-            storageBucket: "plannexus-def4c.firebasestorage.app",
-
-            messagingSenderId: "1087555797090",
-
-            appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
-
-            measurementId: "G-0FGX8KENV1"
-
-        };
-
-
-        const app = initializeApp(firebaseConfig);
-
-        const db = getFirestore(app);
-
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
         const parametros =
             new URLSearchParams(window.location.search);
@@ -119,8 +96,14 @@
         const linkCalendario =
             document.getElementById("linkCalendario");
 
-            const linkTarefas =
-    document.getElementById("linkTarefas");
+        const linkTarefas =
+            document.getElementById("linkTarefas");
+
+
+        function esconderLinks() {
+            linkCalendario.style.display = "none";
+            linkTarefas.style.display = "none";
+        }
 
 
         async function carregarEvento() {
@@ -130,13 +113,14 @@
                 nomeEvento.textContent =
                     "Evento não encontrado.";
 
-                linkCalendario.style.display =
-                    "none";
+                esconderLinks();
 
                 return;
 
             }
 
+
+            await exigirLogin(auth, onAuthStateChanged);
 
             try {
 
@@ -152,8 +136,7 @@
                     nomeEvento.textContent =
                         "Evento não encontrado.";
 
-                    linkCalendario.style.display =
-                        "none";
+                    esconderLinks();
 
                     return;
 

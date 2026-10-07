@@ -10,6 +10,7 @@
     <title>PlanNexus</title>
     <link rel="icon" href="fotos/logo.png">
 
+    <!-- Ícones -->
     <link
    
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -23,18 +24,19 @@
 <body>
 
 
-
 <div class="app">
 
 
+    <!-- TOPO -->
 
     <header>
+
         <div class="logo">
 
-            <img
+           <a href="index.html"><img
                 src="fotos/logo.png"
                 alt=""
-            >
+            > </a> 
 
         </div>
 
@@ -48,24 +50,37 @@
     </header>
 
 
-    <section class="banner">
+    <!-- BANNER -->
 
-        <img
-            src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=900"
-            alt=""
-        >
+   <section class="banner">
+
+    <img
+        src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=900"
+        alt=""
+    >
+
+    <span class="banner-orbit orbit-1"></span>
+    <span class="banner-orbit orbit-2"></span>
+
+    <span class="banner-glow"></span>
+
+    <span class="particle particle-1"></span>
+    <span class="particle particle-2"></span>
+    <span class="particle particle-3"></span>
+    <span class="particle particle-4"></span>
+
+    <span class="shine"></span>
+
+    <div class="banner-overlay">
+        <h2 id="boasVindas">
+            Bem-vindo(a)
+        </h2>
+    </div>
+
+</section>
 
 
-        <div class="banner-overlay">
-
-            <h2 id="boasVindas">
-                Bem-vindo(a)
-            </h2>
-
-        </div>
-
-    </section>
-
+    <!-- INDICADOR -->
 
     <div class="dots">
 
@@ -80,8 +95,10 @@
     </div>
 
 
- <main>
+    <!-- CONTEÚDO -->
 
+ <main>
+<br>
     <h1>Gerencie seus eventos</h1>
 
     <div class="search">
@@ -110,6 +127,7 @@
 </div>
 
 
+<!-- MENU -->
 
 <nav class="bottom-nav">
 
@@ -120,6 +138,8 @@
 
     </a>
 
+
+    <!-- BOTÃO CRIAR EVENTO -->
 
     <a
         class="add"
@@ -132,6 +152,7 @@
     </a>
 
 
+    <!-- PERFIL -->
 
     <a href="login.html" id="perfil">
 
@@ -141,6 +162,7 @@
 
 
 </nav>
+
 
 
 <script src="js/config.js"></script>
@@ -184,19 +206,24 @@
 
             usuarioAtual = usuario;
 
-            document.getElementById("perfil").href = "perfilPessoalAdmin.html";
+            document.getElementById("perfil").href = "perfilPessoal.html";
 
             console.log("Usuário logado!");
 
             console.log("UID:", usuario.uid);
 
 
+            // Status
+
+
+            // Nome no banner
 
             boasVindas.innerHTML =
                 "Bem-vindo(a)<br>" +
-                "Admin!";
+                (usuario.displayName || usuario.email);
 
 
+            // Carregar eventos
 
             carregarEventos(usuario);
 
@@ -224,6 +251,11 @@
         }
 
     });
+
+
+    // ==========================================
+    // BUSCAR EVENTOS DO USUÁRIO
+    // ==========================================
 
     async function carregarEventos(usuario) {
 
@@ -366,7 +398,9 @@ botao.addEventListener("click", function(){
     }
 
 
-
+    // ==========================================
+    // PESQUISA DE EVENTOS
+    // ==========================================
 
     pesquisaEvento.addEventListener(
         "input",
@@ -413,6 +447,11 @@ botao.addEventListener("click", function(){
         }
     );
 
+
+    // ==========================================
+    // BOTÃO CRIAR EVENTO
+    // ==========================================
+
     botaoCriarEvento.addEventListener(
         "click",
         function(event) {
@@ -425,7 +464,7 @@ botao.addEventListener("click", function(){
 
 
                 window.location.href =
-                    "criarEventoAdmin.html";
+                    "criarEvento.html";
 
 
             }
@@ -446,7 +485,8 @@ botao.addEventListener("click", function(){
         }
     );
 
-</script>
+
+    </script>
 
 </body>
 

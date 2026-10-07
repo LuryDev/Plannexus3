@@ -1,606 +1,285 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
 
-    <!-- Ícones -->
     <link
-   
+        rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
         rel="stylesheet"
     >
 
-    <link rel="stylesheet" href="style.css">
- 
+    <link
+        rel="stylesheet"
+        href="css/carrossel.css"
+    >
 </head>
 
 <body>
 
+    <div class="onboarding">
 
-<!-- STATUS DO LOGIN -->
+        <div class="slides" id="slides">
 
+            <section class="slide">
 
+                <div
+                    class="fundo"
+                    style="background-image: url('fotos/fundo1.jpg');"
+                ></div>
 
-<!-- BOTÃO SAIR -->
+                <div class="overlay"></div>
 
-<div id="sair" style="display: none;">
+                <div class="conteudo">
 
+                    <div class="logo">
+                        <img src="fotos/logo.png" alt="PlanNexus">
+                    </div>
 
-</div>
+                    <h1>
+                        Bem Vindo(a) ao<br>
+                        Plannexus
+                    </h1>
 
+                    <p>
+                        O app que irá te ajudar<br>
+                        a organizar sua festa,<br>
+                        evento ou projeto ideal.
+                    </p>
 
-<div class="app">
+                </div>
 
+            </section>
 
-    <!-- TOPO -->
+            <section class="slide">
 
-    <header>
+                <div
+                    class="fundo"
+                    style="background-image: url('fotos/fundo2.jpg');"
+                ></div>
 
-        <div class="logo">
+                <div class="overlay"></div>
 
-           <a href="carrossel.html"><img
-                src="fotos/logo.png"
-                alt=""
-            > </a> 
+                <div class="conteudo">
+
+                    <div class="imagem-explicacao">
+
+                        <i class="fa-regular fa-calendar-days"></i>
+
+                        <span>
+                            ORGANIZE
+                        </span>
+
+                    </div>
+
+                    <h1>
+                        Planeje tudo<br>
+                        em um só lugar
+                    </h1>
+
+                    <p>
+                        Organize datas, tarefas,<br>
+                        fornecedores e todos os<br>
+                        detalhes do seu evento.
+                    </p>
+
+                </div>
+
+            </section>
+
+            <section class="slide">
+
+                <div
+                    class="fundo"
+                    style="background-image: url('fotos/fundo3.jpg');"
+                ></div>
+
+                <div class="overlay"></div>
+
+                <div class="conteudo">
+
+                    <div class="logo">
+                        <img src="fotos/logo.png" alt="PlanNexus">
+                    </div>
+
+                    <h1>
+                        Crie sua conta e<br>
+                        comece seu<br>
+                        planejamento!
+                    </h1>
+
+                    <button
+                        class="btn-entrar"
+                        onclick="entrar()"
+                    >
+                        Entrar
+                    </button>
+
+                    <p class="cadastro">
+                        Novo usuário?
+                        <a href="cadastro.html">
+                            Crie uma conta
+                        </a>
+                    </p>
+
+                </div>
+
+            </section>
 
         </div>
 
-
-        <div class="notification">
-
-            <i class="fa-regular fa-bell"></i>
-
-        </div>
-
-    </header>
-
-
-    <!-- BANNER -->
-
-   <section class="banner">
-
-    <img
-        src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=900"
-        alt=""
-    >
-
-    <span class="banner-orbit orbit-1"></span>
-    <span class="banner-orbit orbit-2"></span>
-
-    <span class="banner-glow"></span>
-
-    <span class="particle particle-1"></span>
-    <span class="particle particle-2"></span>
-    <span class="particle particle-3"></span>
-    <span class="particle particle-4"></span>
-
-    <span class="shine"></span>
-
-    <div class="banner-overlay">
-        <h2 id="boasVindas">
-            Bem-vindo(a)
-        </h2>
-    </div>
-
-</section>
-
-
-    <!-- INDICADOR -->
-
-    <div class="dots">
-
-        <span class="active"></span>
-
-        <span></span>
-
-        <span></span>
-
-        <span></span>
-
-    </div>
-
-
-    <!-- CONTEÚDO -->
-
- <main>
-<br>
-    <h1>Gerencie seus eventos</h1>
-
-    <div class="search">
-
-        <i class="fa-solid fa-magnifying-glass"></i>
-
-        <input
-            type="text"
-            id="pesquisaEvento"
-            placeholder="Buscar seus eventos"
+        <button
+            class="seta esquerda"
+            id="prev"
+            onclick="anterior()"
         >
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
 
-    </div><br>
+        <button
+            class="seta direita"
+            id="next"
+            onclick="proxima()"
+        >
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
 
+        <div class="indicadores">
 
-    <div id="listaEventos">
+            <span
+                class="bolinha ativa"
+                onclick="irPara(0)"
+            ></span>
 
-        <p>Carregando eventos...</p>
+            <span
+                class="bolinha"
+                onclick="irPara(1)"
+            ></span>
+
+            <span
+                class="bolinha"
+                onclick="irPara(2)"
+            ></span>
+
+        </div>
 
     </div>
 
-</main>
+    <script src="js/config.js"></script>
+    <script type="module">
 
-    
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
-</div>
-
-
-<!-- MENU -->
-
-<nav class="bottom-nav">
-
-
-    <a href="#">
-
-        <i class="fa-solid fa-house"></i>
-
-    </a>
-
-
-    <!-- BOTÃO CRIAR EVENTO -->
-
-    <a
-        class="add"
-        href="#"
-        id="botaoCriarEvento"
-    >
-
-        <i class="fa-solid fa-plus"></i>
-
-    </a>
-
-
-    <!-- PERFIL -->
-
-    <a href="login.html" id="perfil">
-
-        <i class="fa-regular fa-user"></i>
-
-    </a>
-
-
-</nav>
-
-
-
-<script type="module">
-
-
-    import { initializeApp }
-
-        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-
-
-    import {
-
-        getAuth,
-        onAuthStateChanged,
-        signOut
-
-    }
-
-        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-
-    import {
-
-        getFirestore,
-        collection,
-        query,
-        where,
-        getDocs
-
-    }
-
-        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-
-    const firebaseConfig = {
-
-        apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
-
-        authDomain: "plannexus-def4c.firebaseapp.com",
-
-        projectId: "plannexus-def4c",
-
-        storageBucket: "plannexus-def4c.firebasestorage.app",
-
-        messagingSenderId: "1087555797090",
-
-        appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
-
-        measurementId: "G-0FGX8KENV1"
-
-    };
-
-
-    const app = initializeApp(firebaseConfig);
-
-
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
     const auth = getAuth(app);
 
-
-    const db = getFirestore(app);
-
-
-
-    const statusLogin =
-        document.getElementById("statusLogin");
-
-
-    const areaSair =
-        document.getElementById("sair");
-
-
-    const botaoSair =
-        document.getElementById("botaoSair");
-
-
-    const botaoCriarEvento =
-        document.getElementById("botaoCriarEvento");
-
-
-    const boasVindas =
-        document.getElementById("boasVindas");
-
-
-    const listaEventos =
-        document.getElementById("listaEventos");
-
-
-    const pesquisaEvento =
-        document.getElementById("pesquisaEvento");
-
-
-
-    let usuarioAtual = null;
-
-
-    onAuthStateChanged(auth, (usuario) => {
-
-
-        if (usuario) {
-
-
-            usuarioAtual = usuario;
-
-            document.getElementById("perfil").href = "perfilPessoal.html";
-
-            console.log("Usuário logado!");
-
-            console.log("UID:", usuario.uid);
-
-
-            // Status
-
-
-
-            // Mostrar botão sair
-
-            areaSair.style.display = "block";
-
-
-            // Nome no banner
-
-            boasVindas.innerHTML =
-                "Bem-vindo(a)<br>" +
-                (usuario.displayName || usuario.email);
-
-
-            // Carregar eventos
-
-            carregarEventos(usuario);
-
-
-        }
-
-        else {
-
-
-            usuarioAtual = null;
-
-            document.getElementById("perfil").href = "login.html";
-
-            console.log("Usuário não está logado.");
-
-
-
-            areaSair.style.display = "none";
-
-
-            boasVindas.innerHTML =
-                "Bem-vindo(a)";
-
-
-            listaEventos.innerHTML = `
-                <p>Faça login para visualizar seus eventos.</p>
-            `;
-
-        }
-
-    });
-
-
-    // ==========================================
-    // BUSCAR EVENTOS DO USUÁRIO
-    // ==========================================
-
-    async function carregarEventos(usuario) {
-
-
-        try {
-
-
-            const eventosRef =
-                collection(db, "eventos");
-
-
-            const consulta =
-                query(
-                    eventosRef,
-                    where(
-                        "usuarioId",
-                        "==",
-                        usuario.uid
-                    )
+        const slides = document.getElementById("slides");
+        const bolinhas = document.querySelectorAll(".bolinha");
+
+        const totalSlides = 3;
+        let slideAtual = 0;
+
+        function atualizarCarrossel() {
+            slides.style.transform =
+                `translateX(-${slideAtual * 100}%)`;
+
+            bolinhas.forEach((bolinha, index) => {
+                bolinha.classList.toggle(
+                    "ativa",
+                    index === slideAtual
                 );
-
-
-            const resultado =
-                await getDocs(consulta);
-                console.log("Quantidade de eventos encontrados:", resultado.size);
-
-resultado.forEach((documento) => {
-
-    console.log(
-        "Evento:",
-        documento.id,
-        documento.data()
-    );
-
-});
-
-
-            listaEventos.innerHTML = "";
-
-
-            if (resultado.empty) {
-
-
-                listaEventos.innerHTML = `
-                    <p>Você ainda não possui eventos.</p>
-                `;
-
-
-                return;
-
-            }
-
-
-            resultado.forEach((documento) => {
-
-
-                const evento =
-                    documento.data();
-
-
-  const card =
-    document.createElement("div");
-
-
-card.classList.add("evento");
-
-card.dataset.id = documento.id;
-
-
-card.innerHTML = `
-
-    <!-- ÍCONE DO EVENTO -->
-    <div class="evento-icone">
-        <i class="fa-solid fa-calendar-days"></i>
-    </div>
-
-    <!-- NOME DO EVENTO -->
-    <h2>
-        ${evento.nome}
-    </h2>
-
-    <!-- INFORMAÇÕES DO EVENTO -->
-    <p>
-        <i class="fa-solid fa-calendar"></i>
-        ${evento.data}
-    </p>
-
-    <p>
-        <i class="fa-solid fa-clock"></i>
-        ${evento.horario}
-    </p>
-
-    <p>
-        <i class="fa-solid fa-location-dot"></i>
-        ${evento.local}
-    </p>
-
-    <p>
-        <strong>Categoria:</strong>
-        ${evento.categoria}
-    </p>
-
-    <!-- BOTÃO PARA ABRIR O EVENTO -->
-    <button class="abrirEvento" title="Ver evento">
-        <i class="fa-solid fa-arrow-right"></i>
-    </button>
-
-`;
-listaEventos.appendChild(card);
-
-const botao = card.querySelector(".abrirEvento");
-
-botao.addEventListener("click", function(){
-
-    window.location.href =
-        "evento.html?id=" + documento.id;
-
-});
-
-});
-
-
-        }
-
-        catch (erro) {
-
-
-            console.error(
-                "Erro ao buscar eventos:",
-                erro
-            );
-
-
-            listaEventos.innerHTML = `
-                <p>Erro ao carregar eventos.</p>
-            `;
-
-        }
-
-    }
-
-
-    // ==========================================
-    // PESQUISA DE EVENTOS
-    // ==========================================
-
-    pesquisaEvento.addEventListener(
-        "input",
-        function() {
-
-
-            const texto =
-                pesquisaEvento.value
-                    .toLowerCase();
-
-
-            const eventos =
-                document.querySelectorAll(
-                    ".evento"
-                );
-
-
-            eventos.forEach((evento) => {
-
-
-                const nome =
-                    evento
-                        .querySelector("h2")
-                        .textContent
-                        .toLowerCase();
-
-
-                if (nome.includes(texto)) {
-
-                    evento.style.display =
-                        "block";
-
-                }
-
-                else {
-
-                    evento.style.display =
-                        "none";
-
-                }
-
             });
-
         }
-    );
 
-
-    // ==========================================
-    // BOTÃO CRIAR EVENTO
-    // ==========================================
-
-    botaoCriarEvento.addEventListener(
-        "click",
-        function(event) {
-
-
-            event.preventDefault();
-
-
-            if (usuarioAtual) {
-
-
-                window.location.href =
-                    "criarEvento.html";
-
-
+        function proxima() {
+            if (slideAtual < totalSlides - 1) {
+                slideAtual++;
             }
 
-            else {
-
-
-                alert(
-                    "Você precisa estar logado para criar um evento."
-                );
-
-
-                window.location.href =
-                    "login.html";
-
-            }
-
+            atualizarCarrossel();
         }
-    );
 
-
-    // ==========================================
-    // BOTÃO SAIR
-    // ==========================================
-
-    botaoSair.addEventListener(
-        "click",
-        async function() {
-
-
-            try {
-
-
-                await signOut(auth);
-
-
-                window.location.href =
-                    "login.html";
-
-
+        function anterior() {
+            if (slideAtual > 0) {
+                slideAtual--;
             }
 
-            catch (erro) {
-
-
-                console.error(
-                    "Erro ao sair:",
-                    erro
-                );
-
-            }
-
+            atualizarCarrossel();
         }
-    );
-</script>
+
+        function irPara(numero) {
+            slideAtual = numero;
+            atualizarCarrossel();
+        }
+
+        function entrar() {
+            window.location.href = "login.html";
+        }
+
+        let inicioX = 0;
+        let fimX = 0;
+
+        slides.addEventListener(
+            "touchstart",
+            function(event) {
+                inicioX = event.touches[0].clientX;
+            }
+        );
+
+        slides.addEventListener(
+            "touchend",
+            function(event) {
+                fimX = event.changedTouches[0].clientX;
+
+                const distancia = fimX - inicioX;
+
+                if (Math.abs(distancia) > 50) {
+
+                    if (distancia < 0) {
+                        proxima();
+                    } else {
+                        anterior();
+                    }
+
+                }
+            }
+        );
+
+        atualizarCarrossel();
+
+        onAuthStateChanged(
+            auth,
+            (usuario) => {
+
+                if (usuario) {
+                    window.location.href = "inicio.html";
+                } else {
+                    console.log("Usuário deslogado");
+                }
+
+            }
+        );
+
+        window.proxima = proxima;
+        window.anterior = anterior;
+        window.irPara = irPara;
+        window.entrar = entrar;
+
+    </script>
 
 </body>
 
 </html>
+```

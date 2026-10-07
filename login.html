@@ -8,16 +8,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Login - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
 
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="css/login.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+    </style>
 
 </head>
-
-<style>
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
-</style>
 
 <body>
 
@@ -47,7 +46,7 @@
 
         <br><br>
 
-        <button type="submit" id="enter" style="background-color: black; text-color:white;">
+        <button type="submit" id="enter" style="background-color: black;">
             Entrar
         </button>
 
@@ -84,50 +83,17 @@
 
 </div>
 
+<script src="js/config.js"></script>
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-import {
-    getAuth,
-    signInWithEmailAndPassword,
-    GoogleAuthProvider,
-    signInWithPopup
-}
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-
-import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc
-}
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-const firebaseConfig = {
-
-    apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
-
-    authDomain: "plannexus-def4c.firebaseapp.com",
-
-    projectId: "plannexus-def4c",
-
-    storageBucket: "plannexus-def4c.firebasestorage.app",
-
-    messagingSenderId: "1087555797090",
-
-    appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
-
-    measurementId: "G-0FGX8KENV1"
-
-};
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-
-const db = getFirestore(app);
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
 const provider = new GoogleAuthProvider();
 
@@ -135,7 +101,6 @@ const formulario = document.getElementById("loginForm");
 
 const mensagem = document.getElementById("mensagem");
 
-const EMAIL_ADMIN = "admin@plannexus.com";
 
 formulario.addEventListener("submit", async function(event) {
 
@@ -174,7 +139,7 @@ formulario.addEventListener("submit", async function(event) {
 
         setTimeout(() => {
 
-            window.location.href = "index.html";
+            window.location.href = "inicio.html";
 
         }, 500);
 
@@ -263,7 +228,7 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
 
         setTimeout(() => {
 
-            window.location.href = "index.html";
+            window.location.href = "inicio.html";
 
         }, 500);
 

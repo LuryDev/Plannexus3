@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Criar Evento</title>
+    <link rel="icon" href="fotos/logo.png">
 
-    <link rel="stylesheet" href="criarEvento.css">
+    <link rel="stylesheet" href="css/criarEvento.css">
 
     <link
         rel="stylesheet"
@@ -203,78 +204,46 @@
 </div>
 
 
+<script src="js/config.js"></script>
 <script type="module">
 
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
     // ==========================================
     // IMPORTS DO FIREBASE
     // ==========================================
 
-    import { initializeApp }
-
-        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 
 
-    import {
-
-        getAuth,
-        onAuthStateChanged
-
-    }
-
-        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 
-    import {
-
-        getFirestore,
-        collection,
-        addDoc,
-        serverTimestamp
-
-    }
-
-        from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
     // ==========================================
     // CONFIGURAÇÃO DO FIREBASE
     // ==========================================
 
-    const firebaseConfig = {
-
-        apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
-
-        authDomain: "plannexus-def4c.firebaseapp.com",
-
-        projectId: "plannexus-def4c",
-
-        storageBucket: "plannexus-def4c.firebasestorage.app",
-
-        messagingSenderId: "1087555797090",
-
-        appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
-
-        measurementId: "G-0FGX8KENV1"
-
-    };
 
 
     // ==========================================
     // INICIALIZAR FIREBASE
     // ==========================================
 
-    const app = initializeApp(firebaseConfig);
 
 
     // Authentication
 
-    const auth = getAuth(app);
 
 
     // Firestore
 
-    const db = getFirestore(app);
 
 
 

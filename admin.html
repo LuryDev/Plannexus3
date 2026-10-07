@@ -8,8 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Login Admin - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
 
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="css/login.css">
 
     <style>
 
@@ -74,42 +75,15 @@
 </div>
 
 
+<script src="js/config.js"></script>
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
-import {
-    getAuth,
-    signInWithEmailAndPassword,
-    signOut
-}
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-
-
-const firebaseConfig = {
-
-    apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
-
-    authDomain: "plannexus-def4c.firebaseapp.com",
-
-    projectId: "plannexus-def4c",
-
-    storageBucket: "plannexus-def4c.firebasestorage.app",
-
-    messagingSenderId: "1087555797090",
-
-    appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
-
-    measurementId: "G-0FGX8KENV1"
-
-};
-
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
-
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
 
 const formulario =
     document.getElementById("loginForm");
@@ -118,8 +92,6 @@ const mensagem =
     document.getElementById("mensagem");
 
 
-const EMAIL_ADMIN =
-    "admin@plannexus.com";
 
 
 formulario.addEventListener(

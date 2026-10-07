@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Perfil - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
 
-    <link rel="stylesheet" href="perfilPessoal.css">
+    <link rel="stylesheet" href="css/perfilPessoal.css">
 
 </head>
 
@@ -16,7 +17,7 @@
 
 <div class="perfil-container">
 
-    <img id="foto" src="https://via.placeholder.com/120" alt="Foto do usuário">
+    <img id="foto" src="fotos/mascote.png" alt="Foto do usuário">
 
     <h1 id="nome">Carregando...</h1>
 
@@ -34,39 +35,15 @@
 
 </div>
 
+<script src="js/config.js"></script>
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
-import {
-    getAuth,
-    onAuthStateChanged,
-    signOut
-}
-from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-
-    const firebaseConfig = {
-
-        apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
-
-        authDomain: "plannexus-def4c.firebaseapp.com",
-
-        projectId: "plannexus-def4c",
-
-        storageBucket: "plannexus-def4c.firebasestorage.app",
-
-        messagingSenderId: "1087555797090",
-
-        appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
-
-        measurementId: "G-0FGX8KENV1"
-
-    };
-
-const app = initializeApp(firebaseConfig);
-
-const auth = getAuth(app);
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
 
 onAuthStateChanged(auth, (user) => {
 
@@ -100,12 +77,12 @@ onAuthStateChanged(auth, (user) => {
 
 document.getElementById("voltar").addEventListener("click", () => {
 
-    window.location.href = "index.html";
+    window.location.href = "inicio.html";
 
 });
 document.getElementById("sair").addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "carrossel.html";
+    window.location.href = "index.html";
 });
 
 </script>
