@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Calendário - PlanNexus</title>
+
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        rel="stylesheet">
+    <link rel="stylesheet" href="calendario.css">
+
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+
+            <button
+                class="voltar"
+                onclick="history.back()"
+            >
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            <h1 id="nomeEvento">
+                Carregando...
+            </h1>
+
+        </header>
+
+
+        <main class="calendario-container">
+
+            <h2>
+                Calendário do Evento
+            </h2>
+
+
+            <section
+                class="lista-compromissos"
+                id="listaCompromissos"
+            >
+
+                <p>
+                    Carregando agenda...
+                </p>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script type="module">
+
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+
+        import {
+
+            getFirestore,
+            doc,
+            getDoc,
+            collection,
+            getDocs
+
+        }
+            from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+
+            authDomain: "plannexus-def4c.firebaseapp.com",
+
+            projectId: "plannexus-def4c",
+
+            storageBucket: "plannexus-def4c.firebasestorage.app",
+
+            messagingSenderId: "1087555797090",
+
+            appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+
+            measurementId: "G-0FGX8KENV1"
+
+        };
+
+
+        const app =
+            initializeApp(firebaseConfig);
+
+
+        const db =
+            getFirestore(app);
+
+
+        const parametros =
+            new URLSearchParams(
+                window.location.search
+            );
+
+
+        const eventoId =
+            parametros.get("id");
+
+
+        const nomeEventoEl =
+            document.getElementById(
+                "nomeEvento"
+            );
+
+
+        const listaCompromissosEl =
+            document.getElementById(
+                "listaCompromissos"
+            );
+
+
+        async function carregarCalendario() {
+
+            if (!eventoId) {
+
+                nomeEventoEl.textContent =
+                    "Evento não encontrado.";
+
+                listaCompromissosEl.innerHTML =
+                    "<p>Nenhum ID de evento informado na URL.</p>";
+
+                return;
+
+            }
+
+
+            console.log(
+                "ID do evento:",
+                eventoId
+            );
+
+
+            try {
+
+                const eventoRef =
+                    doc(
+                        db,
+                        "eventos",
+                        eventoId
+                    );
+
+
+                const eventoSnap =
+                    await getDoc(
+                        eventoRef
+                    );
+
+
+                if (!eventoSnap.exists()) {
+
+                    console.error(
+                        "Documento não encontrado:",
+                        eventoId
+                    );
+
+                    nomeEventoEl.textContent =
+                        "Evento não encontrado.";
+
+                    listaCompromissosEl.innerHTML =
+                        "<p>Evento inexistente no banco de dados.</p>";
+
+                    return;
+
+                }
+
+
+                const evento =
+                    eventoSnap.data();
+
+
+                nomeEventoEl.textContent =
+                    evento.nome ||
+                    "Evento sem nome";
+
+
+                const calendarioRef =
+                    collection(
+                        db,
+                        "eventos",
+                        eventoId,
+                        "calendario"
+                    );
+
+
+                const calendarioSnap =
+                    await getDocs(
+                        calendarioRef
+                    );
+
+
+
+                listaCompromissosEl.innerHTML =
+                    "";
+
+
+                calendarioSnap.forEach(
+                    (docItem) => {
+
+                        const item =
+                            docItem.data();
+
+
+                        const card =
+                            document.createElement(
+                                "article"
+                            );
+
+
+                        card.className =
+                            "card-compromisso";
+
+
+                        card.innerHTML = `
+
+                            <div class="data-hora">
+
+                                <span class="data">
+
+                                    <i class="fa-regular fa-calendar"></i>
+
+                                    ${item.data || "Sem data"}
+
+                                </span>
+
+
+                                <span class="hora">
+
+                                    <i class="fa-regular fa-clock"></i>
+
+                                    ${item.horario || "Sem horário"}
+
+                                </span>
+
+                            </div>
+
+
+                            <div class="detalhes">
+
+                                <h3>
+                                    ${item.titulo || "Sem título"}
+                                </h3>
+
+                                <p>
+                                    ${item.descricao || ""}
+                                </p>
+
+                            </div>
+
+                        `;
+
+
+                        listaCompromissosEl.appendChild(
+                            card
+                        );
+
+                    }
+                );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao carregar calendário:",
+                    erro
+                );
+
+
+                listaCompromissosEl.innerHTML =
+                    "<p>Erro ao carregar dados do calendário. Verifique o console.</p>";
+
+            }
+
+        }
+
+
+        carregarCalendario();
+
+    </script>
+
+</body>
+
+</html>

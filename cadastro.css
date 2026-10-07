@@ -1,0 +1,217 @@
+/* ===========================
+        RESET
+=========================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+      min-height: 100vh;
+    background: linear-gradient(135deg, #4D2FB2, #38208F);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+h1 {
+    color: white;
+    text-align: center;
+    font-size: clamp(28px, 5vw, 38px);
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+    font-weight: 400;
+    line-height: 1.5;
+    margin-bottom: 30px;
+}
+
+p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+input {
+    width: 100%;
+    max-width: 360px;
+    height: 48px;
+    padding: 0 10px;
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #222;
+
+    font-size: 14px;
+    outline: none;
+
+    margin-bottom: 12px;
+
+    transition: 0.2s ease;
+}
+
+input:focus {
+    border-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+input::placeholder {
+    color: #888;
+}
+
+#enter,
+#googleLogin {
+    width: 100%;
+    max-width: 360px;
+    min-height: 48px;
+
+    border-radius: 8px;
+    padding: 12px 18px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#enter {
+    color: #4D2FB2;
+    background-color: white;
+    border: none;
+    margin-top: 8px;
+}
+
+#enter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+#enter:active {
+    transform: translateY(0);
+}
+
+#googleLogin {
+    color: #333;
+    background-color: white;
+    border: 1px solid #ddd;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#googleLogin:hover {
+    background-color: #f5f5f5;
+    transform: translateY(-2px);
+}
+
+
+
+#mensagem {
+    min-height: 20px;
+
+    margin-top: 5px;
+
+    font-size: 14px;
+    color: white;
+}
+
+
+.cadastro-container > p:last-child {
+    margin-top: 34px;
+
+    font-size: 16px;
+    line-height: 1.5;
+
+    color: #f1edff;
+}
+
+.cadastro-container a {
+    color: white;
+
+    text-decoration: underline;
+
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+/* Celulares pequenos */
+
+@media (max-width: 480px) {
+
+    body {
+        padding: 15px;
+    }
+
+    #caixa {
+        padding: 30px 20px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    h3 {
+        font-size: 13px;
+        margin-bottom: 25px;
+    }
+
+    input,
+    #enter,
+    #googleLogin {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+
+/* Celulares muito pequenos */
+
+@media (max-width: 360px) {
+
+    #caixa {
+        padding: 25px 15px;
+    }
+
+    h1 {
+        font-size: 25px;
+    }
+
+    h3 {
+        font-size: 12px;
+    }
+
+    input,
+    #enter,
+    #googleLogin {
+        height: 45px;
+    }
+}
+
+/* Desktop */
+
+@media (min-width: 768px) {
+
+    #caixa {
+        max-width: 450px;
+        padding: 50px 40px;
+    }
+
+}

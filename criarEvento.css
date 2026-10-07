@@ -1,0 +1,409 @@
+/* ==========================================
+   RESET & VARIÁVEIS
+   ========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+    --roxo: #5A32D3;
+    --roxo-escuro: #4D2FB8;
+    --roxo-claro: #A491F9;
+    --roxo-hover: #5939CA;
+
+    --fundo: #F4F4F8;
+    --branco: #FFFFFF;
+    --texto: #1F1F1F;
+    --cinza: #777;
+
+    --radius: 18px;
+    --sombra: 0 8px 20px rgba(77, 47, 184, 0.15);
+}
+
+
+/* ==========================================
+   BODY
+   ========================================== */
+
+body {
+    background: var(--fundo);
+    color: var(--texto);
+    min-height: 100vh;
+}
+
+
+/* ==========================================
+   CONTAINER
+   ========================================== */
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    min-height: 100vh;
+    margin: auto;
+    padding: 20px;
+}
+
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+header h2 {
+    color: var(--roxo);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+
+/* ==========================================
+   BOTÃO VOLTAR
+   ========================================== */
+
+.voltar {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-decoration: none;
+
+    background: #EDE9FF;
+    color: var(--roxo);
+
+    border-radius: 12px;
+
+    font-size: 20px;
+
+    transition: all .2s ease;
+}
+
+.voltar:hover {
+    background: var(--roxo);
+    color: white;
+    transform: translateX(-2px);
+}
+
+
+/* ==========================================
+   FORMULÁRIO
+   ========================================== */
+
+form {
+    background: var(--branco);
+
+    padding: 25px;
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--sombra);
+}
+
+
+/* ==========================================
+   BANNER / UPLOAD
+   ========================================== */
+
+.banner {
+    height: 200px;
+
+    border: 2px dashed var(--roxo);
+
+    border-radius: 16px;
+
+    margin-bottom: 25px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(164, 145, 249, .10),
+            rgba(77, 47, 184, .05)
+        );
+
+    overflow: hidden;
+
+    transition: all .25s ease;
+}
+
+.banner:hover {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(164, 145, 249, .20),
+            rgba(77, 47, 184, .10)
+        );
+
+    box-shadow:
+        0 5px 15px rgba(77, 47, 184, .10);
+}
+
+.banner label {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+
+    color: var(--roxo);
+
+    gap: 12px;
+
+    font-weight: 600;
+}
+
+.banner i {
+    font-size: 45px;
+
+    background: white;
+
+    width: 75px;
+    height: 75px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 5px 15px rgba(77, 47, 184, .15);
+}
+
+
+/* ==========================================
+   CAMPOS
+   ========================================== */
+
+.campo {
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 18px;
+}
+
+.campo label {
+    margin-bottom: 8px;
+
+    font-weight: 600;
+
+    color: var(--texto);
+
+    font-size: 14px;
+}
+
+
+/* ==========================================
+   INPUTS
+   ========================================== */
+
+.campo input,
+.campo select,
+.campo textarea {
+    width: 100%;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    border: 1px solid #E0E0E0;
+
+    outline: none;
+
+    font-size: 15px;
+
+    background: #FAFAFC;
+
+    color: var(--texto);
+
+    transition: all .2s ease;
+}
+
+.campo textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.campo input:focus,
+.campo textarea:focus,
+.campo select:focus {
+    border-color: var(--roxo);
+
+    background: #FFFFFF;
+
+    box-shadow:
+        0 0 0 3px rgba(90, 50, 211, .10);
+}
+
+
+/* ==========================================
+   CAMPOS DUPLOS
+   ========================================== */
+
+.duplo {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 15px;
+}
+
+
+/* ==========================================
+   BOTÃO PRINCIPAL
+   ========================================== */
+
+button {
+    width: 100%;
+
+    padding: 16px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #5A32D3,
+            #4D2FB8
+        );
+
+    color: #FFFFFF;
+
+    font-size: 17px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    margin-top: 10px;
+
+    box-shadow:
+        0 6px 15px rgba(77, 47, 184, .20);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+button:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #6B45E0,
+            #5939CA
+        );
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 9px 20px rgba(77, 47, 184, .25);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+
+/* ==========================================
+   RESPONSIVIDADE
+   ========================================== */
+
+@media (max-width: 768px) {
+
+    body {
+        background: #FFFFFF;
+    }
+
+    .container {
+        width: 100%;
+        min-height: 100vh;
+
+        padding: 15px;
+    }
+
+    header {
+        margin-bottom: 20px;
+    }
+
+    header h2 {
+        font-size: 20px;
+    }
+
+    form {
+        padding: 20px;
+
+        box-shadow:
+            0 5px 18px rgba(77, 47, 184, .10);
+    }
+
+    .duplo {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .banner {
+        height: 170px;
+    }
+
+    .banner i {
+        width: 65px;
+        height: 65px;
+
+        font-size: 38px;
+    }
+
+    .campo input,
+    .campo select,
+    .campo textarea {
+        font-size: 14px;
+        padding: 13px;
+    }
+
+    button {
+        font-size: 16px;
+    }
+}
+
+
+/* ==========================================
+   CELULARES PEQUENOS
+   ========================================== */
+
+@media (max-width: 380px) {
+
+    .container {
+        padding: 12px;
+    }
+
+    form {
+        padding: 16px;
+        border-radius: 15px;
+    }
+
+    .banner {
+        height: 155px;
+    }
+
+    header h2 {
+        font-size: 18px;
+    }
+}

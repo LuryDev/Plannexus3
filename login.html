@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - PlanNexus</title>
+
+    <link rel="stylesheet" href="login.css">
+
+</head>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+</style>
+
+<body>
+
+<div class="login-container" id="caixa">
+
+    <h1>Bem Vindo(a) de Volta!</h1>
+
+    <h3>Insira seu e-mail para realizar o login neste aplicativo</h3>
+
+    <form id="loginForm">
+
+        <input
+            type="email"
+            id="email"
+            placeholder="E-mail"
+            required
+        >
+
+        <br><br>
+
+        <input
+            type="password"
+            id="senha"
+            placeholder="Senha"
+            required
+        >
+
+        <br><br>
+
+        <button type="submit" id="enter" style="background-color: black; text-color:white;">
+            Entrar
+        </button>
+
+        <button type="button" id="adminLogin">
+            <span>⚙</span> Logar como Admin
+        </button>
+
+    </form>
+
+    <br>
+
+    <button type="button" id="googleLogin">
+
+        <img
+            src="https://img.icons8.com/?size=100&id=V5cGWnc9R4xj&format=png&color=000000"
+            alt="Ícone"
+            width="16"
+            height="16"
+            style="size: large;"
+        >
+
+        Continuar com Google
+
+    </button>
+
+    <p id="mensagem"></p>
+
+    <p>
+        Ainda não possui uma conta?
+        <a href="cadastro.html" style="color: white;">
+            Criar conta
+        </a>
+    </p>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup
+}
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc
+}
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+
+    authDomain: "plannexus-def4c.firebaseapp.com",
+
+    projectId: "plannexus-def4c",
+
+    storageBucket: "plannexus-def4c.firebasestorage.app",
+
+    messagingSenderId: "1087555797090",
+
+    appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+
+    measurementId: "G-0FGX8KENV1"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+const provider = new GoogleAuthProvider();
+
+const formulario = document.getElementById("loginForm");
+
+const mensagem = document.getElementById("mensagem");
+
+const EMAIL_ADMIN = "admin@plannexus.com";
+
+formulario.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const senha =
+        document.getElementById("senha").value;
+
+    if (email.toLowerCase() === EMAIL_ADMIN.toLowerCase()) {
+
+        mensagem.textContent =
+            "Administradores devem utilizar o botão 'Logar como Admin'.";
+
+        return;
+
+    }
+
+    try {
+
+        const resultado =
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                senha
+            );
+
+        console.log("Usuário logado:", resultado.user);
+
+        console.log("UID:", resultado.user.uid);
+
+        mensagem.textContent =
+            "Login realizado!";
+
+        setTimeout(() => {
+
+            window.location.href = "index.html";
+
+        }, 500);
+
+    }
+
+    catch (erro) {
+
+        console.error(erro);
+
+        if (erro.code === "auth/invalid-credential") {
+
+            mensagem.textContent =
+                "E-mail ou senha incorretos.";
+
+        }
+
+        else if (erro.code === "auth/invalid-email") {
+
+            mensagem.textContent =
+                "Digite um e-mail válido.";
+
+        }
+
+        else if (erro.code === "auth/user-disabled") {
+
+            mensagem.textContent =
+                "Esta conta foi desativada.";
+
+        }
+
+        else {
+
+            mensagem.textContent =
+                "Erro ao realizar login.";
+
+        }
+
+    }
+
+});
+
+document.getElementById("googleLogin").addEventListener("click", async () => {
+
+    try {
+
+        const resultado =
+            await signInWithPopup(
+                auth,
+                provider
+            );
+
+        const user =
+            resultado.user;
+
+        console.log("Usuário Google:", user);
+
+        console.log("UID:", user.uid);
+
+        const referencia =
+            doc(
+                db,
+                "usuarios",
+                user.uid
+            );
+
+        const existe =
+            await getDoc(referencia);
+
+        if (!existe.exists()) {
+
+            await setDoc(
+                referencia,
+                {
+                    uid: user.uid,
+                    nome: user.displayName || "",
+                    email: user.email || "",
+                    foto: user.photoURL || "",
+                    criadoEm: new Date()
+                }
+            );
+
+        }
+
+        mensagem.textContent =
+            "Login realizado!";
+
+        setTimeout(() => {
+
+            window.location.href = "index.html";
+
+        }, 500);
+
+    }
+
+    catch (erro) {
+
+        console.error(erro);
+
+        if (erro.code === "auth/popup-closed-by-user") {
+
+            mensagem.textContent =
+                "A janela do Google foi fechada.";
+
+        }
+
+        else if (erro.code === "auth/popup-blocked") {
+
+            mensagem.textContent =
+                "O navegador bloqueou a janela do Google.";
+
+        }
+
+        else if (erro.code === "auth/unauthorized-domain") {
+
+            mensagem.textContent =
+                "Este domínio não está autorizado no Firebase.";
+
+        }
+
+        else {
+
+            mensagem.textContent =
+                "Erro ao entrar com Google: " +
+                erro.message;
+
+        }
+
+    }
+
+});
+
+document.getElementById("adminLogin").addEventListener("click", () => {
+
+    window.location.href = "admin.html";
+
+});
+
+</script>
+
+</body>
+
+</html>
+

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evento - PlanNexus</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="eventoLury.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+            <button class="voltar" onclick="history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+        </header>
+
+        <main class="detalhesEvento">
+
+            <div class="card-header-evento">
+
+                <div class="logo-evento">
+                    <img
+                        src="https://via.placeholder.com/60x60/5A32D3/FFFFFF?text=N"
+                        alt="Logo Evento"
+                    >
+                </div>
+
+                <h1 id="nomeEvento">Carregando...</h1>
+
+            </div>
+
+            <div class="menu-cards">
+
+                <a href="#" id="linkCalendario" class="card-item">
+                    <span>Calendário</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+<a href="tarefas.html" id="linkTarefas" class="card-item">
+    <span>Tarefas</span>
+    <i class="fa-solid fa-chevron-right"></i>
+</a>
+
+                <a href="#" class="card-item card-grafico">
+
+                    <div class="card-info">
+                        <span>Controle Financeiro</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+
+                    <div class="grafico-bg"></div>
+
+                </a>
+
+                <a href="#" class="card-item">
+                    <span>bla bla</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script type="module">
+
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+        import {
+            getFirestore,
+            doc,
+            getDoc
+        }
+            from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+
+            authDomain: "plannexus-def4c.firebaseapp.com",
+
+            projectId: "plannexus-def4c",
+
+            storageBucket: "plannexus-def4c.firebasestorage.app",
+
+            messagingSenderId: "1087555797090",
+
+            appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+
+            measurementId: "G-0FGX8KENV1"
+
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+
+        const db = getFirestore(app);
+
+
+        const parametros =
+            new URLSearchParams(window.location.search);
+
+        const eventoId =
+            parametros.get("id");
+
+
+        const nomeEvento =
+            document.getElementById("nomeEvento");
+
+        const linkCalendario =
+            document.getElementById("linkCalendario");
+
+            const linkTarefas =
+    document.getElementById("linkTarefas");
+
+
+        async function carregarEvento() {
+
+            if (!eventoId) {
+
+                nomeEvento.textContent =
+                    "Evento não encontrado.";
+
+                linkCalendario.style.display =
+                    "none";
+
+                return;
+
+            }
+
+
+            try {
+
+                const referencia =
+                    doc(db, "eventos", eventoId);
+
+                const resultado =
+                    await getDoc(referencia);
+
+
+                if (!resultado.exists()) {
+
+                    nomeEvento.textContent =
+                        "Evento não encontrado.";
+
+                    linkCalendario.style.display =
+                        "none";
+
+                    return;
+
+                }
+
+
+                const evento =
+                    resultado.data();
+
+
+                nomeEvento.textContent =
+                    evento.nome || "Sem nome";
+
+
+                linkCalendario.href =
+                    "calendario.html?id=" +
+                    encodeURIComponent(eventoId);
+
+                linkTarefas.href =
+                    "tarefas.html?id=" +
+                    encodeURIComponent(eventoId);
+
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao carregar evento:",
+                    erro
+                );
+
+                nomeEvento.textContent =
+                    "Erro ao carregar evento.";
+
+            }
+
+        }
+
+
+        carregarEvento();
+
+    </script>
+
+</body>
+
+</html>

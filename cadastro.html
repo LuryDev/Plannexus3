@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Criar conta - PlanNexus</title>
+
+    <link rel="stylesheet" href="cadastro.css">
+
+</head>
+
+<body>
+
+<div class="cadastro-container">
+
+    <h1>Bem Vindo(a) ao Plannexus!</h1>
+
+    <h2>Criar conta</h2>
+
+    <form id="cadastroForm">
+
+        <input
+            type="text"
+            id="nome"
+            placeholder="Nome"
+            required
+        >
+
+        <input
+            type="email"
+            id="email"
+            placeholder="E-mail"
+            required
+        >
+
+        <input
+            type="password"
+            id="senha"
+            placeholder="Senha"
+            required
+        >
+
+        <input
+            type="password"
+            id="confirmarSenha"
+            placeholder="Confirmar senha"
+            required
+        >
+
+         <button type="submit" id="enter" style="background-color: black; text-color:white;">
+            Criar Conta
+        </button>
+<br><br>
+        <button type="button" id="googleLogin">
+           <img src="https://img.icons8.com/?size=100&id=V5cGWnc9R4xj&format=png&color=000000" alt="Ícone" width="16" height="16" style="size: large;">
+        Continuar com Google
+        </button>
+
+    </form>
+
+    <p id="mensagem"></p>
+
+    <p>
+        Já possui uma conta?
+        <a href="login.html">
+            Entrar
+        </a>
+    </p>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    updateProfile,
+    GoogleAuthProvider,
+    signInWithPopup
+}
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc
+}
+from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+
+    authDomain: "plannexus-def4c.firebaseapp.com",
+
+    projectId: "plannexus-def4c",
+
+    storageBucket: "plannexus-def4c.firebasestorage.app",
+
+    messagingSenderId: "1087555797090",
+
+    appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+
+    measurementId: "G-0FGX8KENV1"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getFirestore(app);
+
+const provider = new GoogleAuthProvider();
+
+const formulario = document.getElementById("cadastroForm");
+
+formulario.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const nome = document.getElementById("nome").value.trim();
+
+    const email = document.getElementById("email").value.trim();
+
+    const senha = document.getElementById("senha").value;
+
+    const confirmarSenha = document.getElementById("confirmarSenha").value;
+
+    const mensagem = document.getElementById("mensagem");
+
+    if (senha !== confirmarSenha) {
+
+        mensagem.textContent = "As senhas não são iguais.";
+
+        return;
+
+    }
+
+    if (senha.length < 6) {
+
+        mensagem.textContent = "A senha precisa ter pelo menos 6 caracteres.";
+
+        return;
+
+    }
+
+    try {
+
+        const resultado = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            senha
+        );
+
+        const usuario = resultado.user;
+
+        await updateProfile(usuario, {
+            displayName: nome
+        });
+
+        await setDoc(
+            doc(db, "usuarios", usuario.uid),
+            {
+                uid: usuario.uid,
+                nome: nome,
+                email: email,
+                criadoEm: new Date()
+            }
+        );
+
+        mensagem.textContent = "Conta criada com sucesso!";
+
+        setTimeout(() => {
+
+            window.location.href = "index.html";
+
+        }, 1000);
+
+    }
+
+    catch (erro) {
+
+        if (erro.code === "auth/email-already-in-use") {
+
+            mensagem.textContent = "Este e-mail já está cadastrado.";
+
+        }
+
+        else if (erro.code === "auth/invalid-email") {
+
+            mensagem.textContent = "Digite um e-mail válido.";
+
+        }
+
+        else if (erro.code === "auth/weak-password") {
+
+            mensagem.textContent = "A senha é muito fraca.";
+
+        }
+
+        else {
+
+            mensagem.textContent = erro.message;
+
+        }
+
+    }
+
+});
+
+document.getElementById("googleLogin").addEventListener("click", async () => {
+
+    const mensagem = document.getElementById("mensagem");
+
+    try {
+
+        const result = await signInWithPopup(auth, provider);
+
+        const user = result.user;
+
+        const referencia = doc(db, "usuarios", user.uid);
+
+        const existe = await getDoc(referencia);
+
+        if (!existe.exists()) {
+
+            await setDoc(referencia, {
+
+                uid: user.uid,
+                nome: user.displayName,
+                email: user.email,
+                foto: user.photoURL,
+                criadoEm: new Date()
+
+            });
+
+        }
+
+        window.location.href = "index.html";
+
+    }
+
+    catch (erro) {
+
+        mensagem.textContent = erro.message;
+
+    }
+
+});
+
+</script>
+
+</body>
+
+</html>

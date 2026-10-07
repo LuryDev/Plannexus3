@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PlanNexus</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="carrossel.css"
+    >
+</head>
+
+<body>
+
+    <div class="onboarding">
+
+        <div class="slides" id="slides">
+
+            <section class="slide">
+
+                <div
+                    class="fundo"
+                    style="background-image: url('fotos/fundo1.jpg');"
+                ></div>
+
+                <div class="overlay"></div>
+
+                <div class="conteudo">
+
+                    <div class="logo">
+                        <img src="fotos/logo.png" alt="PlanNexus">
+                    </div>
+
+                    <h1>
+                        Bem Vindo(a) ao<br>
+                        Plannexus
+                    </h1>
+
+                    <p>
+                        O app que irá te ajudar<br>
+                        a organizar sua festa,<br>
+                        evento ou projeto ideal.
+                    </p>
+
+                </div>
+
+            </section>
+
+            <section class="slide">
+
+                <div
+                    class="fundo"
+                    style="background-image: url('fotos/fundo2.jpg');"
+                ></div>
+
+                <div class="overlay"></div>
+
+                <div class="conteudo">
+
+                    <div class="imagem-explicacao">
+
+                        <i class="fa-regular fa-calendar-days"></i>
+
+                        <span>
+                            ORGANIZE
+                        </span>
+
+                    </div>
+
+                    <h1>
+                        Planeje tudo<br>
+                        em um só lugar
+                    </h1>
+
+                    <p>
+                        Organize datas, tarefas,<br>
+                        fornecedores e todos os<br>
+                        detalhes do seu evento.
+                    </p>
+
+                </div>
+
+            </section>
+
+            <section class="slide">
+
+                <div
+                    class="fundo"
+                    style="background-image: url('fotos/fundo3.jpg');"
+                ></div>
+
+                <div class="overlay"></div>
+
+                <div class="conteudo">
+
+                    <div class="logo">
+                        <img src="fotos/logo.png" alt="PlanNexus">
+                    </div>
+
+                    <h1>
+                        Crie sua conta e<br>
+                        comece seu<br>
+                        planejamento!
+                    </h1>
+
+                    <button
+                        class="btn-entrar"
+                        onclick="entrar()"
+                    >
+                        Entrar
+                    </button>
+
+                    <p class="cadastro">
+                        Novo usuário?
+                        <a href="cadastro.html">
+                            Crie uma conta
+                        </a>
+                    </p>
+
+                </div>
+
+            </section>
+
+        </div>
+
+        <button
+            class="seta esquerda"
+            id="prev"
+            onclick="anterior()"
+        >
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <button
+            class="seta direita"
+            id="next"
+            onclick="proxima()"
+        >
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <div class="indicadores">
+
+            <span
+                class="bolinha ativa"
+                onclick="irPara(0)"
+            ></span>
+
+            <span
+                class="bolinha"
+                onclick="irPara(1)"
+            ></span>
+
+            <span
+                class="bolinha"
+                onclick="irPara(2)"
+            ></span>
+
+        </div>
+
+    </div>
+
+    <script type="module">
+
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+
+        import {
+            getAuth,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+            authDomain: "plannexus-def4c.firebaseapp.com",
+            databaseURL: "https://plannexus-def4c-default-rtdb.firebaseio.com",
+            projectId: "plannexus-def4c",
+            storageBucket: "plannexus-def4c.firebasestorage.app",
+            messagingSenderId: "1087555797090",
+            appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+            measurementId: "G-0FGX8KENV1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const slides = document.getElementById("slides");
+        const bolinhas = document.querySelectorAll(".bolinha");
+
+        const totalSlides = 3;
+        let slideAtual = 0;
+
+        function atualizarCarrossel() {
+            slides.style.transform =
+                `translateX(-${slideAtual * 100}%)`;
+
+            bolinhas.forEach((bolinha, index) => {
+                bolinha.classList.toggle(
+                    "ativa",
+                    index === slideAtual
+                );
+            });
+        }
+
+        function proxima() {
+            if (slideAtual < totalSlides - 1) {
+                slideAtual++;
+            }
+
+            atualizarCarrossel();
+        }
+
+        function anterior() {
+            if (slideAtual > 0) {
+                slideAtual--;
+            }
+
+            atualizarCarrossel();
+        }
+
+        function irPara(numero) {
+            slideAtual = numero;
+            atualizarCarrossel();
+        }
+
+        function entrar() {
+            window.location.href = "login.html";
+        }
+
+        let inicioX = 0;
+        let fimX = 0;
+
+        slides.addEventListener(
+            "touchstart",
+            function(event) {
+                inicioX = event.touches[0].clientX;
+            }
+        );
+
+        slides.addEventListener(
+            "touchend",
+            function(event) {
+                fimX = event.changedTouches[0].clientX;
+
+                const distancia = fimX - inicioX;
+
+                if (Math.abs(distancia) > 50) {
+
+                    if (distancia < 0) {
+                        proxima();
+                    } else {
+                        anterior();
+                    }
+
+                }
+            }
+        );
+
+        atualizarCarrossel();
+
+        onAuthStateChanged(
+            auth,
+            (usuario) => {
+
+                if (usuario) {
+                    window.location.href = "index.html";
+                } else {
+                    console.log("Usuário deslogado");
+                }
+
+            }
+        );
+
+        window.proxima = proxima;
+        window.anterior = anterior;
+        window.irPara = irPara;
+        window.entrar = entrar;
+
+    </script>
+
+</body>
+
+</html>
+```

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tarefas - PlanNexus</title>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <link rel="stylesheet" href="tarefas.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+
+            <button class="voltar" onclick="history.back()">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            <h1>Tarefas</h1>
+
+        </header>
+
+
+        <main>
+
+            <div class="evento">
+                <span>Evento</span>
+                <h2>Festinha top</h2>
+            </div>
+
+
+            <div class="titulo">
+
+                <h2>Minhas tarefas</h2>
+
+                <button class="nova-tarefa">
+                    <i class="fa-solid fa-plus"></i>
+                    Nova tarefa
+                </button>
+
+            </div>
+
+
+            <section class="lista-tarefas">
+
+                <div class="tarefa">
+
+                    <div class="check"></div>
+
+                    <div class="informacoes">
+
+                        <h3>Reservar o local</h3>
+
+                        <p>
+                            Confirmar a reserva do espaço.
+                        </p>
+
+                        <small>
+                            <i class="fa-regular fa-calendar"></i>
+                            20/06/2026
+                        </small>
+
+                    </div>
+
+                    <span class="prioridade alta">
+                        Alta
+                    </span>
+
+                </div>
+
+
+                <div class="tarefa concluida">
+
+                    <div class="check">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+
+                    <div class="informacoes">
+
+                        <h3>Enviar convites</h3>
+
+                        <p>
+                            Enviar os convites para os convidados.
+                        </p>
+
+                        <small>
+                            <i class="fa-regular fa-calendar"></i>
+                            25/06/2026
+                        </small>
+
+                    </div>
+
+                    <span class="prioridade media">
+                        Média
+                    </span>
+
+                </div>
+
+
+                <div class="tarefa">
+
+                    <div class="check"></div>
+
+                    <div class="informacoes">
+
+                        <h3>Comprar decoração</h3>
+
+                        <p>
+                            Comprar balões e itens decorativos.
+                        </p>
+
+                        <small>
+                            <i class="fa-regular fa-calendar"></i>
+                            10/07/2026
+                        </small>
+
+                    </div>
+
+                    <span class="prioridade alta">
+                        Alta
+                    </span>
+
+                </div>
+
+
+                <div class="tarefa">
+
+                    <div class="check"></div>
+
+                    <div class="informacoes">
+
+                        <h3>Comprar bebidas</h3>
+
+                        <p>
+                            Comprar bebidas para os convidados.
+                        </p>
+
+                        <small>
+                            <i class="fa-regular fa-calendar"></i>
+                            15/07/2026
+                        </small>
+
+                    </div>
+
+                    <span class="prioridade baixa">
+                        Baixa
+                    </span>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyBYBqc50k0zHEaApVPPRmzkFWJe-TczAdI",
+    authDomain: "plannexus-def4c.firebaseapp.com",
+    databaseURL: "https://plannexus-def4c-default-rtdb.firebaseio.com",
+    projectId: "plannexus-def4c",
+    storageBucket: "plannexus-def4c.firebasestorage.app",
+    messagingSenderId: "1087555797090",
+    appId: "1:1087555797090:web:ab7707890e610e80c8d13b",
+    measurementId: "G-0FGX8KENV1"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+
+
+
+
+
+
+</script>
+
+</body>
+
+</html>
