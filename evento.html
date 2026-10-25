@@ -26,10 +26,7 @@
             <div class="card-header-evento">
 
                 <div class="logo-evento">
-                    <img
-                        src="fotos/logo.png"
-                        alt="Logo Evento"
-                    >
+                    <img src="fotos/logo.png" alt="Logo Evento">
                 </div>
 
                 <h1 id="nomeEvento">Carregando...</h1>
@@ -48,7 +45,7 @@
                     <i class="fa-solid fa-chevron-right"></i>
                 </a>
 
-                <a href="#" class="card-item card-grafico">
+                <a href="#" id="linkControleFinanceiro" class="card-item card-grafico">
 
                     <div class="card-info">
                         <span>Controle Financeiro</span>
@@ -60,7 +57,7 @@
                 </a>
 
                 <a href="#" class="card-item">
-                    <span>bla bla</span>
+                    <span>Bloco de Notas</span>
                     <i class="fa-solid fa-chevron-right"></i>
                 </a>
 
@@ -74,14 +71,14 @@
     <script src="js/utils.js"></script>
     <script type="module">
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-    // FIREBASE_CONFIG vem do arquivo js/config.js
-    const app  = initializeApp(FIREBASE_CONFIG);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+        // FIREBASE_CONFIG vem do arquivo js/config.js
+        const app = initializeApp(FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         const parametros =
             new URLSearchParams(window.location.search);
@@ -98,6 +95,9 @@
 
         const linkTarefas =
             document.getElementById("linkTarefas");
+
+        const linkControleFinanceiro =
+            document.getElementById("linkControleFinanceiro");
 
 
         function esconderLinks() {
@@ -157,6 +157,10 @@
 
                 linkTarefas.href =
                     "tarefas.html?id=" +
+                    encodeURIComponent(eventoId);
+
+                linkControleFinanceiro.href =
+                    "controleFinanceiro.html?id=" +
                     encodeURIComponent(eventoId);
 
 

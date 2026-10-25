@@ -1,0 +1,321 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: #f4f4f8;
+    color: #222;
+}
+
+.app {
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    margin: auto;
+    background: #f4f4f8;
+}
+
+main {
+    padding: 20px;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 12, 50, 0.45);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal[hidden] {
+    display: none;
+}
+
+.modal-caixa {
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 22px 20px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    animation: subir 0.25s ease;
+}
+
+.filtros {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.filtroControle {
+    border: 1px solid #ddd5f7;
+    background: white;
+    color: #6b6480;
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.filtroControle.ativo {
+    background: #5A32D3;
+    border-color: #5A32D3;
+    color: white;
+}
+
+.grafico {
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
+}
+
+.card {
+    background: rgb(151, 60, 60);
+    border-radius: 20px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+}
+
+.cardDespesa {
+    background: #47158c;
+    border-radius: 20px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+
+    color: rgb(226, 201, 232);
+}
+
+.cardReceita {
+    background: #925edb;
+    border-radius: 20px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+
+    color: rgb(40, 8, 48);
+}
+
+.card h3 {
+    font-size: 16px;
+    color: white;
+    margin-bottom: 6px;
+}
+
+.titulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.titulo h2 {
+    font-size: 18px;
+    color: #222;
+    font-weight: 700;
+}
+
+header {
+    height: 70px;
+    background: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid #eee;
+    gap: 15px;
+}
+
+header h1 {
+    font-size: 21px;
+    color: #4d2fb8;
+    font-weight: 700;
+}
+
+.voltar {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 10px;
+    background: #eee9ff;
+    color: #5A32D3;
+    font-size: 17px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.voltar:hover {
+    background: #ddd5f7;
+    transform: translateX(-2px);
+}
+
+.orcamento {
+    margin: 0 auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.orcamento h3 {
+    font-size: 18px;
+    color: #222;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.botaonovo {
+    display: flex;
+    justify-content: center;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 12, 50, 0.45);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal[hidden] {
+    display: none;
+}
+
+.modal-caixa {
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 22px 20px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    animation: subir 0.25s ease;
+}
+
+@keyframes subir {
+    from {
+        transform: translateY(40px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.modal-topo h2 {
+    font-size: 18px;
+    color: #4d2fb8;
+}
+
+.fechar {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 10px;
+    background: #eee9ff;
+    color: #5A32D3;
+    cursor: pointer;
+}
+
+.modal-caixa label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b6480;
+    margin-top: 6px;
+}
+
+.modal-caixa input,
+.modal-caixa textarea,
+.modal-caixa select {
+    width: 100%;
+    border: 1px solid #ddd5f7;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    background: #faf9ff;
+    color: #222;
+    outline: none;
+    resize: vertical;
+}
+
+.modal-caixa input:focus,
+.modal-caixa textarea:focus,
+.modal-caixa select:focus {
+    border-color: #5A32D3;
+}
+
+.duplo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.duplo>div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.salvar {
+    margin-top: 14px;
+    border: none;
+    border-radius: 12px;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%);
+    cursor: pointer;
+}
+
+.salvar:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.mensagem {
+    font-size: 13px;
+    color: #c03535;
+    text-align: center;
+    min-height: 16px;
+}
+
+@media (min-width: 600px) {
+    .modal {
+        align-items: center;
+    }
+
+    .modal-caixa {
+        border-radius: 20px;
+    }
+}
+
+button {
+    background: #5A32D3;
+    border-color: #5A32D3;
+    border-radius: 99px;
+    color: white;
+    padding: 6px 12px;
+    font-size: 12px;
+}

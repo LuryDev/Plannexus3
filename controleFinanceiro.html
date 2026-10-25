@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro</title>
+    <link rel="icon" href="fotos/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/controleFinanceiro.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+            <a class="voltar" id="voltar" href="inicio.html" title="Voltar">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1>Controle Financeiro</h1>
+        </header>
+
+        <main>
+
+            <div class="evento">
+                <span>Evento</span>
+                <h2 id="nomeEvento">Carregando...</h2>
+            </div>
+
+            <div class="orcamento">
+                <h3>Total: R$ <span id="totalOrcamento">0</span></h3>
+                <canvas id="orcamentoGrafico" class="grafico"></canvas>
+            </div>
+
+            <!-- FILTRO -->
+            <div class="wrap">
+                <div class="filtros" id="filtro">
+                    <button type="button" class="filtroControle ativo" data-filtro-controle="todos">Todos</button>
+                    <button type="button" class="filtroControle" data-filtro-controle="receita">Receitas</button>
+                    <button type="button" class="filtroControle" data-filtro-controle="despesa">Despesas</button>
+
+                    <!-- BOTÃO ADICIONAR -->
+
+                    <button class="botao-novo" id="botaoNovo">
+                        <i class="fa-solid fa-plus"></i> Novo Item
+                    </button>
+                </div>
+            </div>
+
+            <!--- LISTA -->
+            <section class="lista-controleFinanceiro" id="listaControle">
+                <p class="aviso">Carregando...</p>
+            </section>
+
+        </main>
+    </div>
+
+
+    <div class="modal" id="modal" hidden>
+        <form class="modal-caixa" id="formControleFinanceiro">
+            <div class="modal-topo">
+                <h2>Adicionar Item Financeiro</h2>
+                <button type="button" class="fechar" id="fecharModal" title="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <label for="tituloOrcamento">Titulo</label>
+            <input type="text" id="tituloOrcamento" name="tituloOrcamento" required>
+
+            <label for="descricaoOrcamento">Descrição:</label>
+            <input type="text" id="descricaoOrcamento" name="descricaoOrcamento" required>
+
+            <label for="valorOrcamento">Valor:</label>
+            <input type="number" id="valorOrcamento" name="valorOrcamento" min="0" step="0.01" required>
+
+            <label for="tipoOrcamento">Tipo:</label>
+            <select id="tipoOrcamento" name="tipoOrcamento" required>
+                <option value="">Selecione</option>
+                <option value="receita">Receita</option>
+                <option value="despesa">Despesa</option>
+            </select>
+
+            <button type="submit" id="botaoSalvar">Adicionar</button>
+            <p id="mensagem"></p>
+        </form>
+    </div>
+
+    <script>
+        const modalControleFinanceiro = document.getElementById("modal");
+        const formControleFinanceiro = document.getElementById("formControleFinanceiro");
+        const mensagemControleFinanceiro = document.getElementById("mensagem");
+
+        window.fecharModalControleFinanceiro = function () {
+            modalControleFinanceiro.hidden = true;
+        };
+
+        document.getElementById("botaoNovo").addEventListener("click", () => {
+            formControleFinanceiro.reset();
+            mensagemControleFinanceiro.textContent = "";
+            modalControleFinanceiro.hidden = false;
+            document.getElementById("tituloOrcamento").focus();
+        });
+
+        document.getElementById("fecharModal").addEventListener("click", window.fecharModalControleFinanceiro);
+        modalControleFinanceiro.addEventListener("click", (event) => {
+            if (event.target === modalControleFinanceiro) window.fecharModalControleFinanceiro();
+        });
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !modalControleFinanceiro.hidden) {
+                window.fecharModalControleFinanceiro();
+            }
+        });
+    </script>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        // FIREBASE_CONFIG vem do arquivo js/config.js
+        const app = initializeApp(FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+
+        // =============== ELEMENTOS =====================
+
+        const nomeEventoEl = document.getElementById('nomeEvento');
+        const voltarEl = document.getElementById("voltar");
+        const orcamentoEl = document.getElementById("totalOrcamento");
+        const form = document.getElementById('formControleFinanceiro');
+        const botaoSalvar = document.getElementById('botaoSalvar');
+        const botaoNovo = document.getElementById("botaoNovo");
+        const mensagemEl = document.getElementById('mensagem');
+        const listaEl = document.getElementById('listaControle');
+
+        const eventoId = pegarIdDaUrl();
+        let orcamentoInicial = 0;
+
+        let itensOrcamento = [];
+        let filtroAtivo = "todos";
+
+
+        // =============== INÍCIO =====================
+
+        async function iniciar() {
+            if (!eventoId) {
+                nomeEventoEl.textContent = "Evento não encontrado.";
+                listaEl.innerHTML = "<p class='aviso'>Abra o controle financeiro a partir da página de um evento.</p>";
+                botaoNovo.disabled = true;
+                return;
+            }
+
+            voltarEl.href = "evento.html?id=" + encodeURIComponent(eventoId);
+            await exigirLogin(auth, onAuthStateChanged);
+
+            // ============ PEGAR ORÇAMENTO INICIAL =============
+
+            try {
+                const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
+                if (!eventoSnap.exists()) {
+                    nomeEventoEl.textContent = "Evento não encontrado.";
+                    listaEl.innerHTML = "<p class='aviso'>Esse evento não existe mais.</p>";
+                    botaoNovo.disabled = true;
+                    return;
+                }
+
+                const evento = eventoSnap.data();
+                nomeEventoEl.textContent = evento.nome || "Evento sem nome";
+                orcamentoInicial = Number(evento.orcamento) || 0;
+                await carregarControleFinanceiro();
+            } catch (error) {
+                console.error("Erro ao carregar controle financeiro:", error);
+                nomeEventoEl.textContent = "Erro ao carregar evento.";
+                listaEl.innerHTML = "<p class='aviso'>Não foi possível carregar os dados financeiros.</p>";
+            }
+        }
+
+        // ============ ADICIONAR ITEM FINANCEIRO =============
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const titulo = document.getElementById('tituloOrcamento').value.trim();
+            const valor = Number(document.getElementById('valorOrcamento').value);
+
+            let status;
+
+            if (!titulo || !Number.isFinite(valor) || valor < 0) {
+                mensagemEl.textContent = "Digite um título e um valor válido.";
+                return;
+            }
+
+            botaoSalvar.disabled = true;
+            botaoSalvar.textContent = "Salvando...";
+
+            try {
+                await addDoc(collection(db, "eventos", eventoId, "controleFinanceiro"), {
+                    titulo: titulo,
+                    descricao: document.getElementById('descricaoOrcamento').value.trim(),
+                    valor: valor,
+                    tipo: document.getElementById('tipoOrcamento').value,
+                    criadoEm: serverTimestamp()
+                });
+
+                await carregarControleFinanceiro();
+                window.fecharModalControleFinanceiro();
+            }
+
+            catch (error) {
+                console.error("Erro ao adicionar item financeiro:", error);
+                mensagemEl.textContent = "Não foi possível salvar ou atualizar os itens financeiros.";
+            } finally {
+                botaoSalvar.disabled = false;
+                botaoSalvar.textContent = "Adicionar";
+            }
+
+        });
+
+        async function carregarControleFinanceiro() {
+            const snap = await getDocs(collection(db, "eventos", eventoId, "controleFinanceiro"));
+            itensOrcamento = snap.docs.map((itemDoc) => ({
+                id: itemDoc.id,
+                ...itemDoc.data()
+            }));
+
+            const totais = itensOrcamento.reduce((saldo, item) => {
+                const valor = Number(item.valor);
+                if (!Number.isFinite(valor)) return saldo;
+                if (item.tipo === "receita") {
+                    saldo.receitas += valor;
+                } else if (item.tipo === "despesa") {
+                    saldo.despesas += valor;
+                }
+                return saldo;
+            }, { receitas: 0, despesas: 0 });
+
+            const total = orcamentoInicial + totais.receitas - totais.despesas;
+            orcamentoEl.textContent = total.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            graficoOrcamento.data.datasets[0].data = [totais.receitas, totais.despesas];
+            graficoOrcamento.update();
+            desenhar();
+        }
+
+        // ========== GRAFICO ==========
+        const graficoOrcamento = new Chart(document.getElementById("orcamentoGrafico"), {
+            type: "pie",
+            data: {
+                labels: ["Receita", "Despesa"],
+                datasets: [{
+                    backgroundColor: ["#925edb", "#47158c"],
+                    borderColor: "#fff",
+                    borderWidth: 1,
+                    hoverOffset: 4,
+                    data: [0, 0]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: "#000",
+                        titleColor: "#fff"
+                    }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+
+
+        // ============ DESENHAR ITENS =============
+
+        function desenhar() {
+            listaEl.replaceChildren();
+            const itensVisiveis = filtroAtivo === "todos"
+                ? itensOrcamento
+                : itensOrcamento.filter((item) => item.tipo === filtroAtivo);
+
+            if (itensVisiveis.length === 0) {
+                const aviso = document.createElement("p");
+                aviso.className = "aviso";
+                aviso.textContent = itensOrcamento.length === 0
+                    ? "Nenhum item financeiro encontrado."
+                    : "Nenhum item encontrado nesse filtro.";
+                listaEl.appendChild(aviso);
+                return;
+            }
+
+            itensVisiveis.forEach(item => {
+                const card = document.createElement('div');
+                if (item.tipo === "despesa") {
+                    card.className = "cardDespesa";
+                } else {
+                    card.className = "cardReceita";
+                }
+                const titulo = document.createElement("h3");
+                titulo.textContent = item.titulo || "Item sem título";
+                const descricao = document.createElement("p");
+                descricao.textContent = item.descricao || "";
+                const valor = document.createElement("p");
+                const valorNumerico = Number(item.valor);
+                valor.textContent = `Valor: R$ ${Number.isFinite(valorNumerico) ? valorNumerico.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}`;
+                const tipo = document.createElement("p");
+                tipo.textContent = `Tipo: ${item.tipo || "Não informado"}`;
+                card.append(titulo, descricao, valor, tipo);
+                listaEl.appendChild(card);
+            });
+        }
+
+
+        // ============ FILTRO =============
+        document.querySelectorAll("#filtro .filtroControle").forEach(botao => {
+            botao.addEventListener("click", () => {
+                document.querySelectorAll("#filtro .filtroControle").forEach(b => b.classList.remove("ativo"));
+                botao.classList.add("ativo");
+                filtroAtivo = botao.dataset.filtroControle;
+                desenhar();
+            });
+        });
+
+
+        // ================= ERROS =================
+        function mostrarErro(erro) {
+            console.error("Erro no orçamento:", erro);
+
+            const semPermissao = erro && erro.code === "permission-denied";
+
+            listaEl.innerHTML = `
+                <p class="aviso erro">
+                    ${semPermissao
+                    ? "Sem permissão para acessar o orçamento. Confira as regras do Firestore (arquivo firestore.rules)."
+                    : "Erro ao carregar o orçamento. Veja o console (F12)."}
+                </p>`;
+        }
+
+        iniciar();
+
+    </script>
+
+
+</body>
+
+</html>
