@@ -1,325 +1,126 @@
-<!DOCTYPE html>
-<html lang="pt-br">
 
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Calendário - PlanNexus</title>
-    <link rel="icon" href="fotos/logo.png">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <title>Calendário | PlanNexus</title>
     <link rel="stylesheet" href="css/calendario.css">
 </head>
-
 <body>
+    <header>
+        <h1 id="nomeEvento">Carregando evento...</h1>
+    </header>
 
-    <div class="app">
+    <main>
+        <section aria-labelledby="tituloCalendario">
+            <div id="avisoEvento" class="aviso-evento" role="status" aria-live="polite"></div>
+            <h2 id="tituloCalendario">Compromissos</h2>
 
-        <header>
-            <a class="voltar" id="voltar" href="inicio.html" title="Voltar">
-                <i class="fa-solid fa-arrow-left"></i>
-            </a>
-            <h1 id="nomeEvento">Carregando...</h1>
-        </header>
+            <button type="button" id="botaoNovo">
+                Novo compromisso
+            </button>
 
-        <main class="calendario-container">
+            <p id="mensagem" role="status" aria-live="polite"></p>
 
-            <div class="titulo">
-                <h2>Calendário do Evento</h2>
-                <button class="novo" id="botaoNovo">
-                    <i class="fa-solid fa-plus"></i>
-                    Novo
-                </button>
-            </div>
+            <section
+                id="listaCompromissos"
+                class="lista-compromissos"
+                aria-label="Lista de compromissos"
+            ></section>
+        </section>
+    </main>
 
-            <!-- Preenchido pelo JavaScript -->
-            <section class="lista-compromissos" id="listaCompromissos">
-                <p class="aviso">Carregando agenda...</p>
-            </section>
+    <div id="modal" role="dialog"
+         aria-modal="true"
+         aria-labelledby="tituloModal"
+         style="display: none;">
 
-        </main>
+        <div class="conteudo-modal">
+            <h2 id="tituloModal">Novo compromisso</h2>
 
+            <form id="formCompromisso">
+                <label for="tituloCompromisso">
+                    Título
+                </label>
+                <input
+                    type="text"
+                    id="tituloCompromisso"
+                    maxlength="120"
+                    required
+                >
+
+                <label for="dataCompromisso">
+                    Data
+                </label>
+                <input
+                    type="date"
+                    id="dataCompromisso"
+                    required
+                >
+
+                <label for="horarioCompromisso">
+                    Horário
+                </label>
+                <input
+                    type="time"
+                    id="horarioCompromisso"
+                    required
+                >
+
+                <label for="localCompromisso">Local</label>
+                <input type="text" id="localCompromisso" maxlength="150">
+
+                <label for="responsaveisCompromisso">Responsáveis</label>
+                <input
+                    type="text"
+                    id="responsaveisCompromisso"
+                    maxlength="300"
+                    placeholder="Ex.: Ana, Pedro, Júlia"
+                >
+
+                <label for="descricaoCompromisso">
+                    Descrição
+                </label>
+                <textarea
+                    id="descricaoCompromisso"
+                    maxlength="2000"
+                    rows="4"
+                ></textarea>
+
+                <div class="acoes-modal">
+                    <button type="submit" id="botaoSalvar">
+                        Salvar compromisso
+                    </button>
+
+                    <button type="button" id="fecharModal">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
+    <div id="modalConfirmacao" class="modal" style="display: none;">
+    <div class="conteudo-modal">
+        <h2>Confirmar exclusão</h2>
 
-    <!-- ===================== FORMULÁRIO (JANELA) ===================== -->
-    <div class="modal" id="modal" hidden>
-        <form class="modal-caixa" id="formCompromisso">
+        <p>Tem certeza de que deseja excluir este compromisso?</p>
 
-            <div class="modal-topo">
-                <h2>Novo compromisso</h2>
-                <button type="button" class="fechar" id="fecharModal" title="Fechar">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
+        <div class="acoes-modal">
+            <button type="button" id="cancelarExclusao">
+                Cancelar
+            </button>
 
-            <label for="tituloCompromisso">Título</label>
-            <input type="text" id="tituloCompromisso" placeholder="Ex: Prova do bolo" maxlength="80" required>
-
-            <div class="duplo">
-                <div>
-                    <label for="dataCompromisso">Data</label>
-                    <input type="date" id="dataCompromisso" required>
-                </div>
-                <div>
-                    <label for="horarioCompromisso">Horário</label>
-                    <input type="time" id="horarioCompromisso">
-                </div>
-            </div>
-
-            <label for="descricaoCompromisso">Descrição</label>
-            <textarea id="descricaoCompromisso" rows="3" placeholder="Detalhes (opcional)"></textarea>
-
-            <button type="submit" class="salvar" id="botaoSalvar">Salvar compromisso</button>
-            <p class="mensagem" id="mensagem"></p>
-
-        </form>
+            <button type="button" id="confirmarExclusao">
+                Confirmar exclusão
+            </button>
+        </div>
     </div>
-
+    </div>
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
-    <script type="module">
-
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-        // FIREBASE_CONFIG vem do arquivo js/config.js
-        const app  = initializeApp(FIREBASE_CONFIG);
-        const auth = getAuth(app);
-        const db   = getFirestore(app);
-
-
-        // ================= ELEMENTOS =================
-        const nomeEventoEl = document.getElementById("nomeEvento");
-        const listaEl      = document.getElementById("listaCompromissos");
-        const voltarEl     = document.getElementById("voltar");
-        const botaoNovo    = document.getElementById("botaoNovo");
-        const modal        = document.getElementById("modal");
-        const form         = document.getElementById("formCompromisso");
-        const botaoSalvar  = document.getElementById("botaoSalvar");
-        const mensagemEl   = document.getElementById("mensagem");
-
-        const eventoId = pegarIdDaUrl();
-
-        const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-                       "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-
-
-        // ================= INÍCIO =================
-        async function iniciar() {
-
-            if (!eventoId) {
-                nomeEventoEl.textContent = "Evento não encontrado";
-                listaEl.innerHTML = `<p class="aviso">Abra o calendário a partir da página de um evento.</p>`;
-                botaoNovo.disabled = true;
-                return;
-            }
-
-            voltarEl.href = "evento.html?id=" + encodeURIComponent(eventoId);
-
-            await exigirLogin(auth, onAuthStateChanged);
-
-            try {
-                const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
-
-                if (!eventoSnap.exists()) {
-                    nomeEventoEl.textContent = "Evento não encontrado";
-                    listaEl.innerHTML = `<p class="aviso">Esse evento não existe mais.</p>`;
-                    botaoNovo.disabled = true;
-                    return;
-                }
-
-                const evento = eventoSnap.data();
-                nomeEventoEl.textContent = evento.nome || "Evento sem nome";
-
-                await carregarCalendario();
-            }
-            catch (erro) {
-                mostrarErro(erro);
-            }
-        }
-
-
-        // ================= CARREGAR =================
-        async function carregarCalendario() {
-
-            const snap = await getDocs(collection(db, "eventos", eventoId, "calendario"));
-
-            const itens = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-            // Ordena por data e depois por horário
-            itens.sort((a, b) =>
-                (dataParaOrdenar(a.data) + (a.horario || "99:99"))
-                    .localeCompare(dataParaOrdenar(b.data) + (b.horario || "99:99"))
-            );
-
-            desenhar(itens);
-        }
-
-
-        // ================= DESENHAR NA TELA =================
-        function desenhar(itens) {
-
-            if (itens.length === 0) {
-                listaEl.innerHTML = `
-                    <p class="aviso">
-                        Nenhum compromisso marcado.<br>
-                        Toque em <strong>Novo</strong> para adicionar.
-                    </p>`;
-                return;
-            }
-
-            listaEl.innerHTML = "";
-
-            const hoje = hojeISO();
-            let mesAnterior = null;
-
-            itens.forEach((item) => {
-
-                const dataISO = dataParaOrdenar(item.data);
-
-                // Separador de mês ("Julho de 2026")
-                const [ano, mes] = dataISO.split("-");
-                const chaveMes = ano + "-" + mes;
-
-                if (chaveMes !== mesAnterior && MESES[Number(mes) - 1]) {
-                    const separador = document.createElement("h3");
-                    separador.className = "mes";
-                    separador.textContent = `${MESES[Number(mes) - 1]} de ${ano}`;
-                    listaEl.appendChild(separador);
-                    mesAnterior = chaveMes;
-                }
-
-                const card = document.createElement("article");
-                card.className = "card-compromisso" + (dataISO < hoje ? " passado" : "");
-
-                card.innerHTML = `
-                    <div class="data-hora">
-                        <span class="data">
-                            <i class="fa-regular fa-calendar"></i>
-                            ${escaparHTML(formatarData(item.data) || "Sem data")}
-                        </span>
-                        <span class="hora">
-                            <i class="fa-regular fa-clock"></i>
-                            ${escaparHTML(item.horario || "Sem horário")}
-                        </span>
-                        ${dataISO === hoje ? `<span class="hoje">Hoje</span>` : ""}
-                    </div>
-
-                    <div class="detalhes">
-                        <h3>${escaparHTML(item.titulo || "Sem título")}</h3>
-                        ${item.descricao ? `<p>${escaparHTML(item.descricao)}</p>` : ""}
-                    </div>
-
-                    <button class="excluir" title="Excluir compromisso">
-                        <i class="fa-regular fa-trash-can"></i>
-                    </button>
-                `;
-
-                card.querySelector(".excluir").addEventListener("click", () => excluir(item));
-
-                listaEl.appendChild(card);
-            });
-        }
-
-
-        // ================= EXCLUIR =================
-        async function excluir(item) {
-            if (!confirm(`Excluir "${item.titulo}"?`)) return;
-
-            try {
-                await deleteDoc(doc(db, "eventos", eventoId, "calendario", item.id));
-                await carregarCalendario();
-            }
-            catch (erro) {
-                mostrarErro(erro);
-            }
-        }
-
-
-        // ================= NOVO COMPROMISSO =================
-        function abrirModal() {
-            form.reset();
-            mensagemEl.textContent = "";
-            modal.hidden = false;
-            document.getElementById("tituloCompromisso").focus();
-        }
-
-        function fecharModal() {
-            modal.hidden = true;
-        }
-
-        botaoNovo.addEventListener("click", abrirModal);
-        document.getElementById("fecharModal").addEventListener("click", fecharModal);
-
-        modal.addEventListener("click", (e) => {
-            if (e.target === modal) fecharModal();
-        });
-
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape" && !modal.hidden) fecharModal();
-        });
-
-        form.addEventListener("submit", async (event) => {
-
-            event.preventDefault();
-
-            const titulo = document.getElementById("tituloCompromisso").value.trim();
-            const data   = document.getElementById("dataCompromisso").value;
-
-            if (!titulo || !data) {
-                mensagemEl.textContent = "Preencha o título e a data.";
-                return;
-            }
-
-            botaoSalvar.disabled = true;
-            botaoSalvar.textContent = "Salvando...";
-
-            try {
-                await addDoc(collection(db, "eventos", eventoId, "calendario"), {
-                    titulo: titulo,
-                    data: data,                                                     // "AAAA-MM-DD"
-                    horario: document.getElementById("horarioCompromisso").value,  // "HH:MM"
-                    descricao: document.getElementById("descricaoCompromisso").value.trim(),
-                    criadoEm: serverTimestamp()
-                });
-
-                fecharModal();
-                await carregarCalendario();
-            }
-            catch (erro) {
-                console.error(erro);
-                mensagemEl.textContent = "Não foi possível salvar: " + erro.message;
-            }
-            finally {
-                botaoSalvar.disabled = false;
-                botaoSalvar.textContent = "Salvar compromisso";
-            }
-        });
-
-
-        // ================= ERROS =================
-        function mostrarErro(erro) {
-            console.error("Erro no calendário:", erro);
-
-            const semPermissao = erro && erro.code === "permission-denied";
-
-            listaEl.innerHTML = `
-                <p class="aviso erro">
-                    ${semPermissao
-                        ? "Sem permissão para acessar o calendário. Confira as regras do Firestore (arquivo firestore.rules)."
-                        : "Erro ao carregar o calendário. Veja o console (F12)."}
-                </p>`;
-        }
-
-
-        iniciar();
-
-    </script>
-
+    <script type="module" src="js/calendario.js"></script>
 </body>
-
 </html>
