@@ -1,90 +1,158 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Organize as anotações do seu evento com o PlanNexus.">
     <title>Bloco de Notas | PlanNexus</title>
-
     <link rel="stylesheet" href="css/blocoNotas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
 
     <header>
-        <a href="inicio.html" aria-label="Voltar para o início">
-            <i class="fa-solid fa-arrow-left"></i>
+        <a href="inicio.html" aria-label="Voltar para a página inicial">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            Voltar
         </a>
 
-        <h1>Bloco de Notas</h1>
-        <h2 id="nomeEvento">Carregando...</h2>
+        <h1 id="nomeEvento">Carregando...</h1>
     </header>
 
     <main>
-        <section id="areaAnotacoes">
-            <div class="cabecalhoAnotacoes">
-                <h2>Minhas anotações</h2>
+        <section aria-labelledby="tituloBlocoNotas">
+            <div>
+                <h2 id="tituloBlocoNotas">Bloco de Notas</h2>
+                <p>Organize suas ideias e informações importantes para o evento.</p>
+            </div>
 
-                <button type="button" id="botaoNovaAnotacao">
-                    <i class="fa-solid fa-plus"></i>
-                    Nova anotação
+            <div>
+                <label for="pesquisa">Pesquisar anotações</label>
+                <div>
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input
+                        type="search"
+                        id="pesquisa"
+                        placeholder="Pesquisar por título ou conteúdo..."
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
+
+            <button type="button" id="botaoNovaAnotacao">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                Nova anotação
+            </button>
+        </section>
+
+        <section aria-label="Anotações do evento">
+            <div id="mensagemVazia" hidden>
+                <i class="fa-regular fa-note-sticky" aria-hidden="true"></i>
+                <h3>Nenhuma anotação encontrada</h3>
+                <p>Crie sua primeira anotação para organizar as informações do evento.</p>
+            </div>
+
+            <div id="listaAnotacoes" aria-live="polite">
+            </div>
+        </section>
+    </main>
+
+    <div
+        id="modalAnotacao"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tituloModal"
+        hidden
+    >
+        <div>
+            <div>
+                <h2 id="tituloModal">Nova anotação</h2>
+
+                <button
+                    type="button"
+                    id="botaoFecharAnotacao"
+                    aria-label="Fechar janela"
+                >
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                 </button>
             </div>
 
-            <div class="pesquisaAnotacoes">
-                <label for="pesquisa">Pesquisar anotações</label>
-                <input
-                    type="search"
-                    id="pesquisa"
-                    placeholder="Digite o título ou conteúdo..."
-                >
-            </div>
-
-            <div id="listaAnotacoes">
-                <p id="mensagemVazia">
-                    Nenhuma anotação encontrada.
-                </p>
-            </div>
-        </section>
-
-        <section id="modalAnotacao" aria-labelledby="tituloModal" hidden>
-            <div class="conteudoModal">
-                <h2 id="tituloModal">Nova anotação</h2>
-
-                <form id="formAnotacao">
+            <form id="formAnotacao">
+                <div>
                     <label for="tituloAnotacao">Título</label>
                     <input
                         type="text"
                         id="tituloAnotacao"
                         name="titulo"
                         maxlength="100"
+                        placeholder="Digite o título da anotação"
                         required
                     >
+                </div>
 
+                <div>
                     <label for="conteudoAnotacao">Conteúdo</label>
                     <textarea
                         id="conteudoAnotacao"
                         name="conteudo"
-                        rows="10"
                         maxlength="10000"
+                        rows="8"
+                        placeholder="Escreva sua anotação..."
                         required
                     ></textarea>
+                </div>
 
-                    <div class="botoesModal">
-                        <button type="button" id="botaoCancelar">
-                            Cancelar
-                        </button>
+                <div>
+                    <button type="button" id="botaoCancelar">
+                        Cancelar
+                    </button>
 
-                        <button type="submit" id="botaoSalvar">
-                            Salvar anotação
-                        </button>
-                    </div>
-                </form>
+                    <button type="submit" id="botaoSalvar">
+                        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+                        Salvar anotação
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div
+        id="modalMensagem"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tituloMensagem"
+        aria-describedby="textoMensagem"
+        hidden
+    >
+        <div>
+            <div>
+                <h2 id="tituloMensagem">Atenção</h2>
+
+                <button
+                    type="button"
+                    id="botaoFecharMensagem"
+                    aria-label="Fechar mensagem"
+                >
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
             </div>
-        </section>
-    </main>
+
+            <p id="textoMensagem"></p>
+
+            <div>
+                <button type="button" id="botaoCancelarMensagem" hidden>
+                    Cancelar
+                </button>
+
+                <button type="button" id="botaoConfirmarMensagem">
+                    Entendi
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script src="js/config.js"></script>
     <script type="module" src="js/blocoNotas.js"></script>
+
 </body>
 </html>
