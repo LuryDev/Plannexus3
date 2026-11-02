@@ -56,7 +56,7 @@
 
                 </a>
 
-                <a href="#" class="card-item">
+                <a href="#" id="linkBlocodeNotas" class="card-item">
                     <span>Bloco de Notas</span>
                     <i class="fa-solid fa-chevron-right"></i>
                 </a>
@@ -99,10 +99,14 @@
         const linkControleFinanceiro =
             document.getElementById("linkControleFinanceiro");
 
-
+        const linkBlocodeNotas =
+            document.getElementById("linkBlocodeNotas");
+        
         function esconderLinks() {
             linkCalendario.style.display = "none";
             linkTarefas.style.display = "none";
+            linkControleFinanceiro.style.display = "none";
+            linkBlocodeNotas.style.display = "none";
         }
 
 
@@ -163,7 +167,9 @@
                     "controleFinanceiro.html?id=" +
                     encodeURIComponent(eventoId);
 
-
+                linkBlocodeNotas.href =
+                    "blocoNotas.html?id=" +
+                    encodeURIComponent(eventoId);
             }
 
             catch (erro) {
