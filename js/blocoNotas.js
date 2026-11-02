@@ -35,7 +35,7 @@ const botaoCancelar = document.getElementById("botaoCancelar");
 const botaoSalvar = document.getElementById("botaoSalvar");
 const pesquisa = document.getElementById("pesquisa");
 
-const eventoId = new URLSearchParams(window.location.search).get("id");
+const eventoId = pegarIdDaUrl();
 
 let usuarioAtual = null;
 let anotacoes = [];
@@ -66,7 +66,7 @@ async function verificarAcesso() {
         return false;
     }
 
-    usuarioAtual = await obterUsuario();
+    usuarioAtual = await exigirLogin(auth, onAuthStateChanged);
 
     if (!usuarioAtual) {
         window.location.replace("login.html");
