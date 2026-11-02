@@ -60,11 +60,7 @@ function obterUsuario() {
 }
 
 async function verificarAcesso() {
-    console.log("Projeto:", app.options.projectId);
-    console.log("ID do evento:", eventoId);
-    console.log("UID autenticado:", usuarioAtual.uid);
-    if (!eventoId) {
-        alert("Nenhum evento foi informado.");
+    if (!eventoId || eventoId.includes("/")) {
         window.location.replace("inicio.html");
         return false;
     }
@@ -80,7 +76,6 @@ async function verificarAcesso() {
     const documentoEvento = await getDoc(referenciaEvento);
 
     if (!documentoEvento.exists()) {
-        alert("Evento não encontrado.");
         window.location.replace("inicio.html");
         return false;
     }
@@ -88,12 +83,11 @@ async function verificarAcesso() {
     const dadosEvento = documentoEvento.data();
 
     if (dadosEvento.usuarioId !== usuarioAtual.uid) {
-        alert("Você não tem autorização para acessar este evento.");
         window.location.replace("inicio.html");
         return false;
     }
 
-    nomeEvento.textContent = dadosEvento.nome;
+    nomeEvento.textContent = dadosEvento.nome || "Evento sem nome";
 
     return true;
 }
