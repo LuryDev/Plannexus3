@@ -1,7 +1,8 @@
-import {initializeApp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-
-import {getAuth, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import {
+    getAuth,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import {
     getFirestore,
     doc,
@@ -9,10 +10,11 @@ import {
     collection,
     getDocs,
     addDoc,
+    updateDoc,
     deleteDoc,
-    serverTimestamp,
-    updateDoc
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
 
 const app = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
@@ -26,38 +28,43 @@ const formulario = document.getElementById("formCompromisso");
 const botaoFechar = document.getElementById("fecharModal");
 const botaoSalvar = document.getElementById("botaoSalvar");
 const mensagem = document.getElementById("mensagem");
+const mensagemFormulario = document.getElementById("mensagemFormulario");
 const tituloInput = document.getElementById("tituloCompromisso");
 const dataInput = document.getElementById("dataCompromisso");
 const horarioInput = document.getElementById("horarioCompromisso");
+const localInput = document.getElementById("localCompromisso");
+const responsaveisInput = document.getElementById("responsaveisCompromisso");
 const descricaoInput = document.getElementById("descricaoCompromisso");
+const tituloModal = document.getElementById("tituloModal");
+const avisoEvento = document.getElementById("avisoEvento");
 const modalConfirmacao = document.getElementById("modalConfirmacao");
 const cancelarExclusao = document.getElementById("cancelarExclusao");
 const confirmarExclusao = document.getElementById("confirmarExclusao");
-const localInput = document.getElementById("localCompromisso");
-const responsaveisInput = document.getElementById("responsaveisCompromisso");
-const tituloModal = document.getElementById("tituloModal");
 
 const eventoId = pegarIdDaUrl();
 
-let compromissoEditando = null;
-let compromissoParaExcluir = null;
 let usuarioAtual = null;
 let eventoAtual = null;
+let compromissoEditando = null;
+let compromissoParaExcluir = null;
 
 function mostrarMensagem(texto, tipo = "erro") {
     mensagem.textContent = texto;
-    mensagem.dataset.tipo = tipo;
+    mensagem.className = tipo === "sucesso"
+        ? "aviso sucesso"
+        : "aviso erro";
 }
 
 function abrirModal() {
     compromissoEditando = null;
 
     formulario.reset();
+
     tituloModal.textContent = "Novo compromisso";
     botaoSalvar.textContent = "Salvar compromisso";
 
+    mensagemFormulario.textContent = "";
     dataInput.value = hojeISO();
-    mensagem.textContent = "";
 
     modal.style.display = "flex";
     tituloInput.focus();
@@ -65,48 +72,49 @@ function abrirModal() {
 
 function fecharModal() {
     modal.style.display = "none";
+
     formulario.reset();
+
     compromissoEditando = null;
 
     tituloModal.textContent = "Novo compromisso";
     botaoSalvar.textContent = "Salvar compromisso";
+
+    mensagemFormulario.textContent = "";
 }
 
 function abrirModalConfirmacao(itemId) {
     compromissoParaExcluir = itemId;
+
     modalConfirmacao.style.display = "flex";
+
+    cancelarExclusao.focus();
 }
 
 function fecharModalConfirmacao() {
     modalConfirmacao.style.display = "none";
+
     compromissoParaExcluir = null;
 }
 
-function editarCompromisso(item) {
+function dataValida(data) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+        return false;
+    }
 
-    compromissoEditando = item.id;
+    const [ano, mes, dia] = data.split("-").map(Number);
+    const dataTeste = new Date(ano, mes - 1, dia);
 
-    tituloInput.value = item.titulo || "";
-    dataInput.value = item.data || "";
-    horarioInput.value = item.horario || "";
-    localInput.value = item.local || "";
-    responsaveisInput.value = item.responsaveis || "";
-    descricaoInput.value = item.descricao || "";
-
-    tituloModal.textContent = "Editar compromisso";
-    botaoSalvar.textContent = "Salvar alterações";
-
-    mensagem.textContent = "";
-    modal.style.display = "flex";
-
-    tituloInput.focus();
+    return (
+        dataTeste.getFullYear() === ano &&
+        dataTeste.getMonth() === mes - 1 &&
+        dataTeste.getDate() === dia
+    );
 }
 
 function atualizarAvisoEvento() {
-    const aviso = document.getElementById("avisoEvento");
-
-    if (!eventoAtual || !eventoAtual.data) {
-        aviso.textContent = "Data do evento não informada.";
+    if (!eventoAtual || !dataValida(eventoAtual.data || "")) {
+        avisoEvento.textContent = "Data do evento não informada.";
         return;
     }
 
@@ -121,31 +129,33 @@ function atualizarAvisoEvento() {
         (dataEvento - hoje) / (1000 * 60 * 60 * 24)
     );
 
-    aviso.className = "aviso-evento";
+    avisoEvento.className = "aviso";
 
     if (diferenca < 0) {
-        aviso.textContent = "Este evento já passou.";
-        aviso.classList.add("encerrado");
+        avisoEvento.textContent = "Este evento já passou.";
+        avisoEvento.classList.add("encerrado");
 
     } else if (diferenca === 0) {
-        aviso.textContent = "Hoje é o grande dia! O evento acontece hoje.";
-        aviso.classList.add("hoje");
+        avisoEvento.textContent = "Hoje é o grande dia! O evento acontece hoje.";
+        avisoEvento.classList.add("hoje");
 
     } else if (diferenca <= 7) {
-        aviso.textContent = `Faltam apenas ${diferenca} dias para o evento!`;
-        aviso.classList.add("proximo");
+        avisoEvento.textContent = `Faltam apenas ${diferenca} dias para o evento!`;
+        avisoEvento.classList.add("proximo");
 
     } else {
-        aviso.textContent = `Faltam ${diferenca} dias para o evento.`;
-        aviso.classList.add("futuro");
+        avisoEvento.textContent = `Faltam ${diferenca} dias para o evento.`;
+        avisoEvento.classList.add("futuro");
     }
 }
 
 async function carregarEvento() {
-    if (!eventoId) {
+    if (!eventoId || eventoId.includes("/")) {
         nomeEvento.textContent = "Evento não informado";
         botaoNovo.disabled = true;
-        mostrarMensagem("O endereço não contém o ID do evento.");
+
+        mostrarMensagem("O endereço não contém um ID de evento válido.");
+
         return false;
     }
 
@@ -155,12 +165,16 @@ async function carregarEvento() {
     if (!resultado.exists()) {
         nomeEvento.textContent = "Evento não encontrado";
         botaoNovo.disabled = true;
+
         mostrarMensagem("Não foi possível localizar este evento.");
+
         return false;
     }
 
-       eventoAtual = resultado.data();
+    eventoAtual = resultado.data();
+
     nomeEvento.textContent = eventoAtual.nome || "Evento sem nome";
+
     atualizarAvisoEvento();
 
     return true;
@@ -181,19 +195,22 @@ async function carregarCompromissos() {
 
         const compromissos = resultado.docs.map(documento => ({
             ...documento.data(),
-            id: documento.id
+            id: documento.id,
+            automatico: false
         }));
 
-        if (eventoAtual.data) {
+        if (eventoAtual && dataValida(eventoAtual.data || "")) {
             compromissos.push({
-            id: "dia-do-evento",
-            titulo: "Dia do evento",
-            data: eventoAtual.data,
-            horario: eventoAtual.horario || "",
-            descricao: "Data principal do evento.",
-            automatico: true
-        });
-    }
+                id: "dia-do-evento",
+                titulo: "Dia do evento",
+                data: eventoAtual.data,
+                horario: eventoAtual.horario || "",
+                local: eventoAtual.local || "",
+                responsaveis: "",
+                descricao: "Data principal do evento.",
+                automatico: true
+            });
+        }
 
         compromissos.sort((a, b) => {
             const dataA = dataParaOrdenar(a.data);
@@ -203,43 +220,60 @@ async function carregarCompromissos() {
                 return dataA.localeCompare(dataB);
             }
 
-            return String(a.horario || "")
-                .localeCompare(String(b.horario || ""));
+            return String(a.horario || "").localeCompare(
+                String(b.horario || "")
+            );
         });
 
         if (compromissos.length === 0) {
             const vazio = document.createElement("p");
+            vazio.className = "aviso";
             vazio.textContent = "Nenhum compromisso cadastrado.";
+
             lista.appendChild(vazio);
-            return;
+
+            return true;
         }
 
         for (const item of compromissos) {
             lista.appendChild(criarCartao(item));
         }
 
+        return true;
+
     } catch (erro) {
         console.error("Erro ao carregar compromissos:", erro);
-        mostrarMensagem(
-            "Não foi possível carregar os compromissos."
-        );
+
+        mostrarMensagem("Não foi possível carregar os compromissos.");
+
+        return false;
     }
 }
 
-
 function criarCartao(item) {
-
     const cartao = document.createElement("article");
-    cartao.className = "compromisso";
+    cartao.className = "card-compromisso";
+
+    if (item.automatico) {
+        cartao.classList.add("dia-evento");
+    }
+
+    const dataHora = document.createElement("div");
+    dataHora.className = "data-hora";
+
+    const data = document.createElement("span");
+    data.textContent = `Data: ${formatarData(item.data)}`;
+
+    const horario = document.createElement("span");
+    horario.textContent = `Horário: ${item.horario || "Não informado"}`;
+
+    dataHora.append(data, horario);
+
+    const detalhes = document.createElement("div");
+    detalhes.className = "detalhes";
 
     const titulo = document.createElement("h3");
     titulo.textContent = item.titulo || "Sem título";
-
-    const data = document.createElement("p");
-    data.textContent = `Data: ${formatarData(item.data)}`;
-
-    const horario = document.createElement("p");
-    horario.textContent = `Horário: ${item.horario || "Não informado"}`;
 
     const local = document.createElement("p");
     local.textContent = `Local: ${item.local || "Não informado"}`;
@@ -250,40 +284,75 @@ function criarCartao(item) {
     const descricao = document.createElement("p");
     descricao.textContent = item.descricao || "Sem descrição";
 
-    cartao.append(
+    detalhes.append(
         titulo,
-        data,
-        horario,
         local,
         responsaveis,
         descricao
     );
 
+    cartao.append(dataHora, detalhes);
+
     if (!item.automatico) {
+        const acoes = document.createElement("div");
+        acoes.className = "acoes-compromisso";
 
         const botaoEditar = document.createElement("button");
         botaoEditar.type = "button";
+        botaoEditar.className = "editar";
         botaoEditar.textContent = "Editar";
-        botaoEditar.addEventListener("click", () => editarCompromisso(item));
+
+        botaoEditar.addEventListener("click", () => {
+            editarCompromisso(item);
+        });
 
         const botaoExcluir = document.createElement("button");
         botaoExcluir.type = "button";
+        botaoExcluir.className = "excluir";
         botaoExcluir.textContent = "Excluir";
+
         botaoExcluir.addEventListener("click", () => {
             abrirModalConfirmacao(item.id);
         });
 
-        cartao.append(botaoEditar, botaoExcluir);
+        acoes.append(botaoEditar, botaoExcluir);
+
+        cartao.appendChild(acoes);
     }
 
     return cartao;
 }
 
+function editarCompromisso(item) {
+    if (!item || item.automatico) {
+        return;
+    }
+
+    compromissoEditando = item.id;
+
+    tituloInput.value = item.titulo || "";
+    dataInput.value = item.data || "";
+    horarioInput.value = item.horario || "";
+    localInput.value = item.local || "";
+    responsaveisInput.value = item.responsaveis || "";
+    descricaoInput.value = item.descricao || "";
+
+    tituloModal.textContent = "Editar compromisso";
+    botaoSalvar.textContent = "Salvar alterações";
+
+    mensagemFormulario.textContent = "";
+
+    modal.style.display = "flex";
+
+    tituloInput.focus();
+}
+
+
 formulario.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (!usuarioAtual || !eventoId) {
-        mostrarMensagem("Sua sessão ou o evento não está disponível.");
+        mensagemFormulario.textContent = "Sua sessão ou o evento não está disponível.";
         return;
     }
 
@@ -295,38 +364,53 @@ formulario.addEventListener("submit", async (event) => {
     const descricao = descricaoInput.value.trim();
 
     if (!titulo || !data || !horario) {
-        mostrarMensagem("Preencha o título, a data e o horário.");
+        mensagemFormulario.textContent = "Preencha o título, a data e o horário.";
         return;
     }
+
+    if (!dataValida(data)) {
+        mensagemFormulario.textContent = "Informe uma data válida.";
+        return;
+    }
+
+    if (
+        titulo.length > 120 ||
+        local.length > 150 ||
+        responsaveis.length > 300 ||
+        descricao.length > 2000
+    ) {
+        mensagemFormulario.textContent = "Um ou mais campos ultrapassaram o limite permitido.";
+        return;
+    }
+
+    const dadosCompromisso = {
+        titulo,
+        data,
+        horario,
+        local,
+        responsaveis,
+        descricao
+    };
 
     botaoSalvar.disabled = true;
 
     try {
-        const dadosCompromisso = {
-            titulo,
-            data,
-            horario,
-            local,
-            responsaveis,
-            descricao
-        };
+        if (compromissoEditando) {
+            const referencia = doc(
+                firestore,
+                "eventos",
+                eventoId,
+                "calendario",
+                compromissoEditando
+            );
 
-    if (compromissoEditando) {
+            await updateDoc(referencia, dadosCompromisso);
 
-        const referencia = doc(
-            firestore,
-            "eventos",
-            eventoId,
-            "calendario",
-            compromissoEditando
-        );
+            fecharModal();
 
-        await updateDoc(referencia, dadosCompromisso);
+            mostrarMensagem("Compromisso atualizado com sucesso.", "sucesso");
 
-        mostrarMensagem("Compromisso atualizado com sucesso.", "sucesso");
-
-    } else {
-
+        } else {
             const referencia = collection(
                 firestore,
                 "eventos",
@@ -339,26 +423,34 @@ formulario.addEventListener("submit", async (event) => {
                 criadoEm: serverTimestamp()
             });
 
+            fecharModal();
+
             mostrarMensagem("Compromisso cadastrado com sucesso.", "sucesso");
         }
 
-    fecharModal();
-    await carregarCompromissos();
+        await carregarCompromissos();
 
     } catch (erro) {
         console.error("Erro ao salvar compromisso:", erro);
-        mostrarMensagem("Não foi possível salvar as alterações.");
+
+        mensagemFormulario.textContent =
+            "Não foi possível salvar. Verifique sua conexão e suas permissões.";
 
     } finally {
         botaoSalvar.disabled = false;
-        botaoSalvar.textContent = "Salvar compromisso";
+
+        if (compromissoEditando) {
+            botaoSalvar.textContent = "Salvar alterações";
+        } else {
+            botaoSalvar.textContent = "Salvar compromisso";
+        }
     }
 });
 
 async function excluirCompromisso(itemId) {
-    if (!usuarioAtual || !eventoId) {
-        mostrarMensagem("Você precisa estar autenticado.");
-        return;
+    if (!usuarioAtual || !eventoId || !itemId || itemId === "dia-do-evento") {
+        mostrarMensagem("Não foi possível excluir este compromisso.");
+        return false;
     }
 
     try {
@@ -372,36 +464,66 @@ async function excluirCompromisso(itemId) {
 
         await deleteDoc(referencia);
 
-        mostrarMensagem("Compromisso excluído.", "sucesso");
+        mostrarMensagem("Compromisso excluído com sucesso.", "sucesso");
+
         await carregarCompromissos();
+
+        return true;
 
     } catch (erro) {
         console.error("Erro ao excluir compromisso:", erro);
-        mostrarMensagem(
-            "Não foi possível excluir o compromisso."
-        );
+
+        mostrarMensagem("Não foi possível excluir o compromisso.");
+
+        return false;
     }
 }
 
 botaoNovo.addEventListener("click", abrirModal);
+
 botaoFechar.addEventListener("click", fecharModal);
+
 cancelarExclusao.addEventListener("click", fecharModalConfirmacao);
 
 confirmarExclusao.addEventListener("click", async () => {
-    if (!compromissoParaExcluir) return;
+    if (!compromissoParaExcluir) {
+        return;
+    }
 
     const itemId = compromissoParaExcluir;
 
     confirmarExclusao.disabled = true;
 
-    try {
-        await excluirCompromisso(itemId);
+    const excluido = await excluirCompromisso(itemId);
+
+    confirmarExclusao.disabled = false;
+
+    if (excluido) {
         fecharModalConfirmacao();
-    } finally {
-        confirmarExclusao.disabled = false;
     }
 });
 
+modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+        fecharModal();
+    }
+});
+
+modalConfirmacao.addEventListener("click", (event) => {
+    if (event.target === modalConfirmacao) {
+        fecharModalConfirmacao();
+    }
+});
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        if (modalConfirmacao.style.display === "flex") {
+            fecharModalConfirmacao();
+        } else if (modal.style.display === "flex") {
+            fecharModal();
+        }
+    }
+});
 
 async function iniciar() {
     botaoNovo.disabled = true;
@@ -420,11 +542,14 @@ async function iniciar() {
         }
 
         await carregarCompromissos();
+
         botaoNovo.disabled = false;
 
     } catch (erro) {
         console.error("Erro ao iniciar calendário:", erro);
+
         nomeEvento.textContent = "Erro ao carregar o calendário";
+
         mostrarMensagem(
             "Não foi possível abrir o calendário. Verifique sua conexão e suas permissões."
         );
