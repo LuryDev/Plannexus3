@@ -60,6 +60,9 @@ function obterUsuario() {
 }
 
 async function verificarAcesso() {
+    console.log("Projeto:", app.options.projectId);
+    console.log("ID do evento:", eventoId);
+    console.log("UID autenticado:", usuarioAtual.uid);
     if (!eventoId) {
         alert("Nenhum evento foi informado.");
         window.location.replace("inicio.html");
