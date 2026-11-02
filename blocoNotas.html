@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloco de Notas | PlanNexus</title>
+
+    <link rel="stylesheet" href="css/blocoNotas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <a href="inicio.html" aria-label="Voltar para o início">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+
+        <h1>Bloco de Notas</h1>
+        <h2 id="nomeEvento">Carregando...</h2>
+    </header>
+
+    <main>
+        <section id="areaAnotacoes">
+            <div class="cabecalhoAnotacoes">
+                <h2>Minhas anotações</h2>
+
+                <button type="button" id="botaoNovaAnotacao">
+                    <i class="fa-solid fa-plus"></i>
+                    Nova anotação
+                </button>
+            </div>
+
+            <div class="pesquisaAnotacoes">
+                <label for="pesquisa">Pesquisar anotações</label>
+                <input
+                    type="search"
+                    id="pesquisa"
+                    placeholder="Digite o título ou conteúdo..."
+                >
+            </div>
+
+            <div id="listaAnotacoes">
+                <p id="mensagemVazia">
+                    Nenhuma anotação encontrada.
+                </p>
+            </div>
+        </section>
+
+        <section id="modalAnotacao" aria-labelledby="tituloModal" hidden>
+            <div class="conteudoModal">
+                <h2 id="tituloModal">Nova anotação</h2>
+
+                <form id="formAnotacao">
+                    <label for="tituloAnotacao">Título</label>
+                    <input
+                        type="text"
+                        id="tituloAnotacao"
+                        name="titulo"
+                        maxlength="100"
+                        required
+                    >
+
+                    <label for="conteudoAnotacao">Conteúdo</label>
+                    <textarea
+                        id="conteudoAnotacao"
+                        name="conteudo"
+                        rows="10"
+                        maxlength="10000"
+                        required
+                    ></textarea>
+
+                    <div class="botoesModal">
+                        <button type="button" id="botaoCancelar">
+                            Cancelar
+                        </button>
+
+                        <button type="submit" id="botaoSalvar">
+                            Salvar anotação
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script type="module" src="js/blocoNotas.js"></script>
+</body>
+</html>
