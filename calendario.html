@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,41 +7,57 @@
     <link rel="stylesheet" href="css/calendario.css">
 </head>
 <body>
-    <header>
-        <h1 id="nomeEvento">Carregando evento...</h1>
-    </header>
 
-    <main>
-        <section aria-labelledby="tituloCalendario">
-            <div id="avisoEvento" class="aviso-evento" role="status" aria-live="polite"></div>
-            <h2 id="tituloCalendario">Compromissos</h2>
+    <div class="app">
 
-            <button type="button" id="botaoNovo">
-                Novo compromisso
-            </button>
+        <header>
+            <a href="inicio.html" class="voltar" aria-label="Voltar">←</a>
+            <h1 id="nomeEvento">Carregando evento...</h1>
+        </header>
 
-            <p id="mensagem" role="status" aria-live="polite"></p>
+        <main>
+            <section aria-labelledby="tituloCalendario">
 
-            <section
-                id="listaCompromissos"
-                class="lista-compromissos"
-                aria-label="Lista de compromissos"
-            ></section>
-        </section>
-    </main>
+                <div id="avisoEvento" class="aviso" role="status" aria-live="polite"></div>
 
-    <div id="modal" role="dialog"
-         aria-modal="true"
-         aria-labelledby="tituloModal"
-         style="display: none;">
+                <div class="titulo">
+                    <h2 id="tituloCalendario">Compromissos</h2>
 
-        <div class="conteudo-modal">
-            <h2 id="tituloModal">Novo compromisso</h2>
+                    <button type="button" id="botaoNovo" class="novo" disabled>
+                        Novo compromisso
+                    </button>
+                </div>
+
+                <p id="mensagem" class="aviso" role="status" aria-live="polite"></p>
+
+                <section
+                    id="listaCompromissos"
+                    class="lista-compromissos"
+                    aria-label="Lista de compromissos"
+                ></section>
+
+            </section>
+        </main>
+
+    </div>
+
+    <div
+        id="modal"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tituloModal"
+        style="display: none;"
+    >
+        <div class="modal-caixa">
+
+            <div class="modal-topo">
+                <h2 id="tituloModal">Novo compromisso</h2>
+            </div>
 
             <form id="formCompromisso">
-                <label for="tituloCompromisso">
-                    Título
-                </label>
+
+                <label for="tituloCompromisso">Título</label>
                 <input
                     type="text"
                     id="tituloCompromisso"
@@ -50,26 +65,32 @@
                     required
                 >
 
-                <label for="dataCompromisso">
-                    Data
-                </label>
-                <input
-                    type="date"
-                    id="dataCompromisso"
-                    required
-                >
+                <div class="duplo">
+                    <div>
+                        <label for="dataCompromisso">Data</label>
+                        <input
+                            type="date"
+                            id="dataCompromisso"
+                            required
+                        >
+                    </div>
 
-                <label for="horarioCompromisso">
-                    Horário
-                </label>
-                <input
-                    type="time"
-                    id="horarioCompromisso"
-                    required
-                >
+                    <div>
+                        <label for="horarioCompromisso">Horário</label>
+                        <input
+                            type="time"
+                            id="horarioCompromisso"
+                            required
+                        >
+                    </div>
+                </div>
 
                 <label for="localCompromisso">Local</label>
-                <input type="text" id="localCompromisso" maxlength="150">
+                <input
+                    type="text"
+                    id="localCompromisso"
+                    maxlength="150"
+                >
 
                 <label for="responsaveisCompromisso">Responsáveis</label>
                 <input
@@ -79,48 +100,70 @@
                     placeholder="Ex.: Ana, Pedro, Júlia"
                 >
 
-                <label for="descricaoCompromisso">
-                    Descrição
-                </label>
+                <label for="descricaoCompromisso">Descrição</label>
                 <textarea
                     id="descricaoCompromisso"
                     maxlength="2000"
                     rows="4"
                 ></textarea>
 
+                <p id="mensagemFormulario" class="mensagem" role="alert"></p>
+
                 <div class="acoes-modal">
-                    <button type="submit" id="botaoSalvar">
+                    <button type="submit" id="botaoSalvar" class="salvar">
                         Salvar compromisso
                     </button>
 
-                    <button type="button" id="fecharModal">
+                    <button type="button" id="fecharModal" class="fechar">
                         Cancelar
                     </button>
                 </div>
+
             </form>
+
         </div>
     </div>
 
-    <div id="modalConfirmacao" class="modal" style="display: none;">
-    <div class="conteudo-modal">
-        <h2>Confirmar exclusão</h2>
+    <div
+        id="modalConfirmacao"
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tituloConfirmacao"
+        style="display: none;"
+    >
+        <div class="modal-caixa">
 
-        <p>Tem certeza de que deseja excluir este compromisso?</p>
+            <div class="modal-topo">
+                <h2 id="tituloConfirmacao">Confirmar exclusão</h2>
+            </div>
 
-        <div class="acoes-modal">
-            <button type="button" id="cancelarExclusao">
-                Cancelar
-            </button>
+            <p>Tem certeza de que deseja excluir este compromisso?</p>
 
-            <button type="button" id="confirmarExclusao">
-                Confirmar exclusão
-            </button>
+            <div class="acoes-modal">
+                <button
+                    type="button"
+                    id="confirmarExclusao"
+                    class="salvar"
+                >
+                    Confirmar exclusão
+                </button>
+
+                <button
+                    type="button"
+                    id="cancelarExclusao"
+                    class="fechar"
+                >
+                    Cancelar
+                </button>
+            </div>
+
         </div>
-    </div>
     </div>
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script type="module" src="js/calendario.js"></script>
+
 </body>
 </html>
