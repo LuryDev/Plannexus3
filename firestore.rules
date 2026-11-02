@@ -47,6 +47,41 @@ service cloud.firestore {
       match /calendario/{itemId} {
         allow read, write: if donoDoEvento(eventoId) || ehAdmin();
       }
+
+      // Anotações no Bloco de Notas
+      match /anotacoes/{anotacaoId} {
+        function anotacaoValida() {
+          return request.resource.data.keys().hasAll([
+            "titulo",
+            "conteudo",
+            "dataCriacao",
+            "dataAtualizacao"
+          ]) &&
+          request.resource.data.keys().hasOnly([
+            "titulo",
+            "conteudo",
+            "dataCriacao",
+            "dataAtualizacao"
+          ]) &&
+          request.resource.data.titulo is string &&
+          request.resource.data.titulo.size() > 0 &&
+          request.resource.data.titulo.size() <= 100 &&
+          request.resource.data.conteudo is string &&
+          request.resource.data.conteudo.size() > 0 &&
+          request.resource.data.conteudo.size() <= 10000 &&
+          request.resource.data.dataCriacao is timestamp &&
+          request.resource.data.dataAtualizacao is timestamp;
+        }
+
+        allow read, delete: if donoDoEvento(eventoId) || ehAdmin();
+
+        allow create: if (donoDoEvento(eventoId) || ehAdmin())
+          && anotacaoValida();
+
+        allow update: if (donoDoEvento(eventoId) || ehAdmin())
+          && anotacaoValida()
+          && request.resource.data.dataCriacao == resource.data.dataCriacao;
+      }
     }
   }
 }
