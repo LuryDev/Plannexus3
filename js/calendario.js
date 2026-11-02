@@ -10,7 +10,8 @@ import {
     getDocs,
     addDoc,
     deleteDoc,
-    serverTimestamp
+    serverTimestamp,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 const app = initializeApp(FIREBASE_CONFIG);
@@ -29,10 +30,19 @@ const tituloInput = document.getElementById("tituloCompromisso");
 const dataInput = document.getElementById("dataCompromisso");
 const horarioInput = document.getElementById("horarioCompromisso");
 const descricaoInput = document.getElementById("descricaoCompromisso");
+const modalConfirmacao = document.getElementById("modalConfirmacao");
+const cancelarExclusao = document.getElementById("cancelarExclusao");
+const confirmarExclusao = document.getElementById("confirmarExclusao");
+const localInput = document.getElementById("localCompromisso");
+const responsaveisInput = document.getElementById("responsaveisCompromisso");
+const tituloModal = document.getElementById("tituloModal");
 
 const eventoId = pegarIdDaUrl();
 
+let compromissoEditando = null;
+let compromissoParaExcluir = null;
 let usuarioAtual = null;
+let eventoAtual = null;
 
 function mostrarMensagem(texto, tipo = "erro") {
     mensagem.textContent = texto;
@@ -40,9 +50,15 @@ function mostrarMensagem(texto, tipo = "erro") {
 }
 
 function abrirModal() {
+    compromissoEditando = null;
+
     formulario.reset();
+    tituloModal.textContent = "Novo compromisso";
+    botaoSalvar.textContent = "Salvar compromisso";
+
     dataInput.value = hojeISO();
     mensagem.textContent = "";
+
     modal.style.display = "flex";
     tituloInput.focus();
 }
@@ -50,6 +66,79 @@ function abrirModal() {
 function fecharModal() {
     modal.style.display = "none";
     formulario.reset();
+    compromissoEditando = null;
+
+    tituloModal.textContent = "Novo compromisso";
+    botaoSalvar.textContent = "Salvar compromisso";
+}
+
+function abrirModalConfirmacao(itemId) {
+    compromissoParaExcluir = itemId;
+    modalConfirmacao.style.display = "flex";
+}
+
+function fecharModalConfirmacao() {
+    modalConfirmacao.style.display = "none";
+    compromissoParaExcluir = null;
+}
+
+function editarCompromisso(item) {
+
+    compromissoEditando = item.id;
+
+    tituloInput.value = item.titulo || "";
+    dataInput.value = item.data || "";
+    horarioInput.value = item.horario || "";
+    localInput.value = item.local || "";
+    responsaveisInput.value = item.responsaveis || "";
+    descricaoInput.value = item.descricao || "";
+
+    tituloModal.textContent = "Editar compromisso";
+    botaoSalvar.textContent = "Salvar alterações";
+
+    mensagem.textContent = "";
+    modal.style.display = "flex";
+
+    tituloInput.focus();
+}
+
+function atualizarAvisoEvento() {
+    const aviso = document.getElementById("avisoEvento");
+
+    if (!eventoAtual || !eventoAtual.data) {
+        aviso.textContent = "Data do evento não informada.";
+        return;
+    }
+
+    const [ano, mes, dia] = eventoAtual.data.split("-").map(Number);
+
+    const dataEvento = new Date(ano, mes - 1, dia);
+    const hoje = new Date();
+
+    hoje.setHours(0, 0, 0, 0);
+
+    const diferenca = Math.round(
+        (dataEvento - hoje) / (1000 * 60 * 60 * 24)
+    );
+
+    aviso.className = "aviso-evento";
+
+    if (diferenca < 0) {
+        aviso.textContent = "Este evento já passou.";
+        aviso.classList.add("encerrado");
+
+    } else if (diferenca === 0) {
+        aviso.textContent = "Hoje é o grande dia! O evento acontece hoje.";
+        aviso.classList.add("hoje");
+
+    } else if (diferenca <= 7) {
+        aviso.textContent = `Faltam apenas ${diferenca} dias para o evento!`;
+        aviso.classList.add("proximo");
+
+    } else {
+        aviso.textContent = `Faltam ${diferenca} dias para o evento.`;
+        aviso.classList.add("futuro");
+    }
 }
 
 async function carregarEvento() {
@@ -70,8 +159,9 @@ async function carregarEvento() {
         return false;
     }
 
-    const evento = resultado.data();
-    nomeEvento.textContent = evento.nome || "Evento sem nome";
+       eventoAtual = resultado.data();
+    nomeEvento.textContent = eventoAtual.nome || "Evento sem nome";
+    atualizarAvisoEvento();
 
     return true;
 }
@@ -90,9 +180,20 @@ async function carregarCompromissos() {
         const resultado = await getDocs(referencia);
 
         const compromissos = resultado.docs.map(documento => ({
-            id: documento.id,
-            ...documento.data()
+            ...documento.data(),
+            id: documento.id
         }));
+
+        if (eventoAtual.data) {
+            compromissos.push({
+            id: "dia-do-evento",
+            titulo: "Dia do evento",
+            data: eventoAtual.data,
+            horario: eventoAtual.horario || "",
+            descricao: "Data principal do evento.",
+            automatico: true
+        });
+    }
 
         compromissos.sort((a, b) => {
             const dataA = dataParaOrdenar(a.data);
@@ -125,7 +226,9 @@ async function carregarCompromissos() {
     }
 }
 
+
 function criarCartao(item) {
+
     const cartao = document.createElement("article");
     cartao.className = "compromisso";
 
@@ -138,21 +241,40 @@ function criarCartao(item) {
     const horario = document.createElement("p");
     horario.textContent = `Horário: ${item.horario || "Não informado"}`;
 
+    const local = document.createElement("p");
+    local.textContent = `Local: ${item.local || "Não informado"}`;
+
+    const responsaveis = document.createElement("p");
+    responsaveis.textContent = `Responsáveis: ${item.responsaveis || "Não informados"}`;
+
     const descricao = document.createElement("p");
     descricao.textContent = item.descricao || "Sem descrição";
-
-    const botaoExcluir = document.createElement("button");
-    botaoExcluir.type = "button";
-    botaoExcluir.textContent = "Excluir";
-    botaoExcluir.addEventListener("click", () => excluirCompromisso(item.id));
 
     cartao.append(
         titulo,
         data,
         horario,
-        descricao,
-        botaoExcluir
+        local,
+        responsaveis,
+        descricao
     );
+
+    if (!item.automatico) {
+
+        const botaoEditar = document.createElement("button");
+        botaoEditar.type = "button";
+        botaoEditar.textContent = "Editar";
+        botaoEditar.addEventListener("click", () => editarCompromisso(item));
+
+        const botaoExcluir = document.createElement("button");
+        botaoExcluir.type = "button";
+        botaoExcluir.textContent = "Excluir";
+        botaoExcluir.addEventListener("click", () => {
+            abrirModalConfirmacao(item.id);
+        });
+
+        cartao.append(botaoEditar, botaoExcluir);
+    }
 
     return cartao;
 }
@@ -168,6 +290,8 @@ formulario.addEventListener("submit", async (event) => {
     const titulo = tituloInput.value.trim();
     const data = dataInput.value;
     const horario = horarioInput.value;
+    const local = localInput.value.trim();
+    const responsaveis = responsaveisInput.value.trim();
     const descricao = descricaoInput.value.trim();
 
     if (!titulo || !data || !horario) {
@@ -176,34 +300,54 @@ formulario.addEventListener("submit", async (event) => {
     }
 
     botaoSalvar.disabled = true;
-    botaoSalvar.textContent = "Salvando...";
 
     try {
-        const referencia = collection(
-            firestore,
-            "eventos",
-            eventoId,
-            "calendario"
-        );
-
-        await addDoc(referencia, {
+        const dadosCompromisso = {
             titulo,
             data,
             horario,
-            descricao,
-            criadoEm: serverTimestamp()
-        });
+            local,
+            responsaveis,
+            descricao
+        };
 
-        fecharModal();
-        mostrarMensagem("Compromisso cadastrado com sucesso.", "sucesso");
+    if (compromissoEditando) {
 
-        await carregarCompromissos();
+        const referencia = doc(
+            firestore,
+            "eventos",
+            eventoId,
+            "calendario",
+            compromissoEditando
+        );
+
+        await updateDoc(referencia, dadosCompromisso);
+
+        mostrarMensagem("Compromisso atualizado com sucesso.", "sucesso");
+
+    } else {
+
+            const referencia = collection(
+                firestore,
+                "eventos",
+                eventoId,
+                "calendario"
+            );
+
+            await addDoc(referencia, {
+                ...dadosCompromisso,
+                criadoEm: serverTimestamp()
+            });
+
+            mostrarMensagem("Compromisso cadastrado com sucesso.", "sucesso");
+        }
+
+    fecharModal();
+    await carregarCompromissos();
 
     } catch (erro) {
         console.error("Erro ao salvar compromisso:", erro);
-        mostrarMensagem(
-            "Não foi possível salvar. Verifique sua permissão e tente novamente."
-        );
+        mostrarMensagem("Não foi possível salvar as alterações.");
 
     } finally {
         botaoSalvar.disabled = false;
@@ -214,10 +358,6 @@ formulario.addEventListener("submit", async (event) => {
 async function excluirCompromisso(itemId) {
     if (!usuarioAtual || !eventoId) {
         mostrarMensagem("Você precisa estar autenticado.");
-        return;
-    }
-
-    if (!confirm("Deseja realmente excluir este compromisso?")) {
         return;
     }
 
@@ -245,6 +385,23 @@ async function excluirCompromisso(itemId) {
 
 botaoNovo.addEventListener("click", abrirModal);
 botaoFechar.addEventListener("click", fecharModal);
+cancelarExclusao.addEventListener("click", fecharModalConfirmacao);
+
+confirmarExclusao.addEventListener("click", async () => {
+    if (!compromissoParaExcluir) return;
+
+    const itemId = compromissoParaExcluir;
+
+    confirmarExclusao.disabled = true;
+
+    try {
+        await excluirCompromisso(itemId);
+        fecharModalConfirmacao();
+    } finally {
+        confirmarExclusao.disabled = false;
+    }
+});
+
 
 async function iniciar() {
     botaoNovo.disabled = true;
