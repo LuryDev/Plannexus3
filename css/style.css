@@ -2025,4 +2025,64 @@ minmax(0,1fr)
 );
 gap:22px;
 }
+<<<<<<< HEAD
+}
+/* MASCOTE MAIOR - CELULAR */
+.banner::after {
+    width: 155px;
+    height: 155px;
+    right: 0;
+    bottom: 0;
+    background-size: contain;
+}
+
+/* TELAS PEQUENAS */
+@media (max-width: 360px) {
+    .banner::after {
+        width: 135px;
+        height: 135px;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+/* TABLETS */
+@media (min-width: 481px) and (max-width: 768px) {
+    .banner::after {
+        width: 235px;
+        height: 235px;
+        right: 0;
+        bottom: -5px;
+    }
+}
+
+/* COMPUTADORES */
+@media (min-width: 769px) {
+    .banner::after {
+        width: 370px;
+        height: 370px;
+        right: 4%;
+        bottom: -15px;
+    }
+}
+
+/* TELAS GRANDES */
+@media (min-width: 1200px) {
+    .banner::after {
+        width: 410px;
+        height: 410px;
+        right: 5%;
+        bottom: -20px;
+    }
+}
+
+@media (min-width: 1600px) {
+    .banner::after {
+        width: 450px;
+        height: 450px;
+        right: 6%;
+        bottom: -25px;
+    }
+=======
+>>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
 }

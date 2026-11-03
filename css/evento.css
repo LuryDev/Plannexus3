@@ -1,10 +1,630 @@
+<<<<<<< HEAD
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --roxo: #5A32D3;
+    --roxo-escuro: #4D2FB8;
+    --lilas: #A491F9;
+    --fundo: #F7F6FB;
+    --texto: #29243D;
+    --cinza: #858095;
+    --borda: #ECE9F5;
+}
+
+=======
 /* ==========================================
    RESET & VARIÁVEIS GLOBAIS
    ========================================== */
+>>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+<<<<<<< HEAD
+}
+
+body {
+    min-height: 100vh;
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+.app {
+    width: 100%;
+    min-height: 100vh;
+    padding: 0 30px 60px;
+}
+
+header {
+    max-width: 1050px;
+    margin: auto;
+    padding: 28px 0;
+}
+
+.voltar {
+    width: 43px;
+    height: 43px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--roxo);
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: 14px;
+    text-decoration: none;
+    transition: .2s;
+}
+
+.voltar:hover {
+    color: white;
+    background: var(--roxo);
+    transform: translateX(-3px);
+}
+
+.detalhesEvento {
+    max-width: 1050px;
+    margin: auto;
+}
+
+.card-header-evento {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    overflow: hidden;
+    padding: 30px;
+    margin-bottom: 35px;
+    color: white;
+    background: linear-gradient(115deg, #35177F, #5A32D3 60%, #8568E9);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 24px;
+    box-shadow: 0 12px 30px rgba(90, 50, 211, .18);
+}
+
+.card-header-evento::before,
+.card-header-evento::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.card-header-evento::before {
+    width: 180px;
+    height: 180px;
+    top: -100px;
+    right: -35px;
+    background: rgba(255,255,255,.10);
+}
+
+.card-header-evento::after {
+    width: 120px;
+    height: 120px;
+    bottom: -80px;
+    left: 20%;
+    background: rgba(255,255,255,.07);
+}
+
+.logo-evento {
+    z-index: 1;
+    width: 75px;
+    height: 75px;
+    flex: 0 0 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 20px;
+}
+
+.logo-evento img {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+}
+
+.titulo-evento {
+    z-index: 1;
+    min-width: 0;
+}
+
+.subtitulo {
+    display: block;
+    margin-bottom: 6px;
+    color: #D9CCFF;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.titulo-evento h1 {
+    font-size: 27px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.titulo-evento p {
+    margin-top: 5px;
+    color: #E7DFFF;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.secao-ferramentas {
+    width: 100%;
+}
+
+.titulo-secao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+.titulo-secao h2 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.titulo-secao p {
+    margin-top: 4px;
+    color: var(--cinza);
+    font-size: 12px;
+}
+
+.titulo-secao > i {
+    width: 43px;
+    height: 43px;
+    flex: 0 0 43px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--roxo);
+    background: #EEE9FF;
+    border-radius: 14px;
+}
+
+.menu-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.card-item {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+    color: var(--texto);
+    background: 
+        linear-gradient(white, white) padding-box,
+        linear-gradient(135deg, #A491F9, #5A32D3, #8568E9) border-box;
+    border: 2px solid transparent;
+    border-radius: 21px;
+    box-shadow:
+        0 0 10px rgba(90, 50, 211, .16),
+        0 5px 20px rgba(90, 50, 211, .10);
+    text-decoration: none;
+    transition: transform .25s, box-shadow .25s;
+}
+
+.card-item:hover {
+    transform: translateY(-5px);
+    box-shadow:
+        0 0 0 2px rgba(164, 145, 249, .25),
+        0 0 18px rgba(90, 50, 211, .35),
+        0 12px 30px rgba(90, 50, 211, .20);
+}
+
+.card-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.icone-card {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    font-size: 19px;
+}
+
+.icone-calendario { color: #6744D6; background: #F0EBFF; }
+.icone-tarefas { color: #328E75; background: #E6F6F0; }
+.icone-financeiro { color: #C28A37; background: #FFF4DF; }
+.icone-notas { color: #D17C9C; background: #FCECF3; }
+
+.seta-card {
+    color: #B4AEC5;
+    font-size: 13px;
+    transition: .2s;
+}
+
+.card-item:hover .seta-card {
+    color: var(--roxo);
+    transform: translate(3px, -3px);
+}
+
+.card-titulo {
+    margin-top: 17px;
+}
+
+.card-titulo h3 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.card-titulo p {
+    min-height: 35px;
+    margin-top: 4px;
+    color: var(--cinza);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.previa {
+    min-height: 190px;
+    margin-top: 18px;
+    padding: 15px;
+    overflow: hidden;
+    background: #FAF9FD;
+    border: 1px solid #F0EDF7;
+    border-radius: 15px;
+}
+
+.estado-previa {
+    padding: 20px 4px;
+    color: #918AA3;
+    font-size: 10px;
+    line-height: 1.6;
+}
+
+.previa-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 9px 0;
+    border-bottom: 1px solid #EEEAF5;
+}
+
+.previa-item:last-child {
+    border-bottom: 0;
+}
+
+.previa-item strong {
+    color: #51466F;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+.previa-data,
+.previa-detalhe {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #918AA3;
+    font-size: 9px;
+}
+
+.previa-data i,
+.previa-detalhe i {
+    color: var(--lilas);
+}
+
+.tarefas-resumo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tarefas-resumo div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.tarefas-resumo strong {
+    color: #51466F;
+    font-size: 11px;
+}
+
+.tarefas-resumo span {
+    color: #A19BAD;
+    font-size: 9px;
+}
+
+.tarefas-resumo .porcentagem {
+    color: var(--roxo);
+    font-size: 12px;
+}
+
+.barra-progresso {
+    width: 100%;
+    height: 6px;
+    margin: 12px 0 14px;
+    overflow: hidden;
+    background: #EAE6F3;
+    border-radius: 10px;
+}
+
+.barra-progresso span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #A491F9, #5A32D3);
+    border-radius: 10px;
+    transition: width .3s;
+}
+
+.tarefa-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 11px 0;
+    color: #655E75;
+    font-size: 10px;
+}
+
+.tarefa-item i {
+    flex: 0 0 auto;
+    color: #B5AEC5;
+    font-size: 13px;
+}
+
+.tarefa-item.concluida i {
+    color: #55B69A;
+}
+
+.tarefa-item.concluida span {
+    color: #A29BAD;
+    text-decoration: line-through;
+}
+
+.financeiro-resumo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.financeiro-resumo > div:first-child,
+.financeiro-dados > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.financeiro-resumo span,
+.financeiro-dados span {
+    color: #9690A5;
+    font-size: 9px;
+}
+
+.financeiro-resumo strong {
+    color: #4B4165;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+
+.saldo-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #C28A37;
+    background: #FFF0D6;
+    border-radius: 11px;
+}
+
+.financeiro-dados {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin-top: 13px;
+}
+
+.financeiro-dados strong {
+    color: #655D76;
+    font-size: 10px;
+    overflow-wrap: anywhere;
+}
+
+.financeiro-dados .valor-disponivel {
+    color: #3EAA88;
+}
+
+.grafico-barras {
+    height: 48px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 13px;
+    padding: 0 10px;
+    border-bottom: 1px solid #E9E5F1;
+}
+
+.grafico-barras div {
+    width: 25px;
+    max-height: 100%;
+    background: linear-gradient(180deg, #A491F9, #6742D2);
+    border-radius: 5px 5px 0 0;
+}
+
+.grafico-barras div:nth-child(2) {
+    background: linear-gradient(180deg, #F2C879, #D49A3D);
+}
+
+.grafico-legenda {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 13px;
+    margin-top: 9px;
+    color: #9891A7;
+    font-size: 8px;
+}
+
+.grafico-legenda span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.grafico-legenda i {
+    width: 7px;
+    height: 7px;
+    display: inline-block;
+    border-radius: 2px;
+}
+
+.legenda-receita { background: var(--roxo); }
+.legenda-despesa { background: #D49A3D; }
+
+.previa-notas {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FAF8FC;
+}
+
+.nota-papel {
+    width: 100%;
+    min-height: 145px;
+    padding: 15px;
+    background: white;
+    border: 1px solid #EEE8F8;
+    border-radius: 9px;
+    box-shadow: 0 5px 13px rgba(58, 35, 130, .07);
+    transform: rotate(-.5deg);
+}
+
+.nota-topo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 12px;
+    color: #A491F9;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.nota-papel > strong {
+    display: block;
+    color: #51466F;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+.conteudo-previa-nota {
+    margin-top: 9px;
+    color: #858095;
+    font-size: 10px;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+
+.card-rodape {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 14px;
+    color: var(--roxo);
+    border-top: 1px solid #F0EDF5;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.card-rodape i {
+    font-size: 12px;
+    transition: transform .2s;
+}
+
+.card-item:hover .card-rodape i {
+    transform: translateX(5px);
+}
+
+.card-item[hidden] {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .app {
+        padding: 0 18px 35px;
+    }
+
+    header {
+        padding: 20px 0;
+    }
+
+    .card-header-evento {
+        padding: 23px;
+        gap: 16px;
+        margin-bottom: 27px;
+    }
+
+    .logo-evento {
+        width: 60px;
+        height: 60px;
+        flex-basis: 60px;
+        border-radius: 16px;
+    }
+
+    .logo-evento img {
+        width: 45px;
+        height: 45px;
+    }
+
+    .titulo-evento h1 {
+        font-size: 21px;
+    }
+
+    .menu-cards {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .card-item {
+        padding: 19px;
+    }
+
+    .previa {
+        min-height: 175px;
+    }
+}
+
+@media (max-width: 380px) {
+    .app {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+    .card-header-evento {
+        padding: 18px;
+    }
+
+    .titulo-evento h1 {
+        font-size: 18px;
+    }
+
+    .titulo-evento p {
+        font-size: 10px;
+    }
+
+    .card-item {
+        padding: 16px;
+    }
+=======
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
@@ -277,4 +897,5 @@ header {
     background-size: 100% 100%;
     z-index: 1;
     pointer-events: none;
+>>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
 }

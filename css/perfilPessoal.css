@@ -1,3 +1,112 @@
+<<<<<<< HEAD
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+* { box-sizing: border-box; }
+
+html, body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    color: #25213a;
+    font-family: 'Poppins', Arial, sans-serif;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(164,145,249,.25), transparent 30%),
+        radial-gradient(circle at 85% 85%, rgba(90,50,211,.13), transparent 32%),
+        #f5f5f9;
+}
+
+.perfil-container {
+    width: 100%;
+    max-width: 430px;
+    padding: 38px 28px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #ece9f5;
+    border-radius: 26px;
+    box-shadow: 0 16px 42px rgba(58,35,130,.12);
+}
+
+.perfil-container::before {
+    content: "";
+    position: absolute;
+}
+
+#foto {
+    width: 112px;
+    height: 112px;
+    margin-bottom: 18px;
+    object-fit: cover;
+    border: 5px solid #eee9ff;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a491f9, #4d2fb8);
+    box-shadow: 0 8px 22px rgba(90,50,211,.18);
+}
+
+#nome {
+    margin: 0 0 7px;
+    color: #34206f;
+    font-size: 22px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+#email {
+    margin: 0 0 14px;
+    color: #77738a;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+#uid {
+    width: 100%;
+    margin: 0 0 24px;
+    padding: 11px 12px;
+    border-radius: 11px;
+    color: #89839c;
+    background: #f7f5fc;
+    font-size: 10px;
+    overflow-wrap: anywhere;
+}
+
+.perfil-container button {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 10px;
+    border: 0;
+    border-radius: 13px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .18s, box-shadow .18s;
+}
+
+#voltar {
+    color: #5A32D3;
+    background: #f0ecff;
+}
+
+#sair {
+    color: white;
+    background: linear-gradient(135deg, #a491f9, #4d2fb8);
+    box-shadow: 0 7px 16px rgba(90,50,211,.2);
+}
+
+.perfil-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 20px rgba(90,50,211,.16);
+}
+=======
 /* ===========================
         RESET
 =========================== */
@@ -169,3 +278,4 @@ body {
         font-size: 14px;
     }
 }
+>>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e

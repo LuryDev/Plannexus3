@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --roxo: #5A32D3;
+    --roxo-escuro: #4D2FB8;
+    --roxo-claro: #A491F9;
+    --fundo: #f5f5f9;
+    --texto: #25213a;
+    --cinza: #77738a;
+    --borda: #ece9f5;
+    --sombra: 0 10px 28px rgba(58, 35, 130, .09);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: 'Poppins', Arial, sans-serif;
+    padding: 0 16px 40px;
+}
+
+body > header {
+    width: 100%;
+    max-width: 430px;
+    min-height: 76px;
+    margin: 0 auto 24px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+    background: linear-gradient(115deg, #32147A 0%, #5A32D3 55%, #8362F2 100%);
+    border-radius: 0 0 22px 22px;
+    box-shadow: 0 10px 25px rgba(90, 50, 211, .2);
+}
+
+body > header a {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: grid;
+    place-items: center;
+    color: white;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,.28);
+    border-radius: 12px;
+    background: rgba(255,255,255,.12);
+    font-size: 14px;
+}
+
+body > header h1 {
+    margin: 0;
+    min-width: 0;
+    font-size: 17px;
+    line-height: 1.3;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+main {
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+}
+
+main > section:first-child {
+    padding: 22px;
+    background: white;
+    border: 1px solid var(--borda);
+    border-radius: 22px;
+    box-shadow: var(--sombra);
+}
+
+main > section:first-child h2 {
+    margin: 0 0 5px;
+    color: var(--texto);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+main > section:first-child p {
+    margin: 0 0 22px;
+    color: var(--cinza);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+main label {
+    display: block;
+    margin: 0 0 8px;
+    color: #514b68;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+main input, #modalAnotacao input, #modalAnotacao textarea {
+    width: 100%;
+    border: 1px solid #e7e2f2;
+    border-radius: 13px;
+    background: #faf9fd;
+    color: var(--texto);
+    padding: 13px 14px;
+    outline: none;
+    font: inherit;
+    font-size: 13px;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+main input:focus, #modalAnotacao input:focus, #modalAnotacao textarea:focus {
+    border-color: var(--roxo-claro);
+    box-shadow: 0 0 0 3px rgba(90,50,211,.10);
+}
+
+main > section:first-child > div:nth-child(2) {
+    margin-bottom: 18px;
+}
+
+main > section:first-child > div:nth-child(2) > div {
+    position: relative;
+}
+
+main > section:first-child > div:nth-child(2) i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9589bb;
+}
+
+main > section:first-child > div:nth-child(2) input {
+    padding-left: 40px;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform .18s, box-shadow .18s, background .18s;
+}
+
+main > section:first-child > button,
+#botaoSalvar,
+#botaoConfirmarMensagem {
+    min-height: 45px;
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 13px;
+    color: white;
+    background: linear-gradient(135deg, var(--roxo-claro), var(--roxo-escuro));
+    box-shadow: 0 7px 16px rgba(90,50,211,.2);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+main > section:first-child > button:hover,
+#botaoSalvar:hover,
+#botaoConfirmarMensagem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(90,50,211,.25);
+}
+
+main > section[aria-label="Anotações do evento"] {
+    margin-top: 18px;
+}
+
+#listaAnotacoes {
+    display: grid;
+    gap: 12px;
+}
+
+#listaAnotacoes > * {
+    padding: 18px;
+    border: 1px solid var(--borda);
+    border-radius: 17px;
+    background: white;
+    box-shadow: 0 6px 18px rgba(58,35,130,.06);
+}
+
+#mensagemVazia {
+    padding: 32px 20px;
+    text-align: center;
+    background: white;
+    border: 1px dashed #d9d1ef;
+    border-radius: 18px;
+    color: var(--cinza);
+}
+
+#mensagemVazia i {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--roxo-claro);
+    font-size: 30px;
+}
+
+#mensagemVazia h3 {
+    margin: 0 0 6px;
+    color: var(--texto);
+    font-size: 15px;
+}
+
+#mensagemVazia p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+#modalAnotacao, #modalMensagem {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: 18px;
+    background: rgba(28, 18, 58, .55);
+    backdrop-filter: blur(5px);
+}
+
+#modalAnotacao[hidden], #modalMensagem[hidden] { display: none; }
+
+#modalAnotacao > div, #modalMensagem > div {
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow: auto;
+    padding: 22px;
+    border-radius: 22px;
+    background: white;
+    box-shadow: 0 20px 60px rgba(20,10,50,.25);
+}
+
+#modalAnotacao > div > div:first-child,
+#modalMensagem > div > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+#modalAnotacao h2, #modalMensagem h2 {
+    margin: 0;
+    color: var(--texto);
+    font-size: 18px;
+}
+
+#botaoFecharAnotacao, #botaoFecharMensagem {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 10px;
+    color: #655b80;
+    background: #f2eff9;
+    font-size: 15px;
+}
+
+#formAnotacao > div { margin-bottom: 15px; }
+#modalAnotacao textarea { resize: vertical; min-height: 130px; }
+
+#formAnotacao > div:last-child,
+#modalMensagem > div > div:last-child {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 18px;
+}
+
+#botaoCancelar, #botaoCancelarMensagem {
+    min-height: 42px;
+    padding: 10px 16px;
+    border: 1px solid #e5e0ef;
+    border-radius: 12px;
+    color: #625b75;
+    background: white;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#botaoSalvar { min-height: 42px; }
+#textoMensagem { color: var(--cinza); font-size: 13px; line-height: 1.6; }
+
+@media (max-width: 480px) {
+    body { padding: 0 12px 28px; }
+    body > header { margin-bottom: 18px; }
+    main > section:first-child { padding: 19px; }
+}
