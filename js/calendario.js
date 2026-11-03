@@ -40,6 +40,9 @@ const avisoEvento = document.getElementById("avisoEvento");
 const modalConfirmacao = document.getElementById("modalConfirmacao");
 const cancelarExclusao = document.getElementById("cancelarExclusao");
 const confirmarExclusao = document.getElementById("confirmarExclusao");
+const parametros = new URLSearchParams(window.location.search);
+const eventoId = parametros.get("id");
+const voltarEl = document.getElementById("voltar");
 
 const eventoId = pegarIdDaUrl();
 
@@ -54,6 +57,8 @@ function mostrarMensagem(texto, tipo = "erro") {
         ? "aviso sucesso"
         : "aviso erro";
 }
+
+voltarEl.href = `evento.html?id=${encodeURIComponent(eventoId)}`;
 
 function abrirModal() {
     compromissoEditando = null;
