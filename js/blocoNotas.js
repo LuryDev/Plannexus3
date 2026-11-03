@@ -23,6 +23,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const nomeEvento = document.getElementById("nomeEvento");
+const voltarEl = document.getElementById("voltar");
 const listaAnotacoes = document.getElementById("listaAnotacoes");
 const mensagemVazia = document.getElementById("mensagemVazia");
 const modalAnotacao = document.getElementById("modalAnotacao");
@@ -34,9 +35,6 @@ const botaoNovaAnotacao = document.getElementById("botaoNovaAnotacao");
 const botaoCancelar = document.getElementById("botaoCancelar");
 const botaoSalvar = document.getElementById("botaoSalvar");
 const pesquisa = document.getElementById("pesquisa");
-const voltarEl = document.getElementById("voltar");
-
-voltarEl.href = `evento.html?id=${encodeURIComponent(eventoId)}`;
 
 const eventoId = pegarIdDaUrl();
 
@@ -44,31 +42,11 @@ let usuarioAtual = null;
 let anotacoes = [];
 let anotacaoEditando = null;
 
-function obterUsuario() {
-    return new Promise((resolve, reject) => {
-        let cancelar = () => {};
-
-        cancelar = onAuthStateChanged(
-            auth,
-            usuario => {
-                cancelar();
-                resolve(usuario);
-            },
-            erro => {
-                cancelar();
-                reject(erro);
-            }
-        );
-    });
-}
-
 async function verificarAcesso() {
     if (!eventoId || eventoId.includes("/")) {
         window.location.replace("inicio.html");
         return false;
     }
-
-    voltarEl.href = `evento.html?id=${encodeURIComponent(eventoId)}`;
 
     usuarioAtual = await exigirLogin(auth, onAuthStateChanged);
 
@@ -93,6 +71,8 @@ async function verificarAcesso() {
     }
 
     nomeEvento.textContent = dadosEvento.nome || "Evento sem nome";
+
+    voltarEl.href = `evento.html?id=${encodeURIComponent(eventoId)}`;
 
     return true;
 }
@@ -126,9 +106,17 @@ function renderizarAnotacoes() {
     const termo = pesquisa.value.trim().toLowerCase();
 
     const anotacoesFiltradas = anotacoes.filter(anotacao => {
+        const titulo = typeof anotacao.titulo === "string"
+            ? anotacao.titulo
+            : "";
+
+        const conteudo = typeof anotacao.conteudo === "string"
+            ? anotacao.conteudo
+            : "";
+
         return (
-            anotacao.titulo.toLowerCase().includes(termo) ||
-            anotacao.conteudo.toLowerCase().includes(termo)
+            titulo.toLowerCase().includes(termo) ||
+            conteudo.toLowerCase().includes(termo)
         );
     });
 
@@ -155,8 +143,8 @@ function renderizarAnotacoes() {
         cartao.className = "cartaoAnotacao";
         botoes.className = "botoesAnotacao";
 
-        titulo.textContent = anotacao.titulo;
-        conteudo.textContent = anotacao.conteudo;
+        titulo.textContent = anotacao.titulo || "";
+        conteudo.textContent = anotacao.conteudo || "";
 
         data.textContent = anotacao.dataAtualizacao
             ? `Última atualização: ${formatarData(anotacao.dataAtualizacao)}`
@@ -213,8 +201,8 @@ function abrirModal(anotacao = null) {
 
     if (anotacao) {
         tituloModal.textContent = "Editar anotação";
-        tituloAnotacao.value = anotacao.titulo;
-        conteudoAnotacao.value = anotacao.conteudo;
+        tituloAnotacao.value = anotacao.titulo || "";
+        conteudoAnotacao.value = anotacao.conteudo || "";
     } else {
         tituloModal.textContent = "Nova anotação";
     }
