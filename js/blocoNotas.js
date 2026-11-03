@@ -34,6 +34,9 @@ const botaoNovaAnotacao = document.getElementById("botaoNovaAnotacao");
 const botaoCancelar = document.getElementById("botaoCancelar");
 const botaoSalvar = document.getElementById("botaoSalvar");
 const pesquisa = document.getElementById("pesquisa");
+const voltarEl = document.getElementById("voltar");
+
+voltarEl.href = `evento.html?id=${encodeURIComponent(eventoId)}`;
 
 const eventoId = pegarIdDaUrl();
 
@@ -64,6 +67,8 @@ async function verificarAcesso() {
         window.location.replace("inicio.html");
         return false;
     }
+
+    voltarEl.href = `evento.html?id=${encodeURIComponent(eventoId)}`;
 
     usuarioAtual = await exigirLogin(auth, onAuthStateChanged);
 
