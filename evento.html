@@ -1,28 +1,170 @@
 <!DOCTYPE html>
+<<<<<<< HEAD
+<html lang="pt-BR">
+=======
 <html lang="pt-br">
+>>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
+    <meta name="description" content="Gerencie as ferramentas do seu evento no PlanNexus.">
+    <title>Evento | PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+=======
     <title>Evento - PlanNexus</title>
     <link rel="icon" href="fotos/logo.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+>>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
     <link rel="stylesheet" href="css/evento.css">
 </head>
 
 <body>
+<<<<<<< HEAD
+    <div class="app">
+
+        <header>
+            <a class="voltar" id="linkVoltar" href="inicio.html" title="Voltar" aria-label="Voltar para o início">
+=======
 
     <div class="app">
 
         <header>
             <a class="voltar" href="inicio.html" title="Voltar">
+>>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
         </header>
 
         <main class="detalhesEvento">
 
+<<<<<<< HEAD
+            <section class="card-header-evento">
+                <div class="logo-evento">
+                    <img src="fotos/logo.png" alt="Logo PlanNexus">
+                </div>
+
+                <div class="titulo-evento">
+                    <span class="subtitulo">GERENCIAMENTO DE EVENTO</span>
+                    <h1 id="nomeEvento">Carregando...</h1>
+                    <p id="resumoEvento">Organize todos os detalhes do seu evento em um só lugar.</p>
+                </div>
+            </section>
+
+            <section class="secao-ferramentas">
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Ferramentas do evento</h2>
+                        
+                    </div>
+                    <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                </div>
+
+                <div class="menu-cards">
+
+                    <!-- CALENDÁRIO -->
+                    <a href="#" id="linkCalendario" class="card-item">
+                        <div class="card-topo">
+                            <div class="icone-card icone-calendario">
+                                <i class="fa-regular fa-calendar-days"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Calendário</h3>
+                            <p>Datas, horários e compromissos do evento.</p>
+                        </div>
+
+                        <div class="previa previa-calendario" id="previaCalendario" aria-live="polite">
+                            <p class="estado-previa">Carregando compromissos...</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar calendário</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <!-- TAREFAS -->
+                    <a href="#" id="linkTarefas" class="card-item">
+                        <div class="card-topo">
+                            <div class="icone-card icone-tarefas">
+                                <i class="fa-solid fa-list-check"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Tarefas</h3>
+                            <p>Atividades pendentes e concluídas.</p>
+                        </div>
+
+                        <div class="previa previa-tarefas" id="previaTarefas" aria-live="polite">
+                            <p class="estado-previa">Carregando tarefas...</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar tarefas</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <!-- CONTROLE FINANCEIRO -->
+                    <a href="#" id="linkControleFinanceiro" class="card-item">
+                        <div class="card-topo">
+                            <div class="icone-card icone-financeiro">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Controle Financeiro</h3>
+                            <p>Orçamento, receitas, despesas e saldo.</p>
+                        </div>
+
+                        <div class="previa previa-financeiro" id="previaFinanceiro" aria-live="polite">
+                            <p class="estado-previa">Carregando informações financeiras...</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar financeiro</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <!-- BLOCO DE NOTAS -->
+                    <a href="#" id="linkBlocodeNotas" class="card-item">
+                        <div class="card-topo">
+                            <div class="icone-card icone-notas">
+                                <i class="fa-solid fa-note-sticky"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Bloco de Notas</h3>
+                            <p>Suas ideias e informações importantes.</p>
+                        </div>
+
+                        <div class="previa previa-notas" id="previaNotas" aria-live="polite">
+                            <p class="estado-previa">Carregando anotações...</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar bloco de notas</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                </div>
+            </section>
+        </main>
+=======
             <div class="card-header-evento">
 
                 <div class="logo-evento">
@@ -65,10 +207,359 @@
 
         </main>
 
+>>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
     </div>
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
+<<<<<<< HEAD
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            collection,
+            getDocs
+        } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        const app = initializeApp(window.FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const parametros = new URLSearchParams(window.location.search);
+        const eventoId = parametros.get("id");
+
+        const nomeEvento = document.getElementById("nomeEvento");
+        const resumoEvento = document.getElementById("resumoEvento");
+
+        const linkCalendario = document.getElementById("linkCalendario");
+        const linkTarefas = document.getElementById("linkTarefas");
+        const linkControleFinanceiro = document.getElementById("linkControleFinanceiro");
+        const linkBlocodeNotas = document.getElementById("linkBlocodeNotas");
+
+        const previaCalendario = document.getElementById("previaCalendario");
+        const previaTarefas = document.getElementById("previaTarefas");
+        const previaFinanceiro = document.getElementById("previaFinanceiro");
+        const previaNotas = document.getElementById("previaNotas");
+
+        function escaparHTML(valor) {
+            return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[caractere]);
+        }
+
+        function formatarData(data) {
+            if (!data) return "Data não informada";
+
+            const texto = String(data);
+            const partes = texto.split("-");
+
+            if (partes.length === 3 && partes[0].length === 4) {
+                return `${partes[2]}/${partes[1]}/${partes[0]}`;
+            }
+
+            return texto;
+        }
+
+        function formatarDinheiro(valor) {
+            return Number(valor || 0).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+        }
+
+        function hojeISO() {
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+            const dia = String(hoje.getDate()).padStart(2, "0");
+            return `${ano}-${mes}-${dia}`;
+        }
+
+        function mostrarErroPrevias() {
+            [previaCalendario, previaTarefas, previaFinanceiro, previaNotas]
+                .forEach(elemento => {
+                    elemento.innerHTML = '<p class="estado-previa">Não foi possível carregar esta prévia.</p>';
+                });
+        }
+
+        async function carregarPreviaCalendario(evento) {
+            const referencia = collection(db, "eventos", eventoId, "calendario");
+            const resultado = await getDocs(referencia);
+
+            const compromissos = resultado.docs.map(documento => ({
+                id: documento.id,
+                ...documento.data()
+            }));
+
+            if (evento.data) {
+                compromissos.push({
+                    id: "dia-do-evento",
+                    titulo: "Dia do evento",
+                    data: evento.data,
+                    horario: evento.horario || "",
+                    local: evento.local || "",
+                    automatico: true
+                });
+            }
+
+            compromissos.sort((a, b) => {
+                const dataA = a.data || "9999-99-99";
+                const dataB = b.data || "9999-99-99";
+
+                if (dataA !== dataB) return dataA.localeCompare(dataB);
+                return String(a.horario || "").localeCompare(String(b.horario || ""));
+            });
+
+            const hoje = hojeISO();
+            const proximos = compromissos.filter(item => item.data && item.data >= hoje);
+            const exibidos = (proximos.length ? proximos : compromissos).slice(0, 2);
+
+            if (!exibidos.length) {
+                previaCalendario.innerHTML = '<p class="estado-previa">Nenhum compromisso cadastrado.</p>';
+                return;
+            }
+
+            previaCalendario.innerHTML = exibidos.map(item => `
+                <article class="previa-item">
+                    <div class="previa-data">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span>${escaparHTML(formatarData(item.data))}</span>
+                    </div>
+                    <strong>${escaparHTML(item.titulo || "Sem título")}</strong>
+                    <span class="previa-detalhe">
+                        <i class="fa-regular fa-clock"></i>
+                        ${escaparHTML(item.horario || "Horário não informado")}
+                    </span>
+                    ${item.local ? `<span class="previa-detalhe"><i class="fa-solid fa-location-dot"></i>${escaparHTML(item.local)}</span>` : ""}
+                </article>
+            `).join("");
+        }
+
+        async function carregarPreviaTarefas() {
+            const referencia = collection(db, "eventos", eventoId, "tarefas");
+            const resultado = await getDocs(referencia);
+
+            const tarefas = resultado.docs.map(documento => ({
+                id: documento.id,
+                ...documento.data()
+            }));
+
+            const concluidas = tarefas.filter(tarefa => Boolean(tarefa.concluida)).length;
+            const total = tarefas.length;
+            const porcentagem = total ? Math.round((concluidas / total) * 100) : 0;
+
+            tarefas.sort((a, b) => {
+                if (Boolean(a.concluida) !== Boolean(b.concluida)) {
+                    return a.concluida ? 1 : -1;
+                }
+                return String(a.data || "9999-99-99").localeCompare(String(b.data || "9999-99-99"));
+            });
+
+            const destaques = tarefas.slice(0, 3);
+
+            previaTarefas.innerHTML = `
+                <div class="tarefas-resumo">
+                    <div>
+                        <strong>Minhas tarefas</strong>
+                        <span>${concluidas} de ${total} concluídas</span>
+                    </div>
+                    <strong class="porcentagem">${porcentagem}%</strong>
+                </div>
+                <div class="barra-progresso">
+                    <span style="width: ${porcentagem}%"></span>
+                </div>
+                ${
+                    destaques.length
+                    ? destaques.map(tarefa => `
+                        <div class="tarefa-item ${tarefa.concluida ? "concluida" : ""}">
+                            <i class="${tarefa.concluida ? "fa-solid fa-circle-check" : "fa-regular fa-circle"}"></i>
+                            <span>${escaparHTML(tarefa.titulo || "Tarefa sem título")}</span>
+                        </div>
+                    `).join("")
+                    : '<p class="estado-previa">Nenhuma tarefa cadastrada.</p>'
+                }
+            `;
+        }
+
+        async function carregarPreviaFinanceiro(evento) {
+            const referencia = collection(db, "eventos", eventoId, "controleFinanceiro");
+            const resultado = await getDocs(referencia);
+
+            const itens = resultado.docs.map(documento => documento.data());
+
+            const receitas = itens
+                .filter(item => item.tipo === "receita")
+                .reduce((total, item) => total + (Number(item.valor) || 0), 0);
+
+            const despesas = itens
+                .filter(item => item.tipo === "despesa")
+                .reduce((total, item) => total + (Number(item.valor) || 0), 0);
+
+            const orcamento = Number(evento.orcamento) || 0;
+            const saldo = orcamento + receitas - despesas;
+            const baseGrafico = Math.max(orcamento, receitas, despesas, 1);
+            const alturaReceitas = Math.max(4, Math.min(100, (receitas / baseGrafico) * 100));
+            const alturaDespesas = Math.max(4, Math.min(100, (despesas / baseGrafico) * 100));
+
+            previaFinanceiro.innerHTML = `
+                <div class="financeiro-resumo">
+                    <div>
+                        <span>Orçamento inicial</span>
+                        <strong>${formatarDinheiro(orcamento)}</strong>
+                    </div>
+                    <div class="saldo-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+
+                <div class="financeiro-dados">
+                    <div>
+                        <span>Despesas</span>
+                        <strong>${formatarDinheiro(despesas)}</strong>
+                    </div>
+                    <div>
+                        <span>Saldo atual</span>
+                        <strong class="valor-disponivel">${formatarDinheiro(saldo)}</strong>
+                    </div>
+                </div>
+
+                <div class="grafico-barras" aria-label="Comparação ilustrativa de receitas e despesas">
+                    <div style="height: ${alturaReceitas}%"></div>
+                    <div style="height: ${alturaDespesas}%"></div>
+                </div>
+
+                <div class="grafico-legenda">
+                    <span><i class="legenda-receita"></i> Receitas: ${formatarDinheiro(receitas)}</span>
+                    <span><i class="legenda-despesa"></i> Despesas</span>
+                </div>
+            `;
+        }
+
+        async function carregarPreviaNotas() {
+            const referencia = collection(db, "eventos", eventoId, "anotacoes");
+            const resultado = await getDocs(referencia);
+
+            const anotacoes = resultado.docs.map(documento => ({
+                id: documento.id,
+                ...documento.data()
+            }));
+
+            anotacoes.sort((a, b) => {
+                const dataA = a.dataAtualizacao?.toMillis?.() || 0;
+                const dataB = b.dataAtualizacao?.toMillis?.() || 0;
+                return dataB - dataA;
+            });
+
+            const ultimaNota = anotacoes[0];
+
+            if (!ultimaNota) {
+                previaNotas.innerHTML = '<p class="estado-previa">Nenhuma anotação cadastrada.</p>';
+                return;
+            }
+
+            previaNotas.innerHTML = `
+                <article class="nota-papel">
+                    <div class="nota-topo">
+                        <i class="fa-solid fa-thumbtack"></i>
+                        <span>ANOTAÇÃO MAIS RECENTE</span>
+                    </div>
+                    <strong>${escaparHTML(ultimaNota.titulo || "Sem título")}</strong>
+                    <p class="conteudo-previa-nota">${escaparHTML(ultimaNota.conteudo || "")}</p>
+                </article>
+            `;
+        }
+
+        function esconderLinks() {
+            linkCalendario.hidden = true;
+            linkTarefas.hidden = true;
+            linkControleFinanceiro.hidden = true;
+            linkBlocodeNotas.hidden = true;
+        }
+
+        async function carregarEvento() {
+            if (!eventoId || eventoId.includes("/")) {
+                nomeEvento.textContent = "Evento não encontrado.";
+                esconderLinks();
+                return;
+            }
+
+            try {
+                const usuario = await exigirLogin(auth, onAuthStateChanged);
+                if (!usuario) return;
+
+                const referenciaEvento = doc(db, "eventos", eventoId);
+                const resultadoEvento = await getDoc(referenciaEvento);
+
+                if (!resultadoEvento.exists()) {
+                    nomeEvento.textContent = "Evento não encontrado.";
+                    esconderLinks();
+                    return;
+                }
+
+                const evento = resultadoEvento.data();
+
+                if (evento.usuarioId && evento.usuarioId !== usuario.uid) {
+                    nomeEvento.textContent = "Você não tem acesso a este evento.";
+                    esconderLinks();
+                    return;
+                }
+
+                nomeEvento.textContent = evento.nome || "Evento sem nome";
+
+                const detalhes = [];
+                if (evento.data) detalhes.push(formatarData(evento.data));
+                if (evento.local) detalhes.push(evento.local);
+                resumoEvento.textContent = detalhes.length
+                    ? detalhes.join(" • ")
+                    : "Acesse as ferramentas para organizar seu evento.";
+
+                linkVoltar.href = "inicio.html";
+                linkCalendario.href = `calendario.html?id=${encodeURIComponent(eventoId)}`;
+                linkTarefas.href = `tarefas.html?id=${encodeURIComponent(eventoId)}`;
+                linkControleFinanceiro.href = `controleFinanceiro.html?id=${encodeURIComponent(eventoId)}`;
+                linkBlocodeNotas.href = `blocoNotas.html?id=${encodeURIComponent(eventoId)}`;
+
+                const resultados = await Promise.allSettled([
+                    carregarPreviaCalendario(evento),
+                    carregarPreviaTarefas(),
+                    carregarPreviaFinanceiro(evento),
+                    carregarPreviaNotas()
+                ]);
+
+                resultados.forEach((resultado, indice) => {
+                    if (resultado.status === "rejected") {
+                        console.error("Erro ao carregar prévia:", resultado.reason);
+                        const elementos = [
+                            previaCalendario,
+                            previaTarefas,
+                            previaFinanceiro,
+                            previaNotas
+                        ];
+                        elementos[indice].innerHTML =
+                            '<p class="estado-previa">Não foi possível carregar esta prévia.</p>';
+                    }
+                });
+
+            } catch (erro) {
+                console.error("Erro ao carregar evento:", erro);
+                nomeEvento.textContent = "Erro ao carregar evento.";
+                mostrarErroPrevias();
+            }
+        }
+
+        carregarEvento();
+    </script>
+</body>
+</html>
+=======
     <script type="module">
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
@@ -194,3 +685,4 @@
 </body>
 
 </html>
+>>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
