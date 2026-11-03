@@ -587,6 +587,7 @@ font-size:17px;
 font-weight:700;
 line-height:1.35;
 letter-spacing:0.1px;
+}
 
 #listaEventos .evento-icone{
 width:58px;
@@ -2025,7 +2026,6 @@ minmax(0,1fr)
 );
 gap:22px;
 }
-<<<<<<< HEAD
 }
 /* MASCOTE MAIOR - CELULAR */
 .banner::after {
@@ -2083,6 +2083,4 @@ gap:22px;
         right: 6%;
         bottom: -25px;
     }
-=======
->>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
 }
