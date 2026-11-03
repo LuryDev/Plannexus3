@@ -1,164 +1,96 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendário | PlanNexus</title>
+
+    <title>Calendário - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/calendario.css">
 </head>
+
 <body>
 
     <div class="app">
 
         <header>
-            <a href="evento.html" id="voltar" class="voltar" aria-label="Voltar">←</a>
-            <h1 id="nomeEvento">Carregando evento...</h1>
+            <a class="voltar" id="voltar" href="inicio.html" title="Voltar" aria-label="Voltar">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+
+            <h1 id="nomeEvento">Carregando...</h1>
         </header>
 
-        <main>
-            <section aria-labelledby="tituloCalendario">
+        <main class="calendario-container">
 
-                <div id="avisoEvento" class="aviso" role="status" aria-live="polite"></div>
+            <div class="titulo">
+                <h2>Calendário do Evento</h2>
 
-                <div class="titulo">
-                    <h2 id="tituloCalendario">Compromissos</h2>
+                <button class="novo" id="botaoNovo" type="button">
+                    <i class="fa-solid fa-plus"></i>
+                    Novo
+                </button>
+            </div>
 
-                    <button type="button" id="botaoNovo" class="novo" disabled>
-                        Novo compromisso
-                    </button>
-                </div>
-
-                <p id="mensagem" class="aviso" role="status" aria-live="polite"></p>
-
-                <section
-                    id="listaCompromissos"
-                    class="lista-compromissos"
-                    aria-label="Lista de compromissos"
-                ></section>
-
+            <section class="lista-compromissos" id="listaCompromissos">
+                <p class="aviso">Carregando agenda...</p>
             </section>
+
         </main>
 
     </div>
 
-    <div
-        id="modal"
-        class="modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="tituloModal"
-        style="display: none;"
-    >
-        <div class="modal-caixa">
+    <div class="modal" id="modal" hidden>
+
+        <form class="modal-caixa" id="formCompromisso">
 
             <div class="modal-topo">
-                <h2 id="tituloModal">Novo compromisso</h2>
-            </div>
+                <h2>Novo compromisso</h2>
 
-            <form id="formCompromisso">
-
-                <label for="tituloCompromisso">Título</label>
-                <input
-                    type="text"
-                    id="tituloCompromisso"
-                    maxlength="120"
-                    required
-                >
-
-                <div class="duplo">
-                    <div>
-                        <label for="dataCompromisso">Data</label>
-                        <input
-                            type="date"
-                            id="dataCompromisso"
-                            required
-                        >
-                    </div>
-
-                    <div>
-                        <label for="horarioCompromisso">Horário</label>
-                        <input
-                            type="time"
-                            id="horarioCompromisso"
-                            required
-                        >
-                    </div>
-                </div>
-
-                <label for="localCompromisso">Local</label>
-                <input
-                    type="text"
-                    id="localCompromisso"
-                    maxlength="150"
-                >
-
-                <label for="responsaveisCompromisso">Responsáveis</label>
-                <input
-                    type="text"
-                    id="responsaveisCompromisso"
-                    maxlength="300"
-                    placeholder="Ex.: Ana, Pedro, Júlia"
-                >
-
-                <label for="descricaoCompromisso">Descrição</label>
-                <textarea
-                    id="descricaoCompromisso"
-                    maxlength="2000"
-                    rows="4"
-                ></textarea>
-
-                <p id="mensagemFormulario" class="mensagem" role="alert"></p>
-
-                <div class="acoes-modal">
-                    <button type="submit" id="botaoSalvar" class="salvar">
-                        Salvar compromisso
-                    </button>
-
-                    <button type="button" id="fecharModal" class="fechar">
-                        Cancelar
-                    </button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
-
-    <div
-        id="modalConfirmacao"
-        class="modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="tituloConfirmacao"
-        style="display: none;"
-    >
-        <div class="modal-caixa">
-
-            <div class="modal-topo">
-                <h2 id="tituloConfirmacao">Confirmar exclusão</h2>
-            </div>
-
-            <p>Tem certeza de que deseja excluir este compromisso?</p>
-
-            <div class="acoes-modal">
-                <button
-                    type="button"
-                    id="confirmarExclusao"
-                    class="salvar"
-                >
-                    Confirmar exclusão
-                </button>
-
-                <button
-                    type="button"
-                    id="cancelarExclusao"
-                    class="fechar"
-                >
-                    Cancelar
+                <button type="button" class="fechar" id="fecharModal" title="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-        </div>
+            <label for="tituloCompromisso">Título</label>
+            <input
+                type="text"
+                id="tituloCompromisso"
+                placeholder="Ex: Prova do bolo"
+                maxlength="80"
+                required
+            >
+
+            <div class="duplo">
+                <div>
+                    <label for="dataCompromisso">Data</label>
+                    <input type="date" id="dataCompromisso" required>
+                </div>
+
+                <div>
+                    <label for="horarioCompromisso">Horário</label>
+                    <input type="time" id="horarioCompromisso">
+                </div>
+            </div>
+
+            <label for="descricaoCompromisso">Descrição</label>
+            <textarea
+                id="descricaoCompromisso"
+                rows="3"
+                placeholder="Detalhes (opcional)"
+            ></textarea>
+
+            <button type="submit" class="salvar" id="botaoSalvar">
+                Salvar compromisso
+            </button>
+
+            <p class="mensagem" id="mensagem"></p>
+
+        </form>
+
     </div>
 
     <script src="js/config.js"></script>
