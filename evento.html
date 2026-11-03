@@ -1,47 +1,36 @@
 <!DOCTYPE html>
-<<<<<<< HEAD
-<html lang="pt-BR">
-=======
 <html lang="pt-br">
->>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< HEAD
     <meta name="description" content="Gerencie as ferramentas do seu evento no PlanNexus.">
     <title>Evento | PlanNexus</title>
     <link rel="icon" href="fotos/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-=======
+
     <title>Evento - PlanNexus</title>
     <link rel="icon" href="fotos/logo.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
->>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
     <link rel="stylesheet" href="css/evento.css">
 </head>
 
 <body>
-<<<<<<< HEAD
     <div class="app">
 
         <header>
             <a class="voltar" id="linkVoltar" href="inicio.html" title="Voltar" aria-label="Voltar para o início">
-=======
-
+            </a>
+        </header>
     <div class="app">
 
         <header>
             <a class="voltar" href="inicio.html" title="Voltar">
->>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
         </header>
 
         <main class="detalhesEvento">
-
-<<<<<<< HEAD
             <section class="card-header-evento">
                 <div class="logo-evento">
                     <img src="fotos/logo.png" alt="Logo PlanNexus">
@@ -164,7 +153,6 @@
                 </div>
             </section>
         </main>
-=======
             <div class="card-header-evento">
 
                 <div class="logo-evento">
@@ -207,12 +195,13 @@
 
         </main>
 
->>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
     </div>
+
+</body>
+</html>
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
-<<<<<<< HEAD
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
@@ -556,20 +545,7 @@
         }
 
         carregarEvento();
-    </script>
-</body>
-</html>
-=======
-    <script type="module">
 
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-        // FIREBASE_CONFIG vem do arquivo js/config.js
-        const app = initializeApp(FIREBASE_CONFIG);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
 
         const parametros =
             new URLSearchParams(window.location.search);
@@ -681,8 +657,3 @@
         carregarEvento();
 
     </script>
-
-</body>
-
-</html>
->>>>>>> 08ba6105e28b3725f671a5b3fe36eb7eaff9725e
