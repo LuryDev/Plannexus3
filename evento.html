@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,6 @@
     <title>Evento | PlanNexus</title>
     <link rel="icon" href="fotos/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
-    <title>Evento - PlanNexus</title>
-    <link rel="icon" href="fotos/logo.png">
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/evento.css">
 </head>
 
@@ -20,17 +16,12 @@
 
         <header>
             <a class="voltar" id="linkVoltar" href="inicio.html" title="Voltar" aria-label="Voltar para o início">
-            </a>
-        </header>
-    <div class="app">
-
-        <header>
-            <a class="voltar" href="inicio.html" title="Voltar">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
         </header>
 
         <main class="detalhesEvento">
+
             <section class="card-header-evento">
                 <div class="logo-evento">
                     <img src="fotos/logo.png" alt="Logo PlanNexus">
@@ -153,52 +144,7 @@
                 </div>
             </section>
         </main>
-            <div class="card-header-evento">
-
-                <div class="logo-evento">
-                    <img src="fotos/logo.png" alt="Logo Evento">
-                </div>
-
-                <h1 id="nomeEvento">Carregando...</h1>
-
-            </div>
-
-            <div class="menu-cards">
-
-                <a href="#" id="linkCalendario" class="card-item">
-                    <span>Calendário</span>
-                    <i class="fa-solid fa-chevron-right"></i>
-                </a>
-
-                <a href="#" id="linkTarefas" class="card-item">
-                    <span>Tarefas</span>
-                    <i class="fa-solid fa-chevron-right"></i>
-                </a>
-
-                <a href="#" id="linkControleFinanceiro" class="card-item card-grafico">
-
-                    <div class="card-info">
-                        <span>Controle Financeiro</span>
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </div>
-
-                    <div class="grafico-bg"></div>
-
-                </a>
-
-                <a href="#" id="linkBlocodeNotas" class="card-item">
-                    <span>Bloco de Notas</span>
-                    <i class="fa-solid fa-chevron-right"></i>
-                </a>
-
-            </div>
-
-        </main>
-
     </div>
-
-</body>
-</html>
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
@@ -545,115 +491,6 @@
         }
 
         carregarEvento();
-
-
-        const parametros =
-            new URLSearchParams(window.location.search);
-
-        const eventoId =
-            parametros.get("id");
-
-
-        const nomeEvento =
-            document.getElementById("nomeEvento");
-
-        const linkCalendario =
-            document.getElementById("linkCalendario");
-
-        const linkTarefas =
-            document.getElementById("linkTarefas");
-
-        const linkControleFinanceiro =
-            document.getElementById("linkControleFinanceiro");
-
-        const linkBlocodeNotas =
-            document.getElementById("linkBlocodeNotas");
-        
-        function esconderLinks() {
-            linkCalendario.style.display = "none";
-            linkTarefas.style.display = "none";
-            linkControleFinanceiro.style.display = "none";
-            linkBlocodeNotas.style.display = "none";
-        }
-
-
-        async function carregarEvento() {
-
-            if (!eventoId) {
-
-                nomeEvento.textContent =
-                    "Evento não encontrado.";
-
-                esconderLinks();
-
-                return;
-
-            }
-
-
-            await exigirLogin(auth, onAuthStateChanged);
-
-            try {
-
-                const referencia =
-                    doc(db, "eventos", eventoId);
-
-                const resultado =
-                    await getDoc(referencia);
-
-
-                if (!resultado.exists()) {
-
-                    nomeEvento.textContent =
-                        "Evento não encontrado.";
-
-                    esconderLinks();
-
-                    return;
-
-                }
-
-
-                const evento =
-                    resultado.data();
-
-
-                nomeEvento.textContent =
-                    evento.nome || "Sem nome";
-
-
-                linkCalendario.href =
-                    "calendario.html?id=" +
-                    encodeURIComponent(eventoId);
-
-                linkTarefas.href =
-                    "tarefas.html?id=" +
-                    encodeURIComponent(eventoId);
-
-                linkControleFinanceiro.href =
-                    "controleFinanceiro.html?id=" +
-                    encodeURIComponent(eventoId);
-
-                linkBlocodeNotas.href =
-                    "blocoNotas.html?id=" +
-                    encodeURIComponent(eventoId);
-            }
-
-            catch (erro) {
-
-                console.error(
-                    "Erro ao carregar evento:",
-                    erro
-                );
-
-                nomeEvento.textContent =
-                    "Erro ao carregar evento.";
-
-            }
-
-        }
-
-
-        carregarEvento();
-
     </script>
+</body>
+</html>
