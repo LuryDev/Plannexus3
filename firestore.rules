@@ -48,6 +48,11 @@ service cloud.firestore {
         allow read, write: if donoDoEvento(eventoId) || ehAdmin();
       }
 
+      // Controle financeiro do evento
+      match /controleFinanceiro/{itemId} {
+      allow read, write: if donoDoEvento(eventoId) || ehAdmin();
+      }
+
       // Anotações no Bloco de Notas
       match /anotacoes/{anotacaoId} {
         function anotacaoValida() {
