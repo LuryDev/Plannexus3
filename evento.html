@@ -18,6 +18,11 @@
             <a class="voltar" id="linkVoltar" href="inicio.html" title="Voltar" aria-label="Voltar para o início">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
+
+            <a class="botao-adicionar-pessoas" id="linkAdicionarPessoas" href="#" title="Adicionar pessoas" hidden>
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Adicionar pessoas</span>
+            </a>
         </header>
 
         <main class="detalhesEvento">
@@ -143,6 +148,20 @@
 
                 </div>
             </section>
+
+            <section class="secao-perigo" id="secaoPerigo" hidden>
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Zona de perigo</h2>
+                        <p>Essa ação não pode ser desfeita.</p>
+                    </div>
+                </div>
+
+                <button type="button" class="botao-excluir-evento" id="botaoExcluirEvento">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Excluir evento</span>
+                </button>
+            </section>
         </main>
     </div>
 
@@ -156,8 +175,11 @@
             getFirestore,
             doc,
             getDoc,
+            deleteDoc,
             collection,
-            getDocs
+            getDocs,
+            query,
+            where
         } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
         const app = initializeApp(window.FIREBASE_CONFIG);
@@ -169,6 +191,11 @@
 
         const nomeEvento = document.getElementById("nomeEvento");
         const resumoEvento = document.getElementById("resumoEvento");
+
+        const linkAdicionarPessoas = document.getElementById("linkAdicionarPessoas");
+
+        const secaoPerigo = document.getElementById("secaoPerigo");
+        const botaoExcluirEvento = document.getElementById("botaoExcluirEvento");
 
         const linkCalendario = document.getElementById("linkCalendario");
         const linkTarefas = document.getElementById("linkTarefas");
@@ -413,10 +440,12 @@
         }
 
         function esconderLinks() {
+            linkAdicionarPessoas.hidden = true;
             linkCalendario.hidden = true;
             linkTarefas.hidden = true;
             linkControleFinanceiro.hidden = true;
             linkBlocodeNotas.hidden = true;
+            secaoPerigo.hidden = true;
         }
 
         async function carregarEvento() {
@@ -441,10 +470,28 @@
 
                 const evento = resultadoEvento.data();
 
-                if (evento.usuarioId && evento.usuarioId !== usuario.uid) {
-                    nomeEvento.textContent = "Você não tem acesso a este evento.";
-                    esconderLinks();
-                    return;
+                const souDono = evento.usuarioId === usuario.uid;
+                let papelUsuario = souDono ? "dono" : null;
+
+                if (!souDono) {
+                    const referenciaMembro = doc(db, "eventos", eventoId, "membros", usuario.uid);
+                    const resultadoMembro = await getDoc(referenciaMembro);
+
+                    if (!resultadoMembro.exists()) {
+                        nomeEvento.textContent = "Você não tem acesso a este evento.";
+                        esconderLinks();
+                        return;
+                    }
+
+                    papelUsuario = resultadoMembro.data().papel || "visitante";
+                }
+
+                // Só o dono do evento pode convidar pessoas e excluir o evento
+                if (souDono) {
+                    linkAdicionarPessoas.hidden = false;
+                    linkAdicionarPessoas.href = `pessoas.html?id=${encodeURIComponent(eventoId)}`;
+
+                    secaoPerigo.hidden = false;
                 }
 
                 nomeEvento.textContent = evento.nome || "Evento sem nome";
@@ -489,6 +536,53 @@
                 mostrarErroPrevias();
             }
         }
+
+        async function excluirSubcolecao(nomeSubcolecao) {
+            const referencia = collection(db, "eventos", eventoId, nomeSubcolecao);
+            const resultado = await getDocs(referencia);
+            await Promise.all(resultado.docs.map(documento => deleteDoc(documento.ref)));
+        }
+
+        async function excluirConvitesDoEvento() {
+            const referencia = query(collection(db, "convites"), where("eventoId", "==", eventoId));
+            const resultado = await getDocs(referencia);
+            await Promise.all(resultado.docs.map(documento => deleteDoc(documento.ref)));
+        }
+
+        async function excluirEvento() {
+            const nomeAtual = nomeEvento.textContent || "este evento";
+
+            const confirmou = confirm(
+                `Tem certeza que deseja excluir "${nomeAtual}"? Essa ação não pode ser desfeita e vai apagar tarefas, calendário, financeiro, anotações e pessoas vinculadas a este evento.`
+            );
+            if (!confirmou) return;
+
+            botaoExcluirEvento.disabled = true;
+            botaoExcluirEvento.querySelector("span").textContent = "Excluindo...";
+
+            try {
+                await Promise.all([
+                    excluirSubcolecao("tarefas"),
+                    excluirSubcolecao("calendario"),
+                    excluirSubcolecao("controleFinanceiro"),
+                    excluirSubcolecao("anotacoes"),
+                    excluirSubcolecao("membros"),
+                    excluirConvitesDoEvento()
+                ]);
+
+                await deleteDoc(doc(db, "eventos", eventoId));
+
+                window.location.href = "inicio.html";
+
+            } catch (erro) {
+                console.error("Erro ao excluir evento:", erro);
+                alert("Não foi possível excluir o evento: " + erro.message);
+                botaoExcluirEvento.disabled = false;
+                botaoExcluirEvento.querySelector("span").textContent = "Excluir evento";
+            }
+        }
+
+        botaoExcluirEvento.addEventListener("click", excluirEvento);
 
         carregarEvento();
     </script>

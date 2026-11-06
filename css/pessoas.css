@@ -1,0 +1,305 @@
+/* ==========================================
+   PÁGINA "ADICIONAR PESSOAS"
+   Reaproveita as variáveis e o padrão visual
+   já usados em criarEvento.css / evento.css
+   ========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+    --roxo: #5A32D3;
+    --roxo-escuro: #4D2FB8;
+    --roxo-claro: #A491F9;
+    --fundo: #F4F4F8;
+    --branco: #FFFFFF;
+    --texto: #1F1F1F;
+    --cinza: #777;
+    --radius: 18px;
+    --sombra: 0 8px 20px rgba(77, 47, 184, 0.15);
+}
+
+body {
+    background: var(--fundo);
+    color: var(--texto);
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    min-height: 100vh;
+    margin: auto;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+header h2 {
+    color: var(--roxo);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.voltar {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: #EDE9FF;
+    color: var(--roxo);
+    border-radius: 12px;
+    font-size: 20px;
+    transition: all .2s ease;
+}
+
+.voltar:hover {
+    background: var(--roxo);
+    color: white;
+    transform: translateX(-2px);
+}
+
+form {
+    background: var(--branco);
+    padding: 25px;
+    border-radius: var(--radius);
+    box-shadow: var(--sombra);
+    margin-bottom: 25px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+}
+
+.campo label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--texto);
+    font-size: 14px;
+}
+
+.campo input,
+.campo select {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #E0E0E0;
+    outline: none;
+    font-size: 15px;
+    background: #FAFAFC;
+    color: var(--texto);
+    transition: all .2s ease;
+}
+
+.campo input:focus,
+.campo select:focus {
+    border-color: var(--roxo);
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(90, 50, 211, .10);
+}
+
+/* Escolha do tipo de colaboração: cartões selecionáveis em vez de <select> puro,
+   pra deixar explícito o que cada papel pode fazer */
+.tipos-papel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.opcao-papel {
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+.opcao-papel input {
+    position: absolute;
+    opacity: 0;
+}
+
+.opcao-papel .cartao-papel {
+    padding: 16px 14px;
+    border: 2px solid #E0E0E0;
+    border-radius: 14px;
+    background: #FAFAFC;
+    transition: all .2s ease;
+}
+
+.opcao-papel .cartao-papel i {
+    color: var(--roxo-claro);
+    font-size: 18px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.opcao-papel .cartao-papel strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.opcao-papel .cartao-papel span {
+    display: block;
+    color: var(--cinza);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.opcao-papel input:checked + .cartao-papel {
+    border-color: var(--roxo);
+    background: #F3EFFF;
+    box-shadow: 0 0 0 3px rgba(90, 50, 211, .10);
+}
+
+.opcao-papel input:checked + .cartao-papel i {
+    color: var(--roxo);
+}
+
+button.principal {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #5A32D3, #4D2FB8);
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(77, 47, 184, .20);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+button.principal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 20px rgba(77, 47, 184, .25);
+}
+
+button.principal:disabled {
+    opacity: .7;
+    cursor: default;
+    transform: none;
+}
+
+#mensagem {
+    margin-top: 12px;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Lista de pessoas já convidadas / na equipe */
+.secao-equipe h3 {
+    font-size: 15px;
+    color: var(--texto);
+    margin-bottom: 14px;
+}
+
+.estado-lista {
+    color: var(--cinza);
+    font-size: 13px;
+}
+
+.lista-pessoas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pessoa-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--branco);
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(77, 47, 184, .08);
+}
+
+.pessoa-avatar {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 50%;
+    background: #EDE9FF;
+    color: var(--roxo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.pessoa-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.pessoa-info strong {
+    display: block;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.pessoa-info span {
+    display: block;
+    color: var(--cinza);
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.selo {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.selo-colaborador { background: #E6F6F0; color: #328E75; }
+.selo-visitante { background: #FFF4DF; color: #C28A37; }
+.selo-pendente { background: #F0EDF7; color: var(--cinza); }
+
+.botao-cancelar-convite {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: #F0EDF7;
+    color: var(--cinza);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.botao-cancelar-convite:hover {
+    background: #FBE7E7;
+    color: #C0392B;
+}
+
+.botao-cancelar-convite:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+@media (max-width: 768px) {
+    body { background: #FFFFFF; }
+    .container { padding: 15px; }
+    form { padding: 20px; box-shadow: 0 5px 18px rgba(77, 47, 184, .10); }
+    .tipos-papel { grid-template-columns: 1fr; }
+}

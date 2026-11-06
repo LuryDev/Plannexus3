@@ -6,9 +6,15 @@ rules_version = '2';
 //  > aba "Regras" > Publicar.
 //
 //  IMPORTANTE: regras de "eventos/{id}" NÃO valem para as
-//  subcoleções (tarefas, calendario). Por isso elas têm regra própria
-//  logo abaixo — sem isso as páginas de Tarefas e Calendário dão
-//  "permission-denied".
+//  subcoleções (tarefas, calendario, membros...). Por isso elas têm
+//  regra própria logo abaixo — sem isso as páginas de Tarefas e
+//  Calendário dão "permission-denied".
+//
+//  PESSOAS DO EVENTO (colaboradores/visitantes):
+//  - "convites/{id}"                 -> convite pendente por e-mail
+//  - "eventos/{id}/membros/{uid}"    -> pessoa que já aceitou o convite
+//    membros.papel pode ser "colaborador" (lê e escreve tudo do evento)
+//    ou "visitante" (só lê).
 // =============================================================
 
 service cloud.firestore {
@@ -27,25 +33,150 @@ service cloud.firestore {
         get(/databases/$(database)/documents/eventos/$(eventoId)).data.usuarioId == request.auth.uid;
     }
 
+    // Existe um registro em membros/{uid} para este usuário neste evento?
+    function membroDoEvento(eventoId) {
+      return logado() &&
+        exists(/databases/$(database)/documents/eventos/$(eventoId)/membros/$(request.auth.uid));
+    }
+
+    function papelDoMembro(eventoId) {
+      return get(/databases/$(database)/documents/eventos/$(eventoId)/membros/$(request.auth.uid)).data.papel;
+    }
+
+    // Dono ou colaborador: pode editar o conteúdo do evento
+    function colaboradorDoEvento(eventoId) {
+      return donoDoEvento(eventoId) ||
+        (membroDoEvento(eventoId) && papelDoMembro(eventoId) == "colaborador");
+    }
+
+    // Dono, colaborador ou visitante: pode ver o conteúdo do evento
+    function acessoAoEvento(eventoId) {
+      return donoDoEvento(eventoId) || membroDoEvento(eventoId);
+    }
+
     // Perfil de cada usuário
     match /usuarios/{uid} {
       allow read, write: if logado() && request.auth.uid == uid;
     }
 
+    // Convites para colaborar/visualizar um evento (por e-mail)
+    match /convites/{conviteId} {
+      allow create: if logado() &&
+        request.resource.data.donoId == request.auth.uid &&
+        donoDoEvento(request.resource.data.eventoId) &&
+        request.resource.data.status == "pendente" &&
+        request.resource.data.papel in ["colaborador", "visitante"] &&
+        request.resource.data.emailConvidado is string &&
+        request.resource.data.emailConvidado.size() > 0 &&
+        request.resource.data.emailConvidado != request.auth.token.email;
+
+      // Só quem convidou ou quem recebeu o convite (pelo e-mail) pode ver
+      allow read: if logado() && (
+        resource.data.donoId == request.auth.uid ||
+        resource.data.emailConvidado == request.auth.token.email ||
+        ehAdmin()
+      );
+
+      // Só a pessoa convidada responde, e só enquanto está pendente;
+      // não pode alterar evento/dono/papel/e-mail do convite, só o status.
+      allow update: if logado() &&
+        resource.data.emailConvidado == request.auth.token.email &&
+        resource.data.status == "pendente" &&
+        request.resource.data.status in ["aceito", "recusado"] &&
+        request.resource.data.eventoId == resource.data.eventoId &&
+        request.resource.data.donoId == resource.data.donoId &&
+        request.resource.data.emailConvidado == resource.data.emailConvidado &&
+        request.resource.data.papel == resource.data.papel;
+
+      // Quem convidou pode cancelar um convite ainda pendente
+      allow delete: if logado() && (resource.data.donoId == request.auth.uid || ehAdmin());
+    }
+
     // Eventos
     match /eventos/{eventoId} {
       allow create: if logado() && request.resource.data.usuarioId == request.auth.uid;
-      allow read, update, delete: if logado() &&
+      allow read: if logado() &&
+        (resource.data.usuarioId == request.auth.uid || membroDoEvento(eventoId) || ehAdmin());
+      allow update: if logado() && colaboradorDoEvento(eventoId) || ehAdmin();
+      allow delete: if logado() &&
         (resource.data.usuarioId == request.auth.uid || ehAdmin());
+
+      // Pessoas que fazem parte do evento (colaboradores e visitantes)
+      match /membros/{membroUid} {
+        allow read: if donoDoEvento(eventoId) ||
+          (logado() && request.auth.uid == membroUid) || ehAdmin();
+
+        // Só o próprio usuário se adiciona, e só aceitando um convite
+        // pendente, dirigido ao e-mail dele, para este evento e papel.
+        allow create: if logado() &&
+          request.auth.uid == membroUid &&
+          request.resource.data.uid == membroUid &&
+          request.resource.data.email == request.auth.token.email &&
+          request.resource.data.papel in ["colaborador", "visitante"] &&
+          exists(/databases/$(database)/documents/convites/$(request.resource.data.conviteId)) &&
+          get(/databases/$(database)/documents/convites/$(request.resource.data.conviteId)).data.eventoId == eventoId &&
+          get(/databases/$(database)/documents/convites/$(request.resource.data.conviteId)).data.emailConvidado == request.auth.token.email &&
+          get(/databases/$(database)/documents/convites/$(request.resource.data.conviteId)).data.papel == request.resource.data.papel &&
+          get(/databases/$(database)/documents/convites/$(request.resource.data.conviteId)).data.status == "pendente";
+
+        // O dono pode remover/trocar o papel de alguém; a própria pessoa pode saír
+        allow update, delete: if donoDoEvento(eventoId) ||
+          (logado() && request.auth.uid == membroUid) || ehAdmin();
+      }
 
       // Tarefas do evento
       match /tarefas/{tarefaId} {
-        allow read, write: if donoDoEvento(eventoId) || ehAdmin();
+        allow read: if acessoAoEvento(eventoId) || ehAdmin();
+        allow write: if colaboradorDoEvento(eventoId) || ehAdmin();
       }
 
       // Compromissos do calendário do evento
       match /calendario/{itemId} {
-        allow read, write: if donoDoEvento(eventoId) || ehAdmin();
+        allow read: if acessoAoEvento(eventoId) || ehAdmin();
+        allow write: if colaboradorDoEvento(eventoId) || ehAdmin();
+      }
+
+      // Controle financeiro do evento
+      match /controleFinanceiro/{itemId} {
+        allow read: if acessoAoEvento(eventoId) || ehAdmin();
+        allow write: if colaboradorDoEvento(eventoId) || ehAdmin();
+      }
+
+      // Anotações no Bloco de Notas
+      match /anotacoes/{anotacaoId} {
+        function anotacaoValida() {
+          return request.resource.data.keys().hasAll([
+            "titulo",
+            "conteudo",
+            "dataCriacao",
+            "dataAtualizacao"
+          ]) &&
+          request.resource.data.keys().hasOnly([
+            "titulo",
+            "conteudo",
+            "dataCriacao",
+            "dataAtualizacao"
+          ]) &&
+          request.resource.data.titulo is string &&
+          request.resource.data.titulo.size() > 0 &&
+          request.resource.data.titulo.size() <= 100 &&
+          request.resource.data.conteudo is string &&
+          request.resource.data.conteudo.size() > 0 &&
+          request.resource.data.conteudo.size() <= 10000 &&
+          request.resource.data.dataCriacao is timestamp &&
+          request.resource.data.dataAtualizacao is timestamp;
+        }
+
+        allow read: if acessoAoEvento(eventoId) || ehAdmin();
+
+        allow create: if (colaboradorDoEvento(eventoId) || ehAdmin())
+          && anotacaoValida();
+
+        allow update: if (colaboradorDoEvento(eventoId) || ehAdmin())
+          && anotacaoValida()
+          && request.resource.data.dataCriacao == resource.data.dataCriacao;
+
+        allow delete: if colaboradorDoEvento(eventoId) || ehAdmin();
       }
 
       // Controle financeiro do evento

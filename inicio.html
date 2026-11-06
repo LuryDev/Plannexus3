@@ -41,9 +41,11 @@
         </div>
 
 
-        <div class="notification">
+        <div class="notification" id="botaoNotificacao">
 
             <i class="fa-regular fa-bell"></i>
+
+            <span class="badge-notificacao" id="badgeNotificacao" hidden></span>
 
         </div>
 
@@ -93,6 +95,11 @@
         <span></span>
 
     </div>
+
+
+    <!-- CONVITES PENDENTES (abaixo do "Bem-vindo(a)") -->
+
+    <div class="convites-home" id="convitesHome" hidden></div>
 
 
     <!-- CONTEÚDO -->
@@ -171,7 +178,17 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+    import {
+        getFirestore,
+        collection,
+        doc,
+        query,
+        where,
+        getDocs,
+        updateDoc,
+        writeBatch,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
     // FIREBASE_CONFIG vem do arquivo js/config.js
     const app  = initializeApp(FIREBASE_CONFIG);
@@ -193,6 +210,12 @@
     const pesquisaEvento =
         document.getElementById("pesquisaEvento");
 
+
+    const badgeNotificacao =
+        document.getElementById("badgeNotificacao");
+
+    const convitesHome =
+        document.getElementById("convitesHome");
 
 
     let usuarioAtual = null;
@@ -228,6 +251,11 @@
             carregarEventos(usuario);
 
 
+            // Carregar convites pendentes (colaborador/visitante)
+
+            carregarConvites(usuario);
+
+
         }
 
         else {
@@ -244,6 +272,11 @@
                 "Bem-vindo(a)";
 
 
+            convitesHome.hidden = true;
+            convitesHome.innerHTML = "";
+            badgeNotificacao.hidden = true;
+
+
             listaEventos.innerHTML = `
                 <p>Faça login para visualizar seus eventos.</p>
             `;
@@ -252,6 +285,146 @@
 
     });
 
+
+    // ==========================================
+    // CONVITES PENDENTES (colaborador/visitante)
+    // ==========================================
+
+    function papelLegivel(papel) {
+        if (papel === "colaborador") return "Colaborador";
+        if (papel === "visitante") return "Visitante";
+        return papel;
+    }
+
+    function cartaoConvite(documento) {
+        const convite = documento.data();
+
+        return `
+            <div class="convite-card" data-id="${documento.id}">
+                <p>
+                    Você foi convidado(a) para o evento
+                    <strong>${escaparHTML(convite.eventoNome || "Evento sem nome")}</strong>
+                    como <strong>${escaparHTML(papelLegivel(convite.papel))}</strong>.
+                </p>
+                <div class="convite-acoes">
+                    <button type="button" class="btn-aceitar" data-id="${documento.id}" data-acao="aceitar">Aceitar</button>
+                    <button type="button" class="btn-recusar" data-id="${documento.id}" data-acao="recusar">Recusar</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function ativarBotoesConvite(container, convitesPorId) {
+        container.querySelectorAll("[data-acao]").forEach((botao) => {
+            botao.addEventListener("click", () => {
+                const conviteId = botao.dataset.id;
+                const aceitar = botao.dataset.acao === "aceitar";
+                responderConvite(conviteId, convitesPorId.get(conviteId), aceitar);
+            });
+        });
+    }
+
+    async function carregarConvites(usuario) {
+
+        try {
+
+            const referenciaConvites = collection(db, "convites");
+
+            const consulta = query(
+                referenciaConvites,
+                where("emailConvidado", "==", usuario.email),
+                where("status", "==", "pendente")
+            );
+
+            const resultado = await getDocs(consulta);
+
+            if (resultado.empty) {
+                badgeNotificacao.hidden = true;
+
+                convitesHome.hidden = true;
+                convitesHome.innerHTML = "";
+
+                return;
+            }
+
+            const convitesPorId = new Map();
+            resultado.forEach((documento) => convitesPorId.set(documento.id, documento.data()));
+
+            const htmlConvites = resultado.docs.map(cartaoConvite).join("");
+
+            badgeNotificacao.hidden = false;
+
+            convitesHome.innerHTML = htmlConvites;
+            convitesHome.hidden = false;
+            ativarBotoesConvite(convitesHome, convitesPorId);
+
+        } catch (erro) {
+            console.error("Erro ao carregar convites:", erro);
+        }
+    }
+
+    async function responderConvite(conviteId, convite, aceitar) {
+
+        if (!convite || !usuarioAtual) return;
+
+        const cartoes = document.querySelectorAll(`[data-id="${conviteId}"].convite-card`);
+        cartoes.forEach((cartao) => {
+            cartao.querySelectorAll("button").forEach((botao) => botao.disabled = true);
+        });
+
+        try {
+
+            const referenciaConvite = doc(db, "convites", conviteId);
+
+            if (aceitar) {
+
+                // Aceitar cria o registro de membro do evento e marca o
+                // convite como respondido, na mesma operação atômica.
+                const referenciaMembro = doc(
+                    db,
+                    "eventos",
+                    convite.eventoId,
+                    "membros",
+                    usuarioAtual.uid
+                );
+
+                const lote = writeBatch(db);
+
+                lote.set(referenciaMembro, {
+                    uid: usuarioAtual.uid,
+                    email: usuarioAtual.email,
+                    papel: convite.papel,
+                    conviteId: conviteId,
+                    dataEntrada: serverTimestamp()
+                });
+
+                lote.update(referenciaConvite, {
+                    status: "aceito",
+                    dataResposta: serverTimestamp()
+                });
+
+                await lote.commit();
+
+            } else {
+
+                await updateDoc(referenciaConvite, {
+                    status: "recusado",
+                    dataResposta: serverTimestamp()
+                });
+
+            }
+
+            carregarConvites(usuarioAtual);
+
+        } catch (erro) {
+            console.error("Erro ao responder convite:", erro);
+            alert("Não foi possível responder o convite. Tente novamente.");
+
+            cartoes.forEach((cartao) => {
+                cartao.querySelectorAll("button").forEach((botao) => botao.disabled = false);
+            });
+        }
+    }
 
     // ==========================================
     // BUSCAR EVENTOS DO USUÁRIO

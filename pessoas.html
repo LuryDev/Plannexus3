@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Adicione colaboradores e visitantes ao seu evento no PlanNexus.">
+    <title>Adicionar pessoas | PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/pessoas.css">
+</head>
+
+<body>
+<div class="container">
+
+    <header>
+        <a href="#" class="voltar" id="linkVoltar" title="Voltar">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h2>Adicionar pessoas</h2>
+    </header>
+
+    <form id="formConvite">
+
+        <div class="campo">
+            <label>E-mail da pessoa</label>
+            <input type="email" id="emailConvidado" placeholder="nome@exemplo.com" required>
+        </div>
+
+        <div class="campo">
+            <label>Tipo de colaboração</label>
+            <div class="tipos-papel">
+
+                <label class="opcao-papel">
+                    <input type="radio" name="papel" value="colaborador" checked>
+                    <div class="cartao-papel">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <strong>Colaborador</strong>
+                        <span>Pode editar todas as informações do evento.</span>
+                    </div>
+                </label>
+
+                <label class="opcao-papel">
+                    <input type="radio" name="papel" value="visitante">
+                    <div class="cartao-papel">
+                        <i class="fa-solid fa-eye"></i>
+                        <strong>Visitante</strong>
+                        <span>Pode apenas visualizar as informações do evento.</span>
+                    </div>
+                </label>
+
+            </div>
+        </div>
+
+        <button type="submit" class="principal" id="botaoEnviar">Enviar convite</button>
+
+        <p id="mensagem"></p>
+
+    </form>
+
+    <section class="secao-equipe">
+        <h3>Pessoas do evento</h3>
+
+        <div class="lista-pessoas" id="listaPessoas">
+            <p class="estado-lista">Carregando...</p>
+        </div>
+    </section>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import {
+        getFirestore,
+        doc,
+        getDoc,
+        collection,
+        addDoc,
+        query,
+        where,
+        getDocs,
+        deleteDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+    const app = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const eventoId = pegarIdDaUrl();
+
+    const linkVoltar = document.getElementById("linkVoltar");
+    const formulario = document.getElementById("formConvite");
+    const mensagem = document.getElementById("mensagem");
+    const botaoEnviar = document.getElementById("botaoEnviar");
+    const listaPessoas = document.getElementById("listaPessoas");
+
+    linkVoltar.href = eventoId
+        ? `evento.html?id=${encodeURIComponent(eventoId)}`
+        : "inicio.html";
+
+    let usuarioAtual = null;
+    let eventoAtual = null;
+
+    function papelLegivel(papel) {
+        if (papel === "colaborador") return "Colaborador";
+        if (papel === "visitante") return "Visitante";
+        return papel;
+    }
+
+    function cartaoPessoa({ icone, nome, detalhe, selo, classeSelo }) {
+        return `
+            <div class="pessoa-item">
+                <div class="pessoa-avatar"><i class="${icone}"></i></div>
+                <div class="pessoa-info">
+                    <strong>${escaparHTML(nome)}</strong>
+                    <span>${escaparHTML(detalhe)}</span>
+                </div>
+                <span class="selo ${classeSelo}">${escaparHTML(selo)}</span>
+            </div>
+        `;
+    }
+
+    async function carregarPessoas() {
+        listaPessoas.innerHTML = '<p class="estado-lista">Carregando...</p>';
+
+        try {
+            const partes = [];
+
+            // O dono do evento
+            partes.push(cartaoPessoa({
+                icone: "fa-solid fa-crown",
+                nome: "Você (organizador)",
+                detalhe: usuarioAtual.email,
+                selo: "Dono",
+                classeSelo: "selo-colaborador"
+            }));
+
+            // Quem já aceitou o convite (colaboradores e visitantes)
+            const referenciaMembros = collection(db, "eventos", eventoId, "membros");
+            const resultadoMembros = await getDocs(referenciaMembros);
+
+            resultadoMembros.forEach((documento) => {
+                const membro = documento.data();
+                partes.push(cartaoPessoa({
+                    icone: "fa-solid fa-user",
+                    nome: membro.email || "Sem e-mail",
+                    detalhe: membro.email || "",
+                    selo: papelLegivel(membro.papel),
+                    classeSelo: membro.papel === "colaborador" ? "selo-colaborador" : "selo-visitante"
+                }));
+            });
+
+            // Convites enviados e ainda não respondidos
+            const referenciaConvites = collection(db, "convites");
+            const consultaConvites = query(
+                referenciaConvites,
+                where("eventoId", "==", eventoId),
+                where("status", "==", "pendente")
+            );
+            const resultadoConvites = await getDocs(consultaConvites);
+
+            resultadoConvites.forEach((documento) => {
+                const convite = documento.data();
+                partes.push(`
+                    <div class="pessoa-item">
+                        <div class="pessoa-avatar"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div class="pessoa-info">
+                            <strong>${escaparHTML(convite.emailConvidado)}</strong>
+                            <span>Convite de ${escaparHTML(papelLegivel(convite.papel))} · aguardando resposta</span>
+                        </div>
+                        <button type="button" class="botao-cancelar-convite" data-id="${documento.id}" title="Cancelar convite">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                `);
+            });
+
+            listaPessoas.innerHTML = partes.join("");
+
+            listaPessoas.querySelectorAll(".botao-cancelar-convite").forEach((botao) => {
+                botao.addEventListener("click", async () => {
+                    botao.disabled = true;
+                    try {
+                        await deleteDoc(doc(db, "convites", botao.dataset.id));
+                        carregarPessoas();
+                    } catch (erro) {
+                        console.error("Erro ao cancelar convite:", erro);
+                        botao.disabled = false;
+                    }
+                });
+            });
+
+        } catch (erro) {
+            console.error("Erro ao carregar pessoas do evento:", erro);
+            listaPessoas.innerHTML = '<p class="estado-lista">Não foi possível carregar as pessoas do evento.</p>';
+        }
+    }
+
+    async function carregarPagina() {
+        const usuario = await exigirLogin(auth, onAuthStateChanged);
+        if (!usuario) return;
+
+        usuarioAtual = usuario;
+
+        if (!eventoId || eventoId.includes("/")) {
+            window.location.href = "inicio.html";
+            return;
+        }
+
+        const referenciaEvento = doc(db, "eventos", eventoId);
+        const resultadoEvento = await getDoc(referenciaEvento);
+
+        if (!resultadoEvento.exists() || resultadoEvento.data().usuarioId !== usuario.uid) {
+            // Só o dono do evento pode abrir esta página
+            window.location.href = eventoId
+                ? `evento.html?id=${encodeURIComponent(eventoId)}`
+                : "inicio.html";
+            return;
+        }
+
+        eventoAtual = resultadoEvento.data();
+
+        carregarPessoas();
+    }
+
+    formulario.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+
+        const emailConvidado = document.getElementById("emailConvidado").value.trim().toLowerCase();
+        const papel = formulario.querySelector('input[name="papel"]:checked').value;
+
+        mensagem.textContent = "";
+
+        if (emailConvidado === usuarioAtual.email.toLowerCase()) {
+            mensagem.textContent = "Você não pode convidar você mesmo.";
+            mensagem.style.color = "red";
+            return;
+        }
+
+        botaoEnviar.disabled = true;
+        botaoEnviar.textContent = "Enviando...";
+
+        try {
+            // Evita convite duplicado enquanto já existe um pendente pro mesmo e-mail
+            const consultaExistente = query(
+                collection(db, "convites"),
+                where("eventoId", "==", eventoId),
+                where("emailConvidado", "==", emailConvidado),
+                where("status", "==", "pendente")
+            );
+            const existentes = await getDocs(consultaExistente);
+
+            if (!existentes.empty) {
+                mensagem.textContent = "Já existe um convite pendente para este e-mail.";
+                mensagem.style.color = "red";
+                return;
+            }
+
+            await addDoc(collection(db, "convites"), {
+                eventoId: eventoId,
+                eventoNome: eventoAtual.nome || "Evento sem nome",
+                donoId: usuarioAtual.uid,
+                emailConvidado: emailConvidado,
+                papel: papel,
+                status: "pendente",
+                dataCriacao: serverTimestamp(),
+                dataResposta: null
+            });
+
+            mensagem.textContent = "Convite enviado com sucesso!";
+            mensagem.style.color = "green";
+            formulario.reset();
+            carregarPessoas();
+
+        } catch (erro) {
+            console.error("Erro ao enviar convite:", erro);
+            mensagem.textContent = "Erro ao enviar convite: " + erro.message;
+            mensagem.style.color = "red";
+        } finally {
+            botaoEnviar.disabled = false;
+            botaoEnviar.textContent = "Enviar convite";
+        }
+    });
+
+    carregarPagina();
+</script>
+
+</body>
+</html>

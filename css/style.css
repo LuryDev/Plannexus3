@@ -2084,3 +2084,128 @@ gap:22px;
         bottom: -25px;
     }
 }
+
+/* ==========================================
+   CONVITES (colaborador/visitante): sino de
+   notificação e seção na home, abaixo do
+   "Bem-vindo(a)". Usa as mesmas cores/raios
+   já usados no resto do app (--roxo etc, que
+   aqui ficam embutidos em hex porque style.css
+   não tem um bloco :root).
+   ========================================== */
+
+.notification {
+    position: relative;
+}
+
+.badge-notificacao {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 9px;
+    height: 9px;
+    background: #E0515B;
+    border: 2px solid #fff;
+    border-radius: 50%;
+}
+
+.badge-notificacao[hidden] {
+    display: none;
+}
+
+.convite-card {
+    padding: 12px 10px;
+    border-radius: 12px;
+}
+
+.convite-card p {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #3A2E55;
+    margin-bottom: 10px;
+}
+
+.convite-card strong {
+    color: #5A32D3;
+}
+
+.convite-acoes {
+    display: flex;
+    gap: 8px;
+}
+
+.convite-acoes button {
+    flex: 1;
+    padding: 8px 0;
+    border: none;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s;
+}
+
+.convite-acoes button:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+.btn-aceitar {
+    background: #5A32D3;
+    color: #fff;
+}
+
+.btn-aceitar:hover {
+    background: #4D2FB8;
+}
+
+.btn-recusar {
+    background: #F0EDF7;
+    color: #70667F;
+}
+
+.btn-recusar:hover {
+    background: #E6E1F2;
+}
+
+/* Seção na home, abaixo do banner "Bem-vindo(a)" */
+
+.convites-home {
+    margin: 14px 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.convites-home[hidden] {
+    display: none;
+}
+
+.convites-home .convite-card {
+    padding: 14px 16px;
+    background: #F7F4FF;
+    border: 1px solid #ECE5FF;
+    border-radius: 15px;
+}
+
+.convites-home .convite-card p {
+    margin-bottom: 12px;
+}
+
+@media (min-width: 481px) {
+    .convites-home .convite-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .convites-home .convite-card p {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .convites-home .convite-acoes {
+        flex: 0 0 auto;
+        width: 180px;
+    }
+}

@@ -33,6 +33,53 @@ header {
     max-width: 1050px;
     margin: auto;
     padding: 28px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+/* Botão "Adicionar pessoas" (só aparece para o dono do evento) */
+.botao-adicionar-pessoas {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px;
+    height: 43px;
+    color: white;
+    background: var(--roxo);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 14px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: .2s;
+}
+
+.botao-adicionar-pessoas:hover {
+    background: var(--roxo-escuro);
+    transform: translateY(-2px);
+}
+
+.botao-adicionar-pessoas i {
+    font-size: 13px;
+}
+
+.botao-adicionar-pessoas[hidden] {
+    display: none;
+}
+
+@media (max-width: 480px) {
+    .botao-adicionar-pessoas span {
+        display: none;
+    }
+
+    .botao-adicionar-pessoas {
+        width: 43px;
+        padding: 0;
+        justify-content: center;
+    }
 }
 
 .voltar {
@@ -549,6 +596,66 @@ header {
 
 .card-item[hidden] {
     display: none;
+}
+
+/* Zona de perigo — excluir evento */
+.secao-perigo {
+    width: 100%;
+    margin-top: 35px;
+    padding: 24px;
+    background: #FFF6F6;
+    border: 1px solid #FBD9D9;
+    border-radius: 21px;
+}
+
+.secao-perigo[hidden] {
+    display: none;
+}
+
+.secao-perigo .titulo-secao {
+    margin-bottom: 16px;
+}
+
+.secao-perigo .titulo-secao h2 {
+    color: #C0392B;
+}
+
+.secao-perigo .titulo-secao p {
+    color: #B5675F;
+}
+
+.botao-excluir-evento {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 20px;
+    height: 46px;
+    color: #C0392B;
+    background: #fff;
+    border: 1px solid #F3B9B9;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Poppins', Arial, sans-serif;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.botao-excluir-evento:hover {
+    color: white;
+    background: #E0515B;
+    border-color: #E0515B;
+    transform: translateY(-2px);
+}
+
+.botao-excluir-evento:disabled {
+    opacity: .7;
+    cursor: default;
+    transform: none;
+}
+
+.botao-excluir-evento i {
+    font-size: 13px;
 }
 
 @media (max-width: 700px) {
