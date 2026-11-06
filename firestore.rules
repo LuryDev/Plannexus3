@@ -103,8 +103,12 @@ service cloud.firestore {
 
       // Pessoas que fazem parte do evento (colaboradores e visitantes)
       match /membros/{membroUid} {
+        // Usa resource.data.uid (campo do documento) em vez do segmento
+        // da URL, porque isso é o que permite ao "Meus eventos" da home
+        // fazer uma collection group query em todos os "membros" por uid
+        // sem o Firestore recusar a consulta inteira.
         allow read: if donoDoEvento(eventoId) ||
-          (logado() && request.auth.uid == membroUid) || ehAdmin();
+          (logado() && resource.data.uid == request.auth.uid) || ehAdmin();
 
         // Só o próprio usuário se adiciona, e só aceitando um convite
         // pendente, dirigido ao e-mail dele, para este evento e papel.
@@ -121,7 +125,7 @@ service cloud.firestore {
 
         // O dono pode remover/trocar o papel de alguém; a própria pessoa pode saír
         allow update, delete: if donoDoEvento(eventoId) ||
-          (logado() && request.auth.uid == membroUid) || ehAdmin();
+          (logado() && resource.data.uid == request.auth.uid) || ehAdmin();
       }
 
       // Tarefas do evento

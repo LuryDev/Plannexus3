@@ -181,7 +181,9 @@
     import {
         getFirestore,
         collection,
+        collectionGroup,
         doc,
+        getDoc,
         query,
         where,
         getDocs,
@@ -432,135 +434,136 @@
 
     async function carregarEventos(usuario) {
 
-
         try {
 
+            // Eventos que o usuário criou
+            const consultaProprios = query(
+                collection(db, "eventos"),
+                where("usuarioId", "==", usuario.uid)
+            );
 
-            const eventosRef =
-                collection(db, "eventos");
+            const resultadoProprios = await getDocs(consultaProprios);
 
+            const eventosProprios = resultadoProprios.docs.map((documento) => ({
+                id: documento.id,
+                papel: "dono",
+                ...documento.data()
+            }));
 
-            const consulta =
-                query(
-                    eventosRef,
-                    where(
-                        "usuarioId",
-                        "==",
-                        usuario.uid
-                    )
+            // Eventos em que o usuário é colaborador ou visitante
+            // (busca em "membros" de todos os eventos de uma vez)
+            let eventosCompartilhados = [];
+
+            try {
+                const consultaMembros = query(
+                    collectionGroup(db, "membros"),
+                    where("uid", "==", usuario.uid)
                 );
 
+                const resultadoMembros = await getDocs(consultaMembros);
 
-            const resultado =
-                await getDocs(consulta);
-                console.log("Quantidade de eventos encontrados:", resultado.size);
+                eventosCompartilhados = (await Promise.all(
+                    resultadoMembros.docs.map(async (membroDoc) => {
+                        const eventoId = membroDoc.ref.parent.parent.id;
+                        const papel = membroDoc.data().papel || "visitante";
 
-resultado.forEach((documento) => {
+                        const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
+                        if (!eventoSnap.exists()) return null;
 
-    console.log(
-        "Evento:",
-        documento.id,
-        documento.data()
-    );
+                        return {
+                            id: eventoId,
+                            papel: papel,
+                            ...eventoSnap.data()
+                        };
+                    })
+                )).filter(Boolean);
 
-});
+            } catch (erroMembros) {
+                console.error("Erro ao buscar eventos compartilhados:", erroMembros);
+            }
 
+            const todosEventos = [...eventosProprios, ...eventosCompartilhados];
 
             listaEventos.innerHTML = "";
 
-
-            if (resultado.empty) {
-
-
+            if (!todosEventos.length) {
                 listaEventos.innerHTML = `
                     <p>Você ainda não possui eventos.</p>
                 `;
-
-
                 return;
-
             }
 
+            todosEventos.forEach((evento) => {
 
-            resultado.forEach((documento) => {
+                const card = document.createElement("div");
 
+                card.classList.add("evento");
+                card.dataset.id = evento.id;
 
-                const evento =
-                    documento.data();
+                const seloPapel = evento.papel === "dono"
+                    ? ""
+                    : `<span class="selo-papel-evento">${evento.papel === "colaborador" ? "Colaborador" : "Visitante"}</span>`;
 
+                card.innerHTML = `
 
-  const card =
-    document.createElement("div");
+                    <!-- ÍCONE DO EVENTO -->
+                    <div class="evento-icone">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
 
+                    ${seloPapel}
 
-card.classList.add("evento");
+                    <!-- NOME DO EVENTO -->
+                    <h2>
+                        ${escaparHTML(evento.nome)}
+                    </h2>
 
-card.dataset.id = documento.id;
+                    <!-- INFORMAÇÕES DO EVENTO -->
+                    <p>
+                        <i class="fa-solid fa-calendar"></i>
+                        ${escaparHTML(formatarData(evento.data))}
+                    </p>
 
+                    <p>
+                        <i class="fa-solid fa-clock"></i>
+                        ${escaparHTML(evento.horario)}
+                    </p>
 
-card.innerHTML = `
+                    <p>
+                        <i class="fa-solid fa-location-dot"></i>
+                        ${escaparHTML(evento.local)}
+                    </p>
 
-    <!-- ÍCONE DO EVENTO -->
-    <div class="evento-icone">
-        <i class="fa-solid fa-calendar-days"></i>
-    </div>
+                    <p>
+                        <strong>Categoria:</strong>
+                        ${escaparHTML(evento.categoria)}
+                    </p>
 
-    <!-- NOME DO EVENTO -->
-    <h2>
-        ${escaparHTML(evento.nome)}
-    </h2>
+                    <!-- BOTÃO PARA ABRIR O EVENTO -->
+                    <button class="abrirEvento" title="Ver evento">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
 
-    <!-- INFORMAÇÕES DO EVENTO -->
-    <p>
-        <i class="fa-solid fa-calendar"></i>
-        ${escaparHTML(formatarData(evento.data))}
-    </p>
+                `;
 
-    <p>
-        <i class="fa-solid fa-clock"></i>
-        ${escaparHTML(evento.horario)}
-    </p>
+                listaEventos.appendChild(card);
 
-    <p>
-        <i class="fa-solid fa-location-dot"></i>
-        ${escaparHTML(evento.local)}
-    </p>
+                const botao = card.querySelector(".abrirEvento");
 
-    <p>
-        <strong>Categoria:</strong>
-        ${escaparHTML(evento.categoria)}
-    </p>
+                botao.addEventListener("click", function () {
+                    window.location.href = "evento.html?id=" + encodeURIComponent(evento.id);
+                });
 
-    <!-- BOTÃO PARA ABRIR O EVENTO -->
-    <button class="abrirEvento" title="Ver evento">
-        <i class="fa-solid fa-arrow-right"></i>
-    </button>
-
-`;
-listaEventos.appendChild(card);
-
-const botao = card.querySelector(".abrirEvento");
-
-botao.addEventListener("click", function(){
-
-    window.location.href =
-        "evento.html?id=" + encodeURIComponent(documento.id);
-
-});
-
-});
-
+            });
 
         }
 
         catch (erro) {
 
-
             console.error(
                 "Erro ao buscar eventos:",
                 erro
             );
-
 
             listaEventos.innerHTML = `
                 <p>Erro ao carregar eventos.</p>

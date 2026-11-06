@@ -2209,3 +2209,20 @@ gap:22px;
         width: 180px;
     }
 }
+
+/* Selo "Colaborador"/"Visitante" nos cards de #listaEventos,
+   pra eventos que não são seus mas você participa */
+.selo-papel-evento {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    padding: 3px 9px;
+    background: rgba(255, 255, 255, .92);
+    color: #5A32D3;
+    border-radius: 20px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    z-index: 2;
+}
