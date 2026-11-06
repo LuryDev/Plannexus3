@@ -41,6 +41,8 @@ const eventoId = pegarIdDaUrl();
 let usuarioAtual = null;
 let anotacoes = [];
 let anotacaoEditando = null;
+let souDono = false;
+let souVisitante = false;
 
 async function verificarAcesso() {
     if (!eventoId || eventoId.includes("/")) {
@@ -65,14 +67,30 @@ async function verificarAcesso() {
 
     const dadosEvento = documentoEvento.data();
 
-    if (dadosEvento.usuarioId !== usuarioAtual.uid) {
-        window.location.replace("inicio.html");
-        return false;
+    souDono = dadosEvento.usuarioId === usuarioAtual.uid;
+
+    // O Bloco de Notas agora é visível para todos que têm acesso ao
+    // evento (dono, colaborador e visitante); só o visitante não pode
+    // criar/editar/excluir anotações, e só o dono pode comentar.
+    if (!souDono) {
+        const referenciaMembro = doc(
+            db, "eventos", eventoId, "membros", usuarioAtual.uid
+        );
+        const documentoMembro = await getDoc(referenciaMembro);
+
+        if (!documentoMembro.exists()) {
+            window.location.replace("inicio.html");
+            return false;
+        }
+
+        souVisitante = (documentoMembro.data().papel || "visitante") === "visitante";
     }
 
     nomeEvento.textContent = dadosEvento.nome || "Evento sem nome";
 
     voltarEl.href = `evento.html?id=${encodeURIComponent(eventoId)}`;
+
+    botaoNovaAnotacao.hidden = souVisitante;
 
     return true;
 }
@@ -138,10 +156,8 @@ function renderizarAnotacoes() {
         const titulo = document.createElement("h3");
         const conteudo = document.createElement("p");
         const data = document.createElement("small");
-        const botoes = document.createElement("div");
 
         cartao.className = "cartaoAnotacao";
-        botoes.className = "botoesAnotacao";
 
         titulo.textContent = anotacao.titulo || "";
         conteudo.textContent = anotacao.conteudo || "";
@@ -150,23 +166,98 @@ function renderizarAnotacoes() {
             ? `Última atualização: ${formatarData(anotacao.dataAtualizacao)}`
             : "";
 
-        const botaoEditar = criarBotao(
-            "Editar",
-            "editar",
-            anotacao.id
-        );
+        cartao.append(titulo, conteudo, data);
 
-        const botaoExcluir = criarBotao(
-            "Excluir",
-            "excluir",
-            anotacao.id
-        );
+        if (!souVisitante) {
+            const botoes = document.createElement("div");
+            botoes.className = "botoesAnotacao";
 
-        botoes.append(botaoEditar, botaoExcluir);
-        cartao.append(titulo, conteudo, data, botoes);
+            const botaoEditar = criarBotao("Editar", "editar", anotacao.id);
+            const botaoExcluir = criarBotao("Excluir", "excluir", anotacao.id);
+
+            botoes.append(botaoEditar, botaoExcluir);
+            cartao.append(botoes);
+        }
+
+        cartao.append(criarSecaoComentarios(anotacao));
 
         listaAnotacoes.appendChild(cartao);
     });
+}
+
+function criarSecaoComentarios(anotacao) {
+    const secao = document.createElement("div");
+    secao.className = "secaoComentarios";
+
+    const titulo = document.createElement("h4");
+    titulo.textContent = "Comentários do organizador";
+    secao.appendChild(titulo);
+
+    const lista = document.createElement("div");
+    lista.className = "listaComentarios";
+
+    const comentarios = anotacao.comentarios || [];
+
+    if (comentarios.length === 0) {
+        const vazio = document.createElement("p");
+        vazio.className = "comentarioVazio";
+        vazio.textContent = "Nenhum comentário ainda.";
+        lista.appendChild(vazio);
+    } else {
+        comentarios.forEach(comentario => {
+            const item = document.createElement("div");
+            item.className = "comentarioItem";
+
+            const texto = document.createElement("p");
+            texto.textContent = comentario.texto || "";
+
+            const dataComentario = document.createElement("small");
+            dataComentario.textContent = comentario.dataCriacao
+                ? formatarData(comentario.dataCriacao)
+                : "";
+
+            item.append(texto, dataComentario);
+
+            if (souDono) {
+                const botaoExcluirComentario = criarBotao(
+                    "Excluir comentário",
+                    "excluir-comentario",
+                    comentario.id
+                );
+                botaoExcluirComentario.dataset.anotacaoId = anotacao.id;
+                item.appendChild(botaoExcluirComentario);
+            }
+
+            lista.appendChild(item);
+        });
+    }
+
+    secao.appendChild(lista);
+
+    if (souDono) {
+        const form = document.createElement("form");
+        form.className = "formComentario";
+        form.dataset.anotacaoId = anotacao.id;
+
+        const campo = document.createElement("textarea");
+        campo.placeholder = "Escreva um comentário sobre esta anotação...";
+        campo.maxLength = 1000;
+        campo.required = true;
+
+        const botaoEnviar = document.createElement("button");
+        botaoEnviar.type = "submit";
+        botaoEnviar.textContent = "Comentar";
+
+        form.append(campo, botaoEnviar);
+        secao.appendChild(form);
+
+        form.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+            await comentar(anotacao.id, campo.value.trim());
+        });
+    }
+
+    return secao;
 }
 
 async function carregarAnotacoes() {
@@ -179,9 +270,21 @@ async function carregarAnotacoes() {
 
     const resultado = await getDocs(referenciaAnotacoes);
 
-    anotacoes = resultado.docs.map(documento => ({
-        id: documento.id,
-        ...documento.data()
+    anotacoes = await Promise.all(resultado.docs.map(async documento => {
+        const referenciaComentarios = collection(
+            db, "eventos", eventoId, "anotacoes", documento.id, "comentarios"
+        );
+        const resultadoComentarios = await getDocs(referenciaComentarios);
+        const comentarios = resultadoComentarios.docs.map(c => ({
+            id: c.id,
+            ...c.data()
+        })).sort((a, b) => (a.dataCriacao?.toMillis() || 0) - (b.dataCriacao?.toMillis() || 0));
+
+        return {
+            id: documento.id,
+            ...documento.data(),
+            comentarios
+        };
     }));
 
     anotacoes.sort((a, b) => {
@@ -192,6 +295,37 @@ async function carregarAnotacoes() {
     });
 
     renderizarAnotacoes();
+}
+
+async function comentar(anotacaoId, texto) {
+    if (!texto) return;
+
+    try {
+        await addDoc(
+            collection(db, "eventos", eventoId, "anotacoes", anotacaoId, "comentarios"),
+            {
+                texto,
+                autorUid: usuarioAtual.uid,
+                dataCriacao: serverTimestamp()
+            }
+        );
+        await carregarAnotacoes();
+    } catch (erro) {
+        console.error("Erro ao comentar:", erro);
+        alert("Não foi possível salvar o comentário.");
+    }
+}
+
+async function excluirComentario(anotacaoId, comentarioId) {
+    try {
+        await deleteDoc(
+            doc(db, "eventos", eventoId, "anotacoes", anotacaoId, "comentarios", comentarioId)
+        );
+        await carregarAnotacoes();
+    } catch (erro) {
+        console.error("Erro ao excluir comentário:", erro);
+        alert("Não foi possível excluir o comentário.");
+    }
 }
 
 function abrirModal(anotacao = null) {
@@ -332,6 +466,11 @@ listaAnotacoes.addEventListener("click", async evento => {
 
     if (acao === "excluir") {
         await excluirAnotacao(id);
+    }
+
+    if (acao === "excluir-comentario") {
+        const anotacaoId = botao.dataset.anotacaoId;
+        await excluirComentario(anotacaoId, id);
     }
 });
 

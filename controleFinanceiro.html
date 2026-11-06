@@ -38,7 +38,7 @@
                 <div class="filtros" id="filtro">
                     <button type="button" class="filtroControle ativo" data-filtro-controle="todos">Todos</button>
                     <button type="button" class="filtroControle" data-filtro-controle="receita">Receitas</button>
-                    <button type="button" class="filtroControle" data-filtro-controle="despesa">Despesas</button>
+                    <button type="button" class="filtroControle" data-filtro-controle="despesa">Investimentos</button>
 
                     <!-- BOTÃO ADICIONAR -->
 
@@ -79,7 +79,7 @@
             <select id="tipoOrcamento" name="tipoOrcamento" required>
                 <option value="">Selecione</option>
                 <option value="receita">Receita</option>
-                <option value="despesa">Despesa</option>
+                <option value="despesa">Investimento</option>
             </select>
 
             <button type="submit" id="botaoSalvar">Adicionar</button>
@@ -145,6 +145,13 @@
 
         let itensOrcamento = [];
         let filtroAtivo = "todos";
+        let souVisitante = false;
+
+        function rotuloTipo(tipo) {
+            if (tipo === "receita") return "Receita";
+            if (tipo === "despesa") return "Investimento";
+            return "Não informado";
+        }
 
 
         // =============== INÍCIO =====================
@@ -158,7 +165,8 @@
             }
 
             voltarEl.href = "evento.html?id=" + encodeURIComponent(eventoId);
-            await exigirLogin(auth, onAuthStateChanged);
+            const usuario = await exigirLogin(auth, onAuthStateChanged);
+            if (!usuario) return;
 
             // ============ PEGAR ORÇAMENTO INICIAL =============
 
@@ -174,6 +182,15 @@
                 const evento = eventoSnap.data();
                 nomeEventoEl.textContent = evento.nome || "Evento sem nome";
                 orcamentoInicial = Number(evento.orcamento) || 0;
+
+                // Visitante só visualiza: esconde o botão de adicionar item.
+                if (evento.usuarioId !== usuario.uid) {
+                    const membroSnap = await getDoc(doc(db, "eventos", eventoId, "membros", usuario.uid));
+                    const papel = membroSnap.exists() ? membroSnap.data().papel : null;
+                    souVisitante = papel === "visitante";
+                    botaoNovo.hidden = souVisitante;
+                }
+
                 await carregarControleFinanceiro();
             } catch (error) {
                 console.error("Erro ao carregar controle financeiro:", error);
@@ -254,7 +271,7 @@
         const graficoOrcamento = new Chart(document.getElementById("orcamentoGrafico"), {
             type: "pie",
             data: {
-                labels: ["Receita", "Despesa"],
+                labels: ["Receita", "Investimento"],
                 datasets: [{
                     backgroundColor: ["#925edb", "#47158c"],
                     borderColor: "#fff",
@@ -301,7 +318,7 @@
             itensVisiveis.forEach(item => {
                 const card = document.createElement('div');
                 if (item.tipo === "despesa") {
-                    card.className = "cardDespesa";
+                    card.className = "cardInvestimento";
                 } else {
                     card.className = "cardReceita";
                 }
@@ -313,7 +330,7 @@
                 const valorNumerico = Number(item.valor);
                 valor.textContent = `Valor: R$ ${Number.isFinite(valorNumerico) ? valorNumerico.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}`;
                 const tipo = document.createElement("p");
-                tipo.textContent = `Tipo: ${item.tipo || "Não informado"}`;
+                tipo.textContent = `Tipo: ${rotuloTipo(item.tipo)}`;
                 card.append(titulo, descricao, valor, tipo);
                 listaEl.appendChild(card);
             });

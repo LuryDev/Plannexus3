@@ -81,6 +81,7 @@
         getDoc,
         collection,
         addDoc,
+        updateDoc,
         query,
         where,
         getDocs,
@@ -126,6 +127,50 @@
         `;
     }
 
+    function cartaoMembro(membro, uid) {
+        return `
+            <div class="pessoa-item">
+                <div class="pessoa-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="pessoa-info">
+                    <strong>${escaparHTML(membro.email || "Sem e-mail")}</strong>
+                    <span>${escaparHTML(membro.email || "")}</span>
+                </div>
+                <select class="seletor-papel" data-uid="${escaparHTML(uid)}">
+                    <option value="colaborador" ${membro.papel === "colaborador" ? "selected" : ""}>Colaborador</option>
+                    <option value="visitante" ${membro.papel === "visitante" ? "selected" : ""}>Visitante</option>
+                </select>
+            </div>
+        `;
+    }
+
+    async function trocarPapel(uid, papelNovo, seletor) {
+        const papelAnterior = seletor.dataset.papelAtual || (papelNovo === "colaborador" ? "visitante" : "colaborador");
+
+        seletor.disabled = true;
+
+        try {
+            await updateDoc(doc(db, "eventos", eventoId, "membros", uid), {
+                papel: papelNovo
+            });
+
+            await addDoc(collection(db, "avisos"), {
+                uid: uid,
+                eventoId: eventoId,
+                mensagem: `Seu papel no evento "${eventoAtual.nome || "evento"}" foi alterado para ${papelLegivel(papelNovo)}.`,
+                lida: false,
+                dataCriacao: serverTimestamp()
+            });
+
+            seletor.dataset.papelAtual = papelNovo;
+        } catch (erro) {
+            console.error("Erro ao trocar papel:", erro);
+            alert("Não foi possível trocar o papel desta pessoa.");
+            seletor.value = papelAnterior;
+        } finally {
+            seletor.disabled = false;
+        }
+    }
+
     async function carregarPessoas() {
         listaPessoas.innerHTML = '<p class="estado-lista">Carregando...</p>';
 
@@ -147,13 +192,7 @@
 
             resultadoMembros.forEach((documento) => {
                 const membro = documento.data();
-                partes.push(cartaoPessoa({
-                    icone: "fa-solid fa-user",
-                    nome: membro.email || "Sem e-mail",
-                    detalhe: membro.email || "",
-                    selo: papelLegivel(membro.papel),
-                    classeSelo: membro.papel === "colaborador" ? "selo-colaborador" : "selo-visitante"
-                }));
+                partes.push(cartaoMembro(membro, documento.id));
             });
 
             // Convites enviados e ainda não respondidos
@@ -183,6 +222,13 @@
             });
 
             listaPessoas.innerHTML = partes.join("");
+
+            listaPessoas.querySelectorAll(".seletor-papel").forEach((seletor) => {
+                seletor.dataset.papelAtual = seletor.value;
+                seletor.addEventListener("change", () => {
+                    trocarPapel(seletor.dataset.uid, seletor.value, seletor);
+                });
+            });
 
             listaPessoas.querySelectorAll(".botao-cancelar-convite").forEach((botao) => {
                 botao.addEventListener("click", async () => {

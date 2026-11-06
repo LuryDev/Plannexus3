@@ -39,6 +39,8 @@ const fecharModalBtn = document.getElementById("fecharModal");
 
 const eventoId = pegarIdDaUrl();
 
+let souVisitante = false;
+
 const MESES = [
     "Janeiro",
     "Fevereiro",
@@ -72,7 +74,8 @@ async function iniciar() {
     voltarEl.href = `evento.html?id=${encodeURIComponent(eventoId)}`;
 
     try {
-        await exigirLogin(auth, onAuthStateChanged);
+        const usuario = await exigirLogin(auth, onAuthStateChanged);
+        if (!usuario) return;
 
         const eventoSnap = await getDoc(
             doc(db, "eventos", eventoId)
@@ -94,6 +97,16 @@ async function iniciar() {
         const evento = eventoSnap.data();
 
         nomeEventoEl.textContent = evento.nome || "Evento sem nome";
+
+        // Visitante só visualiza: esconde o botão de novo compromisso.
+        if (evento.usuarioId !== usuario.uid) {
+            const membroSnap = await getDoc(
+                doc(db, "eventos", eventoId, "membros", usuario.uid)
+            );
+            const papel = membroSnap.exists() ? membroSnap.data().papel : null;
+            souVisitante = papel === "visitante";
+            botaoNovo.hidden = souVisitante;
+        }
 
         await carregarCalendario();
 
@@ -199,6 +212,7 @@ function desenhar(itens) {
                 }
             </div>
 
+            ${souVisitante ? "" : `
             <button
                 class="excluir"
                 type="button"
@@ -206,12 +220,14 @@ function desenhar(itens) {
                 aria-label="Excluir compromisso"
             >
                 <i class="fa-regular fa-trash-can"></i>
-            </button>
+            </button>`}
         `;
 
-        card
-            .querySelector(".excluir")
-            .addEventListener("click", () => excluir(item));
+        if (!souVisitante) {
+            card
+                .querySelector(".excluir")
+                .addEventListener("click", () => excluir(item));
+        }
 
         listaEl.appendChild(card);
     });

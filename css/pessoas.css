@@ -271,6 +271,24 @@ button.principal:disabled {
 .selo-visitante { background: #FFF4DF; color: #C28A37; }
 .selo-pendente { background: #F0EDF7; color: var(--cinza); }
 
+.seletor-papel {
+    flex: 0 0 auto;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid #E7E3F6;
+    background: #F7F6FB;
+    color: var(--texto);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.seletor-papel:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
 .botao-cancelar-convite {
     flex: 0 0 auto;
     width: 28px;

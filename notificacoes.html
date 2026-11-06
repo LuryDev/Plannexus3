@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Veja seus convites e avisos no PlanNexus.">
+    <title>Notificações | PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/notificacoes.css">
+</head>
+
+<body>
+<div class="container">
+
+    <header>
+        <a href="inicio.html" class="voltar" title="Voltar">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h2>Notificações</h2>
+    </header>
+
+    <main class="paginaNotificacoes">
+
+        <section>
+            <h3>Convites</h3>
+            <div id="listaConvites">
+                <p class="estado-notificacoes">Carregando...</p>
+            </div>
+        </section>
+
+        <section>
+            <h3>Avisos</h3>
+            <div id="listaAvisos">
+                <p class="estado-notificacoes">Carregando...</p>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import {
+        getFirestore,
+        collection,
+        doc,
+        query,
+        where,
+        getDocs,
+        updateDoc,
+        writeBatch,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+    const app = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const listaConvites = document.getElementById("listaConvites");
+    const listaAvisos = document.getElementById("listaAvisos");
+
+    let usuarioAtual = null;
+
+    function papelLegivel(papel) {
+        if (papel === "colaborador") return "Colaborador";
+        if (papel === "visitante") return "Visitante";
+        return papel;
+    }
+
+    function cartaoConvite(documento) {
+        const convite = documento.data();
+
+        return `
+            <div class="convite-card" data-id="${documento.id}">
+                <p>
+                    Você foi convidado(a) para o evento
+                    <strong>${escaparHTML(convite.eventoNome || "Evento sem nome")}</strong>
+                    como <strong>${escaparHTML(papelLegivel(convite.papel))}</strong>.
+                </p>
+                <div class="convite-acoes">
+                    <button type="button" class="btn-aceitar" data-id="${documento.id}" data-acao="aceitar">Aceitar</button>
+                    <button type="button" class="btn-recusar" data-id="${documento.id}" data-acao="recusar">Recusar</button>
+                </div>
+            </div>
+        `;
+    }
+
+    async function carregarConvites() {
+        try {
+            const consulta = query(
+                collection(db, "convites"),
+                where("emailConvidado", "==", usuarioAtual.email),
+                where("status", "==", "pendente")
+            );
+
+            const resultado = await getDocs(consulta);
+
+            if (resultado.empty) {
+                listaConvites.innerHTML = '<p class="estado-notificacoes">Nenhum convite pendente.</p>';
+                return;
+            }
+
+            const convitesPorId = new Map();
+            resultado.forEach((documento) => convitesPorId.set(documento.id, documento.data()));
+
+            listaConvites.innerHTML = resultado.docs.map(cartaoConvite).join("");
+
+            listaConvites.querySelectorAll("[data-acao]").forEach((botao) => {
+                botao.addEventListener("click", () => {
+                    const conviteId = botao.dataset.id;
+                    const aceitar = botao.dataset.acao === "aceitar";
+                    responderConvite(conviteId, convitesPorId.get(conviteId), aceitar);
+                });
+            });
+
+        } catch (erro) {
+            console.error("Erro ao carregar convites:", erro);
+            listaConvites.innerHTML = '<p class="estado-notificacoes">Não foi possível carregar os convites.</p>';
+        }
+    }
+
+    async function responderConvite(conviteId, convite, aceitar) {
+        if (!convite || !usuarioAtual) return;
+
+        const cartao = listaConvites.querySelector(`[data-id="${conviteId}"].convite-card`);
+        if (cartao) {
+            cartao.querySelectorAll("button").forEach((botao) => botao.disabled = true);
+        }
+
+        try {
+            const referenciaConvite = doc(db, "convites", conviteId);
+
+            if (aceitar) {
+                const referenciaMembro = doc(db, "eventos", convite.eventoId, "membros", usuarioAtual.uid);
+                const referenciaPerfil = doc(db, "usuarios", usuarioAtual.uid);
+
+                const lote = writeBatch(db);
+
+                lote.set(referenciaMembro, {
+                    uid: usuarioAtual.uid,
+                    email: usuarioAtual.email,
+                    papel: convite.papel,
+                    conviteId: conviteId,
+                    dataEntrada: serverTimestamp()
+                });
+
+                lote.update(referenciaConvite, {
+                    status: "aceito",
+                    dataResposta: serverTimestamp()
+                });
+
+                lote.set(referenciaPerfil, {
+                    eventosCompartilhados: {
+                        [convite.eventoId]: convite.papel
+                    }
+                }, { merge: true });
+
+                await lote.commit();
+            } else {
+                await updateDoc(referenciaConvite, {
+                    status: "recusado",
+                    dataResposta: serverTimestamp()
+                });
+            }
+
+            await carregarConvites();
+
+        } catch (erro) {
+            console.error("Erro ao responder convite:", erro);
+            alert("Não foi possível responder o convite. Tente novamente.");
+            if (cartao) {
+                cartao.querySelectorAll("button").forEach((botao) => botao.disabled = false);
+            }
+        }
+    }
+
+    function cartaoAviso(documento) {
+        const aviso = documento.data();
+
+        return `
+            <div class="aviso-card" data-id="${documento.id}">
+                <p>${escaparHTML(aviso.mensagem || "")}</p>
+                <button type="button" class="btn-marcar-lido" data-id="${documento.id}">Marcar como lido</button>
+            </div>
+        `;
+    }
+
+    async function carregarAvisos() {
+        try {
+            const consulta = query(
+                collection(db, "avisos"),
+                where("uid", "==", usuarioAtual.uid),
+                where("lida", "==", false)
+            );
+
+            const resultado = await getDocs(consulta);
+
+            if (resultado.empty) {
+                listaAvisos.innerHTML = '<p class="estado-notificacoes">Nenhum aviso novo.</p>';
+                return;
+            }
+
+            listaAvisos.innerHTML = resultado.docs.map(cartaoAviso).join("");
+
+            listaAvisos.querySelectorAll(".btn-marcar-lido").forEach((botao) => {
+                botao.addEventListener("click", async () => {
+                    botao.disabled = true;
+                    try {
+                        await updateDoc(doc(db, "avisos", botao.dataset.id), { lida: true });
+                        await carregarAvisos();
+                    } catch (erro) {
+                        console.error("Erro ao marcar aviso como lido:", erro);
+                        botao.disabled = false;
+                    }
+                });
+            });
+
+        } catch (erro) {
+            console.error("Erro ao carregar avisos:", erro);
+            listaAvisos.innerHTML = '<p class="estado-notificacoes">Não foi possível carregar os avisos.</p>';
+        }
+    }
+
+    onAuthStateChanged(auth, (usuario) => {
+        if (!usuario) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        usuarioAtual = usuario;
+        carregarConvites();
+        carregarAvisos();
+    });
+</script>
+
+</body>
+</html>

@@ -603,8 +603,8 @@ header {
     width: 100%;
     margin-top: 35px;
     padding: 24px;
-    background: #FFF6F6;
-    border: 1px solid #FBD9D9;
+    background: #F7F6FB;
+    border: 1px solid #E7E3F6;
     border-radius: 21px;
 }
 
@@ -617,11 +617,11 @@ header {
 }
 
 .secao-perigo .titulo-secao h2 {
-    color: #C0392B;
+    color: #4D2FB8;
 }
 
 .secao-perigo .titulo-secao p {
-    color: #B5675F;
+    color: #7A7488;
 }
 
 .botao-excluir-evento {

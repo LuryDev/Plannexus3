@@ -92,6 +92,32 @@ service cloud.firestore {
       allow delete: if logado() && (resource.data.donoId == request.auth.uid || ehAdmin());
     }
 
+    // Avisos simples pra uma pessoa (ex.: o dono mudou seu papel no
+    // evento). Diferente de "convites", não precisa de aceite — é só
+    // uma notificação informativa que a pessoa marca como lida.
+    match /avisos/{avisoId} {
+      allow create: if logado() &&
+        donoDoEvento(request.resource.data.eventoId) &&
+        request.resource.data.uid is string &&
+        request.resource.data.uid != request.auth.uid &&
+        request.resource.data.mensagem is string &&
+        request.resource.data.mensagem.size() > 0 &&
+        request.resource.data.mensagem.size() <= 300 &&
+        request.resource.data.lida == false;
+
+      allow read: if logado() && (resource.data.uid == request.auth.uid || ehAdmin());
+
+      // A própria pessoa só pode marcar como lida, nada mais.
+      allow update: if logado() &&
+        resource.data.uid == request.auth.uid &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.eventoId == resource.data.eventoId &&
+        request.resource.data.mensagem == resource.data.mensagem &&
+        request.resource.data.lida == true;
+
+      allow delete: if logado() && (resource.data.uid == request.auth.uid || ehAdmin());
+    }
+
     // Eventos
     match /eventos/{eventoId} {
       allow create: if logado() && request.resource.data.usuarioId == request.auth.uid;
@@ -103,10 +129,6 @@ service cloud.firestore {
 
       // Pessoas que fazem parte do evento (colaboradores e visitantes)
       match /membros/{membroUid} {
-        // Usa resource.data.uid (campo do documento) em vez do segmento
-        // da URL, porque isso é o que permite ao "Meus eventos" da home
-        // fazer uma collection group query em todos os "membros" por uid
-        // sem o Firestore recusar a consulta inteira.
         allow read: if donoDoEvento(eventoId) ||
           (logado() && resource.data.uid == request.auth.uid) || ehAdmin();
 
@@ -181,6 +203,21 @@ service cloud.firestore {
           && request.resource.data.dataCriacao == resource.data.dataCriacao;
 
         allow delete: if colaboradorDoEvento(eventoId) || ehAdmin();
+
+        // Comentários do dono do evento em cada anotação (o Bloco de
+        // Notas é visível a todos com acesso ao evento, mas só o
+        // organizador pode comentar).
+        match /comentarios/{comentarioId} {
+          allow read: if acessoAoEvento(eventoId) || ehAdmin();
+
+          allow create: if (donoDoEvento(eventoId) || ehAdmin()) &&
+            request.resource.data.texto is string &&
+            request.resource.data.texto.size() > 0 &&
+            request.resource.data.texto.size() <= 1000 &&
+            request.resource.data.autorUid == request.auth.uid;
+
+          allow delete: if donoDoEvento(eventoId) || ehAdmin();
+        }
       }
     }
   }

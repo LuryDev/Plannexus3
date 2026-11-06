@@ -41,13 +41,13 @@
         </div>
 
 
-        <div class="notification" id="botaoNotificacao">
+        <a class="notification" id="botaoNotificacao" href="notificacoes.html" title="Notificações">
 
             <i class="fa-regular fa-bell"></i>
 
             <span class="badge-notificacao" id="badgeNotificacao" hidden></span>
 
-        </div>
+        </a>
 
     </header>
 
@@ -328,6 +328,8 @@
 
     async function carregarConvites(usuario) {
 
+        let temConvitePendente = false;
+
         try {
 
             const referenciaConvites = collection(db, "convites");
@@ -341,28 +343,45 @@
             const resultado = await getDocs(consulta);
 
             if (resultado.empty) {
-                badgeNotificacao.hidden = true;
-
                 convitesHome.hidden = true;
                 convitesHome.innerHTML = "";
+            } else {
+                temConvitePendente = true;
 
-                return;
+                const convitesPorId = new Map();
+                resultado.forEach((documento) => convitesPorId.set(documento.id, documento.data()));
+
+                const htmlConvites = resultado.docs.map(cartaoConvite).join("");
+
+                convitesHome.innerHTML = htmlConvites;
+                convitesHome.hidden = false;
+                ativarBotoesConvite(convitesHome, convitesPorId);
             }
-
-            const convitesPorId = new Map();
-            resultado.forEach((documento) => convitesPorId.set(documento.id, documento.data()));
-
-            const htmlConvites = resultado.docs.map(cartaoConvite).join("");
-
-            badgeNotificacao.hidden = false;
-
-            convitesHome.innerHTML = htmlConvites;
-            convitesHome.hidden = false;
-            ativarBotoesConvite(convitesHome, convitesPorId);
 
         } catch (erro) {
             console.error("Erro ao carregar convites:", erro);
         }
+
+        // O sininho também acende pra avisos (ex.: troca de papel) que
+        // ainda não foram marcados como lidos — a lista completa fica
+        // na página de notificações.
+        let temAvisoNaoLido = false;
+
+        try {
+            const consultaAvisos = query(
+                collection(db, "avisos"),
+                where("uid", "==", usuario.uid),
+                where("lida", "==", false)
+            );
+
+            const resultadoAvisos = await getDocs(consultaAvisos);
+            temAvisoNaoLido = !resultadoAvisos.empty;
+
+        } catch (erro) {
+            console.error("Erro ao carregar avisos:", erro);
+        }
+
+        badgeNotificacao.hidden = !(temConvitePendente || temAvisoNaoLido);
     }
 
     async function responderConvite(conviteId, convite, aceitar) {

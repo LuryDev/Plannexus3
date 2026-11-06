@@ -140,6 +140,7 @@
 
         let tarefas = [];          // lista carregada do Firestore
         let filtroAtual = "todas";  // todas | pendentes | concluidas
+        let souVisitante = false;
 
 
         // ================= INÍCIO =================
@@ -154,7 +155,8 @@
 
             voltarEl.href = "evento.html?id=" + encodeURIComponent(eventoId);
 
-            await exigirLogin(auth, onAuthStateChanged);
+            const usuario = await exigirLogin(auth, onAuthStateChanged);
+            if (!usuario) return;
 
             try {
                 const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
@@ -166,7 +168,16 @@
                     return;
                 }
 
-                nomeEventoEl.textContent = eventoSnap.data().nome || "Evento sem nome";
+                const evento = eventoSnap.data();
+                nomeEventoEl.textContent = evento.nome || "Evento sem nome";
+
+                // Visitante só visualiza: esconde o botão de nova tarefa.
+                if (evento.usuarioId !== usuario.uid) {
+                    const membroSnap = await getDoc(doc(db, "eventos", eventoId, "membros", usuario.uid));
+                    const papel = membroSnap.exists() ? membroSnap.data().papel : null;
+                    souVisitante = papel === "visitante";
+                    botaoNova.hidden = souVisitante;
+                }
 
                 await carregarTarefas();
             }
@@ -228,7 +239,7 @@
                 card.className = "tarefa" + (tarefa.concluida ? " concluida" : "");
 
                 card.innerHTML = `
-                    <button class="check" title="Marcar como concluída">
+                    <button class="check" title="Marcar como concluída" ${souVisitante ? "disabled" : ""}>
                         ${tarefa.concluida ? '<i class="fa-solid fa-check"></i>' : ""}
                     </button>
 
@@ -244,14 +255,17 @@
 
                     <div class="lado-direito">
                         <span class="prioridade ${prioridade}">${NOMES_PRIORIDADE[prioridade]}</span>
+                        ${souVisitante ? "" : `
                         <button class="excluir" title="Excluir tarefa">
                             <i class="fa-regular fa-trash-can"></i>
-                        </button>
+                        </button>`}
                     </div>
                 `;
 
-                card.querySelector(".check").addEventListener("click", () => alternarConcluida(tarefa));
-                card.querySelector(".excluir").addEventListener("click", () => excluirTarefa(tarefa));
+                if (!souVisitante) {
+                    card.querySelector(".check").addEventListener("click", () => alternarConcluida(tarefa));
+                    card.querySelector(".excluir").addEventListener("click", () => excluirTarefa(tarefa));
+                }
 
                 listaEl.appendChild(card);
             });

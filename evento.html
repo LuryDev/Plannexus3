@@ -109,7 +109,7 @@
 
                         <div class="card-titulo">
                             <h3>Controle Financeiro</h3>
-                            <p>Orçamento, receitas, despesas e saldo.</p>
+                            <p>Orçamento, receitas, investimentos e saldo.</p>
                         </div>
 
                         <div class="previa previa-financeiro" id="previaFinanceiro" aria-live="polite">
@@ -152,7 +152,7 @@
             <section class="secao-perigo" id="secaoPerigo" hidden>
                 <div class="titulo-secao">
                     <div>
-                        <h2>Zona de perigo</h2>
+                        <h2>Gerenciar evento</h2>
                         <p>Essa ação não pode ser desfeita.</p>
                     </div>
                 </div>
@@ -388,7 +388,7 @@
 
                 <div class="financeiro-dados">
                     <div>
-                        <span>Despesas</span>
+                        <span>Investimentos</span>
                         <strong>${formatarDinheiro(despesas)}</strong>
                     </div>
                     <div>
@@ -397,14 +397,14 @@
                     </div>
                 </div>
 
-                <div class="grafico-barras" aria-label="Comparação ilustrativa de receitas e despesas">
+                <div class="grafico-barras" aria-label="Comparação ilustrativa de receitas e investimentos">
                     <div style="height: ${alturaReceitas}%"></div>
                     <div style="height: ${alturaDespesas}%"></div>
                 </div>
 
                 <div class="grafico-legenda">
                     <span><i class="legenda-receita"></i> Receitas: ${formatarDinheiro(receitas)}</span>
-                    <span><i class="legenda-despesa"></i> Despesas</span>
+                    <span><i class="legenda-despesa"></i> Investimentos</span>
                 </div>
             `;
         }
