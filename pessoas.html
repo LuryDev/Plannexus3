@@ -161,7 +161,8 @@
             const consultaConvites = query(
                 referenciaConvites,
                 where("eventoId", "==", eventoId),
-                where("status", "==", "pendente")
+                where("status", "==", "pendente"),
+                where("donoId", "==", usuarioAtual.uid)
             );
             const resultadoConvites = await getDocs(consultaConvites);
 
@@ -252,7 +253,8 @@
                 collection(db, "convites"),
                 where("eventoId", "==", eventoId),
                 where("emailConvidado", "==", emailConvidado),
-                where("status", "==", "pendente")
+                where("status", "==", "pendente"),
+                where("donoId", "==", usuarioAtual.uid)
             );
             const existentes = await getDocs(consultaExistente);
 

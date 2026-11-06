@@ -189,6 +189,8 @@
         const parametros = new URLSearchParams(window.location.search);
         const eventoId = parametros.get("id");
 
+        let usuarioAtual = null;
+
         const nomeEvento = document.getElementById("nomeEvento");
         const resumoEvento = document.getElementById("resumoEvento");
 
@@ -459,6 +461,8 @@
                 const usuario = await exigirLogin(auth, onAuthStateChanged);
                 if (!usuario) return;
 
+                usuarioAtual = usuario;
+
                 const referenciaEvento = doc(db, "eventos", eventoId);
                 const resultadoEvento = await getDoc(referenciaEvento);
 
@@ -544,7 +548,11 @@
         }
 
         async function excluirConvitesDoEvento() {
-            const referencia = query(collection(db, "convites"), where("eventoId", "==", eventoId));
+            const referencia = query(
+                collection(db, "convites"),
+                where("eventoId", "==", eventoId),
+                where("donoId", "==", usuarioAtual.uid)
+            );
             const resultado = await getDocs(referencia);
             await Promise.all(resultado.docs.map(documento => deleteDoc(documento.ref)));
         }
