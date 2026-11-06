@@ -181,13 +181,13 @@
     import {
         getFirestore,
         collection,
-        collectionGroup,
         doc,
         getDoc,
         query,
         where,
         getDocs,
         updateDoc,
+        deleteField,
         writeBatch,
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
@@ -390,6 +390,12 @@
                     usuarioAtual.uid
                 );
 
+                // Também guarda uma referência no próprio perfil do usuário
+                // (usuarios/{uid}.eventosCompartilhados), pra "Meus eventos"
+                // conseguir listar os eventos compartilhados sem precisar de
+                // nenhuma consulta especial nem índice no Firestore.
+                const referenciaPerfil = doc(db, "usuarios", usuarioAtual.uid);
+
                 const lote = writeBatch(db);
 
                 lote.set(referenciaMembro, {
@@ -404,6 +410,12 @@
                     status: "aceito",
                     dataResposta: serverTimestamp()
                 });
+
+                lote.set(referenciaPerfil, {
+                    eventosCompartilhados: {
+                        [convite.eventoId]: convite.papel
+                    }
+                }, { merge: true });
 
                 await lote.commit();
 
@@ -450,31 +462,61 @@
                 ...documento.data()
             }));
 
-            // Eventos em que o usuário é colaborador ou visitante
-            // (busca em "membros" de todos os eventos de uma vez)
+            // Eventos em que o usuário é colaborador ou visitante.
+            // A lista de IDs candidatos vem do próprio perfil
+            // (usuarios/{uid}.eventosCompartilhados), preenchida quando um
+            // convite é aceito. O papel e a existência são sempre
+            // confirmados em "membros" (fonte da verdade) — isso evita
+            // depender de uma consulta "collection group" (que exigiria
+            // criar um índice manual no Firebase) e ainda limpa sozinho
+            // vínculos de eventos excluídos ou de onde o usuário foi removido.
             let eventosCompartilhados = [];
 
             try {
-                const consultaMembros = query(
-                    collectionGroup(db, "membros"),
-                    where("uid", "==", usuario.uid)
-                );
+                const perfilSnap = await getDoc(doc(db, "usuarios", usuario.uid));
+                const mapaCompartilhados = perfilSnap.exists()
+                    ? (perfilSnap.data().eventosCompartilhados || {})
+                    : {};
 
-                const resultadoMembros = await getDocs(consultaMembros);
+                const idsCompartilhados = Object.keys(mapaCompartilhados);
 
                 eventosCompartilhados = (await Promise.all(
-                    resultadoMembros.docs.map(async (membroDoc) => {
-                        const eventoId = membroDoc.ref.parent.parent.id;
-                        const papel = membroDoc.data().papel || "visitante";
+                    idsCompartilhados.map(async (eventoCompartilhadoId) => {
+                        try {
+                            const referenciaMembro = doc(
+                                db, "eventos", eventoCompartilhadoId, "membros", usuario.uid
+                            );
+                            const membroSnap = await getDoc(referenciaMembro);
 
-                        const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
-                        if (!eventoSnap.exists()) return null;
+                            if (!membroSnap.exists()) {
+                                // Não é mais membro (saiu ou foi removido).
+                                // Limpa o vínculo do próprio perfil.
+                                updateDoc(doc(db, "usuarios", usuario.uid), {
+                                    [`eventosCompartilhados.${eventoCompartilhadoId}`]: deleteField()
+                                }).catch(() => {});
+                                return null;
+                            }
 
-                        return {
-                            id: eventoId,
-                            papel: papel,
-                            ...eventoSnap.data()
-                        };
+                            const papel = membroSnap.data().papel || "visitante";
+
+                            const eventoSnap = await getDoc(doc(db, "eventos", eventoCompartilhadoId));
+                            if (!eventoSnap.exists()) {
+                                // Evento foi excluído. Limpa o vínculo também.
+                                updateDoc(doc(db, "usuarios", usuario.uid), {
+                                    [`eventosCompartilhados.${eventoCompartilhadoId}`]: deleteField()
+                                }).catch(() => {});
+                                return null;
+                            }
+
+                            return {
+                                id: eventoCompartilhadoId,
+                                papel: papel,
+                                ...eventoSnap.data()
+                            };
+                        } catch (erroEvento) {
+                            console.error("Erro ao carregar evento compartilhado:", eventoCompartilhadoId, erroEvento);
+                            return null;
+                        }
                     })
                 )).filter(Boolean);
 

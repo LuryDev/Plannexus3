@@ -97,7 +97,7 @@ service cloud.firestore {
       allow create: if logado() && request.resource.data.usuarioId == request.auth.uid;
       allow read: if logado() &&
         (resource.data.usuarioId == request.auth.uid || membroDoEvento(eventoId) || ehAdmin());
-      allow update: if logado() && colaboradorDoEvento(eventoId) || ehAdmin();
+      allow update: if (logado() && colaboradorDoEvento(eventoId)) || ehAdmin();
       allow delete: if logado() &&
         (resource.data.usuarioId == request.auth.uid || ehAdmin());
 
