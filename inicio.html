@@ -97,11 +97,6 @@
     </div>
 
 
-    <!-- CONVITES PENDENTES (abaixo do "Bem-vindo(a)") -->
-
-    <div class="convites-home" id="convitesHome" hidden></div>
-
-
     <!-- CONTEÚDO -->
 
  <main>
@@ -187,9 +182,7 @@
         where,
         getDocs,
         updateDoc,
-        deleteField,
-        writeBatch,
-        serverTimestamp
+        deleteField
     } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
     // FIREBASE_CONFIG vem do arquivo js/config.js
@@ -215,9 +208,6 @@
 
     const badgeNotificacao =
         document.getElementById("badgeNotificacao");
-
-    const convitesHome =
-        document.getElementById("convitesHome");
 
 
     let usuarioAtual = null;
@@ -253,9 +243,10 @@
             carregarEventos(usuario);
 
 
-            // Carregar convites pendentes (colaborador/visitante)
+            // Checar convites/avisos pendentes (só acende o sininho;
+            // a lista fica na página de notificações)
 
-            carregarConvites(usuario);
+            atualizarSininho(usuario);
 
 
         }
@@ -274,8 +265,6 @@
                 "Bem-vindo(a)";
 
 
-            convitesHome.hidden = true;
-            convitesHome.innerHTML = "";
             badgeNotificacao.hidden = true;
 
 
@@ -289,82 +278,29 @@
 
 
     // ==========================================
-    // CONVITES PENDENTES (colaborador/visitante)
+    // SININHO (convites/avisos pendentes)
+    // A lista completa fica só na página de notificações; aqui é
+    // só pra decidir se o ponto vermelho aparece ou não.
     // ==========================================
 
-    function papelLegivel(papel) {
-        if (papel === "colaborador") return "Colaborador";
-        if (papel === "visitante") return "Visitante";
-        return papel;
-    }
-
-    function cartaoConvite(documento) {
-        const convite = documento.data();
-
-        return `
-            <div class="convite-card" data-id="${documento.id}">
-                <p>
-                    Você foi convidado(a) para o evento
-                    <strong>${escaparHTML(convite.eventoNome || "Evento sem nome")}</strong>
-                    como <strong>${escaparHTML(papelLegivel(convite.papel))}</strong>.
-                </p>
-                <div class="convite-acoes">
-                    <button type="button" class="btn-aceitar" data-id="${documento.id}" data-acao="aceitar">Aceitar</button>
-                    <button type="button" class="btn-recusar" data-id="${documento.id}" data-acao="recusar">Recusar</button>
-                </div>
-            </div>
-        `;
-    }
-
-    function ativarBotoesConvite(container, convitesPorId) {
-        container.querySelectorAll("[data-acao]").forEach((botao) => {
-            botao.addEventListener("click", () => {
-                const conviteId = botao.dataset.id;
-                const aceitar = botao.dataset.acao === "aceitar";
-                responderConvite(conviteId, convitesPorId.get(conviteId), aceitar);
-            });
-        });
-    }
-
-    async function carregarConvites(usuario) {
+    async function atualizarSininho(usuario) {
 
         let temConvitePendente = false;
 
         try {
-
-            const referenciaConvites = collection(db, "convites");
-
-            const consulta = query(
-                referenciaConvites,
+            const consultaConvites = query(
+                collection(db, "convites"),
                 where("emailConvidado", "==", usuario.email),
                 where("status", "==", "pendente")
             );
 
-            const resultado = await getDocs(consulta);
-
-            if (resultado.empty) {
-                convitesHome.hidden = true;
-                convitesHome.innerHTML = "";
-            } else {
-                temConvitePendente = true;
-
-                const convitesPorId = new Map();
-                resultado.forEach((documento) => convitesPorId.set(documento.id, documento.data()));
-
-                const htmlConvites = resultado.docs.map(cartaoConvite).join("");
-
-                convitesHome.innerHTML = htmlConvites;
-                convitesHome.hidden = false;
-                ativarBotoesConvite(convitesHome, convitesPorId);
-            }
+            const resultadoConvites = await getDocs(consultaConvites);
+            temConvitePendente = !resultadoConvites.empty;
 
         } catch (erro) {
-            console.error("Erro ao carregar convites:", erro);
+            console.error("Erro ao checar convites:", erro);
         }
 
-        // O sininho também acende pra avisos (ex.: troca de papel) que
-        // ainda não foram marcados como lidos — a lista completa fica
-        // na página de notificações.
         let temAvisoNaoLido = false;
 
         try {
@@ -378,85 +314,10 @@
             temAvisoNaoLido = !resultadoAvisos.empty;
 
         } catch (erro) {
-            console.error("Erro ao carregar avisos:", erro);
+            console.error("Erro ao checar avisos:", erro);
         }
 
         badgeNotificacao.hidden = !(temConvitePendente || temAvisoNaoLido);
-    }
-
-    async function responderConvite(conviteId, convite, aceitar) {
-
-        if (!convite || !usuarioAtual) return;
-
-        const cartoes = document.querySelectorAll(`[data-id="${conviteId}"].convite-card`);
-        cartoes.forEach((cartao) => {
-            cartao.querySelectorAll("button").forEach((botao) => botao.disabled = true);
-        });
-
-        try {
-
-            const referenciaConvite = doc(db, "convites", conviteId);
-
-            if (aceitar) {
-
-                // Aceitar cria o registro de membro do evento e marca o
-                // convite como respondido, na mesma operação atômica.
-                const referenciaMembro = doc(
-                    db,
-                    "eventos",
-                    convite.eventoId,
-                    "membros",
-                    usuarioAtual.uid
-                );
-
-                // Também guarda uma referência no próprio perfil do usuário
-                // (usuarios/{uid}.eventosCompartilhados), pra "Meus eventos"
-                // conseguir listar os eventos compartilhados sem precisar de
-                // nenhuma consulta especial nem índice no Firestore.
-                const referenciaPerfil = doc(db, "usuarios", usuarioAtual.uid);
-
-                const lote = writeBatch(db);
-
-                lote.set(referenciaMembro, {
-                    uid: usuarioAtual.uid,
-                    email: usuarioAtual.email,
-                    papel: convite.papel,
-                    conviteId: conviteId,
-                    dataEntrada: serverTimestamp()
-                });
-
-                lote.update(referenciaConvite, {
-                    status: "aceito",
-                    dataResposta: serverTimestamp()
-                });
-
-                lote.set(referenciaPerfil, {
-                    eventosCompartilhados: {
-                        [convite.eventoId]: convite.papel
-                    }
-                }, { merge: true });
-
-                await lote.commit();
-
-            } else {
-
-                await updateDoc(referenciaConvite, {
-                    status: "recusado",
-                    dataResposta: serverTimestamp()
-                });
-
-            }
-
-            carregarConvites(usuarioAtual);
-
-        } catch (erro) {
-            console.error("Erro ao responder convite:", erro);
-            alert("Não foi possível responder o convite. Tente novamente.");
-
-            cartoes.forEach((cartao) => {
-                cartao.querySelectorAll("button").forEach((botao) => botao.disabled = false);
-            });
-        }
     }
 
     // ==========================================

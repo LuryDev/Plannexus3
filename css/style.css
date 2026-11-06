@@ -1039,6 +1039,7 @@ transform:none;
 }#listaEventos .evento .abrirEvento:hover{
 transform:translateY(-50%);
 }
+}
 
 @media screen and (min-width: 769px){html,
 body{
@@ -1316,6 +1317,7 @@ grid-template-columns:repeat(
 minmax(0,1fr)
 );
 gap:22px;
+}
 }
 
 @media (min-width: 769px) {html,
@@ -1744,6 +1746,7 @@ width:125px;
 height:125px;
 right:-2px;
 bottom:0;
+}
 }
 
 @media screen and (min-width: 769px){html,
