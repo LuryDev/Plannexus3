@@ -1,13 +1,8 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.lurydev.plannexus",
-      "sha256_cert_fingerprints": [
-        "COLE_AQUI_O_SHA256_DA_CHAVE_DO_PWABUILDER",
-        "COLE_AQUI_O_SHA256_DA_CHAVE_DE_ASSINATURA_DO_PLAY"
-      ]
-    }
-  }
-]
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.lurydev.plannexus",
+        "sha256_cert_fingerprints": ["87:4A:1A:1E:4A:B4:75:3B:EC:6E:DE:E6:5F:DF:B9:79:4B:B7:5D:6E:DD:AE:8D:12:88:3F:46:0C:D0:EF:D8:C8"]
+      }
+    }]
