@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tarefas - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/tarefas.css">
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+            <a class="voltar" id="voltar" href="inicio.html" title="Voltar">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1>Tarefas</h1>
+        </header>
+
+        <main>
+
+            <!-- NOME DO EVENTO -->
+            <div class="evento">
+                <span>Evento</span>
+                <h2 id="nomeEvento">Carregando...</h2>
+            </div>
+
+            <!-- PROGRESSO -->
+            <div class="progresso">
+                <div class="progresso-texto">
+                    <span id="textoProgresso">0 de 0 concluídas</span>
+                    <strong id="porcentagem">0%</strong>
+                </div>
+                <div class="barra">
+                    <div class="barra-preenchida" id="barraProgresso"></div>
+                </div>
+            </div>
+
+            <!-- TÍTULO + BOTÃO -->
+            <div class="titulo">
+                <h2>Minhas tarefas</h2>
+                <button class="nova-tarefa" id="botaoNovaTarefa">
+                    <i class="fa-solid fa-plus"></i>
+                    Nova tarefa
+                </button>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="filtros" id="filtros">
+                <button class="filtro ativo" data-filtro="todas">Todas</button>
+                <button class="filtro" data-filtro="pendentes">Pendentes</button>
+                <button class="filtro" data-filtro="concluidas">Concluídas</button>
+            </div>
+
+            <!-- LISTA (preenchida pelo JavaScript) -->
+            <section class="lista-tarefas" id="listaTarefas">
+                <p class="aviso">Carregando tarefas...</p>
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- ===================== FORMULÁRIO (JANELA) ===================== -->
+    <div class="modal" id="modal" hidden>
+        <form class="modal-caixa" id="formTarefa">
+
+            <div class="modal-topo">
+                <h2>Nova tarefa</h2>
+                <button type="button" class="fechar" id="fecharModal" title="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <label for="tituloTarefa">Título</label>
+            <input type="text" id="tituloTarefa" placeholder="Ex: Reservar o local" maxlength="80" required>
+
+            <label for="descricaoTarefa">Descrição</label>
+            <textarea id="descricaoTarefa" rows="3" placeholder="Detalhes da tarefa (opcional)"></textarea>
+
+            <div class="duplo">
+                <div>
+                    <label for="dataTarefa">Prazo</label>
+                    <input type="date" id="dataTarefa">
+                </div>
+                <div>
+                    <label for="prioridadeTarefa">Prioridade</label>
+                    <select id="prioridadeTarefa">
+                        <option value="alta">Alta</option>
+                        <option value="media" selected>Média</option>
+                        <option value="baixa">Baixa</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="salvar" id="botaoSalvar">Salvar tarefa</button>
+            <p class="mensagem" id="mensagem"></p>
+
+        </form>
+    </div>
+
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        // FIREBASE_CONFIG vem do arquivo js/config.js
+        const app  = initializeApp(FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+
+        // ================= ELEMENTOS =================
+        const nomeEventoEl   = document.getElementById("nomeEvento");
+        const listaEl        = document.getElementById("listaTarefas");
+        const voltarEl       = document.getElementById("voltar");
+        const textoProgresso = document.getElementById("textoProgresso");
+        const porcentagemEl  = document.getElementById("porcentagem");
+        const barraEl        = document.getElementById("barraProgresso");
+        const botaoNova      = document.getElementById("botaoNovaTarefa");
+        const modal          = document.getElementById("modal");
+        const form           = document.getElementById("formTarefa");
+        const botaoSalvar    = document.getElementById("botaoSalvar");
+        const mensagemEl     = document.getElementById("mensagem");
+
+        const eventoId = pegarIdDaUrl();
+
+        const NOMES_PRIORIDADE = { alta: "Alta", media: "Média", baixa: "Baixa" };
+
+        let tarefas = [];          // lista carregada do Firestore
+        let filtroAtual = "todas";  // todas | pendentes | concluidas
+        let souVisitante = false;
+
+
+        // ================= INÍCIO =================
+        async function iniciar() {
+
+            if (!eventoId) {
+                nomeEventoEl.textContent = "Evento não encontrado";
+                listaEl.innerHTML = `<p class="aviso">Abra as tarefas a partir da página de um evento.</p>`;
+                botaoNova.disabled = true;
+                return;
+            }
+
+            voltarEl.href = "evento.html?id=" + encodeURIComponent(eventoId);
+
+            const usuario = await exigirLogin(auth, onAuthStateChanged);
+            if (!usuario) return;
+
+            try {
+                const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
+
+                if (!eventoSnap.exists()) {
+                    nomeEventoEl.textContent = "Evento não encontrado";
+                    listaEl.innerHTML = `<p class="aviso">Esse evento não existe mais.</p>`;
+                    botaoNova.disabled = true;
+                    return;
+                }
+
+                const evento = eventoSnap.data();
+                nomeEventoEl.textContent = evento.nome || "Evento sem nome";
+
+                // Visitante só visualiza: esconde o botão de nova tarefa.
+                if (evento.usuarioId !== usuario.uid) {
+                    const membroSnap = await getDoc(doc(db, "eventos", eventoId, "membros", usuario.uid));
+                    const papel = membroSnap.exists() ? membroSnap.data().papel : null;
+                    souVisitante = papel === "visitante";
+                    botaoNova.hidden = souVisitante;
+                }
+
+                await carregarTarefas();
+            }
+            catch (erro) {
+                mostrarErro(erro);
+            }
+        }
+
+
+        // ================= CARREGAR =================
+        async function carregarTarefas() {
+
+            const snap = await getDocs(collection(db, "eventos", eventoId, "tarefas"));
+
+            tarefas = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+            // Pendentes primeiro, depois pelo prazo mais próximo
+            tarefas.sort((a, b) => {
+                if (!!a.concluida !== !!b.concluida) return a.concluida ? 1 : -1;
+                return dataParaOrdenar(a.data).localeCompare(dataParaOrdenar(b.data));
+            });
+
+            desenharLista();
+        }
+
+
+        // ================= DESENHAR NA TELA =================
+        function desenharLista() {
+
+            atualizarProgresso();
+
+            const visiveis = tarefas.filter((t) => {
+                if (filtroAtual === "pendentes")  return !t.concluida;
+                if (filtroAtual === "concluidas") return  t.concluida;
+                return true;
+            });
+
+            if (tarefas.length === 0) {
+                listaEl.innerHTML = `
+                    <p class="aviso">
+                        Nenhuma tarefa ainda.<br>
+                        Toque em <strong>Nova tarefa</strong> para começar.
+                    </p>`;
+                return;
+            }
+
+            if (visiveis.length === 0) {
+                listaEl.innerHTML = `<p class="aviso">Nada por aqui nesse filtro.</p>`;
+                return;
+            }
+
+            listaEl.innerHTML = "";
+
+            visiveis.forEach((tarefa) => {
+
+                const prioridade = NOMES_PRIORIDADE[tarefa.prioridade] ? tarefa.prioridade : "media";
+
+                const card = document.createElement("div");
+                card.className = "tarefa" + (tarefa.concluida ? " concluida" : "");
+
+                card.innerHTML = `
+                    <button class="check" title="Marcar como concluída" ${souVisitante ? "disabled" : ""}>
+                        ${tarefa.concluida ? '<i class="fa-solid fa-check"></i>' : ""}
+                    </button>
+
+                    <div class="informacoes">
+                        <h3>${escaparHTML(tarefa.titulo || "Sem título")}</h3>
+                        ${tarefa.descricao ? `<p>${escaparHTML(tarefa.descricao)}</p>` : ""}
+                        ${tarefa.data ? `
+                            <small>
+                                <i class="fa-regular fa-calendar"></i>
+                                ${escaparHTML(formatarData(tarefa.data))}
+                            </small>` : ""}
+                    </div>
+
+                    <div class="lado-direito">
+                        <span class="prioridade ${prioridade}">${NOMES_PRIORIDADE[prioridade]}</span>
+                        ${souVisitante ? "" : `
+                        <button class="excluir" title="Excluir tarefa">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>`}
+                    </div>
+                `;
+
+                if (!souVisitante) {
+                    card.querySelector(".check").addEventListener("click", () => alternarConcluida(tarefa));
+                    card.querySelector(".excluir").addEventListener("click", () => excluirTarefa(tarefa));
+                }
+
+                listaEl.appendChild(card);
+            });
+        }
+
+        function atualizarProgresso() {
+            const total = tarefas.length;
+            const feitas = tarefas.filter((t) => t.concluida).length;
+            const pct = total ? Math.round((feitas / total) * 100) : 0;
+
+            textoProgresso.textContent = `${feitas} de ${total} concluídas`;
+            porcentagemEl.textContent = pct + "%";
+            barraEl.style.width = pct + "%";
+        }
+
+
+        // ================= AÇÕES =================
+        async function alternarConcluida(tarefa) {
+            try {
+                await updateDoc(
+                    doc(db, "eventos", eventoId, "tarefas", tarefa.id),
+                    { concluida: !tarefa.concluida }
+                );
+                await carregarTarefas();
+            }
+            catch (erro) {
+                mostrarErro(erro);
+            }
+        }
+
+        async function excluirTarefa(tarefa) {
+            if (!confirm(`Excluir a tarefa "${tarefa.titulo}"?`)) return;
+
+            try {
+                await deleteDoc(doc(db, "eventos", eventoId, "tarefas", tarefa.id));
+                await carregarTarefas();
+            }
+            catch (erro) {
+                mostrarErro(erro);
+            }
+        }
+
+
+        // ================= NOVA TAREFA =================
+        function abrirModal() {
+            form.reset();
+            mensagemEl.textContent = "";
+            modal.hidden = false;
+            document.getElementById("tituloTarefa").focus();
+        }
+
+        function fecharModal() {
+            modal.hidden = true;
+        }
+
+        botaoNova.addEventListener("click", abrirModal);
+        document.getElementById("fecharModal").addEventListener("click", fecharModal);
+
+        // clicar fora da caixa fecha
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) fecharModal();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !modal.hidden) fecharModal();
+        });
+
+        form.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const titulo = document.getElementById("tituloTarefa").value.trim();
+
+            if (!titulo) {
+                mensagemEl.textContent = "Digite um título.";
+                return;
+            }
+
+            botaoSalvar.disabled = true;
+            botaoSalvar.textContent = "Salvando...";
+
+            try {
+                await addDoc(collection(db, "eventos", eventoId, "tarefas"), {
+                    titulo: titulo,
+                    descricao: document.getElementById("descricaoTarefa").value.trim(),
+                    data: document.getElementById("dataTarefa").value,       // "AAAA-MM-DD"
+                    prioridade: document.getElementById("prioridadeTarefa").value,
+                    concluida: false,
+                    criadoEm: serverTimestamp()
+                });
+
+                fecharModal();
+                await carregarTarefas();
+            }
+            catch (erro) {
+                console.error(erro);
+                mensagemEl.textContent = "Não foi possível salvar: " + erro.message;
+            }
+            finally {
+                botaoSalvar.disabled = false;
+                botaoSalvar.textContent = "Salvar tarefa";
+            }
+        });
+
+
+        // ================= FILTROS =================
+        document.querySelectorAll(".filtro").forEach((botao) => {
+            botao.addEventListener("click", () => {
+                document.querySelectorAll(".filtro").forEach((b) => b.classList.remove("ativo"));
+                botao.classList.add("ativo");
+                filtroAtual = botao.dataset.filtro;
+                desenharLista();
+            });
+        });
+
+
+        // ================= ERROS =================
+        function mostrarErro(erro) {
+            console.error("Erro nas tarefas:", erro);
+
+            const semPermissao = erro && erro.code === "permission-denied";
+
+            listaEl.innerHTML = `
+                <p class="aviso erro">
+                    ${semPermissao
+                        ? "Sem permissão para acessar as tarefas. Confira as regras do Firestore (arquivo firestore.rules)."
+                        : "Erro ao carregar as tarefas. Veja o console (F12)."}
+                </p>`;
+        }
+
+
+        iniciar();
+
+    </script>
+
+</body>
+
+</html>

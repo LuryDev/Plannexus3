@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <!-- Ícones -->
+    <link
+   
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="css/style.css">
+ 
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- TOPO -->
+
+    <header>
+
+        <div class="logo">
+
+           <a href="index.html"><img
+                src="fotos/logo.png"
+                alt=""
+            > </a> 
+
+        </div>
+
+
+        <a class="notification" id="botaoNotificacao" href="notificacoes.html" title="Notificações">
+
+            <i class="fa-regular fa-bell"></i>
+
+            <span class="badge-notificacao" id="badgeNotificacao" hidden></span>
+
+        </a>
+
+    </header>
+
+
+    <!-- BANNER -->
+
+   <section class="banner">
+
+    <img
+        src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=900"
+        alt=""
+    >
+
+    <span class="banner-orbit orbit-1"></span>
+    <span class="banner-orbit orbit-2"></span>
+
+    <span class="banner-glow"></span>
+
+    <span class="particle particle-1"></span>
+    <span class="particle particle-2"></span>
+    <span class="particle particle-3"></span>
+    <span class="particle particle-4"></span>
+
+    <span class="shine"></span>
+
+    <div class="banner-overlay">
+        <h2 id="boasVindas">
+            Bem-vindo(a)
+        </h2>
+    </div>
+
+</section>
+
+
+    <!-- INDICADOR -->
+
+    <div class="dots">
+
+        <span class="active"></span>
+
+        <span></span>
+
+        <span></span>
+
+        <span></span>
+
+    </div>
+
+
+    <!-- CONTEÚDO -->
+
+ <main>
+<br>
+    <h1>Gerencie seus eventos</h1>
+
+    <div class="search">
+
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        <input
+            type="text"
+            id="pesquisaEvento"
+            placeholder="Buscar seus eventos"
+        >
+
+    </div><br>
+
+
+    <div id="listaEventos">
+
+        <p>Carregando eventos...</p>
+
+    </div>
+
+</main>
+
+    
+
+</div>
+
+
+<!-- MENU -->
+
+<nav class="bottom-nav">
+
+
+    <a href="#">
+
+        <i class="fa-solid fa-house"></i>
+
+    </a>
+
+
+    <!-- BOTÃO CRIAR EVENTO -->
+
+    <a
+        class="add"
+        href="#"
+        id="botaoCriarEvento"
+    >
+
+        <i class="fa-solid fa-plus"></i>
+
+    </a>
+
+
+    <!-- PERFIL -->
+
+    <a href="login.html" id="perfil">
+
+        <i class="fa-regular fa-user"></i>
+
+    </a>
+
+
+</nav>
+
+
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import {
+        getFirestore,
+        collection,
+        doc,
+        getDoc,
+        query,
+        where,
+        getDocs,
+        updateDoc,
+        deleteField
+    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const botaoCriarEvento =
+        document.getElementById("botaoCriarEvento");
+
+
+    const boasVindas =
+        document.getElementById("boasVindas");
+
+
+    const listaEventos =
+        document.getElementById("listaEventos");
+
+
+    const pesquisaEvento =
+        document.getElementById("pesquisaEvento");
+
+
+    const badgeNotificacao =
+        document.getElementById("badgeNotificacao");
+
+
+    let usuarioAtual = null;
+
+
+    onAuthStateChanged(auth, (usuario) => {
+
+
+        if (usuario) {
+
+
+            usuarioAtual = usuario;
+
+            document.getElementById("perfil").href = "perfilPessoal.html";
+
+            console.log("Usuário logado!");
+
+            console.log("UID:", usuario.uid);
+
+
+            // Status
+
+
+            // Nome no banner
+
+            boasVindas.innerHTML =
+                "Bem-vindo(a)<br>" +
+                (usuario.displayName || usuario.email);
+
+
+            // Carregar eventos
+
+            carregarEventos(usuario);
+
+
+            // Checar convites/avisos pendentes (só acende o sininho;
+            // a lista fica na página de notificações)
+
+            atualizarSininho(usuario);
+
+
+        }
+
+        else {
+
+
+            usuarioAtual = null;
+
+            document.getElementById("perfil").href = "login.html";
+
+            console.log("Usuário não está logado.");
+
+
+            boasVindas.innerHTML =
+                "Bem-vindo(a)";
+
+
+            badgeNotificacao.hidden = true;
+
+
+            listaEventos.innerHTML = `
+                <p>Faça login para visualizar seus eventos.</p>
+            `;
+
+        }
+
+    });
+
+
+    // ==========================================
+    // SININHO (convites/avisos pendentes)
+    // A lista completa fica só na página de notificações; aqui é
+    // só pra decidir se o ponto vermelho aparece ou não.
+    // ==========================================
+
+    async function atualizarSininho(usuario) {
+
+        let temConvitePendente = false;
+
+        try {
+            const consultaConvites = query(
+                collection(db, "convites"),
+                where("emailConvidado", "==", usuario.email),
+                where("status", "==", "pendente")
+            );
+
+            const resultadoConvites = await getDocs(consultaConvites);
+            temConvitePendente = !resultadoConvites.empty;
+
+        } catch (erro) {
+            console.error("Erro ao checar convites:", erro);
+        }
+
+        let temAvisoNaoLido = false;
+
+        try {
+            const consultaAvisos = query(
+                collection(db, "avisos"),
+                where("uid", "==", usuario.uid),
+                where("lida", "==", false)
+            );
+
+            const resultadoAvisos = await getDocs(consultaAvisos);
+            temAvisoNaoLido = !resultadoAvisos.empty;
+
+        } catch (erro) {
+            console.error("Erro ao checar avisos:", erro);
+        }
+
+        badgeNotificacao.hidden = !(temConvitePendente || temAvisoNaoLido);
+    }
+
+    // ==========================================
+    // BUSCAR EVENTOS DO USUÁRIO
+    // ==========================================
+
+    async function carregarEventos(usuario) {
+
+        try {
+
+            // Eventos que o usuário criou
+            const consultaProprios = query(
+                collection(db, "eventos"),
+                where("usuarioId", "==", usuario.uid)
+            );
+
+            const resultadoProprios = await getDocs(consultaProprios);
+
+            const eventosProprios = resultadoProprios.docs.map((documento) => ({
+                id: documento.id,
+                papel: "dono",
+                ...documento.data()
+            }));
+
+            // Eventos em que o usuário é colaborador ou visitante.
+            // A lista de IDs candidatos vem do próprio perfil
+            // (usuarios/{uid}.eventosCompartilhados), preenchida quando um
+            // convite é aceito. O papel e a existência são sempre
+            // confirmados em "membros" (fonte da verdade) — isso evita
+            // depender de uma consulta "collection group" (que exigiria
+            // criar um índice manual no Firebase) e ainda limpa sozinho
+            // vínculos de eventos excluídos ou de onde o usuário foi removido.
+            let eventosCompartilhados = [];
+
+            try {
+                const perfilSnap = await getDoc(doc(db, "usuarios", usuario.uid));
+                const mapaCompartilhados = perfilSnap.exists()
+                    ? (perfilSnap.data().eventosCompartilhados || {})
+                    : {};
+
+                const idsCompartilhados = Object.keys(mapaCompartilhados);
+
+                eventosCompartilhados = (await Promise.all(
+                    idsCompartilhados.map(async (eventoCompartilhadoId) => {
+                        try {
+                            const referenciaMembro = doc(
+                                db, "eventos", eventoCompartilhadoId, "membros", usuario.uid
+                            );
+                            const membroSnap = await getDoc(referenciaMembro);
+
+                            if (!membroSnap.exists()) {
+                                // Não é mais membro (saiu ou foi removido).
+                                // Limpa o vínculo do próprio perfil.
+                                updateDoc(doc(db, "usuarios", usuario.uid), {
+                                    [`eventosCompartilhados.${eventoCompartilhadoId}`]: deleteField()
+                                }).catch(() => {});
+                                return null;
+                            }
+
+                            const papel = membroSnap.data().papel || "visitante";
+
+                            const eventoSnap = await getDoc(doc(db, "eventos", eventoCompartilhadoId));
+                            if (!eventoSnap.exists()) {
+                                // Evento foi excluído. Limpa o vínculo também.
+                                updateDoc(doc(db, "usuarios", usuario.uid), {
+                                    [`eventosCompartilhados.${eventoCompartilhadoId}`]: deleteField()
+                                }).catch(() => {});
+                                return null;
+                            }
+
+                            return {
+                                id: eventoCompartilhadoId,
+                                papel: papel,
+                                ...eventoSnap.data()
+                            };
+                        } catch (erroEvento) {
+                            console.error("Erro ao carregar evento compartilhado:", eventoCompartilhadoId, erroEvento);
+                            return null;
+                        }
+                    })
+                )).filter(Boolean);
+
+            } catch (erroMembros) {
+                console.error("Erro ao buscar eventos compartilhados:", erroMembros);
+            }
+
+            const todosEventos = [...eventosProprios, ...eventosCompartilhados];
+
+            listaEventos.innerHTML = "";
+
+            if (!todosEventos.length) {
+                listaEventos.innerHTML = `
+                    <p>Você ainda não possui eventos.</p>
+                `;
+                return;
+            }
+
+            todosEventos.forEach((evento) => {
+
+                const card = document.createElement("div");
+
+                card.classList.add("evento");
+                card.dataset.id = evento.id;
+
+                const seloPapel = evento.papel === "dono"
+                    ? ""
+                    : `<span class="selo-papel-evento">${evento.papel === "colaborador" ? "Colaborador" : "Visitante"}</span>`;
+
+                card.innerHTML = `
+
+                    <!-- ÍCONE DO EVENTO -->
+                    <div class="evento-icone">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+
+                    ${seloPapel}
+
+                    <!-- NOME DO EVENTO -->
+                    <h2>
+                        ${escaparHTML(evento.nome)}
+                    </h2>
+
+                    <!-- INFORMAÇÕES DO EVENTO -->
+                    <p>
+                        <i class="fa-solid fa-calendar"></i>
+                        ${escaparHTML(formatarData(evento.data))}
+                    </p>
+
+                    <p>
+                        <i class="fa-solid fa-clock"></i>
+                        ${escaparHTML(evento.horario)}
+                    </p>
+
+                    <p>
+                        <i class="fa-solid fa-location-dot"></i>
+                        ${escaparHTML(evento.local)}
+                    </p>
+
+                    <p>
+                        <strong>Categoria:</strong>
+                        ${escaparHTML(evento.categoria)}
+                    </p>
+
+                    <!-- BOTÃO PARA ABRIR O EVENTO -->
+                    <button class="abrirEvento" title="Ver evento">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                `;
+
+                listaEventos.appendChild(card);
+
+                const botao = card.querySelector(".abrirEvento");
+
+                botao.addEventListener("click", function () {
+                    window.location.href = "evento.html?id=" + encodeURIComponent(evento.id);
+                });
+
+            });
+
+        }
+
+        catch (erro) {
+
+            console.error(
+                "Erro ao buscar eventos:",
+                erro
+            );
+
+            listaEventos.innerHTML = `
+                <p>Erro ao carregar eventos.</p>
+            `;
+
+        }
+
+    }
+
+
+    // ==========================================
+    // PESQUISA DE EVENTOS
+    // ==========================================
+
+    pesquisaEvento.addEventListener(
+        "input",
+        function() {
+
+
+            const texto =
+                pesquisaEvento.value
+                    .toLowerCase();
+
+
+            const eventos =
+                document.querySelectorAll(
+                    ".evento"
+                );
+
+
+            eventos.forEach((evento) => {
+
+
+                const nome =
+                    evento
+                        .querySelector("h2")
+                        .textContent
+                        .toLowerCase();
+
+
+                if (nome.includes(texto)) {
+
+                    evento.style.display =
+                        "";
+
+                }
+
+                else {
+
+                    evento.style.display =
+                        "none";
+
+                }
+
+            });
+
+        }
+    );
+
+
+    // ==========================================
+    // BOTÃO CRIAR EVENTO
+    // ==========================================
+
+    botaoCriarEvento.addEventListener(
+        "click",
+        function(event) {
+
+
+            event.preventDefault();
+
+
+            if (usuarioAtual) {
+
+
+                window.location.href =
+                    "criarEvento.html";
+
+
+            }
+
+            else {
+
+
+                alert(
+                    "Você precisa estar logado para criar um evento."
+                );
+
+
+                window.location.href =
+                    "login.html";
+
+            }
+
+        }
+    );
+
+
+    </script>
+
+</body>
+
+</html>

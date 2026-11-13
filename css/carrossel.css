@@ -1,0 +1,610 @@
+/* ==========================================
+   RESET
+========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    background: #5A32D3;
+    overflow: hidden;
+}
+
+
+/* ==========================================
+   CONTAINER PRINCIPAL
+========================================== */
+
+.onboarding {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    overflow: hidden;
+    background: #5A32D3;
+}
+
+
+/* ==========================================
+   CARROSSEL
+========================================== */
+
+.slides {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.45s ease-in-out;
+    will-change: transform;
+}
+
+.slide {
+    position: relative;
+
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+
+    flex: 0 0 100%;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* ==========================================
+   FUNDO DA IMAGEM
+========================================== */
+
+.fundo {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+
+    z-index: 0;
+
+    transform: scale(1.01);
+}
+
+
+/* ==========================================
+   OVERLAY ROXO
+========================================== */
+
+.overlay {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 1;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(90, 50, 211, 0.38),
+            rgba(77, 47, 184, 0.58)
+        );
+
+    pointer-events: none;
+}
+
+
+/* ==========================================
+   CONTEÚDO
+========================================== */
+
+.conteudo {
+    position: relative;
+    z-index: 2;
+
+    width: 88%;
+    max-width: 350px;
+
+    min-height: 350px;
+
+    padding: 28px 22px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    background: rgba(255, 255, 255, 0.60);
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.18);
+
+    border-radius: 0;
+}
+
+
+/* ==========================================
+   LOGO
+========================================== */
+
+.logo {
+    width: 90px;
+    height: 90px;
+
+    margin-bottom: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #ffffff;
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.18);
+
+    flex-shrink: 0;
+}
+
+.logo img {
+    width: 85px;
+    height: 85px;
+
+    object-fit: contain;
+
+    border-radius: 10px;
+}
+
+
+/* ==========================================
+   TÍTULOS
+========================================== */
+
+.conteudo h1 {
+    color: #111111;
+
+    font-size: 50px;
+    line-height: 1.35;
+
+    font-weight: 700;
+
+    margin-bottom: 15px;
+
+    max-width: 300px;
+}
+
+
+/* ==========================================
+   TEXTOS
+========================================== */
+
+.conteudo p {
+    color: #151515;
+
+    font-size: 25px;
+    line-height: 1.8;
+
+    font-weight: 500;
+
+    max-width: 310px;
+}
+
+
+/* ==========================================
+   IMAGEM/ÍCONE DA SEGUNDA TELA
+========================================== */
+
+.imagem-explicacao {
+    width: 150px;
+    height: 110px;
+
+    margin-bottom: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.80);
+
+    border: 2px solid #5A32D3;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 7px 18px rgba(0, 0, 0, 0.12);
+}
+
+.imagem-explicacao i {
+    font-size: 42px;
+    color: #5A32D3;
+
+    margin-bottom: 8px;
+}
+
+.imagem-explicacao span {
+    color: #5A32D3;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: 1px;
+}
+
+
+/* ==========================================
+   BOTÃO ENTRAR
+========================================== */
+
+.btn-entrar {
+    border: none;
+    outline: none;
+
+    background: #5A32D3;
+    color: #ffffff;
+
+    padding: 12px 38px;
+
+    border-radius: 25px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    margin-top: 5px;
+
+    box-shadow:
+        0 6px 15px rgba(90, 50, 211, 0.30);
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn-entrar:hover {
+    background: #4D2FB8;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 18px rgba(90, 50, 211, 0.35);
+}
+
+.btn-entrar:active {
+    transform: scale(0.96);
+}
+
+
+/* ==========================================
+   CADASTRO
+========================================== */
+
+.cadastro {
+    margin-top: 14px !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.5 !important;
+
+    color: #222222;
+}
+
+.cadastro a {
+    color: #5A32D3;
+
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+.cadastro a:hover {
+    text-decoration: underline;
+}
+
+
+/* ==========================================
+   SETAS
+========================================== */
+
+.seta {
+    position: absolute;
+
+    z-index: 10;
+
+    bottom: 30px;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    outline: none;
+
+    background: rgba(0, 0, 0, 0.10);
+
+    color: #ffffff;
+
+    border-radius: 50%;
+
+    font-size: 15px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.seta.esquerda {
+    left: 22px;
+}
+
+.seta.direita {
+    right: 22px;
+}
+
+.seta:hover {
+    background: rgba(255, 255, 255, 0.20);
+
+    transform: scale(1.10);
+}
+
+.seta:active {
+    transform: scale(0.92);
+}
+
+
+/* ==========================================
+   INDICADORES
+========================================== */
+
+.indicadores {
+    position: absolute;
+
+    z-index: 10;
+
+    bottom: 45px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+}
+
+.bolinha {
+    width: 7px;
+    height: 7px;
+
+    display: block;
+
+    background: rgba(255, 255, 255, 0.45);
+
+    border-radius: 50%;
+
+    cursor: pointer;
+
+    transition:
+        width 0.3s ease,
+        background 0.3s ease;
+}
+
+.bolinha.ativa {
+    width: 18px;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+}
+
+
+/* ==========================================
+   DIFERENÇA DE POSIÇÃO DAS FOTOS
+========================================== */
+
+.slide:nth-child(1) .fundo {
+    background-position: center center;
+}
+
+.slide:nth-child(2) .fundo {
+    background-position: center center;
+}
+
+.slide:nth-child(3) .fundo {
+    background-position: center center;
+}
+
+
+/* ==========================================
+   TELAS MAIORES
+========================================== */
+
+@media (min-width: 431px) {
+
+    body {
+        background: #222222;
+    }
+
+    .onboarding {
+        min-height: 100vh;
+
+        box-shadow:
+            0 0 40px rgba(0, 0, 0, 0.35);
+    }
+}
+
+
+/* ==========================================
+   TABLETS
+========================================== */
+
+@media (min-width: 600px) {
+
+    .conteudo {
+        max-width: 380px;
+        min-height: 380px;
+    }
+
+    .conteudo h1 {
+        font-size: 27px;
+    }
+
+    .conteudo p {
+        font-size: 16px;
+    }
+}
+
+
+/* ==========================================
+   CELULARES PEQUENOS
+========================================== */
+
+@media (max-height: 650px) {
+
+    .conteudo {
+        min-height: 300px;
+        padding: 20px 18px;
+    }
+
+    .logo {
+        width: 70px;
+        height: 70px;
+
+        margin-bottom: 12px;
+    }
+
+    .logo img {
+        width: 58px;
+        height: 58px;
+    }
+
+    .conteudo h1 {
+        font-size: 21px;
+        margin-bottom: 10px;
+    }
+
+    .conteudo p {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .imagem-explicacao {
+        width: 135px;
+        height: 90px;
+
+        margin-bottom: 15px;
+    }
+
+    .imagem-explicacao i {
+        font-size: 34px;
+    }
+
+    .seta {
+        bottom: 25px;
+
+        width: 34px;
+        height: 34px;
+    }
+
+    .seta.esquerda {
+        left: 15px;
+    }
+
+    .seta.direita {
+        right: 15px;
+    }
+
+    .indicadores {
+        bottom: 35px;
+    }
+}
+
+
+/* ==========================================
+   CELULARES MUITO PEQUENOS
+========================================== */
+
+@media (max-width: 360px) {
+
+    .conteudo {
+        width: 88%;
+        padding: 18px 15px;
+    }
+
+    .conteudo h1 {
+        font-size: 20px;
+    }
+
+    .conteudo p {
+        font-size: 12px;
+    }
+
+    .logo {
+        width: 68px;
+        height: 68px;
+    }
+
+    .logo img {
+        width: 56px;
+        height: 56px;
+    }
+
+    .imagem-explicacao {
+        width: 125px;
+        height: 85px;
+    }
+
+    .seta.esquerda {
+        left: 12px;
+    }
+
+    .seta.direita {
+        right: 12px;
+    }
+}

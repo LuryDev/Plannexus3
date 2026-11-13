@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#5A32D3">
+    <title>PlanNexus — sem conexão</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 32px;
+            text-align: center;
+            font-family: Poppins, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: #F7F5FB;
+            color: #2D1A6B;
+        }
+
+        img { width: 96px; height: 96px; }
+
+        h1 { font-size: 1.4rem; }
+
+        p { max-width: 320px; line-height: 1.5; color: #5b5670; }
+
+        button {
+            margin-top: 8px;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 12px;
+            background: #5A32D3;
+            color: #fff;
+            font: inherit;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <img src="icons/icon-192.png" alt="PlanNexus">
+    <h1>Você está sem internet</h1>
+    <p>O PlanNexus precisa de conexão para carregar seus eventos. Confira o Wi-Fi ou os dados móveis e tente de novo.</p>
+    <button type="button" onclick="location.reload()">Tentar de novo</button>
+</body>
+
+</html>

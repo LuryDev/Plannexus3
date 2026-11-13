@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gerencie as ferramentas do seu evento no PlanNexus.">
+    <title>Evento | PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/evento.css">
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+    <div class="app">
+
+        <header>
+            <a class="voltar" id="linkVoltar" href="inicio.html" title="Voltar" aria-label="Voltar para o início">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+
+            <a class="botao-adicionar-pessoas" id="linkAdicionarPessoas" href="#" title="Adicionar pessoas" hidden>
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Adicionar pessoas</span>
+            </a>
+        </header>
+
+        <main class="detalhesEvento">
+
+            <section class="card-header-evento">
+                <div class="logo-evento">
+                    <img src="fotos/logo.png" alt="Logo PlanNexus">
+                </div>
+
+                <div class="titulo-evento">
+                    <span class="subtitulo">GERENCIAMENTO DE EVENTO</span>
+                    <h1 id="nomeEvento">Carregando...</h1>
+                    <p id="resumoEvento">Organize todos os detalhes do seu evento em um só lugar.</p>
+                </div>
+            </section>
+
+            <section class="secao-ferramentas">
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Ferramentas do evento</h2>
+                        
+                    </div>
+                    <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                </div>
+
+                <div class="menu-cards">
+
+                    <!-- CALENDÁRIO -->
+                    <a href="#" id="linkCalendario" class="card-item">
+                        <div class="card-topo">
+                            <div class="icone-card icone-calendario">
+                                <i class="fa-regular fa-calendar-days"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Calendário</h3>
+                            <p>Datas, horários e compromissos do evento.</p>
+                        </div>
+
+                        <div class="previa previa-calendario" id="previaCalendario" aria-live="polite">
+                            <p class="estado-previa">Carregando compromissos...</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar calendário</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <!-- TAREFAS -->
+                    <a href="#" id="linkTarefas" class="card-item">
+                        <div class="card-topo">
+                            <div class="icone-card icone-tarefas">
+                                <i class="fa-solid fa-list-check"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Tarefas</h3>
+                            <p>Atividades pendentes e concluídas.</p>
+                        </div>
+
+                        <div class="previa previa-tarefas" id="previaTarefas" aria-live="polite">
+                            <p class="estado-previa">Carregando tarefas...</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar tarefas</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <!-- CONTROLE FINANCEIRO -->
+                    <a href="#" id="linkControleFinanceiro" class="card-item">
+                        <div class="card-topo">
+                            <div class="icone-card icone-financeiro">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Controle Financeiro</h3>
+                            <p>Orçamento, receitas, investimentos e saldo.</p>
+                        </div>
+
+                        <div class="previa previa-financeiro" id="previaFinanceiro" aria-live="polite">
+                            <p class="estado-previa">Carregando informações financeiras...</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar financeiro</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <!-- BLOCO DE NOTAS -->
+                    <a href="#" id="linkBlocodeNotas" class="card-item">
+                        <div class="card-topo">
+                            <div class="icone-card icone-notas">
+                                <i class="fa-solid fa-note-sticky"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Bloco de Notas</h3>
+                            <p>Suas ideias e informações importantes.</p>
+                        </div>
+
+                        <div class="previa previa-notas" id="previaNotas" aria-live="polite">
+                            <p class="estado-previa">Carregando anotações...</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar bloco de notas</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                </div>
+            </section>
+
+            <section class="secao-perigo" id="secaoPerigo" hidden>
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Gerenciar evento</h2>
+                        <p>Essa ação não pode ser desfeita.</p>
+                    </div>
+                </div>
+
+                <button type="button" class="botao-excluir-evento" id="botaoExcluirEvento">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Excluir evento</span>
+                </button>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            deleteDoc,
+            collection,
+            getDocs,
+            query,
+            where
+        } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        const app = initializeApp(window.FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const parametros = new URLSearchParams(window.location.search);
+        const eventoId = parametros.get("id");
+
+        let usuarioAtual = null;
+
+        const linkVoltar = document.getElementById("linkVoltar");
+
+        const nomeEvento = document.getElementById("nomeEvento");
+        const resumoEvento = document.getElementById("resumoEvento");
+
+        const linkAdicionarPessoas = document.getElementById("linkAdicionarPessoas");
+
+        const secaoPerigo = document.getElementById("secaoPerigo");
+        const botaoExcluirEvento = document.getElementById("botaoExcluirEvento");
+
+        const linkCalendario = document.getElementById("linkCalendario");
+        const linkTarefas = document.getElementById("linkTarefas");
+        const linkControleFinanceiro = document.getElementById("linkControleFinanceiro");
+        const linkBlocodeNotas = document.getElementById("linkBlocodeNotas");
+
+        const previaCalendario = document.getElementById("previaCalendario");
+        const previaTarefas = document.getElementById("previaTarefas");
+        const previaFinanceiro = document.getElementById("previaFinanceiro");
+        const previaNotas = document.getElementById("previaNotas");
+
+        function escaparHTML(valor) {
+            return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[caractere]);
+        }
+
+        function formatarData(data) {
+            if (!data) return "Data não informada";
+
+            const texto = String(data);
+            const partes = texto.split("-");
+
+            if (partes.length === 3 && partes[0].length === 4) {
+                return `${partes[2]}/${partes[1]}/${partes[0]}`;
+            }
+
+            return texto;
+        }
+
+        function formatarDinheiro(valor) {
+            return Number(valor || 0).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+        }
+
+        function hojeISO() {
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+            const dia = String(hoje.getDate()).padStart(2, "0");
+            return `${ano}-${mes}-${dia}`;
+        }
+
+        function mostrarErroPrevias() {
+            [previaCalendario, previaTarefas, previaFinanceiro, previaNotas]
+                .forEach(elemento => {
+                    elemento.innerHTML = '<p class="estado-previa">Não foi possível carregar esta prévia.</p>';
+                });
+        }
+
+        async function carregarPreviaCalendario(evento) {
+            const referencia = collection(db, "eventos", eventoId, "calendario");
+            const resultado = await getDocs(referencia);
+
+            const compromissos = resultado.docs.map(documento => ({
+                id: documento.id,
+                ...documento.data()
+            }));
+
+            if (evento.data) {
+                compromissos.push({
+                    id: "dia-do-evento",
+                    titulo: "Dia do evento",
+                    data: evento.data,
+                    horario: evento.horario || "",
+                    local: evento.local || "",
+                    automatico: true
+                });
+            }
+
+            compromissos.sort((a, b) => {
+                const dataA = a.data || "9999-99-99";
+                const dataB = b.data || "9999-99-99";
+
+                if (dataA !== dataB) return dataA.localeCompare(dataB);
+                return String(a.horario || "").localeCompare(String(b.horario || ""));
+            });
+
+            const hoje = hojeISO();
+            const proximos = compromissos.filter(item => item.data && item.data >= hoje);
+            const exibidos = (proximos.length ? proximos : compromissos).slice(0, 2);
+
+            if (!exibidos.length) {
+                previaCalendario.innerHTML = '<p class="estado-previa">Nenhum compromisso cadastrado.</p>';
+                return;
+            }
+
+            previaCalendario.innerHTML = exibidos.map(item => `
+                <article class="previa-item">
+                    <div class="previa-data">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span>${escaparHTML(formatarData(item.data))}</span>
+                    </div>
+                    <strong>${escaparHTML(item.titulo || "Sem título")}</strong>
+                    <span class="previa-detalhe">
+                        <i class="fa-regular fa-clock"></i>
+                        ${escaparHTML(item.horario || "Horário não informado")}
+                    </span>
+                    ${item.local ? `<span class="previa-detalhe"><i class="fa-solid fa-location-dot"></i>${escaparHTML(item.local)}</span>` : ""}
+                </article>
+            `).join("");
+        }
+
+        async function carregarPreviaTarefas() {
+            const referencia = collection(db, "eventos", eventoId, "tarefas");
+            const resultado = await getDocs(referencia);
+
+            const tarefas = resultado.docs.map(documento => ({
+                id: documento.id,
+                ...documento.data()
+            }));
+
+            const concluidas = tarefas.filter(tarefa => Boolean(tarefa.concluida)).length;
+            const total = tarefas.length;
+            const porcentagem = total ? Math.round((concluidas / total) * 100) : 0;
+
+            tarefas.sort((a, b) => {
+                if (Boolean(a.concluida) !== Boolean(b.concluida)) {
+                    return a.concluida ? 1 : -1;
+                }
+                return String(a.data || "9999-99-99").localeCompare(String(b.data || "9999-99-99"));
+            });
+
+            const destaques = tarefas.slice(0, 3);
+
+            previaTarefas.innerHTML = `
+                <div class="tarefas-resumo">
+                    <div>
+                        <strong>Minhas tarefas</strong>
+                        <span>${concluidas} de ${total} concluídas</span>
+                    </div>
+                    <strong class="porcentagem">${porcentagem}%</strong>
+                </div>
+                <div class="barra-progresso">
+                    <span style="width: ${porcentagem}%"></span>
+                </div>
+                ${
+                    destaques.length
+                    ? destaques.map(tarefa => `
+                        <div class="tarefa-item ${tarefa.concluida ? "concluida" : ""}">
+                            <i class="${tarefa.concluida ? "fa-solid fa-circle-check" : "fa-regular fa-circle"}"></i>
+                            <span>${escaparHTML(tarefa.titulo || "Tarefa sem título")}</span>
+                        </div>
+                    `).join("")
+                    : '<p class="estado-previa">Nenhuma tarefa cadastrada.</p>'
+                }
+            `;
+        }
+
+        async function carregarPreviaFinanceiro(evento) {
+            const referencia = collection(db, "eventos", eventoId, "controleFinanceiro");
+            const resultado = await getDocs(referencia);
+
+            const itens = resultado.docs.map(documento => documento.data());
+
+            const receitas = itens
+                .filter(item => item.tipo === "receita")
+                .reduce((total, item) => total + (Number(item.valor) || 0), 0);
+
+            const despesas = itens
+                .filter(item => item.tipo === "despesa")
+                .reduce((total, item) => total + (Number(item.valor) || 0), 0);
+
+            const orcamento = Number(evento.orcamento) || 0;
+            const saldo = orcamento + receitas - despesas;
+            const baseGrafico = Math.max(orcamento, receitas, despesas, 1);
+            const alturaReceitas = Math.max(4, Math.min(100, (receitas / baseGrafico) * 100));
+            const alturaDespesas = Math.max(4, Math.min(100, (despesas / baseGrafico) * 100));
+
+            previaFinanceiro.innerHTML = `
+                <div class="financeiro-resumo">
+                    <div>
+                        <span>Orçamento inicial</span>
+                        <strong>${formatarDinheiro(orcamento)}</strong>
+                    </div>
+                    <div class="saldo-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+
+                <div class="financeiro-dados">
+                    <div>
+                        <span>Investimentos</span>
+                        <strong>${formatarDinheiro(despesas)}</strong>
+                    </div>
+                    <div>
+                        <span>Saldo atual</span>
+                        <strong class="valor-disponivel">${formatarDinheiro(saldo)}</strong>
+                    </div>
+                </div>
+
+                <div class="grafico-barras" aria-label="Comparação ilustrativa de receitas e investimentos">
+                    <div style="height: ${alturaReceitas}%"></div>
+                    <div style="height: ${alturaDespesas}%"></div>
+                </div>
+
+                <div class="grafico-legenda">
+                    <span><i class="legenda-receita"></i> Receitas: ${formatarDinheiro(receitas)}</span>
+                    <span><i class="legenda-despesa"></i> Investimentos</span>
+                </div>
+            `;
+        }
+
+        async function carregarPreviaNotas() {
+            const referencia = collection(db, "eventos", eventoId, "anotacoes");
+            const resultado = await getDocs(referencia);
+
+            const anotacoes = resultado.docs.map(documento => ({
+                id: documento.id,
+                ...documento.data()
+            }));
+
+            anotacoes.sort((a, b) => {
+                const dataA = a.dataAtualizacao?.toMillis?.() || 0;
+                const dataB = b.dataAtualizacao?.toMillis?.() || 0;
+                return dataB - dataA;
+            });
+
+            const ultimaNota = anotacoes[0];
+
+            if (!ultimaNota) {
+                previaNotas.innerHTML = '<p class="estado-previa">Nenhuma anotação cadastrada.</p>';
+                return;
+            }
+
+            previaNotas.innerHTML = `
+                <article class="nota-papel">
+                    <div class="nota-topo">
+                        <i class="fa-solid fa-thumbtack"></i>
+                        <span>ANOTAÇÃO MAIS RECENTE</span>
+                    </div>
+                    <strong>${escaparHTML(ultimaNota.titulo || "Sem título")}</strong>
+                    <p class="conteudo-previa-nota">${escaparHTML(ultimaNota.conteudo || "")}</p>
+                </article>
+            `;
+        }
+
+        function esconderLinks() {
+            linkAdicionarPessoas.hidden = true;
+            linkCalendario.hidden = true;
+            linkTarefas.hidden = true;
+            linkControleFinanceiro.hidden = true;
+            linkBlocodeNotas.hidden = true;
+            secaoPerigo.hidden = true;
+        }
+
+        async function carregarEvento() {
+            if (!eventoId || eventoId.includes("/")) {
+                nomeEvento.textContent = "Evento não encontrado.";
+                esconderLinks();
+                return;
+            }
+
+            try {
+                const usuario = await exigirLogin(auth, onAuthStateChanged);
+                if (!usuario) return;
+
+                usuarioAtual = usuario;
+
+                const referenciaEvento = doc(db, "eventos", eventoId);
+                const resultadoEvento = await getDoc(referenciaEvento);
+
+                if (!resultadoEvento.exists()) {
+                    nomeEvento.textContent = "Evento não encontrado.";
+                    esconderLinks();
+                    return;
+                }
+
+                const evento = resultadoEvento.data();
+
+                const souDono = evento.usuarioId === usuario.uid;
+                let papelUsuario = souDono ? "dono" : null;
+
+                if (!souDono) {
+                    const referenciaMembro = doc(db, "eventos", eventoId, "membros", usuario.uid);
+                    const resultadoMembro = await getDoc(referenciaMembro);
+
+                    if (!resultadoMembro.exists()) {
+                        nomeEvento.textContent = "Você não tem acesso a este evento.";
+                        esconderLinks();
+                        return;
+                    }
+
+                    papelUsuario = resultadoMembro.data().papel || "visitante";
+                }
+
+                // Só o dono do evento pode convidar pessoas e excluir o evento
+                if (souDono) {
+                    linkAdicionarPessoas.hidden = false;
+                    linkAdicionarPessoas.href = `pessoas.html?id=${encodeURIComponent(eventoId)}`;
+
+                    secaoPerigo.hidden = false;
+                }
+
+                nomeEvento.textContent = evento.nome || "Evento sem nome";
+
+                const detalhes = [];
+                if (evento.data) detalhes.push(formatarData(evento.data));
+                if (evento.local) detalhes.push(evento.local);
+                resumoEvento.textContent = detalhes.length
+                    ? detalhes.join(" • ")
+                    : "Acesse as ferramentas para organizar seu evento.";
+
+                linkVoltar.href = "inicio.html";
+                linkCalendario.href = `calendario.html?id=${encodeURIComponent(eventoId)}`;
+                linkTarefas.href = `tarefas.html?id=${encodeURIComponent(eventoId)}`;
+                linkControleFinanceiro.href = `controleFinanceiro.html?id=${encodeURIComponent(eventoId)}`;
+                linkBlocodeNotas.href = `blocoNotas.html?id=${encodeURIComponent(eventoId)}`;
+
+                const resultados = await Promise.allSettled([
+                    carregarPreviaCalendario(evento),
+                    carregarPreviaTarefas(),
+                    carregarPreviaFinanceiro(evento),
+                    carregarPreviaNotas()
+                ]);
+
+                resultados.forEach((resultado, indice) => {
+                    if (resultado.status === "rejected") {
+                        console.error("Erro ao carregar prévia:", resultado.reason);
+                        const elementos = [
+                            previaCalendario,
+                            previaTarefas,
+                            previaFinanceiro,
+                            previaNotas
+                        ];
+                        elementos[indice].innerHTML =
+                            '<p class="estado-previa">Não foi possível carregar esta prévia.</p>';
+                    }
+                });
+
+            } catch (erro) {
+                console.error("Erro ao carregar evento:", erro);
+                nomeEvento.textContent = "Erro ao carregar evento.";
+                mostrarErroPrevias();
+            }
+        }
+
+        async function excluirSubcolecao(nomeSubcolecao) {
+            const referencia = collection(db, "eventos", eventoId, nomeSubcolecao);
+            const resultado = await getDocs(referencia);
+            await Promise.all(resultado.docs.map(documento => deleteDoc(documento.ref)));
+        }
+
+        async function excluirConvitesDoEvento() {
+            const referencia = query(
+                collection(db, "convites"),
+                where("eventoId", "==", eventoId),
+                where("donoId", "==", usuarioAtual.uid)
+            );
+            const resultado = await getDocs(referencia);
+            await Promise.all(resultado.docs.map(documento => deleteDoc(documento.ref)));
+        }
+
+        async function excluirEvento() {
+            const nomeAtual = nomeEvento.textContent || "este evento";
+
+            const confirmou = confirm(
+                `Tem certeza que deseja excluir "${nomeAtual}"? Essa ação não pode ser desfeita e vai apagar tarefas, calendário, financeiro, anotações e pessoas vinculadas a este evento.`
+            );
+            if (!confirmou) return;
+
+            botaoExcluirEvento.disabled = true;
+            botaoExcluirEvento.querySelector("span").textContent = "Excluindo...";
+
+            try {
+                await Promise.all([
+                    excluirSubcolecao("tarefas"),
+                    excluirSubcolecao("calendario"),
+                    excluirSubcolecao("controleFinanceiro"),
+                    excluirSubcolecao("anotacoes"),
+                    excluirSubcolecao("membros"),
+                    excluirConvitesDoEvento()
+                ]);
+
+                await deleteDoc(doc(db, "eventos", eventoId));
+
+                window.location.href = "inicio.html";
+
+            } catch (erro) {
+                console.error("Erro ao excluir evento:", erro);
+                alert("Não foi possível excluir o evento: " + erro.message);
+                botaoExcluirEvento.disabled = false;
+                botaoExcluirEvento.querySelector("span").textContent = "Excluir evento";
+            }
+        }
+
+        botaoExcluirEvento.addEventListener("click", excluirEvento);
+
+        carregarEvento();
+    </script>
+</body>
+</html>

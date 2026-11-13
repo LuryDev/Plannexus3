@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Calendário - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/calendario.css">
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+            <a class="voltar" id="voltar" href="evento.html" title="Voltar" aria-label="Voltar">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+
+            <h1 id="nomeEvento">Carregando...</h1>
+        </header>
+
+        <main class="calendario-container">
+
+            <div class="titulo">
+                <h2>Calendário do Evento</h2>
+
+                <button class="novo" id="botaoNovo" type="button">
+                    <i class="fa-solid fa-plus"></i>
+                    Novo
+                </button>
+            </div>
+
+            <section class="lista-compromissos" id="listaCompromissos">
+                <p class="aviso">Carregando agenda...</p>
+            </section>
+
+        </main>
+
+    </div>
+
+    <div class="modal" id="modal" hidden>
+
+        <form class="modal-caixa" id="formCompromisso">
+
+            <div class="modal-topo">
+                <h2>Novo compromisso</h2>
+
+                <button type="button" class="fechar" id="fecharModal" title="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <label for="tituloCompromisso">Título</label>
+            <input
+                type="text"
+                id="tituloCompromisso"
+                placeholder="Ex: Prova do bolo"
+                maxlength="80"
+                required
+            >
+
+            <div class="duplo">
+                <div>
+                    <label for="dataCompromisso">Data</label>
+                    <input type="date" id="dataCompromisso" required>
+                </div>
+
+                <div>
+                    <label for="horarioCompromisso">Horário</label>
+                    <input type="time" id="horarioCompromisso">
+                </div>
+            </div>
+
+            <label for="descricaoCompromisso">Descrição</label>
+            <textarea
+                id="descricaoCompromisso"
+                rows="3"
+                placeholder="Detalhes (opcional)"
+            ></textarea>
+
+            <button type="submit" class="salvar" id="botaoSalvar">
+                Salvar compromisso
+            </button>
+
+            <p class="mensagem" id="mensagem"></p>
+
+        </form>
+
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script type="module" src="js/calendario.js"></script>
+
+</body>
+</html>

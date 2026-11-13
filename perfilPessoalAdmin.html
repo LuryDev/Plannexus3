@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Perfil - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="css/perfilPessoal.css">
+
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+
+<div class="perfil-container">
+
+    <h1 id="nome">Carregando...</h1>
+
+    <p id="email"></p>
+
+    <p id="uid"></p>
+
+    <button id="voltar">
+        Voltar
+    </button>
+
+    <button id="sair">
+        Sair
+    </button>
+
+</div>
+
+<script src="js/config.js"></script>
+<script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+
+    if (user) {
+
+        document.getElementById("nome").textContent =
+            user.displayName || "Admin";
+
+        document.getElementById("email").textContent =
+            user.email;
+
+        document.getElementById("uid").textContent =
+            "UID: " + user.uid;
+
+        if (user.photoURL) {
+
+            document.getElementById("foto").src =
+                user.photoURL;
+
+        }
+
+    }
+
+    else {
+
+        window.location.href = "login.html";
+
+    }
+
+});
+
+document.getElementById("voltar").addEventListener("click", () => {
+
+    window.location.href = "indexAdmin.html";
+
+});
+
+document.getElementById("sair").addEventListener("click", async () => {
+
+    await signOut(auth);
+
+    window.location.href = "login.html";
+
+});
+
+</script>
+
+</body>
+</html>

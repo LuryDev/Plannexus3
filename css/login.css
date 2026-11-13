@@ -1,0 +1,465 @@
+/* =========================
+   RESET
+========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+
+/* =========================
+   BODY
+========================= */
+
+body {
+    min-height: 100vh;
+
+    background:
+        linear-gradient(
+            135deg,
+            #4D2FB2,
+            #38208F
+        );
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+}
+
+
+/* =========================
+   CONTAINER
+========================= */
+
+#caixa {
+    width: 100%;
+
+    max-width: 430px;
+
+    padding: 45px 35px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+}
+
+
+/* =========================
+   TÍTULO
+========================= */
+
+h1 {
+    color: white;
+
+    text-align: center;
+
+    font-size:
+        clamp(
+            28px,
+            5vw,
+            38px
+        );
+
+    font-weight: 700;
+
+    margin-bottom: 10px;
+}
+
+
+/* =========================
+   SUBTÍTULO
+========================= */
+
+h3 {
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.8
+        );
+
+    text-align: center;
+
+    font-size: 14px;
+
+    font-weight: 400;
+
+    line-height: 1.5;
+
+    margin-bottom: 30px;
+}
+
+
+/* =========================
+   TEXTOS
+========================= */
+
+p {
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.85
+        );
+
+    font-size: 13px;
+
+    text-align: center;
+
+    margin: 15px 0;
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+input {
+    width: 100%;
+
+    max-width: 360px;
+
+    height: 48px;
+
+    padding: 0 15px;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.25
+        );
+
+    border-radius: 8px;
+
+    background-color:
+        rgba(
+            255,
+            255,
+            255,
+            0.95
+        );
+
+    color: #222;
+
+    font-size: 14px;
+
+    outline: none;
+
+    margin-bottom: 12px;
+
+    transition: 0.2s ease;
+}
+
+
+input:focus {
+    border-color: #ffffff;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            255,
+            255,
+            255,
+            0.15
+        );
+}
+
+
+input::placeholder {
+    color: #888;
+}
+
+
+/* =========================
+   ALINHAMENTO DOS BOTÕES
+========================= */
+
+#enter,
+#adminLogin,
+#googleLogin {
+
+    width: 100%;
+
+    max-width: 360px;
+
+    height: 48px;
+
+    border-radius: 8px;
+
+    padding: 12px 18px;
+
+    font-family:
+        "Inter",
+        sans-serif;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        all 0.2s ease;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-left: auto;
+
+    margin-right: auto;
+}
+
+
+/* =========================
+   BOTÃO ENTRAR
+========================= */
+
+#enter {
+
+    color: #4D2FB2;
+
+    background-color: white;
+
+    border: none;
+
+    margin-top: 8px;
+
+    margin-bottom: 10px;
+}
+
+
+#enter:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 20px
+        rgba(
+            0,
+            0,
+            0,
+            0.2
+        );
+}
+
+
+#enter:active {
+
+    transform:
+        translateY(0);
+}
+
+
+/* =========================
+   BOTÃO ADMIN
+========================= */
+
+#adminLogin {
+
+    color: white;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            0.35
+        );
+
+    gap: 8px;
+
+    margin-top: 0;
+
+    margin-bottom: 0;
+}
+
+
+#adminLogin span {
+
+    font-size: 15px;
+
+    line-height: 1;
+}
+
+
+#adminLogin:hover {
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.16
+        );
+
+    border-color:
+        rgba(
+            255,
+            255,
+            255,
+            0.6
+        );
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 6px 15px
+        rgba(
+            0,
+            0,
+            0,
+            0.15
+        );
+}
+
+
+#adminLogin:active {
+
+    transform:
+        translateY(0);
+}
+
+
+/* =========================
+   GOOGLE
+========================= */
+
+#googleLogin {
+
+    color: #333;
+
+    background-color: white;
+
+    border:
+        1px solid #ddd;
+
+    gap: 10px;
+
+    margin-top: 0;
+}
+
+
+#googleLogin img {
+
+    display: block;
+
+    width: 16px;
+
+    height: 16px;
+}
+
+
+#googleLogin:hover {
+
+    background-color: #f5f5f5;
+
+    transform:
+        translateY(-2px);
+}
+
+
+/* =========================
+   RESPONSIVIDADE
+========================= */
+
+@media (max-width: 480px) {
+
+    body {
+        padding: 15px;
+    }
+
+    #caixa {
+        padding: 30px 20px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    h3 {
+        font-size: 13px;
+
+        margin-bottom: 25px;
+    }
+
+    input,
+    #enter,
+    #adminLogin,
+    #googleLogin {
+
+        max-width: 100%;
+
+        width: 100%;
+    }
+}
+
+
+/* =========================
+   TELAS PEQUENAS
+========================= */
+
+@media (max-width: 360px) {
+
+    #caixa {
+        padding: 25px 15px;
+    }
+
+    h1 {
+        font-size: 25px;
+    }
+
+    h3 {
+        font-size: 12px;
+    }
+
+    input,
+    #enter,
+    #adminLogin,
+    #googleLogin {
+
+        height: 45px;
+    }
+}
+
+
+/* =========================
+   DESKTOP
+========================= */
+
+@media (min-width: 768px) {
+
+    #caixa {
+
+        max-width: 450px;
+
+        padding: 50px 40px;
+    }
+}
