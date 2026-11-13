@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Enviar Feedback | Plannexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="css/feedback.css">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+
+        <a href="perfilPessoal.html" class="voltar">
+
+            <i class="fa-solid fa-arrow-left"></i>
+
+        </a>
+
+        <h2>Enviar Feedback</h2>
+
+    </header>
+
+    <p class="intro">
+        Encontrou um problema, tem uma ideia ou quer elogiar alguma coisa do
+        Plannexus? Conte pra gente abaixo.
+    </p>
+
+    <form id="formFeedback">
+
+        <div class="campo">
+
+            <label>Tipo de feedback</label>
+
+            <select id="categoria">
+
+                <option value="Sugestão">
+                    Sugestão
+                </option>
+
+                <option value="Problema / Bug">
+                    Problema / Bug
+                </option>
+
+                <option value="Elogio">
+                    Elogio
+                </option>
+
+                <option value="Dúvida">
+                    Dúvida
+                </option>
+
+                <option value="Outro">
+                    Outro
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>Assunto</label>
+
+            <input
+                type="text"
+                id="assunto"
+                placeholder="Resuma em poucas palavras"
+                maxlength="120"
+                required
+            >
+
+        </div>
+
+
+        <div class="campo">
+
+            <label>Mensagem</label>
+
+            <textarea
+                id="mensagem"
+                rows="6"
+                placeholder="Descreva com detalhes o que aconteceu ou sua ideia..."
+                maxlength="2000"
+                required
+            ></textarea>
+
+        </div>
+
+
+        <button type="submit" id="botaoEnviar">
+
+            Enviar feedback
+
+        </button>
+
+
+        <p id="aviso"></p>
+
+    </form>
+
+    <p class="rodape">
+        Seu feedback é registrado no Plannexus e também enviado por
+        e-mail para <strong>plannexuscorp@gmail.com</strong>. Se o seu
+        aplicativo de e-mail abrir numa nova aba, é só confirmar o envio
+        por lá para a mensagem chegar até nós.
+    </p>
+
+</div>
+
+
+<script src="js/config.js"></script>
+<script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+    // FIREBASE_CONFIG vem do arquivo js/config.js
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const EMAIL_DESTINO = "plannexuscorp@gmail.com";
+
+    // ==========================================
+    // ELEMENTOS
+    // ==========================================
+
+    const formulario =
+        document.getElementById("formFeedback");
+
+    const aviso =
+        document.getElementById("aviso");
+
+    const botaoEnviar =
+        document.getElementById("botaoEnviar");
+
+
+    // ==========================================
+    // USUÁRIO LOGADO
+    // ==========================================
+
+    let usuarioAtual = null;
+
+    onAuthStateChanged(auth, (usuario) => {
+
+        if (!usuario) {
+
+            alert("Faça login para enviar um feedback!");
+
+            window.location.href = "login.html";
+
+            return;
+
+        }
+
+        usuarioAtual = usuario;
+
+    });
+
+
+    // ==========================================
+    // ENVIAR FEEDBACK
+    // ==========================================
+
+    formulario.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+        if (!usuarioAtual) {
+
+            alert("Você precisa estar logado.");
+
+            window.location.href = "login.html";
+
+            return;
+
+        }
+
+        const categoria =
+            document.getElementById("categoria").value;
+
+        const assunto =
+            document.getElementById("assunto").value.trim();
+
+        const mensagem =
+            document.getElementById("mensagem").value.trim();
+
+        if (!assunto || !mensagem) {
+
+            aviso.textContent = "Preencha o assunto e a mensagem.";
+            aviso.style.color = "red";
+
+            return;
+
+        }
+
+        botaoEnviar.disabled = true;
+        botaoEnviar.textContent = "Enviando...";
+
+        try {
+
+            // ======================================
+            // SALVAR NO FIRESTORE (fica registrado
+            // dentro do Plannexus, mesmo se a pessoa
+            // não concluir o envio do e-mail)
+            // ======================================
+
+            await addDoc(
+                collection(db, "feedbacks"),
+                {
+                    categoria: categoria,
+                    assunto: assunto,
+                    mensagem: mensagem,
+                    uid: usuarioAtual.uid,
+                    nome: usuarioAtual.displayName || "",
+                    email: usuarioAtual.email || "",
+                    status: "novo",
+                    criadoEm: serverTimestamp()
+                }
+            );
+
+            // ======================================
+            // ABRIR E-MAIL JÁ PREENCHIDO
+            // ======================================
+
+            const linhaNome =
+                usuarioAtual.displayName
+                    ? usuarioAtual.displayName + " (" + usuarioAtual.email + ")"
+                    : usuarioAtual.email;
+
+            const corpoEmail =
+                mensagem +
+                "\n\n---\n" +
+                "Enviado pelo Plannexus\n" +
+                "Tipo: " + categoria + "\n" +
+                "Usuário: " + linhaNome + "\n" +
+                "UID: " + usuarioAtual.uid;
+
+            const linkMailto =
+                "mailto:" + EMAIL_DESTINO +
+                "?subject=" + encodeURIComponent("[Plannexus] " + categoria + ": " + assunto) +
+                "&body=" + encodeURIComponent(corpoEmail);
+
+            aviso.textContent =
+                "Feedback registrado! Abrindo seu aplicativo de e-mail para você confirmar o envio...";
+
+            aviso.style.color = "green";
+
+            formulario.reset();
+
+            window.location.href = linkMailto;
+
+            botaoEnviar.disabled = false;
+            botaoEnviar.textContent = "Enviar feedback";
+
+        }
+
+        catch (erro) {
+
+            console.error("Erro ao enviar feedback:", erro);
+
+            aviso.textContent =
+                "Erro ao enviar feedback: " + erro.message;
+
+            aviso.style.color = "red";
+
+            botaoEnviar.disabled = false;
+            botaoEnviar.textContent = "Enviar feedback";
+
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>
