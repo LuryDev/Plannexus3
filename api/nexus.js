@@ -309,61 +309,101 @@ export default async function handler(req, res) {
         return res.status(500).json({ erro: "Não foi possível falar com o Nexus agora." });
     }
 
-    // 4) Gemini
-    const modelo = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`;
+    // 4) Gemini (com novas tentativas e um modelo reserva quando o Google está ocupado)
+    const modelo  = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+    const reserva = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash-lite";
+
+    // 1ª tentativa, 2ª tentativa no mesmo modelo, 3ª no modelo reserva
+    const tentativas = [modelo, modelo];
+    if (reserva && reserva !== modelo) tentativas.push(reserva);
+
+    let ultimoStatus = 0;
 
     try {
-        const resposta = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-goog-api-key": process.env.GEMINI_API_KEY
-            },
-            body: JSON.stringify({
-                systemInstruction: { parts: [{ text: instrucoes() }] },
-                contents: historico,
-                generationConfig: {
-                    temperature: 0.4,
-                    maxOutputTokens: 1024,
-                    responseMimeType: "application/json",
-                    responseSchema: ESQUEMA_RESPOSTA
-                }
-            })
-        });
+        for (let i = 0; i < tentativas.length; i++) {
 
-        if (!resposta.ok) {
-            const detalhe = await resposta.text();
-            console.error("Erro do Gemini:", resposta.status, detalhe.slice(0, 500));
+            if (i > 0) await esperar(1000);
 
-            if (resposta.status === 429) {
-                return res.status(503).json({ erro: "O Nexus está muito ocupado agora. Tente de novo em instantes." });
+            const resposta = await chamarGemini(tentativas[i], historico);
+            ultimoStatus = resposta.status;
+
+            if (!resposta.ok) {
+                const detalhe = await resposta.text();
+                console.error(`NEXUS: Gemini (${tentativas[i]}) respondeu ${resposta.status}:`, detalhe.slice(0, 300));
+
+                // ocupado/instável: tenta de novo; qualquer outro erro: desiste
+                if ([429, 500, 503, 504].includes(resposta.status)) continue;
+                break;
             }
 
-            return res.status(502).json({ erro: "O Nexus não conseguiu responder. Tente de novo." });
+            const dados = await resposta.json();
+            const texto = dados?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            const resultado = safeJSON(texto);
+
+            if (!resultado || typeof resultado.resposta !== "string") {
+                console.error("NEXUS: resposta do Gemini fora do formato:", texto.slice(0, 300));
+                continue;
+            }
+
+            const evento = validarEvento(resultado.evento);
+
+            return res.status(200).json({
+                resposta: resultado.resposta.slice(0, 1500),
+                evento,
+                tarefas: evento ? validarTarefas(resultado.tarefas) : []
+            });
         }
-
-        const dados = await resposta.json();
-        const texto = dados?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        const resultado = safeJSON(texto);
-
-        if (!resultado || typeof resultado.resposta !== "string") {
-            console.error("Resposta do Gemini fora do formato:", texto.slice(0, 300));
-            return res.status(502).json({ erro: "O Nexus se confundiu. Pode repetir?" });
-        }
-
-        const evento = validarEvento(resultado.evento);
-
-        return res.status(200).json({
-            resposta: resultado.resposta.slice(0, 1500),
-            evento,
-            tarefas: evento ? validarTarefas(resultado.tarefas) : []
-        });
     }
     catch (erro) {
-        console.error("Erro ao chamar o Gemini:", erro.message);
-        return res.status(502).json({ erro: "O Nexus não conseguiu responder. Tente de novo." });
+        console.error("NEXUS: erro ao chamar o Gemini:", erro.message);
     }
+
+    // não deu certo: devolve a mensagem ao limite do usuário
+    await devolverUso(db, fb.FieldValue, usuario.uid).catch(() => {});
+
+    if (ultimoStatus === 429 || ultimoStatus === 503) {
+        return res.status(503).json({ erro: "O Nexus está muito ocupado agora. Tente de novo em instantes." });
+    }
+
+    return res.status(502).json({ erro: "O Nexus não conseguiu responder. Tente de novo." });
+}
+
+function esperar(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function chamarGemini(modelo, historico) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`;
+
+    return fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": process.env.GEMINI_API_KEY
+        },
+        signal: AbortSignal.timeout(20000),
+        body: JSON.stringify({
+            systemInstruction: { parts: [{ text: instrucoes() }] },
+            contents: historico,
+            generationConfig: {
+                temperature: 0.4,
+                maxOutputTokens: 1024,
+                responseMimeType: "application/json",
+                responseSchema: ESQUEMA_RESPOSTA
+            }
+        })
+    });
+}
+
+// Desfaz a contagem de uma mensagem que não chegou a ser respondida.
+async function devolverUso(db, FieldValue, uid) {
+    const ref = db.collection("nexusUso").doc(`${uid}_${hojeNoBrasil()}`);
+
+    await db.runTransaction(async (t) => {
+        const snap = await t.get(ref);
+        const usado = snap.exists ? (snap.data().total || 0) : 0;
+        if (usado > 0) t.set(ref, { total: usado - 1, atualizadoEm: FieldValue.serverTimestamp() }, { merge: true });
+    });
 }
 
 function safeJSON(texto) {
