@@ -150,6 +150,7 @@
 
 <script src="js/config.js"></script>
 <script src="js/utils.js"></script>
+<script src="js/icones.js"></script>
 <script type="module">
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
@@ -302,7 +303,7 @@ card.innerHTML = `
 
     <!-- ÍCONE DO EVENTO -->
     <div class="evento-icone">
-        <i class="fa-solid fa-calendar-days"></i>
+        <i class="${iconeDoEvento(evento.categoria)}"></i>
     </div>
 
     <!-- NOME DO EVENTO -->

@@ -10,6 +10,7 @@
     <link rel="icon" href="fotos/logo.png">
 
     <link rel="stylesheet" href="css/criarEvento.css">
+    <link rel="stylesheet" href="css/modalNexus.css">
 
     <link
         rel="stylesheet"
@@ -39,25 +40,6 @@
 
     <form id="formEvento">
 
-        <div class="banner">
-
-            <label for="foto">
-
-                <i class="fa-solid fa-image"></i>
-
-                <span>Adicionar imagem</span>
-
-            </label>
-
-            <input
-                type="file"
-                id="foto"
-                hidden
-            >
-
-        </div>
-
-
         <div class="campo">
 
             <label>Nome do evento</label>
@@ -72,37 +54,21 @@
         </div>
 
 
+        <!-- TIPO DE EVENTO (ícones) -->
         <div class="campo">
 
             <label>Categoria</label>
 
-            <select id="categoria">
+            <div class="tipos-evento" id="tiposEvento">
+                <button type="button" class="tipo-evento ativo" data-valor="Casamento"><i class="fa-solid fa-heart"></i><span>Casamento</span></button>
+                <button type="button" class="tipo-evento" data-valor="Aniversário"><i class="fa-solid fa-cake-candles"></i><span>Aniversário</span></button>
+                <button type="button" class="tipo-evento" data-valor="Formatura"><i class="fa-solid fa-graduation-cap"></i><span>Formatura</span></button>
+                <button type="button" class="tipo-evento" data-valor="Evento Corporativo"><i class="fa-solid fa-briefcase"></i><span>Corporativo</span></button>
+                <button type="button" class="tipo-evento" data-valor="Chá de Bebê"><i class="fa-solid fa-baby"></i><span>Chá de Bebê</span></button>
+                <button type="button" class="tipo-evento" data-valor="Outro"><i class="fa-solid fa-star"></i><span>Outro</span></button>
+            </div>
 
-                <option value="Casamento">
-                    Casamento
-                </option>
-
-                <option value="Aniversário">
-                    Aniversário
-                </option>
-
-                <option value="Formatura">
-                    Formatura
-                </option>
-
-                <option value="Evento Corporativo">
-                    Evento Corporativo
-                </option>
-
-                <option value="Chá de Bebê">
-                    Chá de Bebê
-                </option>
-
-                <option value="Outro">
-                    Outro
-                </option>
-
-            </select>
+            <input type="hidden" id="categoria" value="Casamento">
 
         </div>
 
@@ -182,6 +148,18 @@
         </div>
 
 
+        <label class="opcao-presentes" for="listaPresentes">
+
+            <input type="checkbox" id="listaPresentes">
+
+            <span>
+                <i class="fa-solid fa-gift"></i>
+                Incluir lista de presentes?
+            </span>
+
+        </label>
+
+
         <div class="campo">
 
             <label>Descrição</label>
@@ -209,7 +187,56 @@
 </div>
 
 
+    <!-- MODAL DO NEXUS -->
+    <div class="modal-nexus" id="modalNexus" hidden role="dialog" aria-modal="true" aria-labelledby="tituloModalNexus">
+        <div class="modal-nexus-caixa">
+            <img src="fotos/mascote.png" alt="Nexus, mascote do PlanNexus">
+            <h2 id="tituloModalNexus">Gostaria de criar um evento com o Nexus?</h2>
+            <button type="button" class="modal-nexus-sim" id="nexusSim">Sim</button>
+            <button type="button" class="modal-nexus-nao" id="nexusNao">Não</button>
+        </div>
+    </div>
+
 <script src="js/config.js"></script>
+<script>
+    // Seleção do tipo de evento pelos ícones
+    document.querySelectorAll(".tipo-evento").forEach((botao) => {
+        botao.addEventListener("click", () => {
+            document.querySelectorAll(".tipo-evento").forEach((b) => b.classList.remove("ativo"));
+            botao.classList.add("ativo");
+            document.getElementById("categoria").value = botao.dataset.valor;
+        });
+    });
+
+    // Modal do Nexus ao tentar voltar
+    const modalNexus = document.getElementById("modalNexus");
+
+    function abrirModalNexus() {
+        modalNexus.hidden = false;
+    }
+
+    document.querySelector("a.voltar").addEventListener("click", (e) => {
+        e.preventDefault();
+        abrirModalNexus();
+    });
+
+    // botão "voltar" do celular/navegador
+    history.pushState({ nexus: true }, "", window.location.href);
+    window.addEventListener("popstate", () => {
+        history.pushState({ nexus: true }, "", window.location.href);
+        abrirModalNexus();
+    });
+
+    document.getElementById("nexusSim").addEventListener("click", () => {
+        window.location.href = "nexus.html";
+    });
+
+    document.getElementById("nexusNao").addEventListener("click", () => {
+        window.location.href = "inicio.html";
+    });
+
+</script>
+
 <script type="module">
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
@@ -399,6 +426,9 @@
                             : 0,
 
                     descricao: descricao,
+
+                    listaPresentes:
+                        document.getElementById("listaPresentes").checked,
 
                     usuarioId: usuarioAtual.uid,
 

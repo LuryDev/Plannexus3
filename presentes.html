@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lista de Presentes - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/presentes.css">
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+            <a class="voltar" id="voltar" href="inicio.html" title="Voltar">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1>Presentes</h1>
+        </header>
+
+        <main>
+
+            <!-- NOME DO EVENTO -->
+            <div class="evento">
+                <span>Evento</span>
+                <h2 id="nomeEvento">Carregando...</h2>
+            </div>
+
+            <!-- TÍTULO + BOTÃO -->
+            <div class="titulo">
+                <h2>Lista de presentes</h2>
+                <button class="novo-presente" id="botaoNovoPresente">
+                    <i class="fa-solid fa-plus"></i>
+                    Novo presente
+                </button>
+            </div>
+
+            <!-- COMPARTILHAR (ainda sem função) -->
+            <button type="button" class="botao-compartilhar" id="botaoCompartilhar">
+                <i class="fa-solid fa-share-nodes"></i>
+                Compartilhar lista
+            </button>
+
+            <!-- LISTA (preenchida pelo JavaScript) -->
+            <section class="lista-presentes" id="listaPresentes">
+                <p class="aviso">Carregando presentes...</p>
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- ===================== FORMULÁRIO (JANELA) ===================== -->
+    <div class="modal" id="modal" hidden>
+        <form class="modal-caixa" id="formPresente">
+
+            <div class="modal-topo">
+                <h2>Novo presente</h2>
+                <button type="button" class="fechar" id="fecharModal" title="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <label for="nomePresente">Presente</label>
+            <input type="text" id="nomePresente" placeholder="Ex: Jogo de panelas" maxlength="80" required>
+
+            <div class="duplo">
+                <div>
+                    <label for="valorPresente">Valor (R$)</label>
+                    <input type="number" id="valorPresente" min="0" step="0.01" placeholder="Opcional">
+                </div>
+                <div>
+                    <label for="linkPresente">Link da loja</label>
+                    <input type="url" id="linkPresente" placeholder="https://... (opcional)">
+                </div>
+            </div>
+
+            <label for="observacaoPresente">Observação</label>
+            <textarea id="observacaoPresente" rows="3" placeholder="Cor, tamanho, modelo... (opcional)"></textarea>
+
+            <button type="submit" class="salvar" id="botaoSalvar">Salvar presente</button>
+            <p class="mensagem" id="mensagem"></p>
+
+        </form>
+    </div>
+
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        // FIREBASE_CONFIG vem do arquivo js/config.js
+        const app  = initializeApp(FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+
+        // ================= ELEMENTOS =================
+        const nomeEventoEl   = document.getElementById("nomeEvento");
+        const listaEl        = document.getElementById("listaPresentes");
+        const voltarEl       = document.getElementById("voltar");
+        const botaoNovo      = document.getElementById("botaoNovoPresente");
+        const modal          = document.getElementById("modal");
+        const form           = document.getElementById("formPresente");
+        const botaoSalvar    = document.getElementById("botaoSalvar");
+        const mensagemEl     = document.getElementById("mensagem");
+
+        const eventoId = pegarIdDaUrl();
+
+        let presentes = [];          // lista carregada do Firestore
+        let souVisitante = false;
+
+        function formatarDinheiro(valor) {
+            return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        }
+
+        // só aceita links http(s), para não virar código na página
+        function linkSeguro(url) {
+            try {
+                const u = new URL(url);
+                return (u.protocol === "http:" || u.protocol === "https:") ? u.href : "";
+            } catch (e) {
+                return "";
+            }
+        }
+
+
+        // ================= INÍCIO =================
+        async function iniciar() {
+
+            if (!eventoId) {
+                nomeEventoEl.textContent = "Evento não encontrado";
+                listaEl.innerHTML = `<p class="aviso">Abra a lista a partir da página de um evento.</p>`;
+                botaoNovo.disabled = true;
+                return;
+            }
+
+            voltarEl.href = "evento.html?id=" + encodeURIComponent(eventoId);
+
+            const usuario = await exigirLogin(auth, onAuthStateChanged);
+            if (!usuario) return;
+
+            try {
+                const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
+
+                if (!eventoSnap.exists()) {
+                    nomeEventoEl.textContent = "Evento não encontrado";
+                    listaEl.innerHTML = `<p class="aviso">Esse evento não existe mais.</p>`;
+                    botaoNovo.disabled = true;
+                    return;
+                }
+
+                const evento = eventoSnap.data();
+                nomeEventoEl.textContent = evento.nome || "Evento sem nome";
+
+                // Visitante só visualiza: esconde o botão de novo presente.
+                if (evento.usuarioId !== usuario.uid) {
+                    const membroSnap = await getDoc(doc(db, "eventos", eventoId, "membros", usuario.uid));
+                    const papel = membroSnap.exists() ? membroSnap.data().papel : null;
+                    souVisitante = papel === "visitante";
+                    botaoNovo.hidden = souVisitante;
+                }
+
+                await carregarPresentes();
+            }
+            catch (erro) {
+                mostrarErro(erro);
+            }
+        }
+
+
+        // ================= CARREGAR =================
+        async function carregarPresentes() {
+
+            const snap = await getDocs(collection(db, "eventos", eventoId, "presentes"));
+
+            presentes = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+            // Em ordem alfabética
+            presentes.sort((a, b) =>
+                String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")
+            );
+
+            desenharLista();
+        }
+
+
+        // ================= DESENHAR NA TELA =================
+        function desenharLista() {
+
+            if (presentes.length === 0) {
+                listaEl.innerHTML = `
+                    <p class="aviso">
+                        Nenhum presente ainda.<br>
+                        Toque em <strong>Novo presente</strong> para começar.
+                    </p>`;
+                return;
+            }
+
+            listaEl.innerHTML = "";
+
+            presentes.forEach((presente) => {
+
+                const link = presente.link ? linkSeguro(presente.link) : "";
+
+                const card = document.createElement("div");
+                card.className = "presente";
+
+                card.innerHTML = `
+                    <div class="icone-presente">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+
+                    <div class="informacoes">
+                        <h3>${escaparHTML(presente.nome || "Sem nome")}</h3>
+                        ${presente.observacao ? `<p>${escaparHTML(presente.observacao)}</p>` : ""}
+                        ${link ? `
+                            <a class="link-presente" href="${escaparHTML(link)}" target="_blank" rel="noopener noreferrer">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                Ver na loja
+                            </a>` : ""}
+                    </div>
+
+                    <div class="lado-direito">
+                        ${Number(presente.valor) > 0 ? `<span class="valor-presente">${escaparHTML(formatarDinheiro(presente.valor))}</span>` : ""}
+                        ${souVisitante ? "" : `
+                        <button class="excluir" title="Excluir presente">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>`}
+                    </div>
+                `;
+
+                if (!souVisitante) {
+                    card.querySelector(".excluir").addEventListener("click", () => excluirPresente(presente));
+                }
+
+                listaEl.appendChild(card);
+            });
+        }
+
+        // ================= AÇÕES =================
+        async function excluirPresente(presente) {
+            if (!confirm(`Excluir o presente "${presente.nome}"?`)) return;
+
+            try {
+                await deleteDoc(doc(db, "eventos", eventoId, "presentes", presente.id));
+                await carregarPresentes();
+            }
+            catch (erro) {
+                mostrarErro(erro);
+            }
+        }
+
+
+        // ================= NOVO PRESENTE =================
+        function abrirModal() {
+            form.reset();
+            mensagemEl.textContent = "";
+            modal.hidden = false;
+            document.getElementById("nomePresente").focus();
+        }
+
+        function fecharModal() {
+            modal.hidden = true;
+        }
+
+        botaoNovo.addEventListener("click", abrirModal);
+        document.getElementById("fecharModal").addEventListener("click", fecharModal);
+
+        // clicar fora da caixa fecha
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) fecharModal();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && !modal.hidden) fecharModal();
+        });
+
+        form.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const nome = document.getElementById("nomePresente").value.trim();
+            const linkDigitado = document.getElementById("linkPresente").value.trim();
+            const valor = document.getElementById("valorPresente").value;
+
+            if (!nome) {
+                mensagemEl.textContent = "Digite o nome do presente.";
+                return;
+            }
+
+            if (linkDigitado && !linkSeguro(linkDigitado)) {
+                mensagemEl.textContent = "Digite um link válido (começando com https://).";
+                return;
+            }
+
+            botaoSalvar.disabled = true;
+            botaoSalvar.textContent = "Salvando...";
+
+            try {
+                await addDoc(collection(db, "eventos", eventoId, "presentes"), {
+                    nome: nome,
+                    valor: valor ? Number(valor) : 0,
+                    link: linkDigitado,
+                    observacao: document.getElementById("observacaoPresente").value.trim(),
+                    criadoEm: serverTimestamp()
+                });
+
+                fecharModal();
+                await carregarPresentes();
+            }
+            catch (erro) {
+                console.error(erro);
+                mensagemEl.textContent = "Não foi possível salvar: " + erro.message;
+            }
+            finally {
+                botaoSalvar.disabled = false;
+                botaoSalvar.textContent = "Salvar presente";
+            }
+        });
+
+
+        // ================= COMPARTILHAR (ainda sem função) =================
+        document.getElementById("botaoCompartilhar").addEventListener("click", () => {
+            alert("O compartilhamento da lista estará disponível em breve!");
+        });
+
+
+        // ================= ERROS =================
+        function mostrarErro(erro) {
+            console.error("Erro nos presentes:", erro);
+
+            const semPermissao = erro && erro.code === "permission-denied";
+
+            listaEl.innerHTML = `
+                <p class="aviso erro">
+                    ${semPermissao
+                        ? "Sem permissão para acessar os presentes. Confira as regras do Firestore (arquivo firestore.rules)."
+                        : "Erro ao carregar os presentes. Veja o console (F12)."}
+                </p>`;
+        }
+
+
+        iniciar();
+
+    </script>
+
+</body>
+
+</html>

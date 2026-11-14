@@ -48,6 +48,13 @@
         <li>Convites enviados, incluindo o e-mail das pessoas que você convida para um evento.</li>
     </ul>
 
+    <h3>Conversas com o assistente Nexus</h3>
+    <ul>
+        <li>As mensagens que você envia ao Nexus (assistente de inteligência artificial para criar eventos) são enviadas à API do Google Gemini para gerar a resposta. Não escreva dados sensíveis nessas conversas.</li>
+        <li>O texto da conversa não fica guardado no Plannexus. Guardamos apenas a quantidade de mensagens enviadas por dia, para aplicar um limite de uso.</li>
+        <li>Nas versões gratuitas, o Google pode usar o conteúdo enviado para melhorar seus produtos, conforme os termos dele.</li>
+    </ul>
+
     <h3>Dados técnicos</h3>
     <p>
         Para manter o login seguro, o Google Firebase pode registrar dados técnicos como
@@ -79,6 +86,10 @@
             <strong>Prestadores de serviço:</strong> usamos o Google Firebase (Authentication e
             Cloud Firestore) para login e armazenamento, e a Vercel para hospedar o aplicativo.
             Essas empresas tratam os dados apenas para prestar o serviço.
+        </li>
+        <li>
+            <strong>Google (Gemini API):</strong> recebe as mensagens que você envia ao assistente
+            Nexus, somente quando você usa esse recurso.
         </li>
     </ul>
     <p>Não vendemos seus dados e não os compartilhamos para fins de publicidade.</p>

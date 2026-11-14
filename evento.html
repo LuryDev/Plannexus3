@@ -34,7 +34,7 @@
 
             <section class="card-header-evento">
                 <div class="logo-evento">
-                    <img src="fotos/logo.png" alt="Logo PlanNexus">
+                    <i class="fa-solid fa-calendar-days" id="iconeEvento" aria-hidden="true"></i>
                 </div>
 
                 <div class="titulo-evento">
@@ -42,6 +42,17 @@
                     <h1 id="nomeEvento">Carregando...</h1>
                     <p id="resumoEvento">Organize todos os detalhes do seu evento em um só lugar.</p>
                 </div>
+            </section>
+
+            <section class="secao-informacoes" id="secaoInformacoes" hidden>
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Informações do evento</h2>
+                        <p>Dados que você informou ao criar o evento.</p>
+                    </div>
+                </div>
+
+                <div class="lista-informacoes" id="listaInformacoes"></div>
             </section>
 
             <section class="secao-ferramentas">
@@ -151,6 +162,31 @@
                         </div>
                     </a>
 
+
+                    <!-- LISTA DE PRESENTES (só aparece se marcada na criação) -->
+                    <a href="#" id="cardListaPresentes" class="card-item" hidden>
+                        <div class="card-topo">
+                            <div class="icone-card icone-presentes">
+                                <i class="fa-solid fa-gift"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Lista de Presentes</h3>
+                            <p>Adicione presentes e compartilhe a lista com os convidados.</p>
+                        </div>
+
+                        <div class="previa" id="previaPresentes" aria-live="polite">
+                            <p class="estado-previa">Carregando presentes...</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar lista de presentes</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
                 </div>
             </section>
 
@@ -172,6 +208,7 @@
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/icones.js"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
@@ -197,6 +234,10 @@
         let usuarioAtual = null;
 
         const linkVoltar = document.getElementById("linkVoltar");
+
+        const secaoInformacoes = document.getElementById("secaoInformacoes");
+        const listaInformacoes = document.getElementById("listaInformacoes");
+        const iconeEvento = document.getElementById("iconeEvento");
 
         const nomeEvento = document.getElementById("nomeEvento");
         const resumoEvento = document.getElementById("resumoEvento");
@@ -252,6 +293,32 @@
             const mes = String(hoje.getMonth() + 1).padStart(2, "0");
             const dia = String(hoje.getDate()).padStart(2, "0");
             return `${ano}-${mes}-${dia}`;
+        }
+
+        // Lista dinâmica com o que o usuário informou na criação do evento.
+        // Orçamento fica de fora (já aparece em "Controle Financeiro");
+        // data e local já aparecem no topo da página.
+        function mostrarInformacoes(evento) {
+            const itens = [];
+
+            if (evento.categoria) itens.push(["Tipo de evento", evento.categoria]);
+            if (evento.horario) itens.push(["Horário", evento.horario]);
+            if (Number(evento.convidados) > 0) itens.push(["Número de convidados", evento.convidados]);
+            if (evento.descricao) itens.push(["Descrição", evento.descricao]);
+
+            if (!itens.length) {
+                secaoInformacoes.hidden = true;
+                return;
+            }
+
+            listaInformacoes.innerHTML = itens.map(([rotulo, valor]) => `
+                <div class="informacao-item">
+                    <span>${escaparHTML(rotulo)}</span>
+                    <strong>${escaparHTML(valor)}</strong>
+                </div>
+            `).join("");
+
+            secaoInformacoes.hidden = false;
         }
 
         function mostrarErroPrevias() {
@@ -414,6 +481,34 @@
             `;
         }
 
+        async function carregarPreviaPresentes() {
+            const previa = document.getElementById("previaPresentes");
+            const resultado = await getDocs(collection(db, "eventos", eventoId, "presentes"));
+            const presentes = resultado.docs.map(documento => documento.data());
+
+            if (!presentes.length) {
+                previa.innerHTML = '<p class="estado-previa">Nenhum presente na lista ainda.</p>';
+                return;
+            }
+
+            const destaques = presentes.slice(0, 3);
+
+            previa.innerHTML = `
+                <div class="tarefas-resumo">
+                    <div>
+                        <strong>Presentes na lista</strong>
+                        <span>${presentes.length} ${presentes.length === 1 ? "presente" : "presentes"}</span>
+                    </div>
+                </div>
+                ${destaques.map(p => `
+                    <div class="tarefa-item">
+                        <i class="fa-solid fa-gift"></i>
+                        <span>${escaparHTML(p.nome || "Presente sem nome")}</span>
+                    </div>
+                `).join("")}
+            `;
+        }
+
         async function carregarPreviaNotas() {
             const referencia = collection(db, "eventos", eventoId, "anotacoes");
             const resultado = await getDocs(referencia);
@@ -506,6 +601,11 @@
                 }
 
                 nomeEvento.textContent = evento.nome || "Evento sem nome";
+                iconeEvento.className = iconeDoEvento(evento.categoria);
+                mostrarInformacoes(evento);
+                const cardPresentes = document.getElementById("cardListaPresentes");
+                cardPresentes.hidden = !evento.listaPresentes;
+                cardPresentes.href = `presentes.html?id=${encodeURIComponent(eventoId)}`;
 
                 const detalhes = [];
                 if (evento.data) detalhes.push(formatarData(evento.data));
@@ -524,7 +624,8 @@
                     carregarPreviaCalendario(evento),
                     carregarPreviaTarefas(),
                     carregarPreviaFinanceiro(evento),
-                    carregarPreviaNotas()
+                    carregarPreviaNotas(),
+                    ...(evento.listaPresentes ? [carregarPreviaPresentes()] : [])
                 ]);
 
                 resultados.forEach((resultado, indice) => {

@@ -113,79 +113,9 @@ form {
 }
 
 
-/* ==========================================
-   BANNER / UPLOAD
-   ========================================== */
 
-.banner {
-    height: 200px;
 
-    border: 2px dashed var(--roxo);
 
-    border-radius: 16px;
-
-    margin-bottom: 25px;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(164, 145, 249, .10),
-            rgba(77, 47, 184, .05)
-        );
-
-    overflow: hidden;
-
-    transition: all .25s ease;
-}
-
-.banner:hover {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(164, 145, 249, .20),
-            rgba(77, 47, 184, .10)
-        );
-
-    box-shadow:
-        0 5px 15px rgba(77, 47, 184, .10);
-}
-
-.banner label {
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    flex-direction: column;
-
-    justify-content: center;
-    align-items: center;
-
-    cursor: pointer;
-
-    color: var(--roxo);
-
-    gap: 12px;
-
-    font-weight: 600;
-}
-
-.banner i {
-    font-size: 45px;
-
-    background: white;
-
-    width: 75px;
-    height: 75px;
-
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    box-shadow:
-        0 5px 15px rgba(77, 47, 184, .15);
-}
 
 
 /* ==========================================
@@ -360,16 +290,7 @@ button:active {
         gap: 0;
     }
 
-    .banner {
-        height: 170px;
-    }
 
-    .banner i {
-        width: 65px;
-        height: 65px;
-
-        font-size: 38px;
-    }
 
     .campo input,
     .campo select,
@@ -399,11 +320,105 @@ button:active {
         border-radius: 15px;
     }
 
-    .banner {
-        height: 155px;
-    }
 
     header h2 {
         font-size: 18px;
     }
+}
+
+/* ==========================================
+   TIPO DE EVENTO (ÍCONES)
+   ========================================== */
+
+.tipos-evento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.tipo-evento {
+    width: 100%;
+    height: 82px;
+    padding: 0;
+    margin-top: 0;
+    box-shadow: none;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border: 2px solid #E0E0E0;
+    border-radius: 14px;
+
+    background: #FAFAFC;
+    color: var(--texto);
+
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: all .2s ease;
+}
+
+.tipo-evento i {
+    font-size: 24px;
+    color: var(--roxo);
+}
+
+.tipo-evento:hover {
+    border-color: var(--roxo-claro);
+    background: #F3F0FF;
+    transform: none;
+    box-shadow: none;
+}
+
+.tipo-evento.ativo,
+.tipo-evento.ativo:hover {
+    border-color: var(--roxo);
+    background: rgba(164, 145, 249, .15);
+    color: var(--roxo-escuro);
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   LISTA DE PRESENTES (CHECKBOX)
+   ========================================== */
+
+.opcao-presentes {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 20px;
+    padding: 14px;
+
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+
+    background: #FAFAFC;
+
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--texto);
+
+    cursor: pointer;
+}
+
+.opcao-presentes input {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+
+    accent-color: var(--roxo);
+    cursor: pointer;
+}
+
+.opcao-presentes i {
+    margin-right: 6px;
+    color: var(--roxo);
 }

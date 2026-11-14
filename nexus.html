@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus | PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/nexus.css">
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+            <a class="voltar" href="inicio.html" title="Voltar" aria-label="Voltar para o início">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+
+            <img class="avatar" src="fotos/mascote.png" alt="Nexus">
+
+            <div class="titulo-header">
+                <h1>Nexus</h1>
+                <span>Assistente de eventos</span>
+            </div>
+        </header>
+
+        <!-- CONVERSA (preenchida pelo JavaScript) -->
+        <main class="conversa" id="conversa" aria-live="polite"></main>
+
+        <!-- RESUMO DO EVENTO (aparece quando o Nexus junta os dados) -->
+        <section class="resumo-evento" id="resumoEvento" hidden>
+            <h2>Confira seu evento</h2>
+            <div id="dadosResumo"></div>
+
+            <div id="blocoTarefas" hidden>
+                <h3>Tarefas sugeridas</h3>
+                <div id="listaTarefasSugeridas"></div>
+            </div>
+
+            <button type="button" class="botao-criar" id="botaoCriar">
+                <i class="fa-solid fa-check"></i>
+                Criar evento
+            </button>
+            <p class="mensagem" id="mensagemCriar"></p>
+        </section>
+
+        <!-- CAMPO DE MENSAGEM -->
+        <form class="barra-mensagem" id="formMensagem" autocomplete="off">
+            <input type="text" id="campoMensagem" placeholder="Fale sobre o seu evento..." maxlength="500" aria-label="Mensagem">
+            <button type="submit" id="botaoEnviar" title="Enviar" aria-label="Enviar">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
+
+        <p class="aviso-ia">O Nexus usa inteligência artificial e pode errar. Confira os dados antes de criar o evento.</p>
+
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/icones.js"></script>
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        // FIREBASE_CONFIG vem do arquivo js/config.js
+        const app  = initializeApp(FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+
+        // ================= ELEMENTOS =================
+        const conversaEl     = document.getElementById("conversa");
+        const formEl         = document.getElementById("formMensagem");
+        const campoEl        = document.getElementById("campoMensagem");
+        const botaoEnviar    = document.getElementById("botaoEnviar");
+        const resumoEl       = document.getElementById("resumoEvento");
+        const dadosResumoEl  = document.getElementById("dadosResumo");
+        const blocoTarefasEl = document.getElementById("blocoTarefas");
+        const listaTarefasEl = document.getElementById("listaTarefasSugeridas");
+        const botaoCriar     = document.getElementById("botaoCriar");
+        const mensagemCriar  = document.getElementById("mensagemCriar");
+
+        let usuarioAtual = null;
+        let historico = [];        // [{ role: "user" | "model", text }]
+        let eventoAtual = null;    // evento proposto pelo Nexus
+        let tarefasAtuais = [];    // tarefas sugeridas
+        let aguardando = false;
+
+
+        // ================= MENSAGENS NA TELA =================
+        function adicionarBalao(texto, quem, erro = false) {
+            const balao = document.createElement("div");
+            balao.className = "balao " + (quem === "usuario" ? "balao-usuario" : "balao-nexus") + (erro ? " balao-erro" : "");
+            balao.textContent = texto;
+            conversaEl.appendChild(balao);
+            conversaEl.scrollTop = conversaEl.scrollHeight;
+            return balao;
+        }
+
+        function mostrarDigitando() {
+            const balao = document.createElement("div");
+            balao.className = "balao balao-nexus digitando";
+            balao.innerHTML = "<span></span><span></span><span></span>";
+            conversaEl.appendChild(balao);
+            conversaEl.scrollTop = conversaEl.scrollHeight;
+            return balao;
+        }
+
+        // ================= RESUMO DO EVENTO =================
+        function linhaResumo(rotulo, valor) {
+            return `<div class="linha-resumo"><span>${escaparHTML(rotulo)}</span><strong>${escaparHTML(valor)}</strong></div>`;
+        }
+
+        function desenharResumo() {
+
+            if (!eventoAtual) {
+                resumoEl.hidden = true;
+                return;
+            }
+
+            const e = eventoAtual;
+
+            let html = `
+                <div class="resumo-topo">
+                    <div class="resumo-icone"><i class="${iconeDoEvento(e.categoria)}"></i></div>
+                    <strong>${escaparHTML(e.nome)}</strong>
+                </div>
+            `;
+
+            html += linhaResumo("Tipo", e.categoria);
+            html += linhaResumo("Data", formatarData(e.data));
+            html += linhaResumo("Horário", e.horario);
+            html += linhaResumo("Local", e.local);
+            if (e.convidados > 0) html += linhaResumo("Convidados", e.convidados);
+            if (e.orcamento > 0) html += linhaResumo("Orçamento", Number(e.orcamento).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
+            if (e.descricao) html += linhaResumo("Descrição", e.descricao);
+            if (e.listaPresentes) html += linhaResumo("Lista de presentes", "Sim");
+
+            dadosResumoEl.innerHTML = html;
+
+            if (tarefasAtuais.length) {
+                listaTarefasEl.innerHTML = tarefasAtuais.map((t, i) => `
+                    <label class="tarefa-sugerida">
+                        <input type="checkbox" data-indice="${i}" checked>
+                        <span>${escaparHTML(t)}</span>
+                    </label>
+                `).join("");
+                blocoTarefasEl.hidden = false;
+            } else {
+                blocoTarefasEl.hidden = true;
+            }
+
+            resumoEl.hidden = false;
+            conversaEl.scrollTop = conversaEl.scrollHeight;
+        }
+
+
+        // ================= ENVIAR PARA O NEXUS =================
+        async function enviarMensagem(texto) {
+
+            if (aguardando || !usuarioAtual) return;
+
+            aguardando = true;
+            botaoEnviar.disabled = true;
+
+            adicionarBalao(texto, "usuario");
+            historico.push({ role: "user", text: texto });
+
+            const digitando = mostrarDigitando();
+
+            try {
+                const token = await usuarioAtual.getIdToken();
+
+                const resposta = await fetch("/api/nexus", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify({ mensagens: historico })
+                });
+
+                const dados = await resposta.json().catch(() => ({}));
+
+                digitando.remove();
+
+                if (!resposta.ok) {
+                    historico.pop();   // essa mensagem não foi processada
+                    adicionarBalao(dados.erro || "O Nexus não conseguiu responder agora.", "nexus", true);
+                    return;
+                }
+
+                historico.push({ role: "model", text: dados.resposta });
+                adicionarBalao(dados.resposta, "nexus");
+
+                eventoAtual = dados.evento || null;
+                tarefasAtuais = dados.tarefas || [];
+                desenharResumo();
+            }
+            catch (erro) {
+                console.error("Erro no Nexus:", erro);
+                digitando.remove();
+                historico.pop();
+                adicionarBalao("Não consegui falar com o Nexus. Confira sua internet e tente de novo.", "nexus", true);
+            }
+            finally {
+                aguardando = false;
+                botaoEnviar.disabled = false;
+                campoEl.focus();
+            }
+        }
+
+        formEl.addEventListener("submit", (evento) => {
+            evento.preventDefault();
+
+            const texto = campoEl.value.trim();
+            if (!texto) return;
+
+            campoEl.value = "";
+            enviarMensagem(texto);
+        });
+
+
+        // ================= CRIAR O EVENTO =================
+        botaoCriar.addEventListener("click", async () => {
+
+            if (!eventoAtual || !usuarioAtual) return;
+
+            botaoCriar.disabled = true;
+            botaoCriar.textContent = "Criando evento...";
+            mensagemCriar.textContent = "";
+
+            try {
+                const e = eventoAtual;
+
+                const referencia = await addDoc(collection(db, "eventos"), {
+                    nome: e.nome,
+                    categoria: e.categoria,
+                    data: e.data,
+                    horario: e.horario,
+                    local: e.local,
+                    convidados: e.convidados || 0,
+                    orcamento: e.orcamento || 0,
+                    descricao: e.descricao || "",
+                    listaPresentes: e.listaPresentes === true,
+                    usuarioId: usuarioAtual.uid,
+                    criadoEm: serverTimestamp()
+                });
+
+                // tarefas que o usuário deixou marcadas
+                const marcadas = [...listaTarefasEl.querySelectorAll("input:checked")]
+                    .map((c) => tarefasAtuais[Number(c.dataset.indice)])
+                    .filter(Boolean);
+
+                await Promise.all(marcadas.map((titulo) =>
+                    addDoc(collection(db, "eventos", referencia.id, "tarefas"), {
+                        titulo: titulo,
+                        descricao: "",
+                        data: "",
+                        prioridade: "media",
+                        concluida: false,
+                        criadoEm: serverTimestamp()
+                    })
+                ));
+
+                mensagemCriar.textContent = "Evento criado com sucesso!";
+                mensagemCriar.style.color = "green";
+
+                setTimeout(() => {
+                    window.location.href = "evento.html?id=" + encodeURIComponent(referencia.id);
+                }, 1200);
+            }
+            catch (erro) {
+                console.error("Erro ao criar evento:", erro);
+                mensagemCriar.textContent = "Erro ao criar evento: " + erro.message;
+                mensagemCriar.style.color = "red";
+                botaoCriar.disabled = false;
+                botaoCriar.innerHTML = '<i class="fa-solid fa-check"></i> Criar evento';
+            }
+        });
+
+
+        // ================= INÍCIO =================
+        const usuario = await exigirLogin(auth, onAuthStateChanged);
+
+        if (usuario) {
+            usuarioAtual = usuario;
+
+            adicionarBalao("Oi! Eu sou o Nexus 👋 Me conta que evento você quer organizar e eu te ajudo a criar.", "nexus");
+        }
+
+    </script>
+
+</body>
+
+</html>

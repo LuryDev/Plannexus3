@@ -130,9 +130,9 @@ body {
     width: 88%;
     max-width: 350px;
 
-    min-height: 350px;
+    min-height: 280px;
 
-    padding: 28px 22px;
+    padding: 22px 20px;
 
     display: flex;
     flex-direction: column;
@@ -161,10 +161,10 @@ body {
 ========================================== */
 
 .logo {
-    width: 90px;
-    height: 90px;
+    width: 68px;
+    height: 68px;
 
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 
     display: flex;
     align-items: center;
@@ -181,8 +181,8 @@ body {
 }
 
 .logo img {
-    width: 85px;
-    height: 85px;
+    width: 60px;
+    height: 60px;
 
     object-fit: contain;
 
@@ -197,12 +197,12 @@ body {
 .conteudo h1 {
     color: #111111;
 
-    font-size: 50px;
-    line-height: 1.35;
+    font-size: 24px;
+    line-height: 1.3;
 
     font-weight: 700;
 
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 
     max-width: 300px;
 }
@@ -215,8 +215,8 @@ body {
 .conteudo p {
     color: #151515;
 
-    font-size: 25px;
-    line-height: 1.8;
+    font-size: 14px;
+    line-height: 1.6;
 
     font-weight: 500;
 
@@ -229,10 +229,10 @@ body {
 ========================================== */
 
 .imagem-explicacao {
-    width: 150px;
-    height: 110px;
+    width: 120px;
+    height: 90px;
 
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 
     display: flex;
     flex-direction: column;
@@ -251,7 +251,7 @@ body {
 }
 
 .imagem-explicacao i {
-    font-size: 42px;
+    font-size: 32px;
     color: #5A32D3;
 
     margin-bottom: 8px;
@@ -487,16 +487,16 @@ body {
 @media (min-width: 600px) {
 
     .conteudo {
-        max-width: 380px;
-        min-height: 380px;
+        max-width: 340px;
+        min-height: 300px;
     }
 
     .conteudo h1 {
-        font-size: 27px;
+        font-size: 26px;
     }
 
     .conteudo p {
-        font-size: 16px;
+        font-size: 15px;
     }
 }
 

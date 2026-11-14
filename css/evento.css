@@ -159,10 +159,9 @@ header {
     border-radius: 20px;
 }
 
-.logo-evento img {
-    width: 55px;
-    height: 55px;
-    object-fit: contain;
+.logo-evento i {
+    color: #fff;
+    font-size: 32px;
 }
 
 .titulo-evento {
@@ -174,13 +173,13 @@ header {
     display: block;
     margin-bottom: 6px;
     color: #D9CCFF;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 2px;
 }
 
 .titulo-evento h1 {
-    font-size: 27px;
+    font-size: 30px;
     font-weight: 700;
     overflow-wrap: anywhere;
 }
@@ -188,7 +187,7 @@ header {
 .titulo-evento p {
     margin-top: 5px;
     color: #E7DFFF;
-    font-size: 12px;
+    font-size: 15px;
     line-height: 1.6;
 }
 
@@ -204,14 +203,14 @@ header {
 }
 
 .titulo-secao h2 {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
 }
 
 .titulo-secao p {
     margin-top: 4px;
     color: var(--cinza);
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .titulo-secao > i {
@@ -278,6 +277,9 @@ header {
 .icone-tarefas { color: #328E75; background: #E6F6F0; }
 .icone-financeiro { color: #C28A37; background: #FFF4DF; }
 .icone-notas { color: #D17C9C; background: #FCECF3; }
+.icone-presentes { color: #5A32D3; background: #EEE9FF; }
+
+.card-item[hidden] { display: none; }
 
 .seta-card {
     color: #B4AEC5;
@@ -295,7 +297,7 @@ header {
 }
 
 .card-titulo h3 {
-    font-size: 16px;
+    font-size: 19px;
     font-weight: 700;
 }
 
@@ -303,7 +305,7 @@ header {
     min-height: 35px;
     margin-top: 4px;
     color: var(--cinza);
-    font-size: 11px;
+    font-size: 13px;
     line-height: 1.6;
 }
 
@@ -320,7 +322,7 @@ header {
 .estado-previa {
     padding: 20px 4px;
     color: #918AA3;
-    font-size: 10px;
+    font-size: 13px;
     line-height: 1.6;
 }
 
@@ -338,7 +340,7 @@ header {
 
 .previa-item strong {
     color: #51466F;
-    font-size: 11px;
+    font-size: 14px;
     overflow-wrap: anywhere;
 }
 
@@ -348,7 +350,7 @@ header {
     align-items: center;
     gap: 6px;
     color: #918AA3;
-    font-size: 9px;
+    font-size: 12px;
 }
 
 .previa-data i,
@@ -370,17 +372,17 @@ header {
 
 .tarefas-resumo strong {
     color: #51466F;
-    font-size: 11px;
+    font-size: 14px;
 }
 
 .tarefas-resumo span {
     color: #A19BAD;
-    font-size: 9px;
+    font-size: 12px;
 }
 
 .tarefas-resumo .porcentagem {
     color: var(--roxo);
-    font-size: 12px;
+    font-size: 15px;
 }
 
 .barra-progresso {
@@ -406,13 +408,13 @@ header {
     gap: 9px;
     margin: 11px 0;
     color: #655E75;
-    font-size: 10px;
+    font-size: 13px;
 }
 
 .tarefa-item i {
     flex: 0 0 auto;
     color: #B5AEC5;
-    font-size: 13px;
+    font-size: 16px;
 }
 
 .tarefa-item.concluida i {
@@ -440,12 +442,12 @@ header {
 .financeiro-resumo span,
 .financeiro-dados span {
     color: #9690A5;
-    font-size: 9px;
+    font-size: 12px;
 }
 
 .financeiro-resumo strong {
     color: #4B4165;
-    font-size: 16px;
+    font-size: 19px;
     overflow-wrap: anywhere;
 }
 
@@ -469,7 +471,7 @@ header {
 
 .financeiro-dados strong {
     color: #655D76;
-    font-size: 10px;
+    font-size: 13px;
     overflow-wrap: anywhere;
 }
 
@@ -506,7 +508,7 @@ header {
     gap: 8px 13px;
     margin-top: 9px;
     color: #9891A7;
-    font-size: 8px;
+    font-size: 11px;
 }
 
 .grafico-legenda span {
@@ -549,7 +551,7 @@ header {
     gap: 7px;
     margin-bottom: 12px;
     color: #A491F9;
-    font-size: 9px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 1px;
 }
@@ -557,14 +559,14 @@ header {
 .nota-papel > strong {
     display: block;
     color: #51466F;
-    font-size: 11px;
+    font-size: 14px;
     overflow-wrap: anywhere;
 }
 
 .conteudo-previa-nota {
     margin-top: 9px;
     color: #858095;
-    font-size: 10px;
+    font-size: 13px;
     line-height: 1.6;
     display: -webkit-box;
     -webkit-line-clamp: 4;
@@ -581,12 +583,12 @@ header {
     padding-top: 14px;
     color: var(--roxo);
     border-top: 1px solid #F0EDF5;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 600;
 }
 
 .card-rodape i {
-    font-size: 12px;
+    font-size: 15px;
     transition: transform .2s;
 }
 
@@ -680,13 +682,12 @@ header {
         border-radius: 16px;
     }
 
-    .logo-evento img {
-        width: 45px;
-        height: 45px;
+    .logo-evento i {
+        font-size: 26px;
     }
 
     .titulo-evento h1 {
-        font-size: 21px;
+        font-size: 24px;
     }
 
     .menu-cards {
@@ -714,14 +715,56 @@ header {
     }
 
     .titulo-evento h1 {
-        font-size: 18px;
+        font-size: 21px;
     }
 
     .titulo-evento p {
-        font-size: 10px;
+        font-size: 13px;
     }
 
     .card-item {
         padding: 16px;
     }
+}
+
+/* Informações fornecidas na criação do evento */
+.secao-informacoes {
+    width: 100%;
+    margin-bottom: 35px;
+}
+
+.secao-informacoes[hidden] {
+    display: none;
+}
+
+.lista-informacoes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+}
+
+.informacao-item {
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid var(--borda);
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(90, 50, 211, .07);
+}
+
+.informacao-item span {
+    display: block;
+    color: var(--cinza);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.informacao-item strong {
+    display: block;
+    margin-top: 4px;
+    color: var(--texto);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
 }
