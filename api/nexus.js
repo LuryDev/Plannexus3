@@ -309,21 +309,22 @@ export default async function handler(req, res) {
         return res.status(500).json({ erro: "Não foi possível falar com o Nexus agora." });
     }
 
-    // 4) Gemini (com novas tentativas e um modelo reserva quando o Google está ocupado)
+    // 4) Gemini (várias tentativas: o plano gratuito às vezes demora ou está ocupado)
     const modelo  = process.env.GEMINI_MODEL || "gemini-3.8-flash";
     const reserva = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash-lite";
 
-    // 1ª tentativa, 2ª tentativa no mesmo modelo, 3ª no modelo reserva
-    const tentativas = [modelo, modelo];
-    if (reserva && reserva !== modelo) tentativas.push(reserva);
+    // modelo principal -> modelo reserva (mais leve) -> principal de novo
+    const tentativas = reserva && reserva !== modelo
+        ? [modelo, reserva, modelo]
+        : [modelo, modelo];
 
     let ultimoStatus = 0;
 
-    try {
-        for (let i = 0; i < tentativas.length; i++) {
+    for (let i = 0; i < tentativas.length; i++) {
 
-            if (i > 0) await esperar(1000);
+        if (i > 0) await esperar(700);
 
+        try {
             const resposta = await chamarGemini(tentativas[i], historico);
             ultimoStatus = resposta.status;
 
@@ -341,7 +342,7 @@ export default async function handler(req, res) {
             const resultado = safeJSON(texto);
 
             if (!resultado || typeof resultado.resposta !== "string") {
-                console.error("NEXUS: resposta do Gemini fora do formato:", texto.slice(0, 300));
+                console.error(`NEXUS: resposta do Gemini (${tentativas[i]}) fora do formato:`, texto.slice(0, 300));
                 continue;
             }
 
@@ -353,15 +354,17 @@ export default async function handler(req, res) {
                 tarefas: evento ? validarTarefas(resultado.tarefas) : []
             });
         }
-    }
-    catch (erro) {
-        console.error("NEXUS: erro ao chamar o Gemini:", erro.message);
+        catch (erro) {
+            // timeout ou falha de rede nessa tentativa: segue para a próxima
+            console.error(`NEXUS: erro ao chamar o Gemini (${tentativas[i]}):`, erro.message);
+            ultimoStatus = 504;
+        }
     }
 
     // não deu certo: devolve a mensagem ao limite do usuário
     await devolverUso(db, fb.FieldValue, usuario.uid).catch(() => {});
 
-    if (ultimoStatus === 429 || ultimoStatus === 503) {
+    if ([429, 503, 504].includes(ultimoStatus)) {
         return res.status(503).json({ erro: "O Nexus está muito ocupado agora. Tente de novo em instantes." });
     }
 
@@ -381,7 +384,7 @@ function chamarGemini(modelo, historico) {
             "Content-Type": "application/json",
             "x-goog-api-key": process.env.GEMINI_API_KEY
         },
-        signal: AbortSignal.timeout(20000),
+        signal: AbortSignal.timeout(14000),
         body: JSON.stringify({
             systemInstruction: { parts: [{ text: instrucoes() }] },
             contents: historico,
