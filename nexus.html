@@ -154,7 +154,10 @@
                 listaTarefasEl.innerHTML = tarefasAtuais.map((t, i) => `
                     <label class="tarefa-sugerida">
                         <input type="checkbox" data-indice="${i}" checked>
-                        <span>${escaparHTML(t)}</span>
+                        <span>
+                            ${escaparHTML(t.titulo)}
+                            ${t.servico ? '<small class="selo-servico"><i class="fa-solid fa-circle-check"></i> Plannexus oferece esse serviço!</small>' : ""}
+                        </span>
                     </label>
                 `).join("");
                 blocoTarefasEl.hidden = false;
@@ -245,6 +248,15 @@
             try {
                 const e = eventoAtual;
 
+                // tarefas que o usuário deixou marcadas
+                const marcadas = [...listaTarefasEl.querySelectorAll("input:checked")]
+                    .map((c) => tarefasAtuais[Number(c.dataset.indice)])
+                    .filter(Boolean);
+
+                // se ficou uma tarefa de lista de presentes, já liga essa ferramenta no evento
+                const comListaPresentes = e.listaPresentes === true ||
+                    marcadas.some((t) => t.servico === "presentes");
+
                 const referencia = await addDoc(collection(db, "eventos"), {
                     nome: e.nome,
                     categoria: e.categoria,
@@ -254,19 +266,16 @@
                     convidados: e.convidados || 0,
                     orcamento: e.orcamento || 0,
                     descricao: e.descricao || "",
-                    listaPresentes: e.listaPresentes === true,
+                    listaPresentes: comListaPresentes,
+                    criadoComNexus: true,
                     usuarioId: usuarioAtual.uid,
                     criadoEm: serverTimestamp()
                 });
 
-                // tarefas que o usuário deixou marcadas
-                const marcadas = [...listaTarefasEl.querySelectorAll("input:checked")]
-                    .map((c) => tarefasAtuais[Number(c.dataset.indice)])
-                    .filter(Boolean);
-
-                await Promise.all(marcadas.map((titulo) =>
+                await Promise.all(marcadas.map((tarefa) =>
                     addDoc(collection(db, "eventos", referencia.id, "tarefas"), {
-                        titulo: titulo,
+                        titulo: tarefa.titulo,
+                        servico: tarefa.servico || "",
                         descricao: "",
                         data: "",
                         prioridade: "media",

@@ -30,6 +30,9 @@ const CATEGORIAS = [
     "Outro"
 ];
 
+// Serviços que o PlanNexus já oferece (usados para marcar as tarefas sugeridas)
+const SERVICOS = ["presentes", "financeiro", "calendario", "notas", "pessoas"];
+
 const FUSO = "America/Sao_Paulo";
 
 
@@ -78,8 +81,13 @@ export function validarTarefas(bruto) {
     if (!Array.isArray(bruto)) return [];
 
     return bruto
-        .map((t) => String(t || "").trim().slice(0, 80))
-        .filter(Boolean)
+        .map((t) => {
+            // aceita texto simples ou { titulo, servico }
+            const titulo = String(typeof t === "string" ? t : (t && t.titulo) || "").trim().slice(0, 80);
+            const servico = t && typeof t === "object" && SERVICOS.includes(t.servico) ? t.servico : null;
+            return { titulo, servico };
+        })
+        .filter((t) => t.titulo)
         .slice(0, 8);
 }
 
@@ -115,15 +123,22 @@ Dados que você precisa descobrir, perguntando poucas coisas por vez e aproveita
 - categoria: uma entre ${CATEGORIAS.join(", ")} (obrigatório)
 - data (obrigatório) e horário (obrigatório)
 - local (obrigatório)
+- orçamento inicial em reais: SEMPRE pergunte isso antes de preencher "evento". Se o usuário não souber ou não quiser informar, use 0.
 - número de convidados (opcional)
-- orçamento inicial em reais (opcional)
 - descrição curta (opcional)
 - se o usuário quer incluir uma lista de presentes (opcional; pergunte uma vez e assuma "não" se ele não responder)
 
 Regras de resposta (sempre responda em JSON no formato pedido):
 - "resposta": o que você diz ao usuário.
 - "evento": deixe null enquanto faltar algum dado obrigatório. Quando tiver nome, categoria, data (AAAA-MM-DD), horário (HH:MM) e local, preencha o objeto e, em "resposta", peça para o usuário conferir o resumo. Se o usuário pedir uma mudança, devolva o evento atualizado.
-- "tarefas": só quando "evento" estiver preenchido, sugira de 4 a 6 tarefas iniciais curtas e práticas, adequadas ao tipo de evento. Caso contrário, lista vazia.
+- "tarefas": só quando "evento" estiver preenchido, sugira de 4 a 6 tarefas iniciais curtas e práticas, adequadas ao tipo de evento. Caso contrário, lista vazia. Cada tarefa tem "titulo" e "servico".
+- "servico": o PlanNexus já oferece ferramentas dentro do evento. Se a tarefa for justamente fazer algo que uma ferramenta resolve, preencha "servico" com UMA destas opções; senão, use null:
+  • "presentes" = montar a lista de presentes do evento
+  • "financeiro" = controlar o orçamento, receitas e gastos
+  • "calendario" = marcar datas, prazos e compromissos
+  • "notas" = anotar ideias e informações importantes
+  • "pessoas" = convidar pessoas para ajudar a organizar o evento
+  Não marque tarefas como "comprar", "contratar" ou "encomendar" (o app não faz isso) nem "lista de convidados" (o app não tem). Use null nesses casos.
 - Nunca invente dados que o usuário não informou (local, data, valores).
 - Você não cria o evento: quem cria é o app, depois que o usuário confirmar.`;
 }
@@ -148,7 +163,17 @@ const ESQUEMA_RESPOSTA = {
             },
             required: ["nome", "categoria", "data", "horario", "local"]
         },
-        tarefas: { type: "ARRAY", items: { type: "STRING" } }
+        tarefas: {
+            type: "ARRAY",
+            items: {
+                type: "OBJECT",
+                properties: {
+                    titulo:  { type: "STRING" },
+                    servico: { type: "STRING", nullable: true, enum: SERVICOS }
+                },
+                required: ["titulo"]
+            }
+        }
     },
     required: ["resposta", "tarefas"]
 };

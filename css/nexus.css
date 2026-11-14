@@ -312,3 +312,29 @@ header {
     color: var(--cinza);
     font-size: 11px;
 }
+
+/* Selo: tarefa que o PlanNexus já oferece como serviço */
+.selo-servico {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 3px;
+    padding: 3px 9px;
+    color: #4D2FB8;
+    background: #EEE9FF;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.selo-servico i {
+    color: #5A32D3;
+    font-size: 11px;
+}
+
+.tarefa-sugerida span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}

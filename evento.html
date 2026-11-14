@@ -41,6 +41,10 @@
                     <span class="subtitulo">GERENCIAMENTO DE EVENTO</span>
                     <h1 id="nomeEvento">Carregando...</h1>
                     <p id="resumoEvento">Organize todos os detalhes do seu evento em um só lugar.</p>
+                    <p class="selo-nexus" id="seloNexus" hidden>
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        Evento gerado com ajuda do Nexus!
+                    </p>
                 </div>
             </section>
 
@@ -419,7 +423,10 @@
                     ? destaques.map(tarefa => `
                         <div class="tarefa-item ${tarefa.concluida ? "concluida" : ""}">
                             <i class="${tarefa.concluida ? "fa-solid fa-circle-check" : "fa-regular fa-circle"}"></i>
-                            <span>${escaparHTML(tarefa.titulo || "Tarefa sem título")}</span>
+                            <div class="tarefa-texto">
+                                <span>${escaparHTML(tarefa.titulo || "Tarefa sem título")}</span>
+                                ${tarefa.servico ? '<small class="selo-servico"><i class="fa-solid fa-circle-check"></i> Plannexus oferece esse serviço!</small>' : ""}
+                            </div>
                         </div>
                     `).join("")
                     : '<p class="estado-previa">Nenhuma tarefa cadastrada.</p>'
@@ -603,6 +610,7 @@
                 nomeEvento.textContent = evento.nome || "Evento sem nome";
                 iconeEvento.className = iconeDoEvento(evento.categoria);
                 mostrarInformacoes(evento);
+                document.getElementById("seloNexus").hidden = !evento.criadoComNexus;
                 const cardPresentes = document.getElementById("cardListaPresentes");
                 cardPresentes.hidden = !evento.listaPresentes;
                 cardPresentes.href = `presentes.html?id=${encodeURIComponent(eventoId)}`;
