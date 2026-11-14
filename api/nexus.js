@@ -258,7 +258,9 @@ async function registrarUso(db, FieldValue, uid) {
         t.set(ref, {
             usuarioId: uid,
             total: usado + 1,
-            atualizadoEm: FieldValue.serverTimestamp()
+            atualizadoEm: FieldValue.serverTimestamp(),
+            // o contador é apagado sozinho depois de 30 dias (política TTL do Firestore)
+            expiraEm: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
         }, { merge: true });
 
         return true;
