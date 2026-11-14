@@ -1,7 +1,11 @@
 {
   "name": "plannexus",
   "private": true,
+  "type": "module",
   "description": "PlanNexus - a pasta api/ roda como funções da Vercel",
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "firebase-admin": "^14.5.0"
   }
