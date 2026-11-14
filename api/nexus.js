@@ -15,9 +15,7 @@
 //   FIREBASE_SERVICE_ACCOUNT  JSON inteiro da conta de serviço
 // ==========================================================
 
-import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const LIMITE_MENSAGENS_POR_DIA = 30;
 const MAX_MENSAGENS_HISTORICO  = 20;
@@ -160,37 +158,70 @@ const ESQUEMA_RESPOSTA = {
 
 let firebase = null;
 
-function iniciarFirebase() {
+// firebase-admin é carregado com import() dinâmico para que qualquer erro de
+// carregamento caia no try/catch do handler (e apareça nos logs) em vez de
+// derrubar a função inteira.
+async function iniciarFirebase() {
     if (firebase) return firebase;
 
+    const { initializeApp, getApps, cert } = await import("firebase-admin/app");
+    const { getFirestore, FieldValue } = await import("firebase-admin/firestore");
+
+    let texto = String(process.env.FIREBASE_SERVICE_ACCOUNT || "").trim();
+
+    // aceita o JSON puro, com aspas por fora, ou em base64
+    if (texto.startsWith('"') && texto.endsWith('"')) {
+        try { texto = JSON.parse(texto); } catch (e) { /* segue */ }
+    }
+
+    if (!texto.startsWith("{")) {
+        texto = Buffer.from(texto, "base64").toString("utf8");
+    }
+
+    const conta = JSON.parse(texto);
+
+    // se a chave foi colada com "\n" escrito como texto, corrige
+    if (conta.private_key) {
+        conta.private_key = conta.private_key.replace(/\\n/g, "\n");
+    }
+
     if (!getApps().length) {
-        let texto = String(process.env.FIREBASE_SERVICE_ACCOUNT || "").trim();
-
-        // aceita o JSON puro, com aspas por fora, ou em base64
-        if (texto.startsWith('"') && texto.endsWith('"')) {
-            try { texto = JSON.parse(texto); } catch (e) { /* segue */ }
-        }
-
-        if (!texto.startsWith("{")) {
-            texto = Buffer.from(texto, "base64").toString("utf8");
-        }
-
-        const conta = JSON.parse(texto);
-
-        // se a chave foi colada com "\n" escrito como texto, corrige
-        if (conta.private_key) {
-            conta.private_key = conta.private_key.replace(/\\n/g, "\n");
-        }
-
         initializeApp({ credential: cert(conta) });
     }
 
-    firebase = { auth: getAuth(), db: getFirestore() };
+    firebase = {
+        db: getFirestore(),
+        FieldValue,
+        projectId: conta.project_id
+    };
+
     return firebase;
 }
 
+// ---------- verificação do login (token do Firebase Auth) ----------
+// Feita direto com a biblioteca "jose" (chaves públicas do Google), sem
+// usar o firebase-admin/auth.
+
+const CHAVES_GOOGLE = createRemoteJWKSet(
+    new URL("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com")
+);
+
+export async function verificarToken(token, projectId, chaves = CHAVES_GOOGLE) {
+    const { payload } = await jwtVerify(token, chaves, {
+        issuer: `https://securetoken.google.com/${projectId}`,
+        audience: projectId,
+        algorithms: ["RS256"]
+    });
+
+    if (!payload.sub || typeof payload.sub !== "string") {
+        throw new Error("Token sem usuário (sub).");
+    }
+
+    return { uid: payload.sub };
+}
+
 // Soma 1 ao contador do dia; devolve false se passou do limite.
-async function registrarUso(db, uid) {
+async function registrarUso(db, FieldValue, uid) {
     const ref = db.collection("nexusUso").doc(`${uid}_${hojeNoBrasil()}`);
 
     return db.runTransaction(async (t) => {
@@ -238,7 +269,7 @@ export default async function handler(req, res) {
     let fb;
 
     try {
-        fb = iniciarFirebase();
+        fb = await iniciarFirebase();
         db = fb.db;
     }
     catch (erro) {
@@ -248,7 +279,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        usuario = await fb.auth.verifyIdToken(token);
+        usuario = await verificarToken(token, fb.projectId);
     }
     catch (erro) {
         console.error("NEXUS: falha ao validar o login:", erro.code || "", erro.message);
@@ -265,7 +296,7 @@ export default async function handler(req, res) {
 
     // 3) limite diário
     try {
-        const permitido = await registrarUso(db, usuario.uid);
+        const permitido = await registrarUso(db, fb.FieldValue, usuario.uid);
 
         if (!permitido) {
             return res.status(429).json({
