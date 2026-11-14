@@ -7,11 +7,17 @@
 //   3. Chama a API do Gemini (a chave fica só aqui, no servidor).
 //   4. Devolve { resposta, evento, tarefas } já validado.
 //
+//  (arquivo em formato ESM: package.json tem "type": "module")
+//
 //  Variáveis de ambiente (Vercel > Settings > Environment Variables):
 //   GEMINI_API_KEY            chave do Google AI Studio
 //   GEMINI_MODEL              (opcional) ex.: gemini-3.8-flash
 //   FIREBASE_SERVICE_ACCOUNT  JSON inteiro da conta de serviço
 // ==========================================================
+
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 const LIMITE_MENSAGENS_POR_DIA = 30;
 const MAX_MENSAGENS_HISTORICO  = 20;
@@ -42,7 +48,7 @@ function numeroOuZero(valor) {
 }
 
 // Nunca confiamos no que a IA devolve: tudo é revalidado aqui.
-function validarEvento(bruto) {
+export function validarEvento(bruto) {
     if (!bruto || typeof bruto !== "object") return null;
 
     const nome    = String(bruto.nome || "").trim().slice(0, 100);
@@ -70,7 +76,7 @@ function validarEvento(bruto) {
     };
 }
 
-function validarTarefas(bruto) {
+export function validarTarefas(bruto) {
     if (!Array.isArray(bruto)) return [];
 
     return bruto
@@ -79,7 +85,7 @@ function validarTarefas(bruto) {
         .slice(0, 8);
 }
 
-function limparHistorico(mensagens) {
+export function limparHistorico(mensagens) {
     if (!Array.isArray(mensagens)) return [];
 
     const limpas = mensagens
@@ -157,12 +163,19 @@ let firebase = null;
 function iniciarFirebase() {
     if (firebase) return firebase;
 
-    const { initializeApp, getApps, cert } = require("firebase-admin/app");
-    const { getAuth } = require("firebase-admin/auth");
-    const { getFirestore } = require("firebase-admin/firestore");
-
     if (!getApps().length) {
-        const conta = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        let texto = String(process.env.FIREBASE_SERVICE_ACCOUNT || "").trim();
+
+        // aceita o JSON puro, com aspas por fora, ou em base64
+        if (texto.startsWith('"') && texto.endsWith('"')) {
+            try { texto = JSON.parse(texto); } catch (e) { /* segue */ }
+        }
+
+        if (!texto.startsWith("{")) {
+            texto = Buffer.from(texto, "base64").toString("utf8");
+        }
+
+        const conta = JSON.parse(texto);
 
         // se a chave foi colada com "\n" escrito como texto, corrige
         if (conta.private_key) {
@@ -178,7 +191,6 @@ function iniciarFirebase() {
 
 // Soma 1 ao contador do dia; devolve false se passou do limite.
 async function registrarUso(db, uid) {
-    const { FieldValue } = require("firebase-admin/firestore");
     const ref = db.collection("nexusUso").doc(`${uid}_${hojeNoBrasil()}`);
 
     return db.runTransaction(async (t) => {
@@ -200,7 +212,7 @@ async function registrarUso(db, uid) {
 
 // ---------- handler ----------
 
-async function handler(req, res) {
+export default async function handler(req, res) {
 
     res.setHeader("Cache-Control", "no-store");
 
@@ -223,14 +235,23 @@ async function handler(req, res) {
 
     let usuario;
     let db;
+    let fb;
 
     try {
-        const fb = iniciarFirebase();
+        fb = iniciarFirebase();
         db = fb.db;
+    }
+    catch (erro) {
+        // problema na configuração (variável FIREBASE_SERVICE_ACCOUNT inválida)
+        console.error("NEXUS: falha ao iniciar o Firebase Admin:", erro.message);
+        return res.status(500).json({ erro: "O Nexus está com um problema de configuração no servidor." });
+    }
+
+    try {
         usuario = await fb.auth.verifyIdToken(token);
     }
     catch (erro) {
-        console.error("Falha ao validar o login:", erro.code || erro.message);
+        console.error("NEXUS: falha ao validar o login:", erro.code || "", erro.message);
         return res.status(401).json({ erro: "Sua sessão expirou. Entre novamente." });
     }
 
@@ -317,8 +338,3 @@ async function handler(req, res) {
 function safeJSON(texto) {
     try { return JSON.parse(texto); } catch (e) { return null; }
 }
-
-module.exports = handler;
-module.exports.validarEvento = validarEvento;
-module.exports.validarTarefas = validarTarefas;
-module.exports.limparHistorico = limparHistorico;
