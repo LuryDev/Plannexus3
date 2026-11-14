@@ -162,7 +162,18 @@ function iniciarFirebase() {
     const { getFirestore } = require("firebase-admin/firestore");
 
     if (!getApps().length) {
-        const conta = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        let texto = String(process.env.FIREBASE_SERVICE_ACCOUNT || "").trim();
+
+        // aceita o JSON puro, com aspas por fora, ou em base64
+        if (texto.startsWith('"') && texto.endsWith('"')) {
+            try { texto = JSON.parse(texto); } catch (e) { /* segue */ }
+        }
+
+        if (!texto.startsWith("{")) {
+            texto = Buffer.from(texto, "base64").toString("utf8");
+        }
+
+        const conta = JSON.parse(texto);
 
         // se a chave foi colada com "\n" escrito como texto, corrige
         if (conta.private_key) {
@@ -223,14 +234,23 @@ async function handler(req, res) {
 
     let usuario;
     let db;
+    let fb;
 
     try {
-        const fb = iniciarFirebase();
+        fb = iniciarFirebase();
         db = fb.db;
+    }
+    catch (erro) {
+        // problema na configuração (variável FIREBASE_SERVICE_ACCOUNT inválida)
+        console.error("NEXUS: falha ao iniciar o Firebase Admin:", erro.message);
+        return res.status(500).json({ erro: "O Nexus está com um problema de configuração no servidor." });
+    }
+
+    try {
         usuario = await fb.auth.verifyIdToken(token);
     }
     catch (erro) {
-        console.error("Falha ao validar o login:", erro.code || erro.message);
+        console.error("NEXUS: falha ao validar o login:", erro.code || "", erro.message);
         return res.status(401).json({ erro: "Sua sessão expirou. Entre novamente." });
     }
 
