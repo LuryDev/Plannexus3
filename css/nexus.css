@@ -338,3 +338,13 @@ header {
     flex-direction: column;
     align-items: flex-start;
 }
+
+.aviso-ia a {
+    color: var(--roxo);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.aviso-ia a:hover {
+    text-decoration: underline;
+}

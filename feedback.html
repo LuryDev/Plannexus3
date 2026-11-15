@@ -71,6 +71,10 @@
                     Outro
                 </option>
 
+                <option value="Denúncia de resposta do Nexus (IA)">
+                    Denúncia de resposta do Nexus (IA)
+                </option>
+
                 <option value="Denúncia de segurança infantil">
                     Denúncia de segurança infantil
                 </option>
@@ -123,7 +127,7 @@
 
     <p class="rodape">
         Seu feedback é registrado no Plannexus e também enviado por
-        e-mail para <strong>plannexuscorp@gmail.com</strong>. Se o seu
+        e-mail para <strong>plannexus.2026@gmail.com</strong>. Se o seu
         aplicativo de e-mail abrir numa nova aba, é só confirmar o envio
         por lá para a mensagem chegar até nós.
     </p>
@@ -149,7 +153,7 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    const EMAIL_DESTINO = "plannexuscorp@gmail.com";
+    const EMAIL_DESTINO = "plannexus.2026@gmail.com";
 
     // ==========================================
     // ELEMENTOS
@@ -235,7 +239,7 @@
             // não concluir o envio do e-mail)
             // ======================================
 
-            await addDoc(
+            const feedbackRef = await addDoc(
                 collection(db, "feedbacks"),
                 {
                     categoria: categoria,
@@ -248,6 +252,26 @@
                     criadoEm: serverTimestamp()
                 }
             );
+
+            // ======================================
+            // O NEXUS RESPONDE POR E-MAIL (e guarda as
+            // palavras-chave no feedback). Roda em segundo
+            // plano: se falhar, o feedback já está salvo.
+            // ======================================
+
+            auth.currentUser.getIdToken().then(function (idToken) {
+                return fetch("/api/feedback", {
+                    method: "POST",
+                    keepalive: true,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + idToken
+                    },
+                    body: JSON.stringify({ id: feedbackRef.id })
+                });
+            }).catch(function (e) {
+                console.warn("Resposta automática do Nexus indisponível:", e);
+            });
 
             // ======================================
             // ABRIR E-MAIL JÁ PREENCHIDO

@@ -186,7 +186,7 @@ let firebase = null;
 // firebase-admin é carregado com import() dinâmico para que qualquer erro de
 // carregamento caia no try/catch do handler (e apareça nos logs) em vez de
 // derrubar a função inteira.
-async function iniciarFirebase() {
+export async function iniciarFirebase() {
     if (firebase) return firebase;
 
     const { initializeApp, getApps, cert } = await import("firebase-admin/app");
@@ -242,7 +242,10 @@ export async function verificarToken(token, projectId, chaves = CHAVES_GOOGLE) {
         throw new Error("Token sem usuário (sub).");
     }
 
-    return { uid: payload.sub };
+    return {
+        uid: payload.sub,
+        email: typeof payload.email === "string" ? payload.email : ""
+    };
 }
 
 // Soma 1 ao contador do dia; devolve false se passou do limite.
