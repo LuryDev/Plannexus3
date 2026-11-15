@@ -23,6 +23,35 @@ body {
 
 
 /* ==========================================
+   TELA DE ESPERA (confere o login antes de
+   decidir se mostra o carrossel)
+========================================== */
+
+.splash-inicio {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #5A32D3;
+    z-index: 5;
+}
+
+.splash-inicio img {
+    width: 120px;
+    height: auto;
+}
+
+body.pronto .splash-inicio {
+    display: none;
+}
+
+body:not(.pronto) .onboarding {
+    visibility: hidden;
+}
+
+
+/* ==========================================
    CONTAINER PRINCIPAL
 ========================================== */
 

@@ -58,8 +58,10 @@
     <h3>Assistente Nexus (inteligência artificial)</h3>
     <ul>
         <li>O Nexus é um assistente de inteligência artificial que ajuda a criar eventos por conversa. Ele é opcional: você pode criar eventos pelo formulário normalmente.</li>
+        <li>O botão flutuante do Nexus abre um chat de ajuda que explica como usar o aplicativo e leva você às páginas que pedir. Ele funciona do mesmo modo (mensagens enviadas ao Google Gemini, sem guardar o texto da conversa) e não altera nenhum dado seu. Para esse chat, também guardamos apenas a contagem diária de mensagens.</li>
         <li>As mensagens que você envia ao Nexus (e o histórico da conversa atual) são enviadas ao nosso servidor e à API Gemini, do Google, para gerar a resposta. Não escreva dados sensíveis ou de terceiros nessas conversas.</li>
         <li>O texto das conversas <strong>não é guardado</strong> pelo Plannexus: ele existe só enquanto a tela do Nexus está aberta. Guardamos apenas o identificador da sua conta e a quantidade de mensagens enviadas por dia, para aplicar um limite de uso. Esse contador é apagado automaticamente depois de 30 dias.</li>
+        <li>Você pode reportar uma resposta do Nexus que considere ofensiva, perigosa ou errada pelo link "Reportar resposta". Nesse caso, guardamos o motivo, a sua pergunta, a resposta do Nexus, seu nome e e-mail, para análise da equipe, como nos demais feedbacks.</li>
         <li>O evento e as tarefas sugeridas só são criados depois que você confirma. Eventos criados dessa forma são identificados como "gerados com ajuda do Nexus".</li>
         <li>Nas versões gratuitas, o Google pode usar o conteúdo enviado para melhorar seus produtos, conforme os termos dele. As respostas da inteligência artificial podem conter erros: confira os dados antes de confirmar.</li>
     </ul>

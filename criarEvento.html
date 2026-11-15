@@ -21,6 +21,8 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#5A32D3">
     <script src="js/pwa.js" defer></script>
+    <link rel="stylesheet" href="css/transicao.css">
+    <script src="js/transicao.js" defer></script>
 </head>
 
 <body>
@@ -464,27 +466,18 @@
             );
 
 
-            mensagem.textContent =
-                "Evento criado com sucesso!";
-
-
-            mensagem.style.color =
-                "green";
-
-
             // Limpar formulário
 
             formulario.reset();
 
 
-            // Voltar para início
+            // Animação de confirmação e volta para o início
 
-            setTimeout(() => {
-
-                window.location.href =
-                    "inicio.html";
-
-            }, 1500);
+            confirmarENavegar({
+                tipo: "evento-criado",
+                mensagem: "Evento criado com sucesso!",
+                destino: "inicio.html"
+            });
 
 
         }

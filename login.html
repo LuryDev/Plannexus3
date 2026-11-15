@@ -21,6 +21,8 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#5A32D3">
     <script src="js/pwa.js" defer></script>
+    <link rel="stylesheet" href="css/transicao.css">
+    <script src="js/transicao.js" defer></script>
 </head>
 
 <body>
@@ -139,14 +141,11 @@ formulario.addEventListener("submit", async function(event) {
 
         console.log("UID:", resultado.user.uid);
 
-        mensagem.textContent =
-            "Login realizado!";
-
-        setTimeout(() => {
-
-            window.location.href = "inicio.html";
-
-        }, 500);
+        confirmarENavegar({
+            tipo: "login",
+            mensagem: "Login realizado!",
+            destino: "inicio.html"
+        });
 
     }
 
@@ -228,14 +227,11 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
 
         }
 
-        mensagem.textContent =
-            "Login realizado!";
-
-        setTimeout(() => {
-
-            window.location.href = "inicio.html";
-
-        }, 500);
+        confirmarENavegar({
+            tipo: "login",
+            mensagem: "Login realizado!",
+            destino: "inicio.html"
+        });
 
     }
 

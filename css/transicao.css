@@ -1,0 +1,124 @@
+/* ==========================================================
+   TRANSIÇÃO DE CONFIRMAÇÃO
+   Tela cheia mostrada entre "deu certo" e a próxima página.
+   O JS está em js/transicao.js.
+
+   >>> QUEM FOR FAZER A ANIMAÇÃO: edite este arquivo. <<<
+
+   - --transicao-duracao  = quanto tempo a tela fica antes de trocar de
+     página (o JS lê este valor). Deve cobrir a duração da animação.
+   - #animacao-confirmacao  = palco da animação.
+   - .transicao.ativa       = classe adicionada quando a animação começa.
+   - [data-tipo="..."]      = login | cadastro | evento-criado
+     (use para fazer uma animação diferente para cada caso).
+
+   - GIF ou vídeo: liste o arquivo em MIDIAS (js/transicao.js). Ele aparece
+     dentro do palco com a classe .transicao-midia (veja abaixo).
+
+   Abaixo há uma versão provisória (check desenhado) só para o app
+   funcionar até a animação final existir. Pode apagar e refazer.
+   ========================================================== */
+
+.transicao {
+    --transicao-duracao: 1400ms;
+
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: #5A32D3;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 250ms ease;
+}
+
+.transicao.ativa {
+    opacity: 1;
+}
+
+/* ---------- palco ---------- */
+
+.transicao-palco {
+    width: 96px;
+    height: 96px;
+}
+
+.transicao-check {
+    width: 100%;
+    height: 100%;
+}
+
+.transicao-circulo,
+.transicao-visto {
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.transicao-circulo {
+    stroke-dasharray: 151;
+    stroke-dashoffset: 151;
+}
+
+.transicao-visto {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+}
+
+.transicao.ativa .transicao-circulo {
+    animation: transicao-desenhar 600ms ease forwards;
+}
+
+.transicao.ativa .transicao-visto {
+    animation: transicao-desenhar 350ms ease 450ms forwards;
+}
+
+@keyframes transicao-desenhar {
+    to { stroke-dashoffset: 0; }
+}
+
+/* ---------- GIF / vídeo (quando listado em MIDIAS) ---------- */
+
+.transicao-midia {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* palco maior quando a mídia for grande (exemplo, descomente e ajuste):
+.transicao[data-tipo="evento-criado"] .transicao-palco {
+    width: min(80vw, 360px);
+    height: min(80vw, 360px);
+}
+*/
+
+/* ---------- mensagem ---------- */
+
+.transicao-mensagem {
+    font-family: 'Poppins', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    padding: 0 24px;
+}
+
+/* ---------- quem desativou animações no celular ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .transicao {
+        --transicao-duracao: 700ms;
+        transition: none;
+    }
+
+    .transicao-circulo,
+    .transicao-visto {
+        animation: none !important;
+        stroke-dashoffset: 0;
+    }
+}

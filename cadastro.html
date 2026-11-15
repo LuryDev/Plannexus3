@@ -17,6 +17,8 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#5A32D3">
     <script src="js/pwa.js" defer></script>
+    <link rel="stylesheet" href="css/transicao.css">
+    <script src="js/transicao.js" defer></script>
 </head>
 
 <body>
@@ -149,13 +151,11 @@ formulario.addEventListener("submit", async function(event) {
             }
         );
 
-        mensagem.textContent = "Conta criada com sucesso!";
-
-        setTimeout(() => {
-
-            window.location.href = "inicio.html";
-
-        }, 1000);
+        confirmarENavegar({
+            tipo: "cadastro",
+            mensagem: "Conta criada com sucesso!",
+            destino: "inicio.html"
+        });
 
     }
 
@@ -217,7 +217,11 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
 
         }
 
-        window.location.href = "inicio.html";
+        confirmarENavegar({
+            tipo: "login",
+            mensagem: "Login realizado!",
+            destino: "inicio.html"
+        });
 
     }
 

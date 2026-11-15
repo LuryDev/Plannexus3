@@ -32,6 +32,12 @@
 
 <body>
 
+    <!-- Tela de espera: aparece enquanto o app confere se já existe login.
+         Quem já está logado vai direto para o início, sem ver o carrossel. -->
+    <div class="splash-inicio" aria-hidden="true">
+        <img src="fotos/logo.png" alt="">
+    </div>
+
     <div class="onboarding">
 
         <div class="slides" id="slides">
@@ -264,18 +270,27 @@
 
         atualizarCarrossel();
 
+        // Só mostra o carrossel depois de saber que NÃO há ninguém logado.
+        function mostrarCarrossel() {
+            document.body.classList.add("pronto");
+        }
+
         onAuthStateChanged(
             auth,
             (usuario) => {
 
                 if (usuario) {
-                    window.location.href = "inicio.html";
+                    // replace: o botão "voltar" não traz o usuário de volta para esta tela
+                    window.location.replace("inicio.html");
                 } else {
-                    console.log("Usuário deslogado");
+                    mostrarCarrossel();
                 }
 
             }
         );
+
+        // Segurança: se o Firebase demorar (rede ruim), não deixa a tela presa.
+        setTimeout(mostrarCarrossel, 4000);
 
         window.proxima = proxima;
         window.anterior = anterior;

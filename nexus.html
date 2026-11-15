@@ -9,11 +9,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/nexus.css">
+    <link rel="stylesheet" href="css/nexusFlutuante.css">
 
     <!-- PWA: manifest, cor do tema e service worker -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#5A32D3">
     <script src="js/pwa.js" defer></script>
+    <link rel="stylesheet" href="css/transicao.css">
+    <script src="js/transicao.js" defer></script>
 </head>
 
 <body>
@@ -73,6 +76,7 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { anexarReporte } from "./js/reportarResposta.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
@@ -207,7 +211,11 @@
                 }
 
                 historico.push({ role: "model", text: dados.resposta });
-                adicionarBalao(dados.resposta, "nexus");
+                const balaoResposta = adicionarBalao(dados.resposta, "nexus");
+                anexarReporte(balaoResposta, {
+                    usuario: usuarioAtual, pergunta: texto, resposta: dados.resposta,
+                    origem: "criar evento com o Nexus"
+                });
 
                 eventoAtual = dados.evento || null;
                 tarefasAtuais = dados.tarefas || [];
@@ -285,12 +293,11 @@
                     })
                 ));
 
-                mensagemCriar.textContent = "Evento criado com sucesso!";
-                mensagemCriar.style.color = "green";
-
-                setTimeout(() => {
-                    window.location.href = "evento.html?id=" + encodeURIComponent(referencia.id);
-                }, 1200);
+                confirmarENavegar({
+                    tipo: "evento-criado",
+                    mensagem: "Evento criado com sucesso!",
+                    destino: "evento.html?id=" + encodeURIComponent(referencia.id)
+                });
             }
             catch (erro) {
                 console.error("Erro ao criar evento:", erro);
