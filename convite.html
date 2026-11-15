@@ -105,7 +105,7 @@
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
         import {
             FUNDOS, desenharTemplate, carregarImagem, carregarFontes,
-            dataPorExtenso, horarioPorExtenso, tituloPadraoConvite
+            dataPorExtenso, horarioPorExtenso, tituloPadraoConvite, textoCompartilharConvite
         } from "./js/templateImagem.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
@@ -131,6 +131,7 @@
         let fundoAtual  = FUNDOS[0].cor;
         let imagemNexus = null;
         let nomeArquivo = "convite";
+        let nomeDoEvento = "";
         let desenhoAgendado = false;
 
 
@@ -224,7 +225,7 @@
                 const arquivo = new File([blob], nomeArquivo + ".png", { type: "image/png" });
 
                 if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
-                    await navigator.share({ files: [arquivo], title: campos.titulo.value.trim() || "Convite" });
+                    await navigator.share({ files: [arquivo], title: campos.titulo.value.trim() || "Convite", text: textoCompartilharConvite({ nome: nomeDoEvento }) });
                     avisar("");
                 } else {
                     // aparelho/navegador sem compartilhamento de arquivos: baixa a imagem
@@ -270,6 +271,7 @@
 
                 const evento = snap.data();
                 document.getElementById("nomeEvento").textContent = evento.nome || "Evento sem nome";
+                nomeDoEvento = evento.nome || "";
 
                 campos.titulo.value  = tituloPadraoConvite(evento);
                 campos.data.value    = dataPorExtenso(evento.data);

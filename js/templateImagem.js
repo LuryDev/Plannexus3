@@ -281,3 +281,19 @@ export function tituloPadraoConvite(evento) {
 export function tituloListaPresentes(evento) {
     return "Lista de presentes do " + ((evento && evento.nome) || "evento") + "!";
 }
+
+// ---------- texto que acompanha a imagem ao compartilhar ----------
+
+export const LINK_PLANNEXUS = "https://plannexus.vercel.app";
+
+export function textoCompartilharLista(evento) {
+    const nome = (evento && evento.nome) ? " do " + evento.nome : " do meu evento";
+    return "🎁 Olha a lista de presentes" + nome + "! Dá uma olhada e escolha o seu. 💜\n\n" +
+           "Quer organizar seus próprios eventos? Conheça o Plannexus: " + LINK_PLANNEXUS;
+}
+
+export function textoCompartilharConvite(evento) {
+    const nome = (evento && evento.nome) ? evento.nome : "o meu evento";
+    return "🎉 Você é meu convidado(a) para " + nome + "! Veja os detalhes na imagem. 💜\n\n" +
+           "Organize seus próprios eventos com o Plannexus: " + LINK_PLANNEXUS;
+}

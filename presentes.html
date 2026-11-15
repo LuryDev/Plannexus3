@@ -104,7 +104,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-        import { FUNDOS, desenharTemplate, carregarImagem, carregarFontes, tituloListaPresentes } from "./js/templateImagem.js";
+        import { FUNDOS, desenharTemplate, carregarImagem, carregarFontes, tituloListaPresentes, textoCompartilharLista } from "./js/templateImagem.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app  = initializeApp(FIREBASE_CONFIG);
@@ -370,7 +370,7 @@
                 const arquivo = new File([blob], nomeArquivo + ".png", { type: "image/png" });
 
                 if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
-                    await navigator.share({ files: [arquivo], title: "Lista de presentes" });
+                    await navigator.share({ files: [arquivo], title: "Lista de presentes", text: textoCompartilharLista({ nome: nomeDoEvento }) });
                 } else {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
