@@ -69,6 +69,23 @@
 
     </div>
 
+    <!-- POP-UP das perguntas opcionais -->
+    <div class="fundo-pop" id="fundoPop" role="dialog" aria-modal="true" aria-labelledby="perguntaPop">
+        <div class="pop">
+            <div class="topo">
+                <img src="fotos/mascote.png" alt="">
+                <div><b>Pergunta opcional</b><span id="contadorPop"></span></div>
+            </div>
+            <h3 id="perguntaPop"></h3>
+            <textarea id="respostaPop" maxlength="300" placeholder="Escreva aqui... (pode deixar em branco)"></textarea>
+            <div class="rodape-pop"><span>Fica salvo no bloco de notas do evento.</span><span id="caracteresPop">0/300</span></div>
+            <div class="botoes-pop">
+                <button type="button" class="b-secundario" id="cancelarPop" style="color:#5A32D3;background:#F1EEFB">Agora não</button>
+                <button type="button" id="salvarPop" style="color:#fff;background:linear-gradient(135deg,#5A32D3,#4D2FB8)">Salvar resposta</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/icones.js"></script>
@@ -102,6 +119,22 @@
         let eventoAtual = null;    // evento proposto pelo Nexus
         let tarefasAtuais = [];    // tarefas sugeridas
         let aguardando = false;
+
+        // ----- etapa extra: 2 perguntas opcionais + escolha das ferramentas -----
+        let extrasFeitos = false;           // já passou pelas perguntas e pela escolha?
+        let extrasEmAndamento = false;
+        let respostasExtras = [];           // [{ pergunta, resposta }]
+        let escolhas = { listaPresentes: false, criadorConvites: false };
+
+        // 2 perguntas opcionais por tipo de evento
+        const PERGUNTAS_EXTRAS = {
+            "Casamento":          ["Vocês já têm um estilo ou paleta de cores em mente?", "Quantos padrinhos e madrinhas terão na cerimônia?"],
+            "Aniversário":        ["Qual é o tema da festa (se tiver um)?", "Quantos anos o aniversariante vai fazer?"],
+            "Formatura":          ["Qual é o curso e a instituição da turma?", "Vai ter baile ou só a colação de grau?"],
+            "Evento Corporativo": ["Qual é o objetivo do evento (treinamento, confraternização, lançamento)?", "Vai precisar de palestrante ou equipamentos (projetor, som)?"],
+            "Chá de Bebê":        ["Já sabem o sexo do bebê ou será surpresa?", "Vai ter algum tema ou cor para a decoração?"],
+            "Outro":              ["Qual é o principal objetivo do evento?", "Tem alguma exigência especial (acessibilidade, restrição alimentar)?"]
+        };
 
 
         // ================= MENSAGENS NA TELA =================
@@ -151,8 +184,9 @@
             if (e.convidados > 0) html += linhaResumo("Convidados", e.convidados);
             if (e.orcamento > 0) html += linhaResumo("Orçamento", Number(e.orcamento).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
             if (e.descricao) html += linhaResumo("Descrição", e.descricao);
-            if (e.listaPresentes) html += linhaResumo("Lista de presentes", "Sim");
-            if (e.criadorConvites) html += linhaResumo("Criador de convites", "Sim");
+            if (escolhas.listaPresentes) html += linhaResumo("Lista de presentes", "Sim");
+            if (escolhas.criadorConvites) html += linhaResumo("Criador de convites", "Sim");
+            if (respostasExtras.length) html += linhaResumo("Notas do evento", respostasExtras.length + (respostasExtras.length === 1 ? " resposta" : " respostas"));
 
             dadosResumoEl.innerHTML = html;
 
@@ -220,7 +254,14 @@
 
                 eventoAtual = dados.evento || null;
                 tarefasAtuais = dados.tarefas || [];
-                desenharResumo();
+
+                // primeira vez que o evento fica pronto: perguntas opcionais e escolha das ferramentas
+                if (eventoAtual && !extrasFeitos && !extrasEmAndamento) {
+                    resumoEl.hidden = true;
+                    iniciarExtras();
+                } else if (!extrasEmAndamento) {
+                    desenharResumo();
+                }
             }
             catch (erro) {
                 console.error("Erro no Nexus:", erro);
@@ -246,6 +287,156 @@
         });
 
 
+        // ================= PERGUNTAS OPCIONAIS E FERRAMENTAS =================
+        const fundoPop     = document.getElementById("fundoPop");
+        const respostaPop  = document.getElementById("respostaPop");
+        const perguntaPop  = document.getElementById("perguntaPop");
+        const contadorPop  = document.getElementById("contadorPop");
+        const caracteresPop = document.getElementById("caracteresPop");
+
+        function adicionarCartao(html) {
+            const cartao = document.createElement("div");
+            cartao.className = "cartao-extra";
+            cartao.innerHTML = html;
+            conversaEl.appendChild(cartao);
+            conversaEl.scrollTop = conversaEl.scrollHeight;
+            return cartao;
+        }
+
+        function pausa(ms) {
+            return new Promise((ok) => setTimeout(ok, ms));
+        }
+
+        // abre o pop-up e devolve o texto digitado ("" se cancelou)
+        function perguntarNoPopup(pergunta, numero) {
+            return new Promise((resolver) => {
+                perguntaPop.textContent = pergunta;
+                contadorPop.textContent = "Opcional " + numero + " de 2";
+                respostaPop.value = "";
+                caracteresPop.textContent = "0/300";
+                fundoPop.classList.add("aberto");
+                setTimeout(() => respostaPop.focus(), 200);
+
+                function fechar(valor) {
+                    fundoPop.classList.remove("aberto");
+                    document.getElementById("salvarPop").onclick = null;
+                    document.getElementById("cancelarPop").onclick = null;
+                    fundoPop.onclick = null;
+                    resolver(valor);
+                }
+
+                document.getElementById("salvarPop").onclick = () => fechar(respostaPop.value.trim());
+                document.getElementById("cancelarPop").onclick = () => fechar("");
+                fundoPop.onclick = (e) => { if (e.target === fundoPop) fechar(""); };
+            });
+        }
+
+        respostaPop.addEventListener("input", () => {
+            caracteresPop.textContent = respostaPop.value.length + "/300";
+        });
+
+        // mostra uma pergunta como balão com Responder / Pular
+        function fazerPerguntaExtra(pergunta, numero) {
+            return new Promise((resolver) => {
+                const cartao = adicionarCartao(`
+                    <small class="selo">Opcional ${numero} de 2</small>
+                    <div>${escaparHTML(pergunta)}</div>
+                    <div class="acoes">
+                        <button type="button" class="b-principal" data-acao="responder"><i class="fa-solid fa-pen"></i> Responder</button>
+                        <button type="button" class="b-secundario" data-acao="pular">Pular</button>
+                    </div>
+                `);
+
+                cartao.querySelector('[data-acao="responder"]').addEventListener("click", async () => {
+                    const texto = await perguntarNoPopup(pergunta, numero);
+                    if (!texto) return;                       // fechou sem escrever: continua na pergunta
+                    cartao.classList.add("feito");
+                    adicionarBalao(texto, "usuario");
+                    resolver(texto);
+                });
+
+                cartao.querySelector('[data-acao="pular"]').addEventListener("click", () => {
+                    cartao.classList.add("feito");
+                    adicionarBalao("Pular", "usuario");
+                    resolver("");
+                });
+            });
+        }
+
+        // checkboxes: lista de presentes e criador de convites
+        function escolherFerramentas() {
+            return new Promise((resolver) => {
+                const cartao = adicionarCartao(`
+                    <div>Por fim: quer incluir alguma dessas ferramentas no evento? Marque só o que quiser.</div>
+                    <label class="escolha-ferramenta">
+                        <input type="checkbox" id="extraPresentes">
+                        <div><strong>Lista de presentes</strong><span>Monte e compartilhe uma lista do que você gostaria de ganhar.</span></div>
+                    </label>
+                    <label class="escolha-ferramenta">
+                        <input type="checkbox" id="extraConvites">
+                        <div><strong>Criador de convites Plannexus</strong><span>Gera uma imagem de convite com os dados do evento.</span></div>
+                    </label>
+                    <div class="acoes"><button type="button" class="b-principal" data-acao="continuar">Continuar</button></div>
+                `);
+
+                cartao.querySelector('[data-acao="continuar"]').addEventListener("click", () => {
+                    const escolha = {
+                        listaPresentes: cartao.querySelector("#extraPresentes").checked,
+                        criadorConvites: cartao.querySelector("#extraConvites").checked
+                    };
+                    cartao.classList.add("feito");
+                    cartao.querySelectorAll("input").forEach((i) => { i.disabled = true; });
+
+                    const marcadas = [];
+                    if (escolha.listaPresentes) marcadas.push("lista de presentes");
+                    if (escolha.criadorConvites) marcadas.push("criador de convites");
+                    adicionarBalao(marcadas.length ? "Quero: " + marcadas.join(" e ") : "Nenhuma por enquanto", "usuario");
+
+                    resolver(escolha);
+                });
+            });
+        }
+
+        async function iniciarExtras() {
+            extrasEmAndamento = true;
+            campoEl.disabled = true;
+            botaoEnviar.disabled = true;
+
+            try {
+                const perguntas = PERGUNTAS_EXTRAS[eventoAtual.categoria] || PERGUNTAS_EXTRAS["Outro"];
+
+                await pausa(300);
+                adicionarBalao("Antes de montar o resumo, tenho 2 perguntinhas opcionais sobre o seu evento. Responda só se quiser!", "nexus");
+
+                respostasExtras = [];
+                for (let i = 0; i < perguntas.length; i++) {
+                    await pausa(300);
+                    const resposta = await fazerPerguntaExtra(perguntas[i], i + 1);
+                    if (resposta) respostasExtras.push({ pergunta: perguntas[i], resposta });
+                }
+
+                await pausa(300);
+                escolhas = await escolherFerramentas();
+
+                await pausa(300);
+                adicionarBalao(
+                    respostasExtras.length
+                        ? "Anotei tudo! Vou guardar suas respostas no bloco de notas do evento. Confira o resumo abaixo e é só criar. ✅"
+                        : "Perfeito! Confira o resumo abaixo e é só criar. ✅",
+                    "nexus"
+                );
+
+                extrasFeitos = true;
+            }
+            finally {
+                extrasEmAndamento = false;
+                campoEl.disabled = false;
+                botaoEnviar.disabled = false;
+                desenharResumo();
+            }
+        }
+
+
         // ================= CRIAR O EVENTO =================
         botaoCriar.addEventListener("click", async () => {
 
@@ -264,7 +455,7 @@
                     .filter(Boolean);
 
                 // se ficou uma tarefa de lista de presentes, já liga essa ferramenta no evento
-                const comListaPresentes = e.listaPresentes === true ||
+                const comListaPresentes = escolhas.listaPresentes === true ||
                     marcadas.some((t) => t.servico === "presentes");
 
                 const referencia = await addDoc(collection(db, "eventos"), {
@@ -277,11 +468,21 @@
                     orcamento: e.orcamento || 0,
                     descricao: e.descricao || "",
                     listaPresentes: comListaPresentes,
-                    criadorConvites: e.criadorConvites === true,
+                    criadorConvites: escolhas.criadorConvites === true,
                     criadoComNexus: true,
                     usuarioId: usuarioAtual.uid,
                     criadoEm: serverTimestamp()
                 });
+
+                // respostas das perguntas opcionais viram uma anotação no bloco de notas
+                if (respostasExtras.length) {
+                    await addDoc(collection(db, "eventos", referencia.id, "anotacoes"), {
+                        titulo: "Detalhes do evento",
+                        conteudo: respostasExtras.map((r) => r.pergunta + "\n" + r.resposta).join("\n\n"),
+                        dataCriacao: serverTimestamp(),
+                        dataAtualizacao: serverTimestamp()
+                    });
+                }
 
                 await Promise.all(marcadas.map((tarefa) =>
                     addDoc(collection(db, "eventos", referencia.id, "tarefas"), {
