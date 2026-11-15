@@ -152,6 +152,7 @@
             if (e.orcamento > 0) html += linhaResumo("Orçamento", Number(e.orcamento).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
             if (e.descricao) html += linhaResumo("Descrição", e.descricao);
             if (e.listaPresentes) html += linhaResumo("Lista de presentes", "Sim");
+            if (e.criadorConvites) html += linhaResumo("Criador de convites", "Sim");
 
             dadosResumoEl.innerHTML = html;
 
@@ -276,6 +277,7 @@
                     orcamento: e.orcamento || 0,
                     descricao: e.descricao || "",
                     listaPresentes: comListaPresentes,
+                    criadorConvites: e.criadorConvites === true,
                     criadoComNexus: true,
                     usuarioId: usuarioAtual.uid,
                     criadoEm: serverTimestamp()

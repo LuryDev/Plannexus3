@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Criador de Convites - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/convite.css">
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+            <a class="voltar" id="voltar" href="inicio.html" title="Voltar">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1>Convite</h1>
+        </header>
+
+        <main>
+
+            <!-- NOME DO EVENTO -->
+            <div class="evento">
+                <span>Evento</span>
+                <h2 id="nomeEvento">Carregando...</h2>
+            </div>
+
+            <!-- PRÉVIA (a imagem final é exatamente o que aparece aqui) -->
+            <div class="previa-convite">
+                <canvas id="canvasConvite" width="1080" height="1096" aria-label="Prévia do convite"></canvas>
+            </div>
+
+            <!-- COR DE FUNDO -->
+            <section class="bloco">
+                <h3>Cor de fundo</h3>
+                <div class="cores" id="listaCores"></div>
+            </section>
+
+            <!-- TEXTOS -->
+            <section class="bloco">
+                <h3>Textos</h3>
+
+                <label for="campoTitulo">Título</label>
+                <input type="text" id="campoTitulo" maxlength="80">
+
+                <div class="duplo">
+                    <div>
+                        <label for="campoData">Data</label>
+                        <input type="text" id="campoData" maxlength="50">
+                    </div>
+                    <div>
+                        <label for="campoHorario">Horário</label>
+                        <input type="text" id="campoHorario" maxlength="20">
+                    </div>
+                </div>
+
+                <label for="campoLocal">Local</label>
+                <input type="text" id="campoLocal" maxlength="120">
+
+                <label for="campoExtra">Mensagem extra</label>
+                <textarea id="campoExtra" rows="3" maxlength="160" placeholder="Ex: traje, como confirmar presença... (opcional)"></textarea>
+
+                <label class="marca-opcao" for="campoMarca">
+                    <input type="checkbox" id="campoMarca" checked>
+                    <span>Mostrar "Fornecido por Plannexus - Eventos"</span>
+                </label>
+            </section>
+
+            <!-- AÇÕES -->
+            <div class="acoes">
+                <button type="button" class="botao-principal" id="botaoBaixar">
+                    <i class="fa-solid fa-download"></i>
+                    Baixar imagem
+                </button>
+                <button type="button" class="botao-secundario" id="botaoCompartilhar">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    Compartilhar
+                </button>
+            </div>
+            <p class="mensagem" id="mensagem" role="status"></p>
+
+        </main>
+
+    </div>
+
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import {
+            FUNDOS, desenharTemplate, carregarImagem, carregarFontes,
+            dataPorExtenso, horarioPorExtenso, tituloPadraoConvite
+        } from "./js/templateImagem.js";
+
+        // FIREBASE_CONFIG vem do arquivo js/config.js
+        const app  = initializeApp(FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        const eventoId = pegarIdDaUrl();
+
+        const canvas   = document.getElementById("canvasConvite");
+        const ctx      = canvas.getContext("2d");
+        const mensagem = document.getElementById("mensagem");
+
+        const campos = {
+            titulo:  document.getElementById("campoTitulo"),
+            data:    document.getElementById("campoData"),
+            horario: document.getElementById("campoHorario"),
+            local:   document.getElementById("campoLocal"),
+            extra:   document.getElementById("campoExtra"),
+            marca:   document.getElementById("campoMarca")
+        };
+
+        let fundoAtual  = FUNDOS[0].cor;
+        let imagemNexus = null;
+        let nomeArquivo = "convite";
+        let desenhoAgendado = false;
+
+
+        // ================= DESENHAR =================
+
+        function redesenhar() {
+            desenharTemplate(ctx, {
+                titulo: campos.titulo.value.trim() || "Convite",
+                itens:  [campos.data.value, campos.horario.value, campos.local.value]
+                            .map((t) => t.trim()).filter(Boolean),
+                extra:  campos.extra.value.trim(),
+                rodape: campos.marca.checked
+            }, { fundo: fundoAtual, nexus: imagemNexus });
+        }
+
+        // várias digitações seguidas viram um único desenho
+        function agendarDesenho() {
+            if (desenhoAgendado) return;
+            desenhoAgendado = true;
+            requestAnimationFrame(() => {
+                desenhoAgendado = false;
+                redesenhar();
+            });
+        }
+
+
+        // ================= COR DE FUNDO =================
+
+        function montarCores() {
+            const lista = document.getElementById("listaCores");
+
+            FUNDOS.forEach((f, i) => {
+                const b = document.createElement("button");
+                b.type = "button";
+                b.className = "cor" + (i === 0 ? " ativa" : "");
+                b.style.background = f.cor;
+                b.title = f.nome;
+                b.setAttribute("aria-label", "Fundo " + f.nome);
+                b.addEventListener("click", () => {
+                    fundoAtual = f.cor;
+                    lista.querySelectorAll(".cor").forEach((x) => x.classList.toggle("ativa", x === b));
+                    agendarDesenho();
+                });
+                lista.appendChild(b);
+            });
+        }
+
+
+        // ================= BAIXAR E COMPARTILHAR =================
+
+        function avisar(texto, erro = false) {
+            mensagem.textContent = texto;
+            mensagem.classList.toggle("erro", erro);
+        }
+
+        function gerarImagem() {
+            return new Promise((resolve, reject) => {
+                canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("Falha ao gerar a imagem.")), "image/png");
+            });
+        }
+
+        function baixar(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = nomeArquivo + ".png";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 4000);
+        }
+
+        document.getElementById("botaoBaixar").addEventListener("click", async () => {
+            try {
+                await carregarFontes();
+                redesenhar();
+                baixar(await gerarImagem());
+                avisar("Imagem salva no seu aparelho.");
+            } catch (erro) {
+                console.error(erro);
+                avisar("Não foi possível gerar a imagem. Tente de novo.", true);
+            }
+        });
+
+        document.getElementById("botaoCompartilhar").addEventListener("click", async () => {
+            try {
+                await carregarFontes();
+                redesenhar();
+
+                const blob = await gerarImagem();
+                const arquivo = new File([blob], nomeArquivo + ".png", { type: "image/png" });
+
+                if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+                    await navigator.share({ files: [arquivo], title: campos.titulo.value.trim() || "Convite" });
+                    avisar("");
+                } else {
+                    // aparelho/navegador sem compartilhamento de arquivos: baixa a imagem
+                    baixar(blob);
+                    avisar("Seu aparelho não permite compartilhar direto. A imagem foi baixada para você enviar.");
+                }
+            } catch (erro) {
+                if (erro && erro.name === "AbortError") return;   // o usuário fechou a janela de compartilhar
+                console.error(erro);
+                avisar("Não foi possível compartilhar. Tente baixar a imagem.", true);
+            }
+        });
+
+
+        // ================= INÍCIO =================
+
+        async function iniciar() {
+
+            montarCores();
+
+            Object.values(campos).forEach((c) => c.addEventListener("input", agendarDesenho));
+            campos.marca.addEventListener("change", agendarDesenho);
+
+            if (!eventoId) {
+                document.getElementById("nomeEvento").textContent = "Evento não encontrado";
+                avisar("Abra o criador de convites a partir da página de um evento.", true);
+                return;
+            }
+
+            document.getElementById("voltar").href = "evento.html?id=" + encodeURIComponent(eventoId);
+
+            const usuario = await exigirLogin(auth, onAuthStateChanged);
+            if (!usuario) return;
+
+            try {
+                const snap = await getDoc(doc(db, "eventos", eventoId));
+
+                if (!snap.exists()) {
+                    document.getElementById("nomeEvento").textContent = "Evento não encontrado";
+                    avisar("Esse evento não existe mais.", true);
+                    return;
+                }
+
+                const evento = snap.data();
+                document.getElementById("nomeEvento").textContent = evento.nome || "Evento sem nome";
+
+                campos.titulo.value  = tituloPadraoConvite(evento);
+                campos.data.value    = dataPorExtenso(evento.data);
+                campos.horario.value = horarioPorExtenso(evento.horario);
+                campos.local.value   = evento.local || "";
+
+                nomeArquivo = "convite-" + (String(evento.nome || "evento")
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "evento");
+
+                const [, nexus] = await Promise.all([carregarFontes(), carregarImagem("fotos/mascote.png")]);
+                imagemNexus = nexus;
+                redesenhar();
+            }
+            catch (erro) {
+                console.error("Erro ao carregar o evento:", erro);
+                avisar("Não foi possível carregar o evento.", true);
+            }
+        }
+
+        iniciar();
+
+    </script>
+
+</body>
+
+</html>

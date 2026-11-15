@@ -192,6 +192,31 @@
                         </div>
                     </a>
 
+
+                    <!-- CRIADOR DE CONVITES (só aparece se marcado na criação) -->
+                    <a href="#" id="cardCriadorConvites" class="card-item" hidden>
+                        <div class="card-topo">
+                            <div class="icone-card icone-convite">
+                                <i class="fa-solid fa-envelope-open-text"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Criador de Convites</h3>
+                            <p>Crie o convite do evento e compartilhe com os convidados.</p>
+                        </div>
+
+                        <div class="previa">
+                            <p class="estado-previa">Escolha um modelo, edite os textos e baixe a imagem.</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Criar convite</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
                 </div>
             </section>
 
@@ -615,6 +640,10 @@
                 const cardPresentes = document.getElementById("cardListaPresentes");
                 cardPresentes.hidden = !evento.listaPresentes;
                 cardPresentes.href = `presentes.html?id=${encodeURIComponent(eventoId)}`;
+
+                const cardConvites = document.getElementById("cardCriadorConvites");
+                cardConvites.hidden = !evento.criadorConvites;
+                cardConvites.href = `convite.html?id=${encodeURIComponent(eventoId)}`;
 
                 const detalhes = [];
                 if (evento.data) detalhes.push(formatarData(evento.data));

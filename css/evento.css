@@ -278,6 +278,7 @@ header {
 .icone-financeiro { color: #C28A37; background: #FFF4DF; }
 .icone-notas { color: #D17C9C; background: #FCECF3; }
 .icone-presentes { color: #5A32D3; background: #EEE9FF; }
+.icone-convite { color: #E2761B; background: #FFF0E1; }
 
 .card-item[hidden] { display: none; }
 

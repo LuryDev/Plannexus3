@@ -104,6 +104,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { FUNDOS, desenharTemplate, carregarImagem, carregarFontes, tituloListaPresentes } from "./js/templateImagem.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app  = initializeApp(FIREBASE_CONFIG);
@@ -125,6 +126,7 @@
 
         let presentes = [];          // lista carregada do Firestore
         let souVisitante = false;
+        let nomeDoEvento = "";
 
         function formatarDinheiro(valor) {
             return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -168,6 +170,7 @@
 
                 const evento = eventoSnap.data();
                 nomeEventoEl.textContent = evento.nome || "Evento sem nome";
+                nomeDoEvento = evento.nome || "";
 
                 // Visitante só visualiza: esconde o botão de novo presente.
                 if (evento.usuarioId !== usuario.uid) {
@@ -336,9 +339,57 @@
         });
 
 
-        // ================= COMPARTILHAR (ainda sem função) =================
-        document.getElementById("botaoCompartilhar").addEventListener("click", () => {
-            alert("O compartilhamento da lista estará disponível em breve!");
+        // ================= COMPARTILHAR =================
+        // Gera a imagem da lista (mesmo template do convite) e abre o compartilhar
+        // do aparelho; se não der, baixa o PNG. Nada é salvo no servidor.
+        document.getElementById("botaoCompartilhar").addEventListener("click", async () => {
+            const botao = document.getElementById("botaoCompartilhar");
+            botao.disabled = true;
+
+            try {
+                const [, nexus] = await Promise.all([carregarFontes(), carregarImagem("fotos/mascote.png")]);
+
+                const canvas = document.createElement("canvas");
+                canvas.width = 1080;
+                canvas.height = 1096;
+
+                const nomes = presentes.map((p) => p.nome).filter(Boolean);
+
+                desenharTemplate(canvas.getContext("2d"), {
+                    titulo: tituloListaPresentes({ nome: nomeDoEvento }),
+                    itens:  nomes.length ? nomes : ["A lista ainda está vazia"],
+                    rodape: true
+                }, { fundo: FUNDOS[0].cor, nexus });
+
+                const blob = await new Promise((ok, falha) =>
+                    canvas.toBlob((b) => b ? ok(b) : falha(new Error("Falha ao gerar a imagem.")), "image/png"));
+
+                const nomeArquivo = "lista-presentes-" + (String(nomeDoEvento || "evento")
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "evento");
+                const arquivo = new File([blob], nomeArquivo + ".png", { type: "image/png" });
+
+                if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+                    await navigator.share({ files: [arquivo], title: "Lista de presentes" });
+                } else {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = nomeArquivo + ".png";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    setTimeout(() => URL.revokeObjectURL(url), 4000);
+                    alert("A imagem da lista foi baixada para você enviar.");
+                }
+            } catch (erro) {
+                if (!erro || erro.name !== "AbortError") {
+                    console.error(erro);
+                    alert("Não foi possível gerar a imagem da lista. Tente de novo.");
+                }
+            } finally {
+                botao.disabled = false;
+            }
         });
 
 

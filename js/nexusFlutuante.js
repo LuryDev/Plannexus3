@@ -29,6 +29,7 @@ const ARQUIVO_PARA_PAGINA = {
     "controleFinanceiro.html": "financeiro",
     "blocoNotas.html": "notas",
     "presentes.html": "presentes",
+    "convite.html": "convite",
     "pessoas.html": "pessoas",
     "notificacoes.html": "notificacoes",
     "perfilPessoal.html": "perfil",
@@ -36,7 +37,7 @@ const ARQUIVO_PARA_PAGINA = {
     "feedback.html": "feedback"
 };
 
-const PAGINAS_DE_EVENTO = ["evento", "tarefas", "calendario", "financeiro", "notas", "presentes", "pessoas"];
+const PAGINAS_DE_EVENTO = ["evento", "tarefas", "calendario", "financeiro", "notas", "presentes", "convite", "pessoas"];
 
 // ---------- código de destino -> endereço ----------
 // evento: true  = precisa do ?id= do evento aberto
@@ -55,6 +56,7 @@ const DESTINOS = {
     "financeiro":    { nome: "Controle financeiro", url: "controleFinanceiro.html", evento: true },
     "notas":         { nome: "Bloco de notas",      url: "blocoNotas.html",        evento: true },
     "presentes":     { nome: "Lista de presentes",  url: "presentes.html",         evento: true },
+    "convite":       { nome: "Criador de convites", url: "convite.html",           evento: true },
     "pessoas":       { nome: "Adicionar pessoas",   url: "pessoas.html",           evento: true }
 };
 

@@ -74,7 +74,8 @@ export function validarEvento(bruto) {
         convidados: Math.round(numeroOuZero(bruto.convidados)),
         orcamento: numeroOuZero(bruto.orcamento),
         descricao: String(bruto.descricao || "").trim().slice(0, 500),
-        listaPresentes: bruto.listaPresentes === true
+        listaPresentes: bruto.listaPresentes === true,
+        criadorConvites: bruto.criadorConvites === true
     };
 }
 
@@ -133,13 +134,14 @@ export const DESTINOS = {
     "financeiro":    { evento: true,  descricao: "controle financeiro do evento" },
     "notas":         { evento: true,  descricao: "bloco de notas do evento" },
     "presentes":     { evento: true,  descricao: "lista de presentes do evento" },
+    "convite":       { evento: true,  descricao: "criador de convites do evento" },
     "pessoas":       { evento: true,  descricao: "adicionar pessoas ao evento" }
 };
 
 // Páginas que o app informa como "onde o usuário está" (qualquer outro valor vira "outra").
 const PAGINAS_CONHECIDAS = [
     "inicio", "evento", "tarefas", "calendario", "financeiro", "notas",
-    "presentes", "pessoas", "notificacoes", "perfil", "feedback", "outra"
+    "presentes", "convite", "pessoas", "notificacoes", "perfil", "feedback", "outra"
 ];
 
 export function validarDestino(bruto) {
@@ -174,6 +176,7 @@ O QUE O APP TEM:
 - Controle financeiro: registrar receitas e investimentos do evento, com valor e total.
 - Bloco de notas: anotações do evento (título e conteúdo), com pesquisa; o organizador pode comentar.
 - Lista de presentes: só aparece se o usuário marcou "Incluir lista de presentes?" ao criar o evento; permite adicionar presentes com valor, link da loja e observação. O compartilhamento da lista ainda não está disponível.
+- Criador de convites: só aparece se o usuário marcou "Gostaria de incluir o criador de convites Plannexus?" ao criar o evento; monta uma imagem de convite com os dados do evento, com um modelo simples (título, data, horário, local, mensagem extra, Nexus ao lado), 3 cores de fundo (lilás, lilás claro e branco) e textos editáveis, para baixar ou compartilhar. Na lista de presentes, o botão "Compartilhar lista" gera uma imagem da lista no mesmo estilo.
 - Adicionar pessoas: convidar alguém pelo e-mail do evento como "Colaborador" (ajuda a organizar) ou "Visitante". A pessoa recebe o convite nas notificações.
 - Notificações: convites (aceitar ou recusar) e avisos (marcar como lido).
 - Perfil: dados da conta, sair, Enviar Feedback, Política de Privacidade e Excluir minha conta.
@@ -217,6 +220,7 @@ Dados que você precisa descobrir, perguntando poucas coisas por vez e aproveita
 - número de convidados (opcional)
 - descrição curta (opcional)
 - se o usuário quer incluir uma lista de presentes (opcional; pergunte uma vez e assuma "não" se ele não responder)
+- se o usuário quer incluir o criador de convites do Plannexus, que monta uma imagem de convite com os dados do evento (opcional; pergunte uma vez, junto com a lista de presentes, e assuma "não" se ele não responder)
 
 Regras de resposta (sempre responda em JSON no formato pedido):
 - "resposta": o que você diz ao usuário.
@@ -249,7 +253,8 @@ const ESQUEMA_RESPOSTA = {
                 convidados:     { type: "NUMBER", nullable: true },
                 orcamento:      { type: "NUMBER", nullable: true },
                 descricao:      { type: "STRING", nullable: true },
-                listaPresentes: { type: "BOOLEAN", nullable: true }
+                listaPresentes: { type: "BOOLEAN", nullable: true },
+                criadorConvites: { type: "BOOLEAN", nullable: true }
             },
             required: ["nome", "categoria", "data", "horario", "local"]
         },

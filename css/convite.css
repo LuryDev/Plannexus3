@@ -1,0 +1,268 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: #f4f4f8;
+    color: #222;
+}
+
+.app {
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    margin: auto;
+    background: #f4f4f8;
+}
+
+
+/* ===========================
+        HEADER
+=========================== */
+
+header {
+    height: 70px;
+    background: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid #eee;
+    gap: 15px;
+}
+
+header h1 {
+    font-size: 21px;
+    color: #4d2fb8;
+    font-weight: 700;
+}
+
+.voltar {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #eee9ff;
+    color: #5A32D3;
+    font-size: 17px;
+    transition: 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.voltar:hover {
+    background: #ddd5f7;
+    transform: translateX(-2px);
+}
+
+
+/* ===========================
+        CONTEÚDO
+=========================== */
+
+main {
+    padding: 20px;
+}
+
+.evento {
+    margin-bottom: 18px;
+}
+
+.evento span {
+    font-size: 12px;
+    color: #8b82a8;
+}
+
+.evento h2 {
+    margin-top: 4px;
+    font-size: 20px;
+    color: #4d2fb8;
+    font-weight: 700;
+}
+
+
+/* ===========================
+        PRÉVIA
+=========================== */
+
+.previa-convite {
+    margin-bottom: 20px;
+    padding: 10px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(77, 47, 184, 0.10);
+}
+
+.previa-convite canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+
+/* ===========================
+        BLOCOS DE OPÇÕES
+=========================== */
+
+.bloco {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.bloco h3 {
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #4d2fb8;
+}
+
+.opcoes {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.opcao {
+    padding: 11px 8px;
+    border: 2px solid #e5e0f5;
+    border-radius: 12px;
+    background: #FAFAFC;
+    color: #4d2fb8;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.opcao.ativa {
+    border-color: #5A32D3;
+    background: #eee9ff;
+}
+
+.cores {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.cor {
+    width: 38px;
+    height: 38px;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px #e0dcef;
+    cursor: pointer;
+}
+
+.cor.ativa {
+    box-shadow: 0 0 0 3px #29243D;
+}
+
+
+/* ===========================
+        CAMPOS
+=========================== */
+
+.bloco label {
+    display: block;
+    margin: 12px 0 5px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
+
+.bloco input[type="text"],
+.bloco textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #FAFAFC;
+    font-size: 16px;
+    color: #222;
+    resize: vertical;
+}
+
+.bloco input[type="text"]:focus,
+.bloco textarea:focus {
+    outline: none;
+    border-color: #5A32D3;
+    background: white;
+}
+
+.duplo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.bloco .marca-opcao {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.marca-opcao input {
+    width: 20px;
+    height: 20px;
+    accent-color: #5A32D3;
+}
+
+
+/* ===========================
+        AÇÕES
+=========================== */
+
+.acoes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.botao-principal,
+.botao-secundario {
+    padding: 14px 10px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.botao-principal {
+    border: none;
+    color: white;
+    background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%);
+    box-shadow: 0 4px 10px rgba(77, 47, 184, 0.25);
+}
+
+.botao-secundario {
+    border: 2px solid #5A32D3;
+    color: #5A32D3;
+    background: white;
+}
+
+.botao-principal i,
+.botao-secundario i {
+    margin-right: 6px;
+}
+
+.mensagem {
+    min-height: 22px;
+    margin-top: 12px;
+    font-size: 13px;
+    text-align: center;
+    color: #1F9D6B;
+}
+
+.mensagem.erro {
+    color: #C0392B;
+}

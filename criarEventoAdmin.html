@@ -176,6 +176,18 @@
 
         </label>
 
+        <label class="opcao-presentes" for="criadorConvites">
+
+            <input type="checkbox" id="criadorConvites">
+
+            <span>
+                <i class="fa-solid fa-envelope-open-text"></i>
+                Gostaria de incluir o criador de convites Plannexus?
+            </span>
+
+        </label>
+
+
 
         <div class="campo">
 
@@ -439,6 +451,9 @@
 
                     listaPresentes:
                         document.getElementById("listaPresentes").checked,
+
+                    criadorConvites:
+                        document.getElementById("criadorConvites").checked,
 
                     usuarioId: usuarioAtual.uid,
 
