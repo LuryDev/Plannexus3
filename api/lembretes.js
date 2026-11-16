@@ -15,7 +15,7 @@
 
 import { iniciarFirebase } from "./nexus.js";
 import { gerarLembretes } from "./_lembretes.js";
-import { enviarPush } from "./_push.js";
+import { enviarPush, TITULOS } from "./_push.js";
 
 const FUSO = "America/Sao_Paulo";
 const PAGINAS = {
@@ -153,7 +153,9 @@ export default async function handler(req, res) {
         if (criadosAgora.length) {
             const primeiro = criadosAgora[0];
             const enviados = await enviarPush(fb, uid, {
-                titulo: criadosAgora.length === 1 ? "Plannexus" : "Plannexus — " + criadosAgora.length + " lembretes",
+                titulo: criadosAgora.length === 1 || criadosAgora.every((x) => x.categoria === primeiro.categoria)
+                    ? (TITULOS[primeiro.categoria] || "Plannexus")
+                    : "🔔 " + criadosAgora.length + " lembretes dos seus eventos",
                 corpo: criadosAgora.length === 1 ? primeiro.mensagem : primeiro.mensagem + " (e mais " + (criadosAgora.length - 1) + ")",
                 url: "/notificacoes.html",
                 tag: "lembretes-" + hojeTag

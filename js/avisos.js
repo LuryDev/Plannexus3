@@ -23,6 +23,7 @@ export const FERRAMENTAS = {
     evento:     { nome: "Evento",              pagina: "evento.html" },
     nexus:      { nome: "Nexus",               pagina: "nexus.html" },
     convite:    { nome: "Criador de convites", pagina: "convite.html" },
+    pessoas:    { nome: "Pessoas",             pagina: "pessoas.html" },
     tarefas:    { nome: "Tarefas",             pagina: "tarefas.html" },
     financeiro: { nome: "Controle Financeiro", pagina: "controleFinanceiro.html" },
     presentes:  { nome: "Lista de Presentes",  pagina: "presentes.html" },
@@ -54,7 +55,7 @@ export function mensagemColaboracao(aviso) {
 
 // categoria (para o liga/desliga) de qualquer aviso; avisos antigos não têm categoria
 export function categoriaDoAviso(aviso) {
-    if (aviso.tipo === "colaboracao") return "colaboracao";
+    if (aviso.tipo === "colaboracao" || aviso.tipo === "aceitou-convite" || aviso.tipo === "papel") return "colaboracao";
     if (aviso.tipo === "lembrete") return aviso.categoria || "";
     return "";
 }

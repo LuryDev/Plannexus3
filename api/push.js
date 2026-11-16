@@ -8,10 +8,11 @@
 //  tipo "colaboracao"  { eventoId, ferramenta, acao, item, autorNome }
 //  tipo "convite"      { conviteId }   -> avisa quem foi convidado (dono chamou)
 //  tipo "aceitou"      { conviteId }   -> avisa o dono (convidado chamou)
+//  tipo "papel"        { eventoId, alvoUid } -> avisa quem mudou de cargo (dono chamou)
 // ==========================================================
 
 import { iniciarFirebase, verificarToken } from "./nexus.js";
-import { enviarPush, categoriasDesligadas } from "./_push.js";
+import { enviarPush, categoriasDesligadas, TITULOS } from "./_push.js";
 
 const FERRAMENTAS = {
     tarefas:    { nome: "Tarefas",             pagina: "tarefas.html" },
@@ -100,13 +101,44 @@ export default async function handler(req, res) {
                 await controle.set({ em: fb.FieldValue.serverTimestamp() });
 
                 enviados += await enviarPush(fb, uid, {
-                    titulo: "Plannexus",
+                    titulo: TITULOS.colaboracao,
                     corpo: mensagem,
                     url: `/${FERRAMENTAS[ferramenta].pagina}?id=${encodeURIComponent(eventoId)}`,
                     tag: `colab-${eventoId}-${ferramenta}`
                 });
             }
 
+            return res.status(200).json({ ok: true, enviados });
+        }
+
+        if (corpo.tipo === "papel") {
+            const eventoId = texto(corpo.eventoId, 100);
+            const alvoUid = texto(corpo.alvoUid, 128);
+            if (!eventoId || !alvoUid) return res.status(400).json({ erro: "Dados inválidos." });
+
+            const eventoRef = fb.db.collection("eventos").doc(eventoId);
+            const eventoSnap = await eventoRef.get();
+            if (!eventoSnap.exists) return res.status(404).json({ erro: "Evento não encontrado." });
+
+            const evento = eventoSnap.data();
+
+            // só o dono muda cargos, e o cargo novo é lido do banco (não do que o app mandou)
+            if (evento.usuarioId !== usuario.uid) return res.status(403).json({ erro: "Sem permissão." });
+
+            const membroSnap = await eventoRef.collection("membros").doc(alvoUid).get();
+            if (!membroSnap.exists) return res.status(404).json({ erro: "Pessoa não encontrada no evento." });
+
+            if ((await categoriasDesligadas(fb, alvoUid)).includes("colaboracao")) {
+                return res.status(200).json({ ok: true, enviados: 0 });
+            }
+
+            const cargo = membroSnap.data().papel === "colaborador" ? "colaborador" : "visitante";
+            const enviados = await enviarPush(fb, alvoUid, {
+                titulo: TITULOS.papel,
+                corpo: `Agora você é ${cargo} do evento "${texto(evento.nome, 80)}".`,
+                url: `/evento.html?id=${encodeURIComponent(eventoId)}`,
+                tag: `papel-${eventoId}`
+            });
             return res.status(200).json({ ok: true, enviados });
         }
 
@@ -137,7 +169,7 @@ export default async function handler(req, res) {
                 const convidado = { uid: achado.docs[0].id };
 
                 const enviados = await enviarPush(fb, convidado.uid, {
-                    titulo: "Plannexus",
+                    titulo: TITULOS.convite,
                     corpo: `Você foi convidado(a) para colaborar no evento "${texto(convite.eventoNome, 80)}".`,
                     url: "/notificacoes.html",
                     tag: "convite-" + conviteId
@@ -151,8 +183,12 @@ export default async function handler(req, res) {
                 return res.status(403).json({ erro: "Sem permissão." });
             }
 
+            if ((await categoriasDesligadas(fb, convite.donoId)).includes("colaboracao")) {
+                return res.status(200).json({ ok: true, enviados: 0 });
+            }
+
             const enviados = await enviarPush(fb, convite.donoId, {
-                titulo: "Plannexus",
+                titulo: TITULOS.aceitou,
                 corpo: `${texto(corpo.autorNome, 60) || usuario.email} aceitou seu convite para o evento "${texto(convite.eventoNome, 80)}".`,
                 url: "/notificacoes.html",
                 tag: "aceitou-" + conviteId

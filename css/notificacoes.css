@@ -237,3 +237,165 @@ button:disabled {
     font-weight: 600;
     color: #5A32D3;
 }
+
+
+/* ===== AVISOS COM ÍCONE ===== */
+
+.aviso-topo {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.aviso-corpo {
+    flex: 1;
+    min-width: 0;
+}
+
+.aviso-corpo p {
+    margin-bottom: 0;
+}
+
+.aviso-rotulo {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--cinza);
+}
+
+.aviso-icone {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border-radius: 12px;
+}
+
+.aviso-icone.cor-roxo     { color: #5A32D3; background: #EFEAFD; }
+.aviso-icone.cor-azul     { color: #2563EB; background: #E4EDFF; }
+.aviso-icone.cor-verde    { color: #15803D; background: #DDF5E5; }
+.aviso-icone.cor-laranja  { color: #C2410C; background: #FFEBDD; }
+.aviso-icone.cor-vermelho { color: #B91C1C; background: #FDE2E2; }
+.aviso-icone.cor-amarelo  { color: #A16207; background: #FEF3C7; }
+
+.aviso-acoes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.aviso-acoes .btn-ver-aviso {
+    margin-right: 0;
+}
+
+.btn-todas-lidas {
+    display: block;
+    margin: 0 0 12px auto;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #5A32D3;
+    cursor: pointer;
+    background: #EFEAFD;
+    border: 0;
+    border-radius: 10px;
+}
+
+
+/* ===== VERSÃO ENXUTA ===== */
+
+header .btn-config {
+    margin-left: auto;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    color: var(--roxo);
+    cursor: pointer;
+    background: #EDE9FF;
+    border: 0;
+    border-radius: 12px;
+}
+
+header .btn-config[aria-expanded="true"] {
+    color: #fff;
+    background: var(--roxo);
+}
+
+.titulo-secao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.titulo-secao h3 {
+    margin-bottom: 0;
+}
+
+.titulo-secao .btn-todas-lidas {
+    display: inline-block;
+    margin: 0;
+    padding: 6px 10px;
+    font-size: 12px;
+    background: none;
+}
+
+.btn-todas-lidas[hidden] {
+    display: none;
+}
+
+.aviso-card.compacto {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+}
+
+.aviso-card.clicavel {
+    cursor: pointer;
+}
+
+.aviso-card.compacto .aviso-corpo p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.btn-lido {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+    color: var(--roxo);
+    cursor: pointer;
+    background: #F4F1FF;
+    border: 0;
+    border-radius: 50%;
+}
+
+.btn-lido:hover {
+    color: #fff;
+    background: var(--roxo);
+}
+
+.estado-notificacoes.vazio {
+    padding: 28px 16px;
+    text-align: center;
+    background: none;
+    box-shadow: none;
+}
+
+.configuracoes .titulo-pref {
+    margin-top: 20px;
+}
+
+.preferencias label {
+    padding: 10px 12px;
+    font-size: 13px;
+}

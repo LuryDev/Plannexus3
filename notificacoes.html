@@ -24,25 +24,31 @@
             <i class="fa-solid fa-arrow-left"></i>
         </a>
         <h2>Notificações</h2>
+        <button type="button" class="btn-config" id="botaoConfig" title="Configurações das notificações" aria-label="Configurações das notificações" aria-expanded="false">
+            <i class="fa-solid fa-gear"></i>
+        </button>
     </header>
 
     <main class="paginaNotificacoes">
 
-        <section>
+        <!-- só aparece quando há convite pendente -->
+        <section id="secaoConvites" hidden>
             <h3>Convites</h3>
-            <div id="listaConvites">
-                <p class="estado-notificacoes">Carregando...</p>
-            </div>
+            <div id="listaConvites"></div>
         </section>
 
-        <section>
-            <h3>Avisos</h3>
+        <section id="secaoAvisos">
+            <div class="titulo-secao">
+                <h3>Novidades</h3>
+                <button type="button" class="btn-todas-lidas" id="botaoTodasLidas" hidden>Marcar todas como lidas</button>
+            </div>
             <div id="listaAvisos">
                 <p class="estado-notificacoes">Carregando...</p>
             </div>
         </section>
 
-        <section>
+        <!-- escondido: abre pela engrenagem -->
+        <section id="configuracoes" class="configuracoes" hidden>
             <h3>Notificações no celular</h3>
             <div class="cartao-push" id="cartaoPush">
                 <p id="textoPush">Receba os avisos mesmo com o app fechado.</p>
@@ -54,12 +60,10 @@
                     e tente de novo. As notificações precisam da versão mais recente.
                 </p>
             </div>
-        </section>
 
-        <section>
-            <h3>Quais avisos você quer receber?</h3>
+            <h3 class="titulo-pref">Quais avisos você quer receber?</h3>
             <div class="preferencias" id="preferencias">
-                <label><input type="checkbox" data-categoria="colaboracao"> Atividade de colaboradores (adicionar, remover, comentar)</label>
+                <label><input type="checkbox" data-categoria="colaboracao"> Colaboradores, convites aceitos e cargos</label>
                 <label><input type="checkbox" data-categoria="contagem"> Contagem regressiva do evento</label>
                 <label><input type="checkbox" data-categoria="tarefas"> Prazos de tarefas</label>
                 <label><input type="checkbox" data-categoria="calendario"> Compromissos do calendário</label>
@@ -141,13 +145,14 @@
             const resultado = await getDocs(consulta);
 
             if (resultado.empty) {
-                listaConvites.innerHTML = '<p class="estado-notificacoes">Nenhum convite pendente.</p>';
+                document.getElementById("secaoConvites").hidden = true;
                 return;
             }
 
             const convitesPorId = new Map();
             resultado.forEach((documento) => convitesPorId.set(documento.id, documento.data()));
 
+            document.getElementById("secaoConvites").hidden = false;
             listaConvites.innerHTML = resultado.docs.map(cartaoConvite).join("");
 
             listaConvites.querySelectorAll("[data-acao]").forEach((botao) => {
@@ -160,6 +165,7 @@
 
         } catch (erro) {
             console.error("Erro ao carregar convites:", erro);
+            document.getElementById("secaoConvites").hidden = false;
             listaConvites.innerHTML = '<p class="estado-notificacoes">Não foi possível carregar os convites.</p>';
         }
     }
@@ -209,6 +215,7 @@
                             tipo: "aceitou-convite",
                             uid: convite.donoId,
                             eventoId: convite.eventoId,
+                            ferramenta: "pessoas",
                             mensagem: `${usuarioAtual.displayName || usuarioAtual.email} aceitou seu convite e agora é ${papelLegivel(convite.papel).toLowerCase()} do evento "${convite.eventoNome || "Evento sem nome"}".`,
                             lida: false,
                             dataCriacao: serverTimestamp()
@@ -241,23 +248,79 @@
         }
     }
 
+    // ícone, rótulo e cor de cada tipo de aviso
+    function metaAviso(aviso) {
+        if (aviso.tipo === "colaboracao") {
+            const rotulos = { adicionou: "Novo item", removeu: "Item removido", concluiu: "Tarefa concluída", comentou: "Comentário" };
+            const icones  = { adicionou: "fa-circle-plus", removeu: "fa-trash-can", concluiu: "fa-circle-check", comentou: "fa-comment" };
+            return { icone: icones[aviso.acao] || "fa-users", rotulo: rotulos[aviso.acao] || "Atividade no evento", cor: "azul" };
+        }
+        if (aviso.tipo === "aceitou-convite") return { icone: "fa-user-check", rotulo: "Convite aceito", cor: "verde" };
+        if (aviso.tipo === "papel") return { icone: "fa-user-gear", rotulo: "Mudança de cargo", cor: "roxo" };
+        if (aviso.tipo === "feedback") return { icone: "fa-comment-dots", rotulo: "Seu feedback", cor: "roxo" };
+        if (aviso.tipo === "lembrete") {
+            const mapa = {
+                contagem:   { icone: "fa-hourglass-half", rotulo: "Contagem regressiva", cor: "laranja" },
+                tarefas:    { icone: "fa-list-check",     rotulo: "Prazo de tarefa",     cor: "laranja" },
+                calendario: { icone: "fa-calendar-day",   rotulo: "Compromisso",         cor: "laranja" },
+                orcamento:  { icone: "fa-coins",          rotulo: "Orçamento",           cor: "vermelho" },
+                dicas:      { icone: "fa-lightbulb",      rotulo: "Dica do Nexus",       cor: "amarelo" }
+            };
+            return mapa[aviso.categoria] || { icone: "fa-bell", rotulo: "Lembrete", cor: "laranja" };
+        }
+        // avisos antigos (sem tipo), como a mudança de papel feita antes
+        return { icone: "fa-bell", rotulo: "Aviso", cor: "roxo" };
+    }
+
+    function quandoFoi(timestamp) {
+        const ms = timestamp && typeof timestamp.toMillis === "function" ? timestamp.toMillis() : 0;
+        if (!ms) return "";
+
+        const minutos = Math.floor((Date.now() - ms) / 60000);
+        if (minutos < 1) return "agora";
+        if (minutos < 60) return "há " + minutos + " min";
+
+        const horas = Math.floor(minutos / 60);
+        if (horas < 24) return "há " + horas + " h";
+
+        const dias = Math.floor(horas / 24);
+        if (dias === 1) return "ontem";
+        if (dias < 7) return "há " + dias + " dias";
+
+        return new Date(ms).toLocaleDateString("pt-BR");
+    }
+
+    // avisos de colaboração somem ao serem lidos (a contagem recomeça); os outros ficam marcados como lidos
+    async function marcarComoLido(id, tipo) {
+        if (tipo === "colaboracao") {
+            await deleteDoc(doc(db, "avisos", id));
+        } else {
+            await updateDoc(doc(db, "avisos", id), { lida: true });
+        }
+    }
+
     function cartaoAviso(documento) {
         const aviso = documento.data();
+        const meta = metaAviso(aviso);
         const texto = aviso.tipo === "colaboracao" ? mensagemColaboracao(aviso) : (aviso.mensagem || "");
-        const link = (aviso.tipo === "colaboracao" || aviso.tipo === "lembrete") && aviso.eventoId
-            ? `<a class="btn-ver-aviso" href="${escaparHTML(paginaDaFerramenta(aviso.ferramenta, aviso.eventoId))}">Ver</a>`
-            : "";
+        const destino = aviso.eventoId ? paginaDaFerramenta(aviso.ferramenta || "evento", aviso.eventoId) : "";
+        const quando = quandoFoi(aviso.dataCriacao);
 
         return `
-            <div class="aviso-card" data-id="${documento.id}">
-                <p>${escaparHTML(texto)}</p>
-                ${link}
-                <button type="button" class="btn-marcar-lido" data-id="${documento.id}" data-tipo="${escaparHTML(aviso.tipo || "")}">Marcar como lido</button>
+            <div class="aviso-card compacto${destino ? " clicavel" : ""}" data-id="${documento.id}" data-tipo="${escaparHTML(aviso.tipo || "")}" data-destino="${escaparHTML(destino)}">
+                <span class="aviso-icone cor-${meta.cor}"><i class="fa-solid ${meta.icone}"></i></span>
+                <div class="aviso-corpo">
+                    <small class="aviso-rotulo">${escaparHTML(meta.rotulo)}${quando ? " · " + escaparHTML(quando) : ""}</small>
+                    <p>${escaparHTML(texto)}</p>
+                </div>
+                <button type="button" class="btn-lido" title="Marcar como lida" aria-label="Marcar como lida"><i class="fa-solid fa-check"></i></button>
             </div>
         `;
     }
 
     async function carregarAvisos() {
+        const botaoTodas = document.getElementById("botaoTodasLidas");
+
         try {
             const consulta = query(
                 collection(db, "avisos"),
@@ -267,37 +330,61 @@
 
             const resultadoBruto = await getDocs(consulta);
 
-            // esconde as categorias que o usuário desligou
-            const visiveis = resultadoBruto.docs.filter((d) => !desligadas.includes(categoriaDoAviso(d.data())));
-            const resultado = { empty: visiveis.length === 0, docs: visiveis };
+            // esconde as categorias que o usuário desligou e mostra os mais novos primeiro
+            const visiveis = resultadoBruto.docs
+                .filter((d) => !desligadas.includes(categoriaDoAviso(d.data())))
+                .sort((x, y) => {
+                    const a = x.data().dataCriacao, b = y.data().dataCriacao;
+                    return (b && b.toMillis ? b.toMillis() : 0) - (a && a.toMillis ? a.toMillis() : 0);
+                });
 
-            if (resultado.empty) {
-                listaAvisos.innerHTML = '<p class="estado-notificacoes">Nenhum aviso novo.</p>';
+            botaoTodas.hidden = visiveis.length < 2;
+
+            if (!visiveis.length) {
+                listaAvisos.innerHTML = '<p class="estado-notificacoes vazio">Tudo em dia por aqui 🎉</p>';
                 return;
             }
 
-            listaAvisos.innerHTML = resultado.docs.map(cartaoAviso).join("");
+            listaAvisos.innerHTML = visiveis.map(cartaoAviso).join("");
 
-            listaAvisos.querySelectorAll(".btn-marcar-lido").forEach((botao) => {
-                botao.addEventListener("click", async () => {
-                    botao.disabled = true;
+            listaAvisos.querySelectorAll(".aviso-card").forEach((cartao) => {
+                // tocar no cartão: marca como lido e abre o assunto
+                cartao.addEventListener("click", async (evento) => {
+                    if (evento.target.closest(".btn-lido")) return;
+                    if (!cartao.dataset.destino) return;
+
+                    try { await marcarComoLido(cartao.dataset.id, cartao.dataset.tipo); } catch (e) { /* abre mesmo assim */ }
+                    window.location.href = cartao.dataset.destino;
+                });
+
+                // o visto: só marca como lido
+                cartao.querySelector(".btn-lido").addEventListener("click", async (evento) => {
+                    evento.stopPropagation();
+                    evento.currentTarget.disabled = true;
                     try {
-                        // avisos de colaboração somem ao serem lidos (a contagem recomeça)
-                        if (botao.dataset.tipo === "colaboracao") {
-                            await deleteDoc(doc(db, "avisos", botao.dataset.id));
-                        } else {
-                            await updateDoc(doc(db, "avisos", botao.dataset.id), { lida: true });
-                        }
+                        await marcarComoLido(cartao.dataset.id, cartao.dataset.tipo);
                         await carregarAvisos();
                     } catch (erro) {
                         console.error("Erro ao marcar aviso como lido:", erro);
-                        botao.disabled = false;
+                        evento.currentTarget.disabled = false;
                     }
                 });
             });
 
+            botaoTodas.onclick = async () => {
+                botaoTodas.disabled = true;
+                try {
+                    await Promise.all(visiveis.map((d) => marcarComoLido(d.id, d.data().tipo || "")));
+                } catch (erro) {
+                    console.error("Erro ao marcar todas como lidas:", erro);
+                }
+                botaoTodas.disabled = false;
+                await carregarAvisos();
+            };
+
         } catch (erro) {
             console.error("Erro ao carregar avisos:", erro);
+            botaoTodas.hidden = true;
             listaAvisos.innerHTML = '<p class="estado-notificacoes">Não foi possível carregar os avisos.</p>';
         }
     }
@@ -370,6 +457,13 @@
             });
         });
     }
+
+    document.getElementById("botaoConfig").addEventListener("click", () => {
+        const painel = document.getElementById("configuracoes");
+        painel.hidden = !painel.hidden;
+        document.getElementById("botaoConfig").setAttribute("aria-expanded", String(!painel.hidden));
+        if (!painel.hidden) painel.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
 
     onAuthStateChanged(auth, (usuario) => {
         if (!usuario) {

@@ -161,12 +161,16 @@
             });
 
             await addDoc(collection(db, "avisos"), {
+                tipo: "papel",
                 uid: uid,
                 eventoId: eventoId,
+                ferramenta: "evento",
                 mensagem: `Seu papel no evento "${eventoAtual.nome || "evento"}" foi alterado para ${papelLegivel(papelNovo)}.`,
                 lida: false,
                 dataCriacao: serverTimestamp()
             });
+
+            notificarServidor(usuarioAtual, { tipo: "papel", eventoId, alvoUid: uid });
 
             seletor.dataset.papelAtual = papelNovo;
         } catch (erro) {

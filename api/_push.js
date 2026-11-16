@@ -7,6 +7,19 @@
 //  desenha a notificação é o service worker (sw.js).
 // ==========================================================
 
+// título da notificação para cada tipo (o emoji ajuda a reconhecer de longe)
+export const TITULOS = {
+    colaboracao: "👥 Atividade no evento",
+    convite:     "✉️ Convite para colaborar",
+    aceitou:     "✅ Convite aceito",
+    papel:       "🔑 Seu cargo mudou",
+    contagem:    "⏳ Seu evento está chegando",
+    tarefas:     "📝 Prazo de tarefa",
+    calendario:  "📅 Compromisso",
+    orcamento:   "💰 Orçamento",
+    dicas:       "💡 Dica do Nexus"
+};
+
 // categorias que o usuário desligou em Notificações
 export async function categoriasDesligadas(fb, uid) {
     const snap = await fb.db.collection("usuarios").doc(uid).get();
