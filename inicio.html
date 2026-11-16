@@ -192,6 +192,9 @@
         deleteField
     } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
+    import { categoriaDoAviso, carregarDesligadas } from "./js/avisos.js";
+    import { pushDisponivel, pushAtivo } from "./js/push.js";
+
     // FIREBASE_CONFIG vem do arquivo js/config.js
     const app  = initializeApp(FIREBASE_CONFIG);
     const auth = getAuth(app);
@@ -290,7 +293,36 @@
     // só pra decidir se o ponto vermelho aparece ou não.
     // ==========================================
 
+    // Convite discreto para ativar as notificações: só a partir da 2ª vez que abre o app,
+    // só se ainda não decidiu, e leva à página onde a permissão é pedida de verdade.
+    function mostrarConviteNotificacoes() {
+        try {
+            if (!pushDisponivel() || pushAtivo() || Notification.permission !== "default") return;
+            if (localStorage.getItem("conviteNotifDispensado") === "1") return;
+
+            const visitas = Number(localStorage.getItem("visitasInicio") || 0) + 1;
+            localStorage.setItem("visitasInicio", String(visitas));
+            if (visitas < 2) return;
+
+            const faixa = document.createElement("div");
+            faixa.style.cssText = "position:fixed;left:12px;right:12px;bottom:14px;z-index:40;display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-radius:14px;box-shadow:0 6px 22px rgba(90,50,211,.25);font-size:13px;";
+            faixa.innerHTML = '<span style="flex:1">🔔 Quer receber lembretes dos seus eventos mesmo com o app fechado?</span>' +
+                '<a href="notificacoes.html" style="padding:8px 12px;color:#fff;background:#5A32D3;border-radius:10px;text-decoration:none;font-weight:600">Ativar</a>' +
+                '<button type="button" aria-label="Fechar" style="border:0;background:none;font-size:18px;cursor:pointer">×</button>';
+
+            faixa.querySelector("button").addEventListener("click", () => {
+                localStorage.setItem("conviteNotifDispensado", "1");
+                faixa.remove();
+            });
+
+            document.body.appendChild(faixa);
+        } catch (erro) { /* convite é opcional */ }
+    }
+
     async function atualizarSininho(usuario) {
+
+        mostrarConviteNotificacoes();
+
 
         let temConvitePendente = false;
 
@@ -318,7 +350,9 @@
             );
 
             const resultadoAvisos = await getDocs(consultaAvisos);
-            temAvisoNaoLido = !resultadoAvisos.empty;
+            const desligadas = await carregarDesligadas(db, usuario.uid);
+
+            temAvisoNaoLido = resultadoAvisos.docs.some((d) => !desligadas.includes(categoriaDoAviso(d.data())));
 
         } catch (erro) {
             console.error("Erro ao checar avisos:", erro);

@@ -48,6 +48,17 @@ export default async function handler(req, res) {
                 agradecimentoEnviadoEm: fb.FieldValue.serverTimestamp()
             }, { merge: true });
 
+            // também avisa dentro do app (sininho)
+            if (d.uid) {
+                await fb.db.collection("avisos").doc("feedback__" + doc.id).set({
+                    tipo: "feedback",
+                    uid: d.uid,
+                    mensagem: "Obrigado pelo seu feedback! O problema que você apontou foi resolvido e já enviamos um e-mail de agradecimento. — Nexus",
+                    lida: false,
+                    dataCriacao: fb.FieldValue.serverTimestamp()
+                }, { merge: true });
+            }
+
             enviados++;
         } catch (erro) {
             falhas++;

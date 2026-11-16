@@ -17,6 +17,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
+import { avisarColaboracao } from "./avisos.js";
+
 const app = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -245,6 +247,8 @@ async function excluir(item) {
             doc(db, "eventos", eventoId, "calendario", item.id)
         );
 
+        avisarColaboracao(db, auth.currentUser, eventoId, "calendario", "removeu", item.titulo);
+
         await carregarCalendario();
 
     } catch (erro) {
@@ -324,6 +328,8 @@ form.addEventListener("submit", async (evento) => {
                 criadoEm: serverTimestamp()
             }
         );
+
+        avisarColaboracao(db, auth.currentUser, eventoId, "calendario", "adicionou", titulo);
 
         fecharModal();
 

@@ -80,6 +80,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { notificarServidor } from "./js/push.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
     import {
         getFirestore,
@@ -316,7 +317,7 @@
                 return;
             }
 
-            await addDoc(collection(db, "convites"), {
+            const conviteCriado = await addDoc(collection(db, "convites"), {
                 eventoId: eventoId,
                 eventoNome: eventoAtual.nome || "Evento sem nome",
                 donoId: usuarioAtual.uid,
@@ -326,6 +327,8 @@
                 dataCriacao: serverTimestamp(),
                 dataResposta: null
             });
+
+            notificarServidor(usuarioAtual, { tipo: "convite", conviteId: conviteCriado.id });
 
             mensagem.textContent = "Convite enviado com sucesso!";
             mensagem.style.color = "green";

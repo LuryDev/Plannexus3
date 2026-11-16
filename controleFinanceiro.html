@@ -127,6 +127,7 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { avisarColaboracao } from "./js/avisos.js";
         import { getFirestore, doc, getDoc, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
@@ -231,6 +232,7 @@
                     criadoEm: serverTimestamp()
                 });
 
+                avisarColaboracao(db, auth.currentUser, eventoId, "financeiro", "adicionou", titulo);
                 await carregarControleFinanceiro();
                 window.fecharModalControleFinanceiro();
             }

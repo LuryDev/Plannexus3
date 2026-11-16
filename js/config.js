@@ -14,5 +14,10 @@ var FIREBASE_CONFIG = {
     measurementId: "G-0FGX8KENV1"
 };
 
+// Chave pública das notificações push (Firebase > Configurações do projeto >
+// Cloud Messaging > Certificados push da Web > Gerar par de chaves).
+// Enquanto estiver vazia, o app funciona normalmente, só sem push.
+var VAPID_KEY = "BB58CoNAQlDCu68tTGPnde2mss3VSgLhazVmvP5GvzzFmy_6KgoWgM87yai4SOxmiEn6qoR6OEaLWTSvqmX61tE";
+
 // E-mail da conta de administrador
 var EMAIL_ADMIN = "admin@plannexus.com";

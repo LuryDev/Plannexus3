@@ -42,6 +42,27 @@
             </div>
         </section>
 
+        <section>
+            <h3>Notificações no celular</h3>
+            <div class="cartao-push" id="cartaoPush">
+                <p id="textoPush">Receba os avisos mesmo com o app fechado.</p>
+                <button type="button" class="btn-push" id="botaoPush">Ativar notificações</button>
+                <p class="estado-notificacoes" id="erroPush"></p>
+            </div>
+        </section>
+
+        <section>
+            <h3>Quais avisos você quer receber?</h3>
+            <div class="preferencias" id="preferencias">
+                <label><input type="checkbox" data-categoria="colaboracao"> Atividade de colaboradores (adicionar, remover, comentar)</label>
+                <label><input type="checkbox" data-categoria="contagem"> Contagem regressiva do evento</label>
+                <label><input type="checkbox" data-categoria="tarefas"> Prazos de tarefas</label>
+                <label><input type="checkbox" data-categoria="calendario"> Compromissos do calendário</label>
+                <label><input type="checkbox" data-categoria="orcamento"> Orçamento (80% e 100% gasto)</label>
+                <label><input type="checkbox" data-categoria="dicas"> Dicas do Nexus</label>
+            </div>
+        </section>
+
     </main>
 
 </div>
@@ -60,9 +81,14 @@
         where,
         getDocs,
         updateDoc,
+        setDoc,
+        deleteDoc,
         writeBatch,
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+    import { pushDisponivel, pushAtivo, ativarPush, desativarPush, notificarServidor } from "./js/push.js";
+    import { mensagemColaboracao, paginaDaFerramenta, categoriaDoAviso, carregarDesligadas } from "./js/avisos.js";
 
     const app = initializeApp(window.FIREBASE_CONFIG);
     const auth = getAuth(app);
@@ -72,6 +98,7 @@
     const listaAvisos = document.getElementById("listaAvisos");
 
     let usuarioAtual = null;
+    let desligadas = [];
 
     function papelLegivel(papel) {
         if (papel === "colaborador") return "Colaborador";
@@ -161,6 +188,18 @@
                     dataResposta: serverTimestamp()
                 });
 
+                // avisa o dono do evento que a pessoa aceitou
+                if (convite.donoId) {
+                    lote.set(doc(collection(db, "avisos")), {
+                        tipo: "aceitou-convite",
+                        uid: convite.donoId,
+                        eventoId: convite.eventoId,
+                        mensagem: `${usuarioAtual.displayName || usuarioAtual.email} aceitou seu convite e agora é ${papelLegivel(convite.papel).toLowerCase()} do evento "${convite.eventoNome || "Evento sem nome"}".`,
+                        lida: false,
+                        dataCriacao: serverTimestamp()
+                    });
+                }
+
                 lote.set(referenciaPerfil, {
                     eventosCompartilhados: {
                         [convite.eventoId]: convite.papel
@@ -168,6 +207,12 @@
                 }, { merge: true });
 
                 await lote.commit();
+
+                notificarServidor(usuarioAtual, {
+                    tipo: "aceitou",
+                    conviteId,
+                    autorNome: usuarioAtual.displayName || usuarioAtual.email
+                });
             } else {
                 await updateDoc(referenciaConvite, {
                     status: "recusado",
@@ -188,11 +233,16 @@
 
     function cartaoAviso(documento) {
         const aviso = documento.data();
+        const texto = aviso.tipo === "colaboracao" ? mensagemColaboracao(aviso) : (aviso.mensagem || "");
+        const link = (aviso.tipo === "colaboracao" || aviso.tipo === "lembrete") && aviso.eventoId
+            ? `<a class="btn-ver-aviso" href="${escaparHTML(paginaDaFerramenta(aviso.ferramenta, aviso.eventoId))}">Ver</a>`
+            : "";
 
         return `
             <div class="aviso-card" data-id="${documento.id}">
-                <p>${escaparHTML(aviso.mensagem || "")}</p>
-                <button type="button" class="btn-marcar-lido" data-id="${documento.id}">Marcar como lido</button>
+                <p>${escaparHTML(texto)}</p>
+                ${link}
+                <button type="button" class="btn-marcar-lido" data-id="${documento.id}" data-tipo="${escaparHTML(aviso.tipo || "")}">Marcar como lido</button>
             </div>
         `;
     }
@@ -205,7 +255,11 @@
                 where("lida", "==", false)
             );
 
-            const resultado = await getDocs(consulta);
+            const resultadoBruto = await getDocs(consulta);
+
+            // esconde as categorias que o usuário desligou
+            const visiveis = resultadoBruto.docs.filter((d) => !desligadas.includes(categoriaDoAviso(d.data())));
+            const resultado = { empty: visiveis.length === 0, docs: visiveis };
 
             if (resultado.empty) {
                 listaAvisos.innerHTML = '<p class="estado-notificacoes">Nenhum aviso novo.</p>';
@@ -218,7 +272,12 @@
                 botao.addEventListener("click", async () => {
                     botao.disabled = true;
                     try {
-                        await updateDoc(doc(db, "avisos", botao.dataset.id), { lida: true });
+                        // avisos de colaboração somem ao serem lidos (a contagem recomeça)
+                        if (botao.dataset.tipo === "colaboracao") {
+                            await deleteDoc(doc(db, "avisos", botao.dataset.id));
+                        } else {
+                            await updateDoc(doc(db, "avisos", botao.dataset.id), { lida: true });
+                        }
                         await carregarAvisos();
                     } catch (erro) {
                         console.error("Erro ao marcar aviso como lido:", erro);
@@ -233,6 +292,67 @@
         }
     }
 
+    function montarPush() {
+        const botao = document.getElementById("botaoPush");
+        const texto = document.getElementById("textoPush");
+        const erro = document.getElementById("erroPush");
+
+        function atualizar() {
+            if (!pushDisponivel()) {
+                texto.textContent = "As notificações push ainda não estão disponíveis neste aparelho.";
+                botao.hidden = true;
+                return;
+            }
+
+            if (pushAtivo()) {
+                texto.textContent = "As notificações estão ativadas neste aparelho. ✅";
+                botao.textContent = "Desativar";
+            } else {
+                texto.textContent = "Receba os avisos mesmo com o app fechado.";
+                botao.textContent = "Ativar notificações";
+            }
+        }
+
+        botao.addEventListener("click", async () => {
+            botao.disabled = true;
+            erro.textContent = "";
+
+            try {
+                if (pushAtivo()) await desativarPush(db, usuarioAtual);
+                else await ativarPush(db, usuarioAtual);
+            } catch (e) {
+                console.error(e);
+                erro.textContent = e.message || "Não foi possível alterar.";
+            }
+
+            botao.disabled = false;
+            atualizar();
+        });
+
+        atualizar();
+    }
+
+    function montarPreferencias() {
+        const caixas = document.querySelectorAll("#preferencias input[data-categoria]");
+
+        caixas.forEach((caixa) => {
+            caixa.checked = !desligadas.includes(caixa.dataset.categoria);
+
+            caixa.addEventListener("change", async () => {
+                desligadas = [...caixas].filter((c) => !c.checked).map((c) => c.dataset.categoria);
+
+                try {
+                    await setDoc(doc(db, "usuarios", usuarioAtual.uid), { avisosDesligados: desligadas }, { merge: true });
+                    carregarAvisos();
+                } catch (erro) {
+                    console.error("Erro ao salvar preferências:", erro);
+                    alert("Não foi possível salvar sua preferência.");
+                    caixa.checked = !caixa.checked;
+                }
+            });
+        });
+    }
+
     onAuthStateChanged(auth, (usuario) => {
         if (!usuario) {
             window.location.href = "login.html";
@@ -241,7 +361,13 @@
 
         usuarioAtual = usuario;
         carregarConvites();
-        carregarAvisos();
+
+        carregarDesligadas(db, usuario.uid).then((lista) => {
+            desligadas = lista;
+            montarPreferencias();
+            montarPush();
+            carregarAvisos();
+        });
     });
 </script>
 

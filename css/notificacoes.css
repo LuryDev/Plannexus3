@@ -155,3 +155,70 @@ button:disabled {
     opacity: .6;
     cursor: default;
 }
+
+
+.btn-ver-aviso {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    background: #5A32D3;
+    border-radius: 10px;
+}
+
+
+.preferencias {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preferencias label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(90, 50, 211, .08);
+    cursor: pointer;
+}
+
+.preferencias input {
+    width: 18px;
+    height: 18px;
+    accent-color: #5A32D3;
+    flex: 0 0 auto;
+}
+
+
+.cartao-push {
+    padding: 14px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(90, 50, 211, .08);
+}
+
+.cartao-push p {
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.btn-push {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    background: #5A32D3;
+    border: 0;
+    border-radius: 10px;
+}
+
+.btn-push:disabled {
+    opacity: .6;
+}

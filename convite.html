@@ -102,7 +102,7 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
         import {
             FUNDOS, desenharTemplate, carregarImagem, carregarFontes,
             dataPorExtenso, horarioPorExtenso, tituloPadraoConvite, textoCompartilharConvite
@@ -204,11 +204,17 @@
             setTimeout(() => URL.revokeObjectURL(url), 4000);
         }
 
+        // marca no evento que o convite já foi criado (para o Nexus parar de lembrar)
+        function marcarConviteGerado() {
+            updateDoc(doc(db, "eventos", eventoId), { conviteGerado: true }).catch(() => {});
+        }
+
         document.getElementById("botaoBaixar").addEventListener("click", async () => {
             try {
                 await carregarFontes();
                 redesenhar();
                 baixar(await gerarImagem());
+                marcarConviteGerado();
                 avisar("Imagem salva no seu aparelho.");
             } catch (erro) {
                 console.error(erro);
@@ -226,6 +232,7 @@
 
                 if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
                     await navigator.share({ files: [arquivo], title: campos.titulo.value.trim() || "Convite", text: textoCompartilharConvite({ nome: nomeDoEvento }) });
+                    marcarConviteGerado();
                     avisar("");
                 } else {
                     // aparelho/navegador sem compartilhamento de arquivos: baixa a imagem

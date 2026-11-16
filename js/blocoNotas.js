@@ -18,6 +18,8 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
+import { avisarColaboracao } from "./avisos.js";
+
 const app = initializeApp(window.FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -309,6 +311,10 @@ async function comentar(anotacaoId, texto) {
                 dataCriacao: serverTimestamp()
             }
         );
+
+        const anotacaoComentada = anotacoes.find((a) => a.id === anotacaoId);
+        avisarColaboracao(db, auth.currentUser, eventoId, "notas", "comentou",
+            anotacaoComentada && typeof anotacaoComentada.titulo === "string" ? anotacaoComentada.titulo : "");
         await carregarAnotacoes();
     } catch (erro) {
         console.error("Erro ao comentar:", erro);
@@ -395,6 +401,8 @@ async function salvarAnotacao(evento) {
                 dataCriacao: serverTimestamp(),
                 dataAtualizacao: serverTimestamp()
             });
+
+            avisarColaboracao(db, auth.currentUser, eventoId, "notas", "adicionou", titulo);
         }
 
         fecharModal();
@@ -426,7 +434,12 @@ async function excluirAnotacao(id) {
             id
         );
 
+        const anotacaoExcluida = anotacoes.find((a) => a.id === id);
+
         await deleteDoc(referenciaAnotacao);
+
+        avisarColaboracao(db, auth.currentUser, eventoId, "notas", "removeu",
+            anotacaoExcluida && typeof anotacaoExcluida.titulo === "string" ? anotacaoExcluida.titulo : "");
 
         await carregarAnotacoes();
 
