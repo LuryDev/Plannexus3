@@ -235,7 +235,7 @@ if (typeof document !== "undefined") {
 
                 if (!resposta.ok) {
                     historico.pop();
-                    balao(dados.erro || "O Nexus não conseguiu responder agora.", "nexus", true);
+                    balao((dados.erro || "O Nexus não conseguiu responder agora.") + (dados.codigo ? " (código " + dados.codigo + ")" : ""), "nexus", true);
                     return;
                 }
 

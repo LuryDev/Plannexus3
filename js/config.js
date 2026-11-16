@@ -17,6 +17,11 @@ var FIREBASE_CONFIG = {
 // Chave pública das notificações push (Firebase > Configurações do projeto >
 // Cloud Messaging > Certificados push da Web > Gerar par de chaves).
 // Enquanto estiver vazia, o app funciona normalmente, só sem push.
+// Aviso de atualização do app: quem usa o app da Play Store com versão MENOR que esta
+// vê o aviso na tela principal. É o versionCode do AAB (o mesmo número do "?app=" da
+// URL de início do app no PWABuilder). Para pedir nova atualização, aumente e publique.
+var VERSAO_MINIMA_APP = 4;
+
 var VAPID_KEY = "BB58CoNAQlDCu68tTGPnde2mss3VSgLhazVmvP5GvzzFmy_6KgoWgM87yai4SOxmiEn6qoR6OEaLWTSvqmX61tE";
 
 // E-mail da conta de administrador

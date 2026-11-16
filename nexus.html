@@ -241,7 +241,7 @@
 
                 if (!resposta.ok) {
                     historico.pop();   // essa mensagem não foi processada
-                    adicionarBalao(dados.erro || "O Nexus não conseguiu responder agora.", "nexus", true);
+                    adicionarBalao((dados.erro || "O Nexus não conseguiu responder agora.") + (dados.codigo ? " (código " + dados.codigo + ")" : ""), "nexus", true);
                     return;
                 }
 

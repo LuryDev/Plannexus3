@@ -511,7 +511,9 @@ export default async function handler(req, res) {
         return res.status(503).json({ erro: "O Nexus está muito ocupado agora. Tente de novo em instantes." });
     }
 
-    return res.status(502).json({ erro: "O Nexus não conseguiu responder. Tente de novo." });
+    // "codigo" ajuda a achar o motivo: 400/403/404 = chave, modelo ou pedido inválido no Gemini;
+    // 200 = o Gemini respondeu fora do formato esperado
+    return res.status(502).json({ erro: "O Nexus não conseguiu responder. Tente de novo.", codigo: ultimoStatus });
 }
 
 function esperar(ms) {
