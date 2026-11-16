@@ -88,6 +88,7 @@
         updateDoc,
         setDoc,
         deleteDoc,
+        addDoc,
         writeBatch,
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
@@ -193,18 +194,6 @@
                     dataResposta: serverTimestamp()
                 });
 
-                // avisa o dono do evento que a pessoa aceitou
-                if (convite.donoId) {
-                    lote.set(doc(collection(db, "avisos")), {
-                        tipo: "aceitou-convite",
-                        uid: convite.donoId,
-                        eventoId: convite.eventoId,
-                        mensagem: `${usuarioAtual.displayName || usuarioAtual.email} aceitou seu convite e agora é ${papelLegivel(convite.papel).toLowerCase()} do evento "${convite.eventoNome || "Evento sem nome"}".`,
-                        lida: false,
-                        dataCriacao: serverTimestamp()
-                    });
-                }
-
                 lote.set(referenciaPerfil, {
                     eventosCompartilhados: {
                         [convite.eventoId]: convite.papel
@@ -212,6 +201,22 @@
                 }, { merge: true });
 
                 await lote.commit();
+
+                // avisa o dono do evento (separado: se falhar, o convite continua aceito)
+                if (convite.donoId) {
+                    try {
+                        await addDoc(collection(db, "avisos"), {
+                            tipo: "aceitou-convite",
+                            uid: convite.donoId,
+                            eventoId: convite.eventoId,
+                            mensagem: `${usuarioAtual.displayName || usuarioAtual.email} aceitou seu convite e agora é ${papelLegivel(convite.papel).toLowerCase()} do evento "${convite.eventoNome || "Evento sem nome"}".`,
+                            lida: false,
+                            dataCriacao: serverTimestamp()
+                        });
+                    } catch (erroAviso) {
+                        console.warn("Não foi possível avisar o dono:", erroAviso);
+                    }
+                }
 
                 notificarServidor(usuarioAtual, {
                     tipo: "aceitou",
