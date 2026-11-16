@@ -48,6 +48,11 @@
                 <p id="textoPush">Receba os avisos mesmo com o app fechado.</p>
                 <button type="button" class="btn-push" id="botaoPush">Ativar notificações</button>
                 <p class="estado-notificacoes" id="erroPush"></p>
+                <p class="dica-atualizar" id="dicaAtualizar" hidden>
+                    Está usando o app da Play Store? Atualize o Plannexus pela
+                    <a href="https://play.google.com/store/apps/details?id=com.lurydev.plannexus">Play Store</a>
+                    e tente de novo. As notificações precisam da versão mais recente.
+                </p>
             </div>
         </section>
 
@@ -296,11 +301,13 @@
         const botao = document.getElementById("botaoPush");
         const texto = document.getElementById("textoPush");
         const erro = document.getElementById("erroPush");
+        const dica = document.getElementById("dicaAtualizar");
 
         function atualizar() {
             if (!pushDisponivel()) {
-                texto.textContent = "As notificações push ainda não estão disponíveis neste aparelho.";
+                texto.textContent = "As notificações push não estão disponíveis neste aparelho ou nesta versão do app.";
                 botao.hidden = true;
+                dica.hidden = false;
                 return;
             }
 
@@ -323,6 +330,7 @@
             } catch (e) {
                 console.error(e);
                 erro.textContent = e.message || "Não foi possível alterar.";
+                dica.hidden = false;   // pode ser um app desatualizado
             }
 
             botao.disabled = false;

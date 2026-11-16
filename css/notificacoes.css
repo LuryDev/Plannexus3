@@ -222,3 +222,18 @@ button:disabled {
 .btn-push:disabled {
     opacity: .6;
 }
+
+
+.dica-atualizar {
+    margin-top: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #4D2FB8;
+    background: #EFEAFD;
+    border-radius: 10px;
+}
+
+.dica-atualizar a {
+    font-weight: 600;
+    color: #5A32D3;
+}
