@@ -92,7 +92,7 @@
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-    import { pushDisponivel, pushAtivo, ativarPush, desativarPush, notificarServidor } from "./js/push.js";
+    import { pushDisponivel, motivoIndisponivel, pushAtivo, ativarPush, desativarPush, notificarServidor } from "./js/push.js";
     import { mensagemColaboracao, paginaDaFerramenta, categoriaDoAviso, carregarDesligadas } from "./js/avisos.js";
 
     const app = initializeApp(window.FIREBASE_CONFIG);
@@ -305,9 +305,13 @@
 
         function atualizar() {
             if (!pushDisponivel()) {
-                texto.textContent = "As notificações push não estão disponíveis neste aparelho ou nesta versão do app.";
+                const motivo = motivoIndisponivel();
+
+                texto.textContent = motivo === "chave"
+                    ? "As notificações ainda não foram configuradas no servidor do Plannexus (falta a chave VAPID_KEY)."
+                    : "Este aparelho ou esta versão do app não aceita notificações push.";
                 botao.hidden = true;
-                dica.hidden = false;
+                dica.hidden = motivo === "chave";   // atualizar o app só ajuda no caso do aparelho
                 return;
             }
 
@@ -329,7 +333,8 @@
                 else await ativarPush(db, usuarioAtual);
             } catch (e) {
                 console.error(e);
-                erro.textContent = e.message || "Não foi possível alterar.";
+                erro.textContent = (e.message || "Não foi possível alterar.") +
+                    " [" + (e.name || "erro") + " · chave: " + String(window.VAPID_KEY || "").length + " caracteres]";
                 dica.hidden = false;   // pode ser um app desatualizado
             }
 

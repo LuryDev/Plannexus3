@@ -19,6 +19,16 @@ export function pushDisponivel() {
            typeof window.VAPID_KEY === "string" && window.VAPID_KEY.length > 20;
 }
 
+// por que o push não está disponível (para mostrar o motivo certo)
+//   "chave"    -> falta a VAPID_KEY em js/config.js
+//   "aparelho" -> este navegador/app não tem suporte (app sem Notification delegation, aparelho antigo...)
+//   ""         -> disponível
+export function motivoIndisponivel() {
+    if (!(typeof window.VAPID_KEY === "string" && window.VAPID_KEY.length > 20)) return "chave";
+    if (!("serviceWorker" in navigator) || !("Notification" in window) || !("PushManager" in window)) return "aparelho";
+    return "";
+}
+
 export function pushAtivo() {
     return pushDisponivel() && Notification.permission === "granted" &&
            localStorage.getItem("pushAtivo") === "1";

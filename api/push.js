@@ -124,13 +124,17 @@ export default async function handler(req, res) {
                     return res.status(403).json({ erro: "Sem permissão." });
                 }
 
-                const { getAuth } = await import("firebase-admin/auth");
-                let convidado;
-                try {
-                    convidado = await getAuth().getUserByEmail(convite.emailConvidado);
-                } catch (e) {
+                // acha o usuário pelo e-mail gravado no perfil (sem usar o firebase-admin/auth,
+                // que não carrega bem na Vercel; mesmo motivo do /api/nexus)
+                const email = String(convite.emailConvidado || "").trim();
+                let achado = await fb.db.collection("usuarios").where("email", "==", email.toLowerCase()).limit(1).get();
+                if (achado.empty && email !== email.toLowerCase()) {
+                    achado = await fb.db.collection("usuarios").where("email", "==", email).limit(1).get();
+                }
+                if (achado.empty) {
                     return res.status(200).json({ ok: true, enviados: 0 });   // ainda não tem conta
                 }
+                const convidado = { uid: achado.docs[0].id };
 
                 const enviados = await enviarPush(fb, convidado.uid, {
                     titulo: "Plannexus",
@@ -158,7 +162,7 @@ export default async function handler(req, res) {
 
         return res.status(400).json({ erro: "Tipo inválido." });
     } catch (erro) {
-        console.error("PUSH: erro", erro.message);
-        return res.status(500).json({ erro: "Não foi possível enviar." });
+        console.error("PUSH: erro", erro.code || "", erro.message);
+        return res.status(500).json({ erro: "Não foi possível enviar.", detalhe: String(erro.code || erro.message || "").slice(0, 120) });
     }
 }
