@@ -5,21 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Organize as anotações do seu evento com o PlanNexus.">
     <title>Bloco de Notas | PlanNexus</title>
+
     <link rel="stylesheet" href="css/blocoNotas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-    <!-- PWA: manifest, cor do tema e service worker -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#5A32D3">
     <script src="js/pwa.js" defer></script>
+
     <link rel="stylesheet" href="css/nexusFlutuante.css">
 </head>
 <body>
 
     <header>
         <a class="voltar" id="voltar" href="evento.html" title="Voltar">
-                <i class="fa-solid fa-arrow-left"></i>
-            </a>
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+
         <h1 id="nomeEvento">Carregando...</h1>
     </header>
 
@@ -32,8 +34,10 @@
 
             <div>
                 <label for="pesquisa">Pesquisar anotações</label>
+
                 <div>
                     <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+
                     <input
                         type="search"
                         id="pesquisa"
@@ -56,8 +60,7 @@
                 <p>Crie sua primeira anotação para organizar as informações do evento.</p>
             </div>
 
-            <div id="listaAnotacoes" aria-live="polite">
-            </div>
+            <div id="listaAnotacoes" aria-live="polite"></div>
         </section>
     </main>
 
@@ -84,6 +87,7 @@
             <form id="formAnotacao">
                 <div>
                     <label for="tituloAnotacao">Título</label>
+
                     <input
                         type="text"
                         id="tituloAnotacao"
@@ -96,6 +100,7 @@
 
                 <div>
                     <label for="conteudoAnotacao">Conteúdo</label>
+
                     <textarea
                         id="conteudoAnotacao"
                         name="conteudo"
@@ -158,9 +163,6 @@
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script type="module" src="js/blocoNotas.js"></script>
-
-
-    <!-- Nexus flutuante: assistente de ajuda -->
     <script type="module" src="js/nexusFlutuante.js"></script>
 
 </body>
