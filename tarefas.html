@@ -49,6 +49,36 @@
             </div>
 
             <!-- TÍTULO + BOTÃO -->
+
+            <!-- SUGESTÕES DE TAREFAS -->
+            <section class="sugestoes" id="secaoSugestoes" hidden>
+                <div class="sugestoes-topo">
+                <div>
+                    <span class="sugestoes-legenda">PLANNE XUS</span>
+                    <h2>Organize seu evento!</h2>
+                    <p>Preparamos algumas tarefas para ajudar no planejamento.</p>
+                </div>
+                    <i class="fa-solid fa-lightbulb"></i>
+                </div>
+
+                <div id="listaSugestoes" class="lista-sugestoes"></div>
+
+                <div class="acoes-sugestoes">
+                    <button type="button" id="adicionarSelecionadas">
+                        Adicionar selecionadas
+                    </button>
+
+                    <button type="button" id="adicionarTodas">
+                        Adicionar todas
+                    </button>
+                    <button type="button" id="dispensarSugestoes">
+                        Não quero sugestões
+                    </button>
+                </div>
+
+                <p id="mensagemSugestoes" role="status" aria-live="polite"></p>
+            </section>
+
             <div class="titulo">
                 <h2>Minhas tarefas</h2>
                 <button class="nova-tarefa" id="botaoNovaTarefa">
@@ -112,6 +142,31 @@
         </form>
     </div>
 
+    <!-- ===================== CANCELAR (MODAL) ===================== -->
+    <div class="modal" id="modalExcluir" hidden>
+        <div class="modal-caixa modal-confirmacao" role="dialog" aria-modal="true" aria-labelledby="tituloExcluir">
+
+            <div class="modal-topo">
+                <h2 id="tituloExcluir">Excluir tarefa?</h2>
+                <button type="button" class="fechar" id="fecharModalExcluir" title="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p id="textoExcluir">Tem certeza de que deseja excluir esta tarefa?</p>
+
+            <div class="botoes-confirmacao">
+                <button type="button" id="cancelarExclusao" class="botao-cancelar">
+                    Cancelar
+                </button>
+
+                <button type="button" id="confirmarExclusao" class="botao-excluir">
+                    Excluir tarefa
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
@@ -120,7 +175,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { avisarColaboracao } from "./js/avisos.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app  = initializeApp(FIREBASE_CONFIG);
@@ -140,17 +195,67 @@
         const form           = document.getElementById("formTarefa");
         const botaoSalvar    = document.getElementById("botaoSalvar");
         const mensagemEl     = document.getElementById("mensagem");
+        const secaoSugestoes = document.getElementById("secaoSugestoes");
+        const listaSugestoes = document.getElementById("listaSugestoes");
+        const botaoSelecionadas = document.getElementById("adicionarSelecionadas");
+        const botaoTodas = document.getElementById("adicionarTodas");
+        const mensagemSugestoes = document.getElementById("mensagemSugestoes");
+        const botaoDispensar = document.getElementById("dispensarSugestoes");
+        const modalExcluir = document.getElementById("modalExcluir");
+        const textoExcluir = document.getElementById("textoExcluir");
+        const botaoConfirmarExclusao = document.getElementById("confirmarExclusao");
+        const botaoCancelarExclusao = document.getElementById("cancelarExclusao");
+        const botaoFecharExcluir = document.getElementById("fecharModalExcluir");
 
         const eventoId = pegarIdDaUrl();
 
         const NOMES_PRIORIDADE = { alta: "Alta", media: "Média", baixa: "Baixa" };
 
+        let tarefaSelecionada = null;
         let tarefas = [];          // lista carregada do Firestore
         let filtroAtual = "todas";  // todas | pendentes | concluidas
         let souVisitante = false;
+        let categoriaEvento = "";
+        let modelosTarefas = [];
 
+        // ================= PRÉ-SAVES =================
+        const CATEGORIAS_MODELO = {
+            "Casamento": "casamento",
+            "Aniversário": "aniversario",
+            "Evento Corporativo": "corporativo",
+            "Chá de Bebê": "chaDeBebe",
+            "Formatura": "formatura"
+        };
+
+        async function carregarModelosTarefas() {
+            try {
+                const resposta = await fetch("tarefas.json");
+            
+                if (!resposta.ok) {
+                    throw new Error("Não foi possível carregar os modelos de tarefas.");
+                }
+            
+                const dados = await resposta.json();
+            
+                const chave = CATEGORIAS_MODELO[categoriaEvento];
+            
+                if (!chave || !Array.isArray(dados[chave])) {
+                    secaoSugestoes.hidden = true;
+                    return;
+                }
+            
+                modelosTarefas = dados[chave];
+            
+                renderizarSugestoes();
+            
+            } catch (erro) {
+                console.error("Erro ao carregar modelos:", erro);
+                secaoSugestoes.hidden = true;
+            }
+        }
 
         // ================= INÍCIO =================
+        
         async function iniciar() {
 
             if (!eventoId) {
@@ -177,6 +282,7 @@
 
                 const evento = eventoSnap.data();
                 nomeEventoEl.textContent = evento.nome || "Evento sem nome";
+                categoriaEvento = evento.categoria || "";
 
                 // Visitante só visualiza: esconde o botão de nova tarefa.
                 if (evento.usuarioId !== usuario.uid) {
@@ -187,6 +293,10 @@
                 }
 
                 await carregarTarefas();
+
+                if (!souVisitante) {
+                    await carregarModelosTarefas();
+                }
             }
             catch (erro) {
                 mostrarErro(erro);
@@ -202,14 +312,177 @@
             tarefas = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
             // Pendentes primeiro, depois pelo prazo mais próximo
+            const ordemPrioridade = {
+                alta: 1,
+                media: 2,
+                baixa: 3
+            };
+
             tarefas.sort((a, b) => {
-                if (!!a.concluida !== !!b.concluida) return a.concluida ? 1 : -1;
-                return dataParaOrdenar(a.data).localeCompare(dataParaOrdenar(b.data));
-            });
+                // Primeiro: pendentes antes das concluídas
+                if (!!a.concluida !== !!b.concluida) {
+                return a.concluida ? 1 : -1;
+            }
+
+            // Segundo: prioridade alta, média e baixa
+            const prioridadeA = ordemPrioridade[a.prioridade] || 2;
+            const prioridadeB = ordemPrioridade[b.prioridade] || 2;
+
+            if (prioridadeA !== prioridadeB) {
+                return prioridadeA - prioridadeB;
+            }
+
+            // Terceiro: ordem alfabética
+            return (a.titulo || "").localeCompare(
+                b.titulo || "",
+                "pt-BR",
+                { sensitivity: "base" }
+            );
+        });
 
             desenharLista();
         }
 
+        // ================= EXIBIR SUGESTÕES DE TAREFAS =================
+
+        function renderizarSugestoes() {
+            const chaveDispensa = `planNexus_dispensaSugestoes_${eventoId}`;
+
+            if (localStorage.getItem(chaveDispensa) === "sim") {
+                secaoSugestoes.hidden = true;
+                return;
+            }
+
+            listaSugestoes.replaceChildren();
+        
+            if (!modelosTarefas.length) {
+                secaoSugestoes.hidden = true;
+                return;
+            }
+        
+            modelosTarefas.forEach((modelo, indice) => {
+                const jaExiste = tarefas.some(
+                    tarefa => normalizarTitulo(tarefa.titulo) === normalizarTitulo(modelo.titulo)
+                );
+            
+                const item = document.createElement("label");
+                item.className = "item-sugestao";
+            
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = indice;
+                checkbox.checked = !jaExiste;
+                checkbox.disabled = jaExiste;
+            
+                const informacoes = document.createElement("span");
+                informacoes.className = "informacoes-sugestao";
+            
+                const titulo = document.createElement("strong");
+                titulo.textContent = modelo.titulo;
+            
+                const descricao = document.createElement("small");
+                descricao.textContent = jaExiste
+                    ? "Esta tarefa já está cadastrada."
+                    : modelo.descricao;
+            
+                informacoes.append(titulo, descricao);
+                item.append(checkbox, informacoes);
+            
+                if (jaExiste) {
+                    item.classList.add("ja-adicionada");
+                }
+            
+                listaSugestoes.appendChild(item);
+            });
+        
+            secaoSugestoes.hidden = souVisitante ||
+                !modelosTarefas.some(modelo =>
+                    !tarefas.some(tarefa =>
+                        normalizarTitulo(tarefa.titulo) === normalizarTitulo(modelo.titulo)
+                    )
+                );
+        }
+
+        // ================= PREVENÇÃO DE ERROS - PRÉ-SAVES =================
+        function normalizarTitulo(titulo) {
+            return String(titulo || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim()
+            .toLocaleLowerCase("pt-BR");
+        }
+
+        async function adicionarModelos(indices) {
+            if (souVisitante || !auth.currentUser) return;
+
+            const titulosExistentes = new Set(
+                tarefas.map(tarefa => normalizarTitulo(tarefa.titulo))
+            );
+
+            const selecionadas = indices
+                .map(indice => modelosTarefas[indice])
+                .filter(Boolean)
+                .filter(modelo => !titulosExistentes.has(
+                    normalizarTitulo(modelo.titulo)
+                ));
+
+            if (!selecionadas.length) {
+                mensagemSugestoes.textContent =
+                    "Selecione tarefas novas para adicionar.";
+                return;
+            }
+        
+            botaoSelecionadas.disabled = true;
+            botaoTodas.disabled = true;
+        
+            mensagemSugestoes.textContent = "Adicionando tarefas...";
+        
+            try {
+                const batch = writeBatch(db);
+            
+                selecionadas.forEach(modelo => {
+                    const referencia = doc(
+                        collection(db, "eventos", eventoId, "tarefas")
+                    );
+                
+                    batch.set(referencia, {
+                        titulo: modelo.titulo,
+                        descricao: modelo.descricao || "",
+                        data: "",
+                        prioridade: modelo.prioridade || "media",
+                        concluida: false,
+                        criadoEm: serverTimestamp()
+                    });
+                });
+            
+                await batch.commit();
+            
+                avisarColaboracao(
+                    db,
+                    auth.currentUser,
+                    eventoId,
+                    "tarefas",
+                    "adicionou",
+                    `${selecionadas.length} tarefas pré-definidas`
+                );
+            
+                mensagemSugestoes.textContent =
+                    `${selecionadas.length} tarefa(s) adicionada(s) com sucesso!`;
+            
+                await carregarTarefas();
+            
+                renderizarSugestoes();
+            
+            } catch (erro) {
+                console.error("Erro ao adicionar modelos:", erro);
+            
+                mensagemSugestoes.textContent =
+                    "Não foi possível adicionar as tarefas. Verifique suas permissões.";
+            } finally {
+                botaoSelecionadas.disabled = false;
+                botaoTodas.disabled = false;
+            }
+        }
 
         // ================= DESENHAR NA TELA =================
         function desenharLista() {
@@ -307,15 +580,41 @@
             }
         }
 
-        async function excluirTarefa(tarefa) {
-            if (!confirm(`Excluir a tarefa "${tarefa.titulo}"?`)) return;
+        function excluirTarefa(tarefa) {
+            tarefaSelecionada = tarefa;
 
+            textoExcluir.textContent = `Tem certeza de que deseja excluir "${tarefa.titulo}"? Essa ação não poderá ser desfeita.`;
+
+            modalExcluir.hidden = false;
+            botaoConfirmarExclusao.focus();
+        }
+
+        function fecharModalExcluir() {
+            modalExcluir.hidden = true;
+            tarefaSelecionada = null;
+        
+            botaoConfirmarExclusao.disabled = false;
+            botaoConfirmarExclusao.textContent = "Excluir tarefa";
+        }
+
+        async function confirmarExclusaoTarefa() {
+            if (!tarefaSelecionada) return;
+        
+            const tarefa = tarefaSelecionada;
+        
+            botaoConfirmarExclusao.disabled = true;
+            botaoConfirmarExclusao.textContent = "Excluindo...";
+        
             try {
                 await deleteDoc(doc(db, "eventos", eventoId, "tarefas", tarefa.id));
+            
                 avisarColaboracao(db, auth.currentUser, eventoId, "tarefas", "removeu", tarefa.titulo);
+            
+                fecharModalExcluir();
                 await carregarTarefas();
             }
             catch (erro) {
+                fecharModalExcluir();
                 mostrarErro(erro);
             }
         }
@@ -336,13 +635,46 @@
         botaoNova.addEventListener("click", abrirModal);
         document.getElementById("fecharModal").addEventListener("click", fecharModal);
 
+        // ================= BOTÕES DE SUGESTÕES =================
+
+        botaoSelecionadas.addEventListener("click", () => {
+            const marcadas = listaSugestoes.querySelectorAll(
+                'input[type="checkbox"]:checked:not(:disabled)'
+            );
+        
+            const indices = Array.from(marcadas).map(
+                checkbox => Number(checkbox.value)
+            );
+        
+            adicionarModelos(indices);
+        });
+        
+        botaoTodas.addEventListener("click", () => {
+            const indices = modelosTarefas.map((_, indice) => indice);
+        
+            adicionarModelos(indices);
+        });
+
+        botaoDispensar.addEventListener("click", () => {
+            const chaveDispensa = `planNexus_dispensaSugestoes_${eventoId}`;
+
+            localStorage.setItem(chaveDispensa, "sim");
+            secaoSugestoes.hidden = true;
+        });
+
         // clicar fora da caixa fecha
         modal.addEventListener("click", (e) => {
             if (e.target === modal) fecharModal();
         });
 
         document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape" && !modal.hidden) fecharModal();
+            if (e.key === "Escape") {
+                if (!modalExcluir.hidden) {
+                    fecharModalExcluir();
+                } else if (!modal.hidden) {
+                    fecharModal();
+                }
+            }
         });
 
         form.addEventListener("submit", async (event) => {
@@ -383,6 +715,18 @@
             }
         });
 
+                // ================= BOTÕES DE EXCLUSÃO =================
+        botaoConfirmarExclusao.addEventListener("click", confirmarExclusaoTarefa);
+
+        botaoCancelarExclusao.addEventListener("click", fecharModalExcluir);
+
+        botaoFecharExcluir.addEventListener("click", fecharModalExcluir);
+
+        modalExcluir.addEventListener("click", (e) => {
+            if (e.target === modalExcluir) {
+                fecharModalExcluir();
+            }
+        });
 
         // ================= FILTROS =================
         document.querySelectorAll(".filtro").forEach((botao) => {

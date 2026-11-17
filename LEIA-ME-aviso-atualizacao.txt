@@ -1,0 +1,10 @@
+
+----------------------------------------------------------
+CORREÇÃO: aviso continuava depois de atualizar
+----------------------------------------------------------
+Antes, js/versaoApp.js regravava a versão como 0 sempre que o app abria
+sem "?app=" (ex.: botão "Abrir" da Play Store, clique em notificação).
+Agora a versão guardada nunca diminui, e "?app=N" é aceito mesmo sem referrer.
+Quem já atualizou o app some com o aviso na 1ª abertura pelo ícone/Abrir.
+Obs.: VERSAO_MINIMA_APP em js/config.js deve ser o versionCode do AAB novo
+(o AAB com Start URL /?app=6 => VERSAO_MINIMA_APP = 6).

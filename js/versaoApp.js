@@ -1,30 +1,36 @@
 // ==========================================================
 //  VERSÃO DO APP INSTALADO  (js/versaoApp.js)
 //
-//  Roda bem no começo (index.html e inicio.html). Quando a página é aberta
-//  pelo aplicativo da Play Store, o Android informa isso no "referrer"
-//  (android-app://com.lurydev.plannexus). Nessa hora guardamos:
-//     - que este aparelho usa o app instalado          (ehAppInstalado = "1")
-//     - qual versão do app é, vinda da URL de início   (versaoApp = número)
+//  Roda bem no começo (index.html e inicio.html). Guarda:
+//     - ehAppInstalado = "1"  -> este aparelho usa o app da Play Store
+//     - versaoApp = número    -> vem da URL de início do AAB (/?app=N)
 //
-//  A URL de início do app é definida no PWABuilder ao gerar o AAB:
-//     /?app=4      (o número é o versionCode do AAB)
-//  Apps antigos abrem sem esse "?app=", então ficam com versão 0.
-//
-//  Só atualiza quando o referrer é o do app (a abertura do app). Em qualquer
-//  outra navegação, mantém o que já estava guardado.
+//  Regras (a versão guardada NUNCA diminui):
+//   1) Se a URL tem ?app=N, é o app: guarda max(guardado, N), mesmo que o
+//      Android não informe o referrer (acontece ao tocar em "Abrir" na loja).
+//   2) Sem ?app=, mas com referrer android-app://...: é o app antigo (ou uma
+//      abertura por notificação). Só grava 0 se ainda não havia nada guardado.
+//   3) Qualquer outra situação: não mexe.
 // ==========================================================
 (function () {
     try {
-        var referrer = document.referrer || "";
+        var params = new URLSearchParams(window.location.search);
+        var versao = parseInt(params.get("app"), 10);
+        var temVersao = isFinite(versao) && versao > 0;
+        var doApp = (document.referrer || "").indexOf("android-app://com.lurydev.plannexus") === 0;
 
-        if (referrer.indexOf("android-app://com.lurydev.plannexus") !== 0) return;
+        if (!temVersao && !doApp) return;
 
-        var parametro = new URLSearchParams(window.location.search).get("app");
-        var versao = parseInt(parametro, 10);
+        var guardada = parseInt(localStorage.getItem("versaoApp"), 10);
+        var temGuardada = isFinite(guardada);
 
         localStorage.setItem("ehAppInstalado", "1");
-        localStorage.setItem("versaoApp", String(isFinite(versao) && versao > 0 ? versao : 0));
+
+        if (temVersao) {
+            localStorage.setItem("versaoApp", String(temGuardada ? Math.max(guardada, versao) : versao));
+        } else if (!temGuardada) {
+            localStorage.setItem("versaoApp", "0");
+        }
     } catch (e) {
         /* sem localStorage: segue sem o aviso */
     }

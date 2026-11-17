@@ -1,0 +1,213 @@
+
+{
+  "casamento": [
+    {
+      "titulo": "Definir orçamento",
+      "descricao": "Estabelecer o orçamento disponível para o casamento.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Escolher local da cerimônia",
+      "descricao": "Pesquisar e reservar o espaço da cerimônia.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Escolher local da recepção",
+      "descricao": "Definir onde será realizada a comemoração.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Contratar buffet",
+      "descricao": "Pesquisar fornecedores e definir o cardápio.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Escolher decoração",
+      "descricao": "Definir o estilo e os elementos decorativos.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Preparar lista de convidados",
+      "descricao": "Organizar os convidados que participarão do casamento.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Enviar convites",
+      "descricao": "Preparar e enviar os convites aos convidados.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Definir música e entretenimento",
+      "descricao": "Escolher as atrações musicais e demais atividades.",
+      "prioridade": "baixa"
+    }
+  ],
+  "aniversario": [
+    {
+      "titulo": "Definir tema da festa",
+      "descricao": "Escolher o tema e o estilo da comemoração.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Definir orçamento",
+      "descricao": "Estabelecer quanto poderá ser gasto na festa.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Escolher local",
+      "descricao": "Definir onde será realizada a comemoração.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Fazer lista de convidados",
+      "descricao": "Organizar os convidados da festa.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Escolher decoração",
+      "descricao": "Definir os elementos decorativos conforme o tema.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Definir cardápio",
+      "descricao": "Escolher comidas, bebidas e opções de sobremesa.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Encomendar bolo e doces",
+      "descricao": "Escolher e encomendar o bolo e os doces da festa.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Enviar convites",
+      "descricao": "Preparar e enviar os convites aos convidados.",
+      "prioridade": "baixa"
+    }
+  ],
+  "corporativo": [
+    {
+      "titulo": "Definir objetivos do evento",
+      "descricao": "Estabelecer os objetivos e resultados esperados.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Definir orçamento",
+      "descricao": "Estabelecer os recursos financeiros disponíveis.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Escolher local",
+      "descricao": "Pesquisar e reservar o espaço do evento.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Definir programação",
+      "descricao": "Organizar horários, palestras e atividades.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Convidar palestrantes",
+      "descricao": "Selecionar e entrar em contato com os participantes convidados.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Contratar equipamentos",
+      "descricao": "Verificar equipamentos de áudio, vídeo e iluminação.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Organizar credenciamento",
+      "descricao": "Planejar a recepção e identificação dos participantes.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Enviar convites",
+      "descricao": "Divulgar o evento e enviar convites aos participantes.",
+      "prioridade": "baixa"
+    }
+  ],
+  "chaDeBebe": [
+    {
+      "titulo": "Definir orçamento",
+      "descricao": "Estabelecer o orçamento disponível para o chá.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Escolher data e local",
+      "descricao": "Definir quando e onde será realizada a comemoração.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Definir tema",
+      "descricao": "Escolher o tema e a identidade visual do evento.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Preparar lista de convidados",
+      "descricao": "Organizar as pessoas que serão convidadas.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Organizar lista de presentes",
+      "descricao": "Definir os itens sugeridos para os convidados.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Escolher decoração",
+      "descricao": "Planejar a decoração conforme o tema escolhido.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Definir cardápio",
+      "descricao": "Escolher comidas e bebidas para a comemoração.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Enviar convites",
+      "descricao": "Preparar e enviar os convites aos convidados.",
+      "prioridade": "baixa"
+    }
+  ],
+  "formatura": [
+    {
+      "titulo": "Definir orçamento",
+      "descricao": "Estabelecer os recursos disponíveis para a formatura.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Escolher local",
+      "descricao": "Pesquisar e reservar o espaço da comemoração.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Definir lista de formandos",
+      "descricao": "Organizar os participantes da cerimônia.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Contratar buffet",
+      "descricao": "Pesquisar fornecedores e definir o cardápio.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Escolher decoração",
+      "descricao": "Definir a decoração e a identidade visual.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Organizar cerimônia",
+      "descricao": "Planejar discursos, homenagens e entrega de certificados.",
+      "prioridade": "alta"
+    },
+    {
+      "titulo": "Definir música e atrações",
+      "descricao": "Escolher músicas e atrações para a comemoração.",
+      "prioridade": "media"
+    },
+    {
+      "titulo": "Enviar convites",
+      "descricao": "Preparar e enviar os convites aos convidados.",
+      "prioridade": "baixa"
+    }
+  ]
+}
