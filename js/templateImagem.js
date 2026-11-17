@@ -234,6 +234,139 @@ export function desenharTemplate(ctx, dados, opcoes = {}) {
     ctx.restore();
 }
 
+// ---------- LISTA DE PRESENTES: design roxo (1080 x 1350) ----------
+// A arte (título, Nexus, presentes, selo) vem de fotos/lista-presentes-base.jpg,
+// com os textos {NOME DO EVENTO} e {PRESENTE 1..4} apagados; aqui só desenhamos
+// o nome do evento e os presentes por cima.
+export const LARGURA_LISTA = 1080;
+export const ALTURA_LISTA  = 1350;
+
+const MAXIMO_NA_IMAGEM = 4;   // a imagem mostra só 4 presentes
+
+const LISTA_ROXA = {
+    cor: "#FFFFFF",
+    evento:  { x: 48, y: 268, largura: 980, tamanho: 76, minimo: 40, duasLinhas: { largura: 700, tamanho: 46, altura: 1.15 } },
+    itens:   { x: 62, topo: 462, base: 1015, tamanhoMax: 60, tamanhoMin: 26, alturaLinha: 1.2, entre: 0.45, recuo: 52,
+               larguraAlta: 540, larguraBaixa: 430, limiteAlto: 960 }
+};
+
+function fonteLista(ctx, tamanho) {
+    ctx.font = `italic 700 ${tamanho}px ${SANS}`;
+}
+
+// corta o texto com "…" para caber na largura
+function caberNaLinha(ctx, texto, larguraMax) {
+    let t = String(texto);
+    if (ctx.measureText(t).width <= larguraMax) return t;
+    while (t.length > 1 && ctx.measureText(t + "…").width > larguraMax) t = t.slice(0, -1);
+    return t.trimEnd() + "…";
+}
+
+// dados = { evento: "Nome do evento", itens: ["Jogo de panelas", ...] }
+// opcoes = { base: <Image da arte> }
+export function desenharListaPresentes(ctx, dados, opcoes = {}) {
+    const L = LISTA_ROXA;
+
+    ctx.save();
+    ctx.clearRect(0, 0, LARGURA_LISTA, ALTURA_LISTA);
+    if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+
+    if (opcoes.base) ctx.drawImage(opcoes.base, 0, 0, LARGURA_LISTA, ALTURA_LISTA);
+    else { ctx.fillStyle = "#4D01BD"; ctx.fillRect(0, 0, LARGURA_LISTA, ALTURA_LISTA); }
+
+    ctx.fillStyle = L.cor;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+
+    // nome do evento: uma linha; se ficar pequeno demais, duas linhas menores
+    const nome = String(dados.evento || "Evento").trim() || "Evento";
+    let tam = L.evento.tamanho;
+    for (; tam >= L.evento.minimo; tam -= 2) {
+        fonteLista(ctx, tam);
+        if (ctx.measureText(nome).width <= L.evento.largura) break;
+    }
+
+    if (tam >= L.evento.minimo) {
+        fonteLista(ctx, tam);
+        ctx.fillText(nome, L.evento.x, L.evento.y + (L.evento.tamanho - tam) / 2);
+    } else {
+        const d = L.evento.duasLinhas;
+        fonteLista(ctx, d.tamanho);
+        const linhas = cortarPalavras(ctx, quebrarTexto(ctx, nome, d.largura), d.largura).slice(0, 2);
+        if (quebrarTexto(ctx, nome, d.largura).length > 2) linhas[1] = caberNaLinha(ctx, linhas[1] + " …", d.largura);
+        linhas.forEach((linha, i) => ctx.fillText(linha, L.evento.x, L.evento.y - 12 + i * d.tamanho * d.altura));
+    }
+
+    // presentes: a letra diminui conforme a quantidade; nomes compridos quebram em até 2 linhas
+    const todos = (dados.itens || []).map((t) => String(t).trim()).filter(Boolean);
+    const lista = todos.slice(0, MAXIMO_NA_IMAGEM);   // o resto aparece na página do link
+    const restantes = todos.length - lista.length;
+    const I = L.itens;
+    const fimLista = I.base - (restantes > 0 ? 60 : 0);   // deixa espaço para "+ N presentes"
+    const larguraEm = (y) => (y < I.limiteAlto ? I.larguraAlta : I.larguraBaixa);
+
+    // monta as linhas de cada item para um tamanho de letra e diz até onde a lista desce
+    function montar(tam, itens) {
+        fonteLista(ctx, tam);
+        const linhaAlt = tam * I.alturaLinha;
+        const colocados = [];
+        let y = I.topo;
+
+        for (const texto of itens) {
+            const larg = larguraEm(y) - I.recuo;
+            let linhas = quebrarTexto(ctx, texto, larg);
+            if (linhas.length > 2) linhas = [linhas[0], caberNaLinha(ctx, linhas.slice(1).join(" "), larg)];
+            linhas = linhas.map((l) => caberNaLinha(ctx, l, larg));
+
+            const altItem = linhas.length * linhaAlt;
+            if (y + altItem > fimLista) return { colocados, y, sobraram: itens.length - colocados.length };
+
+            colocados.push({ linhas, y });
+            y += altItem + tam * I.entre;
+        }
+        return { colocados, y, sobraram: 0 };
+    }
+
+    let tl = I.tamanhoMax;
+    let layout = montar(tl, lista);
+    while (layout.sobraram > 0 && tl > I.tamanhoMin) {
+        tl -= 2;
+        layout = montar(tl, lista);
+    }
+
+    // não coube nem na letra mínima: corta e avisa quantos ficaram de fora
+    if (layout.sobraram > 0) {
+        let n = layout.colocados.length;
+        while (n > 1) {
+            const tentativa = lista.slice(0, n - 1).concat(["... e mais " + (lista.length - n + 1)]);
+            const teste = montar(tl, tentativa);
+            if (teste.sobraram === 0) { layout = teste; break; }
+            n -= 1;
+        }
+    }
+
+    fonteLista(ctx, tl);
+    layout.colocados.forEach((item) => {
+        ctx.beginPath();
+        ctx.arc(I.x + 14, item.y + tl * 0.6, Math.max(6, tl * 0.13), 0, Math.PI * 2);
+        ctx.fill();
+
+        item.linhas.forEach((linha, k) => ctx.fillText(linha, I.x + I.recuo, item.y + k * tl * I.alturaLinha));
+    });
+
+    // aviso de que há mais presentes na página
+    if (restantes > 0) {
+        ctx.globalAlpha = 0.85;
+        fonteLista(ctx, 34);
+        const y = Math.min(layout.y, I.base - 36);
+        const texto = "+ " + restantes + (restantes === 1 ? " presente" : " presentes") + " na lista online";
+        ctx.fillText(caberNaLinha(ctx, texto, 500), I.x + 14, y);
+        ctx.globalAlpha = 1;
+    }
+
+    ctx.restore();
+}
+
 // ---------- imagens e fontes (só no navegador) ----------
 
 export function carregarImagem(src) {
@@ -248,6 +381,7 @@ export function carregarImagem(src) {
 export async function carregarFontes() {
     try {
         await Promise.all([
+            document.fonts.load('italic 700 64px "Poppins"'),
             document.fonts.load('400 22px "Poppins"'),
             document.fonts.load('600 24px "Poppins"')
         ]);
@@ -286,9 +420,12 @@ export function tituloListaPresentes(evento) {
 
 export const LINK_PLANNEXUS = "https://plannexus.vercel.app";
 
-export function textoCompartilharLista(evento) {
+export function textoCompartilharLista(evento, linkLista) {
     const nome = (evento && evento.nome) ? " do " + evento.nome : " do meu evento";
-    return "🎁 Olha a lista de presentes" + nome + "! Dá uma olhada e escolha o seu. 💜\n\n" +
+    const escolher = linkLista
+        ? "Escolha o seu presente e coloque seu nome por aqui: " + linkLista + "\n\n"
+        : "";
+    return "🎁 Olha a lista de presentes" + nome + "! Dá uma olhada e escolha o seu. 💜\n\n" + escolher +
            "Quer organizar seus próprios eventos? Conheça o Plannexus: " + LINK_PLANNEXUS;
 }
 

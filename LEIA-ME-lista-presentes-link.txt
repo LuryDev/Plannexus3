@@ -1,0 +1,30 @@
+LISTA DE PRESENTES COM LINK PARA OS CONVIDADOS
+==============================================
+
+Como funciona
+- Na página Presentes, o botão "Compartilhar lista" gera a imagem (design roxo)
+  e cria o link da lista. O texto enviado junto leva o link.
+- O link abre lista.html?c=CODIGO (sem login). O convidado vê os presentes e,
+  em cada um, o botão "Eu vou dar este presente!". Ele digita o nome ou marca
+  "Quero ficar anônimo".
+- O convidado só vê "Já escolhido". Quem vê o nome é o dono/colaborador na
+  página Presentes: o presente fica riscado com "Quem vai dar: Nome" ou
+  "Quem vai dar: surpresa (anônimo)". Visitantes do evento veem só "já escolhido".
+- Só o dono/colaborador libera o presente (botão "Liberar") e pode desativar o
+  link (o link antigo para de funcionar; compartilhar de novo cria um link novo).
+- O dono recebe um aviso (sininho + push) quando alguém escolhe um presente.
+  Esse aviso segue a chave "Colaboração" das notificações.
+
+Arquivos novos / alterados
+- api/lista.js (rota nova), lista.html, js/listaPublica.js, css/listaPublica.css
+- fotos/lista-presentes-base.jpg (arte roxa sem os textos {entre chaves})
+- presentes.html, css/presentes.css, js/templateImagem.js, js/avisos.js, notificacoes.html
+
+Firestore
+- Nenhuma regra nova. Os links ficam na coleção listasPublicas, que só o
+  servidor acessa (sem regra = bloqueada para o app). Não crie regra para ela.
+- A escolha do convidado é gravada pelo servidor nos campos escolhido,
+  anonimo, escolhidoPor e escolhidoEm do presente.
+
+Vercel
+- Nada para configurar: usa a mesma FIREBASE_SERVICE_ACCOUNT das outras rotas.

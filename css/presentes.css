@@ -566,3 +566,26 @@ main {
     border-radius: 12px;
     font-size: 16px;
 }
+
+
+/* ===========================
+        LINK PARA OS CONVIDADOS
+=========================== */
+
+.painel-link { background: #fff; border-radius: 14px; padding: 14px; margin: 0 0 16px; box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+.painel-link[hidden] { display: none; }
+.painel-titulo { font-size: 14px; font-weight: 700; color: #4d2fb8; }
+.painel-texto { margin-top: 4px; font-size: 12px; color: #777; line-height: 1.4; }
+.painel-botoes { display: flex; gap: 8px; margin-top: 10px; }
+.painel-botoes button { flex: 1; border: 1px solid #ddd5f7; background: #eee9ff; color: #5A32D3; border-radius: 9px; padding: 9px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.painel-botoes button.perigo { background: #fff; color: #c03535; border-color: #f0cccc; }
+
+
+/* ===========================
+        PRESENTE ESCOLHIDO
+=========================== */
+
+.presente.escolhido .informacoes h3 { text-decoration: line-through; color: #8b82a8; }
+.quem-vai-dar { font-size: 12px; color: #2f8f5b; margin-top: 4px; }
+.quem-vai-dar strong { color: #1f6f43; }
+.liberar { border: 1px solid #ddd5f7; background: #fff; color: #5A32D3; border-radius: 8px; padding: 4px 8px; font-size: 11px; cursor: pointer; }

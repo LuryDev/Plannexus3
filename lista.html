@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#5A32D3">
+
+    <title>Lista de presentes - Plannexus</title>
+    <link rel="icon" href="fotos/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/listaPublica.css">
+</head>
+
+<body>
+    <!-- Página PÚBLICA: quem recebe o link da lista de presentes abre aqui (sem login). -->
+    <div class="app">
+
+        <header>
+            <img src="fotos/mascote.png" alt="Nexus" onerror="this.style.display='none'">
+            <span>Lista de presentes</span>
+            <h1 id="nomeEvento">Carregando...</h1>
+        </header>
+
+        <main>
+            <p class="intro" id="intro" hidden>Escolha um presente e avise que você vai dar. Assim ninguém repete! 🎁</p>
+            <section class="lista" id="lista">
+                <p class="aviso">Carregando presentes...</p>
+            </section>
+        </main>
+
+        <p class="rodape">Fornecido por <a href="https://plannexus.vercel.app" target="_blank" rel="noopener">Plannexus</a> - Eventos</p>
+    </div>
+
+    <!-- janela: quem vai dar o presente -->
+    <div class="modal" id="modal" hidden>
+        <form class="caixa" id="form">
+            <h2>Eu vou dar este presente!</h2>
+            <p class="qual" id="qualPresente"></p>
+
+            <label for="nome">Seu nome</label>
+            <input type="text" id="nome" maxlength="60" placeholder="Como você quer aparecer" autocomplete="name">
+
+            <label class="anonimo">
+                <input type="checkbox" id="anonimo">
+                Quero ficar anônimo (será uma surpresa)
+            </label>
+            <p class="dica">Só o dono da lista vê quem escolheu cada presente.</p>
+
+            <p class="mensagem" id="mensagem"></p>
+
+            <button type="submit" class="confirmar" id="confirmar">Confirmar</button>
+            <button type="button" class="cancelar" id="cancelar">Cancelar</button>
+        </form>
+    </div>
+
+    <div class="toast" id="toast" hidden></div>
+
+    <script src="js/listaPublica.js"></script>
+</body>
+
+</html>

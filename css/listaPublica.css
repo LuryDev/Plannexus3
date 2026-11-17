@@ -1,0 +1,54 @@
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+body { background: #f4f4f8; color: #222; }
+.app { width: 100%; max-width: 430px; min-height: 100vh; margin: auto; background: #f4f4f8; }
+
+header { background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%); color: #fff; padding: 26px 20px 22px; text-align: center; }
+header img { width: 64px; height: 64px; object-fit: contain; margin-bottom: 8px; }
+header span { display: block; font-size: 12px; opacity: .8; letter-spacing: .4px; text-transform: uppercase; }
+header h1 { margin-top: 4px; font-size: 22px; font-weight: 700; word-break: break-word; }
+
+main { padding: 20px; }
+.intro { font-size: 13px; color: #6b6480; line-height: 1.5; margin-bottom: 16px; text-align: center; }
+
+.lista { display: flex; flex-direction: column; gap: 12px; }
+.presente { background: #fff; border-radius: 14px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 10px; }
+.presente-topo { display: flex; gap: 12px; align-items: flex-start; }
+.icone { width: 42px; height: 42px; border-radius: 12px; background: #eee9ff; color: #5A32D3; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+.info { flex: 1; min-width: 0; }
+.info h3 { font-size: 15px; color: #2b2250; word-break: break-word; }
+.info p { margin-top: 3px; font-size: 12px; color: #777; word-break: break-word; }
+.info a { display: inline-block; margin-top: 6px; font-size: 12px; color: #5A32D3; text-decoration: none; }
+.valor { font-size: 13px; font-weight: 700; color: #4d2fb8; white-space: nowrap; }
+
+.botao-dar { border: none; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%); box-shadow: 0 4px 10px rgba(77,47,184,.2); }
+.botao-dar:active { transform: scale(.98); }
+.escolhido { opacity: .6; }
+.escolhido .info h3 { text-decoration: line-through; }
+.tag-escolhido { text-align: center; font-size: 13px; font-weight: 600; color: #2f8f5b; background: #e6f6ed; border-radius: 10px; padding: 10px; }
+
+.aviso { background: #fff; border-radius: 14px; padding: 25px 15px; text-align: center; color: #777; font-size: 13px; line-height: 1.5; box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+.aviso.erro { color: #c03535; }
+
+.rodape { text-align: center; font-size: 12px; color: #8b82a8; padding: 22px 20px 30px; }
+.rodape a { color: #5A32D3; font-weight: 600; text-decoration: none; }
+
+.modal { position: fixed; inset: 0; background: rgba(20,12,50,.45); display: flex; align-items: flex-end; justify-content: center; z-index: 100; }
+.modal[hidden] { display: none; }
+.caixa { width: 100%; max-width: 430px; background: #fff; border-radius: 20px 20px 0 0; padding: 22px 20px 26px; display: flex; flex-direction: column; gap: 8px; animation: subir .25s ease; }
+@keyframes subir { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.caixa h2 { font-size: 18px; color: #4d2fb8; }
+.caixa .qual { font-size: 13px; color: #6b6480; margin-bottom: 4px; word-break: break-word; }
+.caixa label { font-size: 13px; color: #444; margin-top: 4px; }
+.caixa input[type=text] { width: 100%; border: 1px solid #ddd5f7; border-radius: 10px; padding: 12px; font-size: 15px; outline: none; }
+.caixa input[type=text]:focus { border-color: #5A32D3; }
+.caixa input[type=text]:disabled { background: #f1eef9; }
+.anonimo { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #444; margin-top: 4px; }
+.anonimo input { width: 18px; height: 18px; accent-color: #5A32D3; }
+.dica { font-size: 12px; color: #8b82a8; }
+.confirmar { margin-top: 8px; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%); }
+.confirmar:disabled { opacity: .6; }
+.cancelar { border: none; background: none; color: #6b6480; font-size: 13px; padding: 8px; cursor: pointer; }
+.mensagem { min-height: 18px; font-size: 13px; color: #c03535; }
+
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2b2250; color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 14px; max-width: 90%; text-align: center; z-index: 200; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+.toast[hidden] { display: none; }

@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/presentes.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;1,700&display=swap">
 
     <!-- PWA: manifest, cor do tema e service worker -->
     <link rel="manifest" href="manifest.json">
@@ -46,11 +47,20 @@
                 </button>
             </div>
 
-            <!-- COMPARTILHAR (ainda sem função) -->
+            <!-- COMPARTILHAR: imagem + link para os convidados escolherem presentes -->
             <button type="button" class="botao-compartilhar" id="botaoCompartilhar">
                 <i class="fa-solid fa-share-nodes"></i>
                 Compartilhar lista
             </button>
+
+            <div class="painel-link" id="painelLink" hidden>
+                <p class="painel-titulo"><i class="fa-solid fa-link"></i> Link para os convidados</p>
+                <p class="painel-texto" id="painelTexto">Quem receber o link escolhe um presente e coloca o nome. Você vê aqui quem vai dar cada um.</p>
+                <div class="painel-botoes">
+                    <button type="button" id="botaoCopiarLink"><i class="fa-regular fa-copy"></i> Copiar link</button>
+                    <button type="button" id="botaoDesativarLink" class="perigo"><i class="fa-solid fa-ban"></i> Desativar</button>
+                </div>
+            </div>
 
             <!-- LISTA (preenchida pelo JavaScript) -->
             <section class="lista-presentes" id="listaPresentes">
@@ -105,7 +115,7 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
         import { avisarColaboracao } from "./js/avisos.js";
-        import { FUNDOS, desenharTemplate, carregarImagem, carregarFontes, tituloListaPresentes, textoCompartilharLista } from "./js/templateImagem.js";
+        import { FUNDOS, desenharTemplate, carregarImagem, carregarFontes, tituloListaPresentes, textoCompartilharLista, desenharListaPresentes, LARGURA_LISTA, ALTURA_LISTA } from "./js/templateImagem.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app  = initializeApp(FIREBASE_CONFIG);
@@ -128,6 +138,7 @@
         let presentes = [];          // lista carregada do Firestore
         let souVisitante = false;
         let nomeDoEvento = "";
+        let tokenLista = null;       // código do link público (null = sem link ativo)
 
         function formatarDinheiro(valor) {
             return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -142,6 +153,58 @@
                 return "";
             }
         }
+
+
+        // ================= LINK PÚBLICO (convidados) =================
+        async function chamarLista(corpo) {
+            const idToken = await auth.currentUser.getIdToken();
+            const resposta = await fetch("/api/lista", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                body: JSON.stringify(corpo)
+            });
+            const dados = await resposta.json().catch(() => ({}));
+            if (!resposta.ok) throw new Error(dados.erro || "Erro " + resposta.status);
+            return dados;
+        }
+
+        function urlDoLink() {
+            return tokenLista ? location.origin + "/lista.html?c=" + encodeURIComponent(tokenLista) : "";
+        }
+
+        function atualizarPainelLink() {
+            document.getElementById("painelLink").hidden = souVisitante || !tokenLista;
+        }
+
+        async function garantirLink() {
+            if (tokenLista) return tokenLista;
+            const dados = await chamarLista({ acao: "criar", eventoId });
+            tokenLista = dados.token;
+            atualizarPainelLink();
+            return tokenLista;
+        }
+
+        document.getElementById("botaoCopiarLink").addEventListener("click", async () => {
+            const url = urlDoLink();
+            if (!url) return;
+            try {
+                await navigator.clipboard.writeText(url);
+                alert("Link copiado! Envie para seus convidados.");
+            } catch (e) {
+                prompt("Copie o link:", url);
+            }
+        });
+
+        document.getElementById("botaoDesativarLink").addEventListener("click", async () => {
+            if (!confirm("Desativar o link? Quem tiver o link antigo não conseguirá mais abrir a lista. Os nomes já registrados continuam aqui.")) return;
+            try {
+                await chamarLista({ acao: "desativar", eventoId });
+                tokenLista = null;
+                atualizarPainelLink();
+            } catch (erro) {
+                alert("Não foi possível desativar: " + erro.message);
+            }
+        });
 
 
         // ================= INÍCIO =================
@@ -182,6 +245,14 @@
                 }
 
                 await carregarPresentes();
+
+                if (!souVisitante) {
+                    try {
+                        const estado = await chamarLista({ acao: "estado", eventoId });
+                        tokenLista = estado.ativo ? estado.token : null;
+                        atualizarPainelLink();
+                    } catch (e) { /* sem o servidor, só não mostra o painel */ }
+                }
             }
             catch (erro) {
                 mostrarErro(erro);
@@ -224,7 +295,7 @@
                 const link = presente.link ? linkSeguro(presente.link) : "";
 
                 const card = document.createElement("div");
-                card.className = "presente";
+                card.className = "presente" + (presente.escolhido ? " escolhido" : "");
 
                 card.innerHTML = `
                     <div class="icone-presente">
@@ -233,6 +304,13 @@
 
                     <div class="informacoes">
                         <h3>${escaparHTML(presente.nome || "Sem nome")}</h3>
+                        ${presente.escolhido ? `
+                            <p class="quem-vai-dar">
+                                <i class="fa-solid fa-gift"></i>
+                                ${souVisitante
+                                    ? "<strong>já escolhido</strong>"
+                                    : `Quem vai dar: <strong>${presente.anonimo || !presente.escolhidoPor ? "surpresa (anônimo)" : escaparHTML(presente.escolhidoPor)}</strong>`}
+                            </p>` : ""}
                         ${presente.observacao ? `<p>${escaparHTML(presente.observacao)}</p>` : ""}
                         ${link ? `
                             <a class="link-presente" href="${escaparHTML(link)}" target="_blank" rel="noopener noreferrer">
@@ -243,6 +321,10 @@
 
                     <div class="lado-direito">
                         ${Number(presente.valor) > 0 ? `<span class="valor-presente">${escaparHTML(formatarDinheiro(presente.valor))}</span>` : ""}
+                        ${souVisitante || !presente.escolhido ? "" : `
+                        <button class="liberar" title="Liberar presente (tirar o nome)">
+                            <i class="fa-solid fa-rotate-left"></i> Liberar
+                        </button>`}
                         ${souVisitante ? "" : `
                         <button class="excluir" title="Excluir presente">
                             <i class="fa-regular fa-trash-can"></i>
@@ -252,6 +334,9 @@
 
                 if (!souVisitante) {
                     card.querySelector(".excluir").addEventListener("click", () => excluirPresente(presente));
+
+                    const botaoLiberar = card.querySelector(".liberar");
+                    if (botaoLiberar) botaoLiberar.addEventListener("click", () => liberarPresente(presente));
                 }
 
                 listaEl.appendChild(card);
@@ -259,6 +344,18 @@
         }
 
         // ================= AÇÕES =================
+        async function liberarPresente(presente) {
+            if (!confirm(`Liberar "${presente.nome}"? O nome de quem escolheu será removido e o presente volta a ficar disponível.`)) return;
+
+            try {
+                await chamarLista({ acao: "liberar", eventoId, presenteId: presente.id });
+                await carregarPresentes();
+            }
+            catch (erro) {
+                alert("Não foi possível liberar: " + erro.message);
+            }
+        }
+
         async function excluirPresente(presente) {
             if (!confirm(`Excluir o presente "${presente.nome}"?`)) return;
 
@@ -350,19 +447,42 @@
             botao.disabled = true;
 
             try {
-                const [, nexus] = await Promise.all([carregarFontes(), carregarImagem("fotos/mascote.png")]);
+                const [, nexus, arte] = await Promise.all([
+                    carregarFontes(),
+                    carregarImagem("fotos/mascote.png"),
+                    carregarImagem("fotos/lista-presentes-base.jpg")
+                ]);
+
+                // cria (ou reaproveita) o link para os convidados escolherem presentes
+                let linkConvidados = "";
+                if (!souVisitante) {
+                    try {
+                        await garantirLink();
+                        linkConvidados = urlDoLink();
+                    } catch (e) { console.warn("Sem link público:", e); }
+                }
 
                 const canvas = document.createElement("canvas");
-                canvas.width = 1080;
-                canvas.height = 1096;
-
                 const nomes = presentes.map((p) => p.nome).filter(Boolean);
 
-                desenharTemplate(canvas.getContext("2d"), {
-                    titulo: tituloListaPresentes({ nome: nomeDoEvento }),
-                    itens:  nomes.length ? nomes : ["A lista ainda está vazia"],
-                    rodape: true
-                }, { fundo: FUNDOS[0].cor, nexus });
+                if (arte) {
+                    // design roxo do Plannexus
+                    canvas.width = LARGURA_LISTA;
+                    canvas.height = ALTURA_LISTA;
+                    desenharListaPresentes(canvas.getContext("2d"), {
+                        evento: nomeDoEvento,
+                        itens:  nomes.length ? nomes : ["A lista ainda está vazia"]
+                    }, { base: arte });
+                } else {
+                    // sem a arte (falha de rede): usa o modelo simples
+                    canvas.width = 1080;
+                    canvas.height = 1096;
+                    desenharTemplate(canvas.getContext("2d"), {
+                        titulo: tituloListaPresentes({ nome: nomeDoEvento }),
+                        itens:  nomes.length ? nomes : ["A lista ainda está vazia"],
+                        rodape: true
+                    }, { fundo: FUNDOS[0].cor, nexus });
+                }
 
                 const blob = await new Promise((ok, falha) =>
                     canvas.toBlob((b) => b ? ok(b) : falha(new Error("Falha ao gerar a imagem.")), "image/png"));
@@ -373,7 +493,7 @@
                 const arquivo = new File([blob], nomeArquivo + ".png", { type: "image/png" });
 
                 if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
-                    await navigator.share({ files: [arquivo], title: "Lista de presentes", text: textoCompartilharLista({ nome: nomeDoEvento }) });
+                    await navigator.share({ files: [arquivo], title: "Lista de presentes", text: textoCompartilharLista({ nome: nomeDoEvento }, linkConvidados) });
                 } else {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
@@ -383,7 +503,11 @@
                     a.click();
                     a.remove();
                     setTimeout(() => URL.revokeObjectURL(url), 4000);
-                    alert("A imagem da lista foi baixada para você enviar.");
+                    if (linkConvidados) {
+                        try { await navigator.clipboard.writeText(linkConvidados); } catch (e) { /* segue */ }
+                    }
+                    alert("A imagem da lista foi baixada para você enviar." +
+                          (linkConvidados ? "\n\nO link para os convidados escolherem presentes foi copiado:\n" + linkConvidados : ""));
                 }
             } catch (erro) {
                 if (!erro || erro.name !== "AbortError") {
