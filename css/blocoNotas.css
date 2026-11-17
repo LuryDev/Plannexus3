@@ -378,3 +378,7 @@ main > section[aria-label="Anotações do evento"] {
 .formComentario button:hover {
     background: var(--roxo-escuro);
 }
+
+[hidden] {
+    display: none !important;
+}

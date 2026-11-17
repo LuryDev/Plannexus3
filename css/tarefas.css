@@ -562,3 +562,169 @@ main {
 .concluida .selo-servico {
     opacity: .6;
 }
+
+/* Tarefas pré definidas */
+
+.sugestoes {
+    background: #f4f1ff;
+    border: 1px solid #ded5ff;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 28px;
+}
+
+.sugestoes-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.sugestoes-legenda {
+    font-size: 11px;
+    font-weight: bold;
+    color: #7354c8;
+    letter-spacing: 1px;
+}
+
+.sugestoes-topo h2 {
+    margin: 5px 0;
+    color: #29204c;
+}
+
+.sugestoes-topo p {
+    margin: 0;
+    font-size: 13px;
+    color: #686078;
+}
+
+.sugestoes-topo > i {
+    font-size: 25px;
+    color: #7354c8;
+}
+
+.lista-sugestoes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.item-sugestao {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.item-sugestao input {
+    margin-top: 4px;
+    accent-color: #7354c8;
+    cursor: pointer;
+}
+
+.informacoes-sugestao {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.informacoes-sugestao strong {
+    font-size: 14px;
+    color: #29204c;
+}
+
+.informacoes-sugestao small {
+    font-size: 12px;
+    color: #777;
+}
+
+.item-sugestao.ja-adicionada {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.acoes-sugestoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.acoes-sugestoes button {
+    flex: 1;
+    padding: 11px;
+    border: none;
+    border-radius: 9px;
+    background: #7354c8;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.acoes-sugestoes button:first-child {
+    background: white;
+    color: #7354c8;
+    border: 1px solid #7354c8;
+}
+
+.acoes-sugestoes button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#mensagemSugestoes {
+    font-size: 13px;
+    margin-bottom: 0;
+}
+
+.modal-confirmacao > p {
+    margin: 18px 0;
+    line-height: 1.5;
+    color: #555;
+}
+
+.botoes-confirmacao {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+/* EXCLUIR TAREFA */
+
+.botao-cancelar,
+.botao-excluir {
+    border: none;
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.botao-cancelar {
+    background: #eeeeee;
+    color: #333;
+}
+
+.botao-cancelar:hover {
+    background: #dddddd;
+}
+
+.botao-excluir {
+    background: #d93636;
+    color: white;
+}
+
+.botao-excluir:hover {
+    background: #b92525;
+}
+
+.botao-excluir:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
