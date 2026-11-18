@@ -20,6 +20,7 @@ Preenchimento automático do nome
 Modelos já criados
 - Chá de bebê, Chá revelação (grupo "Chá de bebê"), Formatura.
 - Aniversário (bolo), Aniversário (balões), Casamento (floral).
+- Convite simples (grupo "Outro"): nome do evento (quebra em 2 linhas se for longo), data, horário e local.
 
 Como adicionar um modelo novo
 1) Coloque a arte, sem os textos entre chaves, em fotos/convites/ (1600 x 1135).
@@ -39,3 +40,19 @@ Artes novas (aniversário e casamento)
 - Idade começa como "10 ANOS" (o evento não tem idade); pronome vem do nome do evento (DO/DA).
 - Fonte nova: Josefin Sans (fina), usada no casamento.
 - Opções novas no desenho: esp (espaçamento de letras), maiusc, dir (alinha à direita) e linha1 (uma linha com campos e textos fixos).
+- Opção duas: true no desenho divide um texto longo em 2 linhas.
+- Opção igual: "nome" no desenho faz vários textos usarem o mesmo tamanho (o menor que cabe). Usada nos nomes dos noivos.
+
+Informações opcionais (todos os modelos)
+- Todo campo pode ficar em branco. Campo vazio não aparece no convite e o que sobra se realinha.
+- No arquivo js/convitesModelos.js, cada modelo tem:
+    itens   = partes do desenho que dependem de informação (ícone + rótulo, moldura, pílula...).
+              campos: [...]  -> o item aparece se ALGUM desses campos estiver preenchido
+              todos: [...]   -> aparece só se TODOS os itens citados estiverem presentes (ex.: o "às")
+              depende: [...] -> aparece se ALGUM item citado estiver presente (ex.: "DETALHES:")
+              sprite/x/y/w/h -> imagem do item (fotos/convites/itens/*.png), recortada da arte original
+    fluxos  = como os itens se reorganizam: tipo "fila" (lado a lado) ou "pilha" (um embaixo do outro),
+              alinhar "centro" ou "esq", passo (distância até o próximo item), centro, sempre.
+  Os textos do desenho ligados a um item usam item: "id" e andam junto com ele.
+- Ao criar um modelo novo, a arte base deve vir SEM esses itens; cada item vira um PNG com fundo transparente.
+- Formatura: o parágrafo muda a frase se o nome do formando ficar em branco.

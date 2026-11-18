@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Chewy&family=Baloo+2:wght@600&family=Montserrat:wght@500;700&family=Playfair+Display:wght@600;700&family=Allura&family=Great+Vibes&family=Dancing+Script:wght@600&family=Lobster&family=Josefin+Sans:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Chewy&family=Baloo+2:wght@600&family=Montserrat:wght@500;700&family=Playfair+Display:wght@600;700&family=Allura&family=Great+Vibes&family=Dancing+Script:wght@600&family=Lobster&family=Josefin+Sans:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/convite.css">
 
     <!-- PWA: manifest, cor do tema e service worker -->
@@ -52,7 +52,7 @@
 
                 <section class="bloco">
                     <h3>Textos do convite</h3>
-                    <p class="dica-campos">Preenchemos com os dados do evento. Você pode trocar qualquer texto e escolher a fonte dele. O restante do desenho é fixo.</p>
+                    <p class="dica-campos">Preenchemos com os dados do evento. Todos os campos são opcionais: o que ficar em branco some do convite e o resto se reorganiza sozinho. Você também pode escolher a fonte de cada texto.</p>
                     <div id="camposModelo"></div>
                 </section>
 
@@ -265,7 +265,7 @@
                 const rotulo = document.createElement("label");
                 rotulo.htmlFor = "cm_" + campo.c;
                 const nome = document.createElement("span");
-                nome.textContent = campo.rotulo;
+                nome.textContent = campo.rotulo + " (opcional)";
                 const marcas = document.createElement("span");
                 marcas.className = "marcas-campo";
                 const tagAuto = document.createElement("span");
@@ -286,6 +286,7 @@
                 entrada.id = "cm_" + campo.c;
                 entrada.maxLength = 60;
                 entrada.value = valoresModelo[campo.c] || "";
+                entrada.placeholder = "Em branco: não aparece no convite";
 
                 const fonte = document.createElement("select");
                 fonte.setAttribute("aria-label", "Fonte: " + campo.rotulo);
