@@ -27,6 +27,7 @@ export const FERRAMENTAS = {
     tarefas:    { nome: "Tarefas",             pagina: "tarefas.html" },
     financeiro: { nome: "Controle Financeiro", pagina: "controleFinanceiro.html" },
     presentes:  { nome: "Lista de Presentes",  pagina: "presentes.html" },
+    convidados: { nome: "Convidados",          pagina: "convidados.html" },
     notas:      { nome: "Bloco de Notas",      pagina: "blocoNotas.html" },
     calendario: { nome: "Calendário",          pagina: "calendario.html" }
 };
@@ -55,7 +56,7 @@ export function mensagemColaboracao(aviso) {
 
 // categoria (para o liga/desliga) de qualquer aviso; avisos antigos não têm categoria
 export function categoriaDoAviso(aviso) {
-    if (aviso.tipo === "colaboracao" || aviso.tipo === "aceitou-convite" || aviso.tipo === "papel" || aviso.tipo === "presente") return "colaboracao";
+    if (aviso.tipo === "colaboracao" || aviso.tipo === "aceitou-convite" || aviso.tipo === "papel" || aviso.tipo === "presente" || aviso.tipo === "presenca") return "colaboracao";
     if (aviso.tipo === "lembrete") return aviso.categoria || "";
     return "";
 }

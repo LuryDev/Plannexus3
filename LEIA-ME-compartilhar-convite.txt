@@ -1,0 +1,33 @@
+COMPARTILHAR O CONVITE (WhatsApp e outras redes)
+=================================================
+
+Arquivos alterados: convite.html e css/convite.css
+
+O que mudou
+-----------
+1) Campo "Mensagem para enviar junto": texto já preenchido com nome do evento,
+   data, horário e local (editável). Vai junto com a imagem.
+2) Botão Compartilhar mais confiável: a imagem agora é gerada ANTES do toque,
+   assim o celular abre a janela de compartilhar na hora (WhatsApp, Instagram,
+   Telegram etc.). Antes a imagem era gerada depois do toque, e alguns
+   aparelhos bloqueavam por isso.
+3) O texto também é copiado automaticamente, caso o app ignore a legenda.
+4) Plano B: se o aparelho não permitir compartilhar arquivo, a imagem é
+   baixada e o texto fica copiado (é só anexar e colar).
+5) Botões novos: "Copiar texto" e "Texto no WhatsApp" (abre o WhatsApp com a
+   mensagem; a imagem vai pelo botão Compartilhar).
+
+Como testar
+-----------
+No celular (app instalado ou Chrome): abrir um convite, tocar em Compartilhar
+e escolher o WhatsApp. A imagem e o texto devem aparecer na conversa.
+Em computador, o navegador pode não oferecer WhatsApp na janela de compartilhar;
+nesse caso use Baixar imagem + Copiar texto.
+
+SUGESTÕES DE MENSAGEM
+---------------------
+Acima do campo de texto aparecem 3 sugestões sorteadas (de 8 prontas). Ao tocar
+em uma, o texto é trocado já com nome, data, horário e local do evento, e o
+usuário ainda pode editar. O botão "Outras ideias" sorteia outras 3.
+Para mudar ou acrescentar sugestões: lista IDEIAS em convite.html
+({evento} e {detalhes} são preenchidos automaticamente).

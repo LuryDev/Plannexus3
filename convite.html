@@ -55,6 +55,26 @@
                     <p class="dica-campos">Preenchemos com os dados do evento. Você pode trocar qualquer texto e escolher a fonte dele. O restante do desenho é fixo.</p>
                     <div id="camposModelo"></div>
                 </section>
+
+                <section class="bloco">
+                    <h3>Mensagem para enviar junto</h3>
+                    <p class="dica-campos">Esse texto acompanha a imagem quando você compartilha. Já veio preenchido com os dados do evento e você pode editar.</p>
+                    <label class="incluir-link" id="blocoIncluirLink" hidden>
+                        <input type="checkbox" id="incluirLinkPresenca" checked>
+                        Incluir o link para o convidado confirmar presença
+                    </label>
+                    <div class="ideias-titulo">
+                        <span>Sem ideia do que escrever? Toque em uma sugestão:</span>
+                        <button type="button" class="outras-ideias" id="botaoOutrasIdeias"><i class="fa-solid fa-shuffle"></i> Outras ideias</button>
+                    </div>
+                    <div id="listaIdeias" class="lista-ideias"></div>
+                    <textarea id="textoMensagem" rows="8" maxlength="700" aria-label="Mensagem do convite"></textarea>
+                    <div class="linha-mensagem">
+                        <button type="button" class="botao-secundario" id="botaoCopiarTexto"><i class="fa-regular fa-copy"></i>Copiar texto</button>
+                        <button type="button" class="botao-secundario" id="botaoZap"><i class="fa-brands fa-whatsapp"></i>Texto no WhatsApp</button>
+                    </div>
+                    <p class="dica-campos">Para mandar a imagem junto, use o botão Compartilhar abaixo. Se o seu aparelho não abrir a janela de compartilhar, baixamos a imagem e copiamos o texto para você.</p>
+                </section>
             </div>
 
             <!-- AÇÕES -->
@@ -83,6 +103,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { LINK_PLANNEXUS } from "./js/templateImagem.js";
         import {
             MODELOS, FONTES, modeloPorId, dadosDoEvento, valorAutomatico, valoresIniciais, desenharModelo
         } from "./js/convitesModelos.js";
@@ -131,7 +152,10 @@
             modeloAgendado = true;
             requestAnimationFrame(() => {
                 modeloAgendado = false;
-                if (tela === "modelo" && modeloAtual) desenharModelo(canvasModelo, modeloAtual, valoresModelo, fontesModelo, 1600);
+                if (tela === "modelo" && modeloAtual) {
+                    desenharModelo(canvasModelo, modeloAtual, valoresModelo, fontesModelo, 1600);
+                    prepararDepois();
+                }
             });
         }
 
@@ -213,6 +237,19 @@
             montarCamposModelo();
             mostrarTela("modelo");
             desenharModelo(canvasModelo, modeloAtual, valoresModelo, fontesModelo, 1600);
+            document.getElementById("textoMensagem").value = textoPadraoConvite();
+            ideiasAtuais = [];
+            sortearIdeias();
+            if (!tokenPresenca) {
+                // cria (ou reaproveita) o link de confirmação e acrescenta a linha na mensagem
+                garantirLinkPresenca().then(() => {
+                    if (!linkAtivoNaMensagem()) return;
+                    const area = document.getElementById("textoMensagem");
+                    area.value = comLinhaDoLink(area.value);
+                    sortearIdeias();
+                });
+            }
+            prepararDepois();
         }
 
         function montarCamposModelo() {
@@ -335,26 +372,201 @@
             }
         });
 
-        document.getElementById("botaoCompartilhar").addEventListener("click", async () => {
-            try {
-                await desenharAtual();
+        // ---- mensagem que acompanha a imagem ----
+        function dataBR(iso) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+            return m ? m[3] + "/" + m[2] + "/" + m[1] : "";
+        }
 
-                const blob = await gerarImagem();
-                const arquivo = new File([blob], nomeArquivo + ".png", { type: "image/png" });
+        // ---- link para o convidado confirmar presença (página confirmar.html) ----
+        let tokenPresenca = null;
+
+        async function chamarPresenca(corpo) {
+            const idToken = await auth.currentUser.getIdToken();
+            const resposta = await fetch("/api/presenca", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                body: JSON.stringify(corpo)
+            });
+            const dados = await resposta.json().catch(() => ({}));
+            if (!resposta.ok) throw new Error(dados.erro || "Erro " + resposta.status);
+            return dados;
+        }
+
+        function urlPresenca() {
+            return tokenPresenca ? location.origin + "/confirmar.html?c=" + encodeURIComponent(tokenPresenca) : "";
+        }
+
+        function linkAtivoNaMensagem() {
+            return !!urlPresenca() && document.getElementById("incluirLinkPresenca").checked;
+        }
+
+        const MARCA_PLANNEXUS = "\n\nOrganize seus eventos com o Plannexus";
+
+        // coloca a linha do link antes da assinatura do Plannexus (ou no fim)
+        function comLinhaDoLink(texto) {
+            const url = urlPresenca();
+            if (!url || texto.includes(url)) return texto;
+            const linha = "\n\n✅ Confirme sua presença aqui: " + url;
+            const i = texto.indexOf(MARCA_PLANNEXUS);
+            return i >= 0 ? texto.slice(0, i) + linha + texto.slice(i) : texto.trimEnd() + linha;
+        }
+
+        function semLinhaDoLink(texto) {
+            return texto.replace(/\n*✅ Confirme sua presença aqui: \S+/g, "");
+        }
+
+        async function garantirLinkPresenca() {
+            if (tokenPresenca) return;
+            try {
+                const dados = await chamarPresenca({ acao: "criar", eventoId });
+                tokenPresenca = dados.token;
+            } catch (e) {
+                tokenPresenca = null;   // sem permissão ou sem servidor: segue sem o link
+            }
+            document.getElementById("blocoIncluirLink").hidden = !tokenPresenca;
+        }
+
+        document.getElementById("incluirLinkPresenca").addEventListener("change", (e) => {
+            const area = document.getElementById("textoMensagem");
+            area.value = e.target.checked ? comLinhaDoLink(area.value) : semLinhaDoLink(area.value);
+        });
+
+        function textoPadraoConvite() {
+            const d = dadosEvento || {};
+            const linhas = ["🎉 Você é meu convidado(a) para " + (nomeDoEvento || "o meu evento") + "!"];
+            const quando = [dataBR(d.data), d.horario ? "às " + d.horario : ""].filter(Boolean).join(" ");
+            if (quando) linhas.push("📅 " + quando);
+            if (d.local) linhas.push("📍 " + d.local);
+            linhas.push("", "Veja os detalhes na imagem e me confirme se vai! 💜", "", "Organize seus eventos com o Plannexus: " + LINK_PLANNEXUS);
+            const base = linhas.join("\n");
+            return linkAtivoNaMensagem() ? comLinhaDoLink(base) : base;
+        }
+
+        // ---- sugestões prontas (aparecem 3 por vez, sorteadas) ----
+        const IDEIAS = [
+            "🎉 Você é meu convidado(a) para {evento}!\n{detalhes}Veja o convite na imagem e me confirme se vai! 💜",
+            "💌 Tenho um convite especial pra você! {evento} vai ser inesquecível e eu quero você lá.\n{detalhes}Confirma comigo? 😊",
+            "✨ Salve a data! {evento}\n{detalhes}Sua presença vai fazer toda a diferença. Conto com você! 💜",
+            "Oi! Vai ter {evento} e eu faço questão da sua presença. 🥳\n{detalhes}O convite está na imagem. Me diz se você vem!",
+            "🎈 Chegou a hora de comemorar! Você está convidado(a) para {evento}.\n{detalhes}Não falte, vai ser muito especial! 💜",
+            "📣 Anota na agenda: {evento}!\n{detalhes}Me manda um \"confirmado\" e venha celebrar comigo. 🎉",
+            "Com muito carinho, convido você para {evento}. 💜\n{detalhes}Sua presença é o nosso melhor presente!",
+            "Psiu! Reserve esse dia: {evento}. 🥂\n{detalhes}Todos os detalhes estão no convite. Te espero lá!"
+        ];
+
+        function detalhesDoEvento() {
+            const d = dadosEvento || {};
+            const quando = [dataBR(d.data), d.horario ? "às " + d.horario : ""].filter(Boolean).join(" ");
+            return (quando ? "📅 " + quando + "\n" : "") + (d.local ? "📍 " + d.local + "\n" : "");
+        }
+
+        function montarIdeia(modelo) {
+            const base = modelo.replace("{evento}", nomeDoEvento || "o meu evento").replace("{detalhes}", detalhesDoEvento() + (detalhesDoEvento() ? "\n" : ""))
+                + "\n\nOrganize seus eventos com o Plannexus: " + LINK_PLANNEXUS;
+            return linkAtivoNaMensagem() ? comLinhaDoLink(base) : base;
+        }
+
+        let ideiasAtuais = [];
+        function sortearIdeias() {
+            const base = IDEIAS.filter((m) => !ideiasAtuais.includes(m));
+            const pool = (base.length >= 3 ? base : IDEIAS).slice();
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+            ideiasAtuais = pool.slice(0, 3);
+
+            const lista = document.getElementById("listaIdeias");
+            lista.innerHTML = "";
+            ideiasAtuais.forEach((modelo) => {
+                const botao = document.createElement("button");
+                botao.type = "button";
+                botao.className = "ideia";
+                const partes = montarIdeia(modelo).split("\n\nOrganize")[0].split("\n").filter((l) => l && !/^[📅📍✅]/u.test(l));
+                botao.textContent = partes.join(" ");
+                botao.addEventListener("click", () => {
+                    document.getElementById("textoMensagem").value = montarIdeia(modelo);
+                    avisar("Mensagem trocada. Você ainda pode editar o texto.");
+                });
+                lista.appendChild(botao);
+            });
+        }
+
+        document.getElementById("botaoOutrasIdeias").addEventListener("click", sortearIdeias);
+
+        function textoAtual() {
+            const t = document.getElementById("textoMensagem").value.trim();
+            return t || textoPadraoConvite();
+        }
+
+        function copiarTexto(texto) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    return navigator.clipboard.writeText(texto).then(() => true).catch(() => false);
+                }
+            } catch (e) { /* segue */ }
+            return Promise.resolve(false);
+        }
+
+        // ---- imagem pronta antes do clique ----
+        // Os celulares só deixam abrir a janela de compartilhar logo depois do toque.
+        // Por isso a imagem já fica pronta e o clique chama o compartilhar direto.
+        let arquivoPronto = null;
+        let versaoArquivo = 0;
+        let timerPreparo = null;
+
+        async function prepararArquivo() {
+            const versao = ++versaoArquivo;
+            await desenharAtual();
+            const blob = await gerarImagem();
+            const arquivo = new File([blob], nomeArquivo + ".png", { type: "image/png" });
+            if (versao === versaoArquivo) arquivoPronto = arquivo;
+            return arquivo;
+        }
+
+        function prepararDepois() {
+            arquivoPronto = null;
+            clearTimeout(timerPreparo);
+            timerPreparo = setTimeout(() => { prepararArquivo().catch(() => {}); }, 500);
+        }
+
+        document.getElementById("botaoCopiarTexto").addEventListener("click", async () => {
+            avisar(await copiarTexto(textoAtual()) ? "Texto copiado." : "Não foi possível copiar. Selecione o texto e copie manualmente.", false);
+        });
+
+        document.getElementById("botaoZap").addEventListener("click", () => {
+            window.open("https://wa.me/?text=" + encodeURIComponent(textoAtual()), "_blank", "noopener");
+            avisar("Abrimos o WhatsApp só com o texto. Para mandar a imagem, use o botão Compartilhar.");
+        });
+
+        document.getElementById("botaoCompartilhar").addEventListener("click", async () => {
+            const texto = textoAtual();
+            copiarTexto(texto);   // garante o texto na área de transferência, caso o app ignore a legenda
+
+            let arquivo = arquivoPronto;
+            try {
+                if (!arquivo) arquivo = await prepararArquivo();
 
                 if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
-                    await navigator.share({ files: [arquivo], title: "Convite", text: textoCompartilharConvite({ nome: nomeDoEvento }) });
+                    await navigator.share({ files: [arquivo], title: "Convite", text: texto });
                     marcarConviteGerado();
-                    avisar("");
-                } else {
-                    // aparelho/navegador sem compartilhamento de arquivos: baixa a imagem
-                    baixar(blob);
-                    avisar("Seu aparelho não permite compartilhar direto. A imagem foi baixada para você enviar.");
+                    avisar("Se o texto não aparecer na mensagem, é só colar: ele já está copiado.");
+                    return;
                 }
             } catch (erro) {
                 if (erro && erro.name === "AbortError") return;   // o usuário fechou a janela de compartilhar
                 console.error(erro);
-                avisar("Não foi possível compartilhar. Tente baixar a imagem.", true);
+            }
+
+            // alternativa: baixa a imagem e deixa o texto copiado
+            try {
+                baixar(arquivo || await gerarImagem());
+                marcarConviteGerado();
+                avisar("Não deu para abrir o compartilhar neste aparelho. Baixamos a imagem e copiamos o texto: anexe a imagem e cole o texto na conversa.");
+            } catch (erro) {
+                console.error(erro);
+                avisar("Não foi possível preparar a imagem. Tente de novo.", true);
             }
         });
 

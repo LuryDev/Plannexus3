@@ -1,0 +1,22 @@
+/* Lista de convidados que confirmaram presença (base: presentes.css) */
+.titulo-lista { font-size: 20px; line-height: 1.3; color: #4d2fb8; font-weight: 700; margin-bottom: 16px; overflow-wrap: anywhere; }
+
+.contagem { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,.05); display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.contagem[hidden] { display: none; }
+.contagem strong { font-size: 30px; color: #4d2fb8; line-height: 1; }
+.contagem span { font-size: 14px; color: #6b6480; }
+.barra { flex-basis: 100%; height: 8px; border-radius: 8px; background: #ece8f7; overflow: hidden; margin-top: 6px; }
+.barra[hidden] { display: none; }
+.barra i { display: block; height: 100%; background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%); border-radius: 8px; transition: width .3s ease; }
+
+.subtitulo-lista { font-size: 14px; font-weight: 600; color: #2b2250; margin: 4px 0 10px; }
+.subtitulo-lista[hidden] { display: none; }
+
+.lista-confirmados { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.lista-confirmados li { background: #fff; border-radius: 12px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(0,0,0,.05); display: flex; align-items: center; gap: 8px; font-size: 15px; color: #2b2250; }
+.posicao { color: #8b82a8; font-weight: 600; min-width: 34px; }
+.nome-confirmado { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.remover { border: none; background: #f6f3ff; color: #8b82a8; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; flex-shrink: 0; }
+.remover:hover { color: #c03535; background: #fdeaea; }
+.remover:focus-visible { outline: 3px solid #b9a6f5; outline-offset: 2px; }
+.painel-botoes[hidden] { display: none; }

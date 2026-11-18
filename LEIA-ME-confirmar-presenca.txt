@@ -1,0 +1,66 @@
+CONFIRMAÇÃO DE PRESENÇA PELO LINK DO CONVITE
+============================================
+
+Como funciona
+-------------
+1) No criador de convites, a mensagem já vem com uma linha:
+   "✅ Confirme sua presença aqui: https://.../confirmar.html?c=CODIGO"
+   (a caixa "Incluir o link para o convidado confirmar presença" liga/desliga).
+2) O convidado abre o link SEM conta, informa nome e e-mail e confirma.
+   Se o e-mail já tiver confirmado: "Você já confirmou presença!" (bloqueia).
+   Também bloqueia o MESMO APARELHO: o navegador guarda um código do aparelho
+   e, ao reabrir o link (ou tentar com outro e-mail), aparece "Você já
+   confirmou presença!". Se o organizador remover o nome, o aparelho é liberado.
+3) No evento, o cartão "Número de convidados" agora é clicável e abre
+   convidados.html:
+       Sua lista de convidados do evento - {nome do evento}
+       10/20 convidados confirmados
+       Convidados que confirmaram presença:
+       1 - fulano
+       2 - ...
+4) O organizador recebe aviso (sininho + push) a cada confirmação.
+5) Em convidados.html dono/colaborador pode copiar/criar/desativar o link e
+   remover um nome (aquela pessoa poderá confirmar de novo).
+   Visitantes do evento só veem a lista.
+
+Arquivos novos
+--------------
+api/presenca.js            rota do servidor (confirmar, ver, lista, link)
+confirmar.html             página pública do convidado
+js/confirmarPublica.js
+css/confirmarPublica.css
+convidados.html            lista de confirmados (organizador)
+css/convidados.css
+
+Arquivos alterados
+------------------
+evento.html (+ css/evento.css)   "Número de convidados" vira link
+convite.html (+ css/convite.css) link de confirmação na mensagem
+js/avisos.js, notificacoes.html  aviso "Presença confirmada"
+
+IMPORTANTE (Firestore)
+----------------------
+As coleções "confirmacoesPublicas" e "presencas" são lidas/escritas SÓ pelo
+servidor. NÃO crie regras que liberem essas coleções para o app (igual a
+"listasPublicas"). Assim ninguém lê os dados pelo navegador.
+
+Privacidade
+-----------
+O e-mail NÃO é guardado: só um código (hash) dele, e o código do aparelho
+também só como hash. Servem para impedir confirmação repetida. O organizador
+vê apenas o nome.
+
+Limite do bloqueio por aparelho
+-------------------------------
+O código fica no navegador: quem limpar os dados, usar aba anônima ou outro
+navegador/aparelho consegue confirmar de novo (o e-mail continua bloqueando
+repetição com o mesmo e-mail).
+
+Observações
+-----------
+- O cartão "Número de convidados" só aparece se o evento tiver número de
+  convidados informado ao criar.
+- A confirmação não bloqueia quando passa do número esperado (ex.: 21/20).
+- Testado com banco de mentira (e-mail repetido, permissões, remover) e no
+  navegador simulado. Falta testar de verdade após o deploy: gerar o link,
+  confirmar com 2 e-mails (um repetido) e abrir a lista.

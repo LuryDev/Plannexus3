@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#5A32D3">
+
+    <title>Confirmar presença - Plannexus</title>
+    <link rel="icon" href="fotos/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/listaPublica.css">
+    <link rel="stylesheet" href="css/confirmarPublica.css">
+</head>
+
+<body>
+    <!-- Página PÚBLICA: quem recebe o link do convite abre aqui (sem login). -->
+    <div class="app">
+
+        <header>
+            <img src="fotos/mascote.png" alt="Nexus" onerror="this.style.display='none'">
+            <span>Você está convidado(a)</span>
+            <h1 id="nomeEvento">Carregando...</h1>
+        </header>
+
+        <main>
+            <section class="detalhes" id="detalhes" hidden></section>
+
+            <form class="cartao" id="form" hidden novalidate>
+                <h2>Confirme sua presença</h2>
+
+                <label for="nome">Seu nome</label>
+                <input type="text" id="nome" maxlength="60" placeholder="Como você quer aparecer na lista" autocomplete="name" required>
+
+                <label for="email">Seu e-mail</label>
+                <input type="email" id="email" maxlength="120" placeholder="voce@email.com" autocomplete="email" inputmode="email" required>
+                <p class="dica">Usamos o e-mail só para evitar confirmação repetida. O organizador vê apenas o seu nome.</p>
+
+                <!-- campo-isca contra robôs: pessoas não veem -->
+                <input type="text" id="site" class="isca" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+                <p class="mensagem" id="mensagem" role="status"></p>
+
+                <button type="submit" class="confirmar" id="confirmar">Confirmar presença</button>
+            </form>
+
+            <section class="cartao resultado" id="resultado" hidden>
+                <div class="icone-resultado" id="iconeResultado"><i class="fa-solid fa-circle-check"></i></div>
+                <h2 id="tituloResultado"></h2>
+                <p id="textoResultado"></p>
+            </section>
+
+            <p class="aviso" id="aviso" hidden></p>
+        </main>
+
+        <p class="rodape">Fornecido por <a href="https://plannexus.vercel.app" target="_blank" rel="noopener">Plannexus</a> - Eventos</p>
+    </div>
+
+    <script src="js/confirmarPublica.js"></script>
+</body>
+
+</html>

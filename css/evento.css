@@ -815,3 +815,38 @@ header {
 .selo-nexus[hidden] {
     display: none;
 }
+
+
+/* informação que abre outra página (ex.: lista de convidados confirmados) */
+.informacao-item.clicavel {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    border-color: #cfc3f5;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.informacao-item.clicavel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(90, 50, 211, .14);
+}
+
+.informacao-item.clicavel:focus-visible {
+    outline: 3px solid #b9a6f5;
+    outline-offset: 2px;
+}
+
+.informacao-item em {
+    display: block;
+    margin-top: 8px;
+    color: #5A32D3;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 600;
+}
+
+.informacao-item em i {
+    margin-left: 4px;
+    font-size: 11px;
+}

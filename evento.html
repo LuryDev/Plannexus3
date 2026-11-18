@@ -333,7 +333,7 @@
 
             if (evento.categoria) itens.push(["Tipo de evento", evento.categoria]);
             if (evento.horario) itens.push(["Horário", evento.horario]);
-            if (Number(evento.convidados) > 0) itens.push(["Número de convidados", evento.convidados]);
+            if (Number(evento.convidados) > 0) itens.push(["Número de convidados", evento.convidados, "convidados.html?id=" + encodeURIComponent(eventoId)]);
             if (evento.descricao) itens.push(["Descrição", evento.descricao]);
 
             if (!itens.length) {
@@ -341,7 +341,14 @@
                 return;
             }
 
-            listaInformacoes.innerHTML = itens.map(([rotulo, valor]) => `
+            // item com 3º valor vira link (ex.: "Número de convidados" abre a lista de confirmados)
+            listaInformacoes.innerHTML = itens.map(([rotulo, valor, link]) => link ? `
+                <a class="informacao-item clicavel" href="${escaparHTML(link)}">
+                    <span>${escaparHTML(rotulo)}</span>
+                    <strong>${escaparHTML(valor)}</strong>
+                    <em>Ver quem confirmou presença <i class="fa-solid fa-chevron-right"></i></em>
+                </a>
+            ` : `
                 <div class="informacao-item">
                     <span>${escaparHTML(rotulo)}</span>
                     <strong>${escaparHTML(valor)}</strong>

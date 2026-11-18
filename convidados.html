@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Convidados - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/presentes.css">
+    <link rel="stylesheet" href="css/convidados.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+    <link rel="stylesheet" href="css/nexusFlutuante.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <header>
+            <a class="voltar" id="voltar" href="inicio.html" title="Voltar">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1>Convidados</h1>
+        </header>
+
+        <main>
+
+            <h2 class="titulo-lista" id="titulo">Sua lista de convidados</h2>
+
+            <div class="contagem" id="contagem" hidden>
+                <strong id="contagemNumeros">0/0</strong>
+                <span>convidados confirmados</span>
+                <div class="barra" id="barra" hidden><i id="barraPreenchida"></i></div>
+            </div>
+
+            <!-- LINK QUE O CONVIDADO ABRE PARA CONFIRMAR -->
+            <div class="painel-link" id="painelLink" hidden>
+                <p class="painel-titulo"><i class="fa-solid fa-link"></i> Link de confirmação de presença</p>
+                <p class="painel-texto" id="painelTexto">Quem receber o link coloca nome e e-mail para confirmar presença. Cada e-mail confirma uma vez só.</p>
+                <div class="painel-botoes" id="botoesLink">
+                    <button type="button" id="botaoCopiarLink"><i class="fa-regular fa-copy"></i> Copiar link</button>
+                    <button type="button" id="botaoDesativarLink" class="perigo"><i class="fa-solid fa-ban"></i> Desativar</button>
+                </div>
+                <div class="painel-botoes" id="botaoCriarBloco" hidden>
+                    <button type="button" id="botaoCriarLink"><i class="fa-solid fa-link"></i> Criar link de confirmação</button>
+                </div>
+            </div>
+
+            <p class="subtitulo-lista" id="subtitulo" hidden>Convidados que confirmaram presença:</p>
+
+            <ol class="lista-confirmados" id="listaConfirmados"></ol>
+            <p class="aviso" id="aviso">Carregando...</p>
+
+        </main>
+
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        // FIREBASE_CONFIG vem do arquivo js/config.js
+        const app  = initializeApp(FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db   = getFirestore(app);
+
+        const eventoId = pegarIdDaUrl();
+
+        const tituloEl = document.getElementById("titulo");
+        const avisoEl = document.getElementById("aviso");
+        const listaEl = document.getElementById("listaConfirmados");
+
+        let podeGerenciar = false;     // dono ou colaborador: pode criar/desativar o link e remover nomes
+        let tokenPresenca = null;
+        let nomeDoEvento = "";
+
+        function escaparTexto(t) {
+            return String(t == null ? "" : t)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        }
+
+        async function chamarPresenca(corpo) {
+            const idToken = await auth.currentUser.getIdToken();
+            const resposta = await fetch("/api/presenca", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                body: JSON.stringify(corpo)
+            });
+            const dados = await resposta.json().catch(() => ({}));
+            if (!resposta.ok) throw new Error(dados.erro || "Erro " + resposta.status);
+            return dados;
+        }
+
+        function mostrarAviso(texto, erro = false) {
+            avisoEl.textContent = texto;
+            avisoEl.classList.toggle("erro", erro);
+            avisoEl.hidden = !texto;
+        }
+
+        // ---------- lista de confirmados ----------
+        function desenharLista(dados) {
+            const confirmados = dados.confirmados || [];
+            const esperados = dados.esperados || 0;
+
+            tituloEl.textContent = "Sua lista de convidados do evento - " + (dados.evento || nomeDoEvento);
+
+            document.getElementById("contagem").hidden = false;
+            document.getElementById("contagemNumeros").textContent =
+                confirmados.length + (esperados > 0 ? "/" + esperados : "");
+
+            const barra = document.getElementById("barra");
+            barra.hidden = !(esperados > 0);
+            document.getElementById("barraPreenchida").style.width =
+                esperados > 0 ? Math.min(100, Math.round(confirmados.length / esperados * 100)) + "%" : "0%";
+
+            document.getElementById("subtitulo").hidden = !confirmados.length;
+            listaEl.innerHTML = "";
+
+            if (!confirmados.length) {
+                mostrarAviso(podeGerenciar
+                    ? "Ninguém confirmou presença ainda. Compartilhe o link de confirmação com seus convidados."
+                    : "Ninguém confirmou presença ainda.");
+                return;
+            }
+            mostrarAviso("");
+
+            confirmados.forEach((c, i) => {
+                const item = document.createElement("li");
+                item.innerHTML =
+                    '<span class="posicao">' + (i + 1) + ' -</span>' +
+                    '<span class="nome-confirmado">' + escaparTexto(c.nome) + '</span>' +
+                    (podeGerenciar ? '<button type="button" class="remover" title="Remover da lista" aria-label="Remover ' + escaparTexto(c.nome) + ' da lista"><i class="fa-solid fa-xmark"></i></button>' : "");
+
+                if (podeGerenciar) {
+                    item.querySelector(".remover").addEventListener("click", async () => {
+                        if (!confirm("Remover " + c.nome + " da lista de confirmados? Essa pessoa poderá confirmar de novo.")) return;
+                        try {
+                            await chamarPresenca({ acao: "remover", eventoId, presencaId: c.id });
+                            await carregarLista();
+                        } catch (erro) {
+                            alert("Não foi possível remover: " + erro.message);
+                        }
+                    });
+                }
+                listaEl.appendChild(item);
+            });
+        }
+
+        async function carregarLista() {
+            const dados = await chamarPresenca({ acao: "lista", eventoId });
+            desenharLista(dados);
+        }
+
+        // ---------- link de confirmação ----------
+        function urlDoLink() {
+            return tokenPresenca ? location.origin + "/confirmar.html?c=" + encodeURIComponent(tokenPresenca) : "";
+        }
+
+        function atualizarPainelLink() {
+            document.getElementById("painelLink").hidden = !podeGerenciar;
+            document.getElementById("botoesLink").hidden = !tokenPresenca;
+            document.getElementById("botaoCriarBloco").hidden = !!tokenPresenca;
+            document.getElementById("painelTexto").textContent = tokenPresenca
+                ? "Quem receber o link coloca nome e e-mail para confirmar presença. Cada e-mail confirma uma vez só."
+                : "Crie um link para os convidados confirmarem presença. Você também pode incluí-lo na mensagem do convite.";
+        }
+
+        document.getElementById("botaoCriarLink").addEventListener("click", async () => {
+            try {
+                const dados = await chamarPresenca({ acao: "criar", eventoId });
+                tokenPresenca = dados.token;
+                atualizarPainelLink();
+            } catch (erro) {
+                alert("Não foi possível criar o link: " + erro.message);
+            }
+        });
+
+        document.getElementById("botaoCopiarLink").addEventListener("click", async () => {
+            const url = urlDoLink();
+            if (!url) return;
+            try {
+                await navigator.clipboard.writeText(url);
+                alert("Link copiado! Envie para seus convidados.");
+            } catch (e) {
+                prompt("Copie o link:", url);
+            }
+        });
+
+        document.getElementById("botaoDesativarLink").addEventListener("click", async () => {
+            if (!confirm("Desativar o link? Quem tiver o link antigo não conseguirá mais confirmar presença. Os nomes já confirmados continuam aqui.")) return;
+            try {
+                await chamarPresenca({ acao: "desativar", eventoId });
+                tokenPresenca = null;
+                atualizarPainelLink();
+            } catch (erro) {
+                alert("Não foi possível desativar: " + erro.message);
+            }
+        });
+
+
+        // ================= INÍCIO =================
+        async function iniciar() {
+
+            if (!eventoId) {
+                tituloEl.textContent = "Evento não encontrado";
+                mostrarAviso("Abra a lista a partir da página de um evento.", true);
+                return;
+            }
+
+            document.getElementById("voltar").href = "evento.html?id=" + encodeURIComponent(eventoId);
+
+            const usuario = await exigirLogin(auth, onAuthStateChanged);
+            if (!usuario) return;
+
+            try {
+                const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
+
+                if (!eventoSnap.exists()) {
+                    tituloEl.textContent = "Evento não encontrado";
+                    mostrarAviso("Esse evento não existe mais.", true);
+                    return;
+                }
+
+                const evento = eventoSnap.data();
+                nomeDoEvento = evento.nome || "";
+                tituloEl.textContent = "Sua lista de convidados do evento - " + nomeDoEvento;
+
+                if (evento.usuarioId === usuario.uid) {
+                    podeGerenciar = true;
+                } else {
+                    const membroSnap = await getDoc(doc(db, "eventos", eventoId, "membros", usuario.uid));
+                    podeGerenciar = membroSnap.exists() && membroSnap.data().papel === "colaborador";
+                }
+
+                await carregarLista();
+
+                if (podeGerenciar) {
+                    try {
+                        const estado = await chamarPresenca({ acao: "estado", eventoId });
+                        tokenPresenca = estado.ativo ? estado.token : null;
+                    } catch (e) { /* sem o servidor, só não mostra o link */ }
+                    atualizarPainelLink();
+                }
+            } catch (erro) {
+                console.error("Erro ao carregar convidados:", erro);
+                mostrarAviso("Não foi possível carregar a lista de convidados.", true);
+            }
+        }
+
+        iniciar();
+
+    </script>
+
+</body>
+
+</html>
