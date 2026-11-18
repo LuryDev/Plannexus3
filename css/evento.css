@@ -601,6 +601,58 @@ header {
     display: none;
 }
 
+/* Recursos opcionais do evento */
+.secao-recursos {
+    width: 100%;
+    margin-top: 35px;
+    padding: 24px;
+    background: #F7F6FB;
+    border: 1px solid #E7E3F6;
+    border-radius: 21px;
+}
+
+.secao-recursos[hidden] {
+    display: none;
+}
+
+.secao-recursos .titulo-secao {
+    margin-bottom: 16px;
+}
+
+.secao-recursos .titulo-secao h2 {
+    color: #4D2FB8;
+}
+
+.secao-recursos .titulo-secao p {
+    color: #7A7488;
+}
+
+.recurso-opcao {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    margin-top: 10px;
+    background: #fff;
+    border: 1px solid #E7E3F6;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #3B2A7A;
+    cursor: pointer;
+}
+
+.recurso-opcao input {
+    width: 18px;
+    height: 18px;
+    accent-color: #4D2FB8;
+}
+
+.recurso-opcao i {
+    margin-right: 6px;
+    color: #4D2FB8;
+}
+
 /* Zona de perigo — excluir evento */
 .secao-perigo {
     width: 100%;

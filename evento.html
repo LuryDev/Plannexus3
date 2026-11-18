@@ -220,6 +220,25 @@
                 </div>
             </section>
 
+            <section class="secao-recursos" id="secaoRecursos" hidden>
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Recursos do evento</h2>
+                        <p>Ative ou desative quando quiser.</p>
+                    </div>
+                </div>
+
+                <label class="recurso-opcao" for="chaveListaPresentes">
+                    <input type="checkbox" id="chaveListaPresentes">
+                    <span><i class="fa-solid fa-gift"></i> Lista de presentes</span>
+                </label>
+
+                <label class="recurso-opcao" for="chaveCriadorConvites">
+                    <input type="checkbox" id="chaveCriadorConvites">
+                    <span><i class="fa-solid fa-envelope-open-text"></i> Criador de convites Plannexus</span>
+                </label>
+            </section>
+
             <section class="secao-perigo" id="secaoPerigo" hidden>
                 <div class="titulo-secao">
                     <div>
@@ -248,6 +267,7 @@
             doc,
             getDoc,
             deleteDoc,
+            updateDoc,
             collection,
             getDocs,
             query,
@@ -638,6 +658,34 @@
                     linkAdicionarPessoas.href = `pessoas.html?id=${encodeURIComponent(eventoId)}`;
 
                     secaoPerigo.hidden = false;
+
+                    const chavePresentes = document.getElementById("chaveListaPresentes");
+                    const chaveConvites = document.getElementById("chaveCriadorConvites");
+                    chavePresentes.checked = !!evento.listaPresentes;
+                    chaveConvites.checked = !!evento.criadorConvites;
+                    document.getElementById("secaoRecursos").hidden = false;
+
+                    const ligarChave = (chave, campo, cartao) => {
+                        chave.addEventListener("change", async () => {
+                            const ligado = chave.checked;
+                            chave.disabled = true;
+                            try {
+                                await updateDoc(referenciaEvento, { [campo]: ligado });
+                                cartao.hidden = !ligado;
+                                if (campo === "listaPresentes") {
+                                    if (ligado) carregarPreviaPresentes().catch(() => {});
+                                }
+                            } catch (erro) {
+                                console.error("Erro ao atualizar recurso:", erro);
+                                chave.checked = !ligado;
+                                alert("Não foi possível alterar agora. Tente novamente.");
+                            } finally {
+                                chave.disabled = false;
+                            }
+                        });
+                    };
+                    ligarChave(chavePresentes, "listaPresentes", document.getElementById("cardListaPresentes"));
+                    ligarChave(chaveConvites, "criadorConvites", document.getElementById("cardCriadorConvites"));
                 }
 
                 nomeEvento.textContent = evento.nome || "Evento sem nome";
