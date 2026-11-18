@@ -84,17 +84,31 @@
         detalhesEl.hidden = !linhas.length;
     }
 
-    // tela de resultado: "confirmado" ou "já confirmou"
-    function mostrarResultado(jaConfirmou, nome) {
+    // tela de resultado. tipo: "confirmou" | "nao" (não poderá ir) | "ja-sim" | "ja-nao"
+    function mostrarResultado(tipo, nome) {
         form.hidden = true;
         resultadoEl.hidden = false;
+        var ja = tipo === "ja-sim" || tipo === "ja-nao";
+        var recusou = tipo === "nao" || tipo === "ja-nao";
         var icone = document.getElementById("iconeResultado");
-        icone.className = "icone-resultado" + (jaConfirmou ? " aviso-ja" : "");
-        icone.innerHTML = '<i class="fa-solid ' + (jaConfirmou ? "fa-circle-exclamation" : "fa-circle-check") + '"></i>';
-        document.getElementById("tituloResultado").textContent = jaConfirmou ? "Você já confirmou presença!" : "Presença confirmada!";
-        document.getElementById("textoResultado").textContent = jaConfirmou
-            ? "Sua presença já está na lista de confirmados. Não precisa fazer mais nada. 💜"
-            : (nome ? nome + ", " : "") + "sua presença foi registrada. Te esperamos lá! 🎉";
+        icone.className = "icone-resultado" + (tipo === "ja-sim" ? " aviso-ja" : recusou ? " aviso-nao" : "");
+        icone.innerHTML = '<i class="fa-solid ' + (tipo === "ja-sim" ? "fa-circle-exclamation" : recusou ? "fa-envelope-circle-check" : "fa-circle-check") + '"></i>';
+        var titulo, texto;
+        if (tipo === "ja-sim") {
+            titulo = "Você já confirmou presença!";
+            texto = "Sua presença já está na lista de confirmados. Não precisa fazer mais nada. 💜";
+        } else if (tipo === "ja-nao") {
+            titulo = "Você já respondeu!";
+            texto = "Você já avisou que não poderá comparecer. Se mudar de ideia, fale com o organizador.";
+        } else if (tipo === "nao") {
+            titulo = "Que pena!";
+            texto = (nome ? nome + ", a" : "A") + "visamos o organizador que você não poderá comparecer. Obrigado por avisar! 💜";
+        } else {
+            titulo = "Presença confirmada!";
+            texto = (nome ? nome + ", " : "") + "sua presença foi registrada. Te esperamos lá! 🎉";
+        }
+        document.getElementById("tituloResultado").textContent = titulo;
+        document.getElementById("textoResultado").textContent = texto;
     }
 
     function carregar() {
@@ -120,7 +134,7 @@
                 document.getElementById("organizador").hidden = false;
                 return;
             }
-            if (r.dados.jaConfirmou) return mostrarResultado(true);   // este aparelho já confirmou
+            if (r.dados.jaConfirmou) return mostrarResultado(r.dados.respostaAnterior === "nao" ? "ja-nao" : "ja-sim");   // este aparelho já confirmou
             form.hidden = false;
         }).catch(function () {
             nomeEventoEl.textContent = "Sem conexão";
@@ -138,9 +152,9 @@
         if (campo) { campo.setAttribute("aria-invalid", "true"); campo.focus(); }
     }
 
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
+    var botaoNao = document.getElementById("naoVou");
 
+    function enviar(resposta) {
         var nome = nomeInput.value.trim();
         var email = emailInput.value.trim();
 
@@ -149,19 +163,26 @@
 
         mostrarErro("");
         confirmarEl.disabled = true;
-        confirmarEl.textContent = "Confirmando...";
+        botaoNao.disabled = true;
+        var botao = resposta === "nao" ? botaoNao : confirmarEl;
+        var textoOriginal = botao.textContent;
+        botao.textContent = "Enviando...";
 
-        chamar({ acao: "confirmar", nome: nome, email: email, site: iscaInput.value }).then(function (r) {
-            if (r.ok) return mostrarResultado(false, nome.split(" ")[0]);
-            if (r.status === 409) return mostrarResultado(true);
-            mostrarErro(r.dados.erro || "Não foi possível confirmar. Tente de novo.");
+        chamar({ acao: "confirmar", resposta: resposta, nome: nome, email: email, site: iscaInput.value }).then(function (r) {
+            if (r.ok) return mostrarResultado(resposta === "nao" ? "nao" : "confirmou", nome.split(" ")[0]);
+            if (r.status === 409) return mostrarResultado(r.dados.resposta === "nao" ? "ja-nao" : "ja-sim");
+            mostrarErro(r.dados.erro || "Não foi possível enviar. Tente de novo.");
         }).catch(function () {
             mostrarErro("Sem conexão. Tente de novo.");
         }).then(function () {
             confirmarEl.disabled = false;
-            confirmarEl.textContent = "Confirmar presença";
+            botaoNao.disabled = false;
+            botao.textContent = textoOriginal;
         });
-    });
+    }
+
+    form.addEventListener("submit", function (e) { e.preventDefault(); enviar("sim"); });
+    botaoNao.addEventListener("click", function () { enviar("nao"); });
 
     // scripts do tipo module rodam só depois da leitura da página: espera por eles
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", carregar);

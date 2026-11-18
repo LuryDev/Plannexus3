@@ -25,3 +25,8 @@
 .icone-resultado.aviso-ja { color: #d89b00; }
 
 .botao-link { display: block; text-decoration: none; text-align: center; margin-top: 14px; width: 100%; box-sizing: border-box; }
+
+.nao-vou { margin-top: 8px; border: 1.5px solid #d8d0f0; border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 600; color: #6b6480; background: #fff; cursor: pointer; }
+.nao-vou:active { transform: scale(.98); }
+.nao-vou:disabled { opacity: .6; cursor: default; }
+.icone-resultado.aviso-nao { color: #8a7fb0; }

@@ -57,6 +57,8 @@
             <p class="subtitulo-lista" id="subtitulo" hidden>Convidados que confirmaram presença:</p>
 
             <ol class="lista-confirmados" id="listaConfirmados"></ol>
+            <p class="subtitulo-lista" id="subtituloAusentes" hidden>Não poderão comparecer:</p>
+            <ul class="lista-confirmados lista-ausentes" id="listaAusentes"></ul>
             <p class="aviso" id="aviso">Carregando...</p>
 
         </main>
@@ -82,6 +84,7 @@
         const tituloEl = document.getElementById("titulo");
         const avisoEl = document.getElementById("aviso");
         const listaEl = document.getElementById("listaConfirmados");
+        const listaAusentesEl = document.getElementById("listaAusentes");
 
         let podeGerenciar = false;     // dono ou colaborador: pode criar/desativar o link e remover nomes
         let tokenPresenca = null;
@@ -127,27 +130,24 @@
             document.getElementById("barraPreenchida").style.width =
                 esperados > 0 ? Math.min(100, Math.round(confirmados.length / esperados * 100)) + "%" : "0%";
 
+            const ausentes = dados.ausentes || [];
+
             document.getElementById("subtitulo").hidden = !confirmados.length;
+            document.getElementById("subtituloAusentes").hidden = !ausentes.length;
             listaEl.innerHTML = "";
+            listaAusentesEl.innerHTML = "";
 
-            if (!confirmados.length) {
-                mostrarAviso(podeGerenciar
-                    ? "Ninguém confirmou presença ainda. Compartilhe o link de confirmação com seus convidados."
-                    : "Ninguém confirmou presença ainda.");
-                return;
-            }
-            mostrarAviso("");
-
-            confirmados.forEach((c, i) => {
+            // uma linha da lista (com o X de remover para dono/colaborador)
+            function montarItem(c, posicao, ondeColocar, textoRemover) {
                 const item = document.createElement("li");
                 item.innerHTML =
-                    '<span class="posicao">' + (i + 1) + ' -</span>' +
+                    (posicao ? '<span class="posicao">' + posicao + ' -</span>' : '') +
                     '<span class="nome-confirmado">' + escaparTexto(c.nome) + '</span>' +
                     (podeGerenciar ? '<button type="button" class="remover" title="Remover da lista" aria-label="Remover ' + escaparTexto(c.nome) + ' da lista"><i class="fa-solid fa-xmark"></i></button>' : "");
 
                 if (podeGerenciar) {
                     item.querySelector(".remover").addEventListener("click", async () => {
-                        if (!confirm("Remover " + c.nome + " da lista de confirmados? Essa pessoa poderá confirmar de novo.")) return;
+                        if (!confirm(textoRemover)) return;
                         try {
                             await chamarPresenca({ acao: "remover", eventoId, presencaId: c.id });
                             await carregarLista();
@@ -156,8 +156,23 @@
                         }
                     });
                 }
-                listaEl.appendChild(item);
-            });
+                ondeColocar.appendChild(item);
+            }
+
+            confirmados.forEach((c, i) => montarItem(c, i + 1, listaEl,
+                "Remover " + c.nome + " da lista de confirmados? Essa pessoa poderá responder de novo."));
+            ausentes.forEach((c) => montarItem(c, 0, listaAusentesEl,
+                "Remover " + c.nome + " da lista? Essa pessoa poderá responder de novo."));
+
+            if (!confirmados.length && !ausentes.length) {
+                mostrarAviso(podeGerenciar
+                    ? "Ninguém confirmou presença ainda. Compartilhe o link de confirmação com seus convidados."
+                    : "Ninguém confirmou presença ainda.");
+            } else if (!confirmados.length) {
+                mostrarAviso("Ninguém confirmou presença ainda.");
+            } else {
+                mostrarAviso("");
+            }
         }
 
         async function carregarLista() {
@@ -226,6 +241,19 @@
             const usuario = await exigirLogin(auth, onAuthStateChanged);
             if (!usuario) return;
 
+            // 1) mostra na hora a última lista vista (se houver) enquanto o servidor responde
+            const chaveCache = "convidados_" + eventoId;
+            try {
+                const salvo = JSON.parse(localStorage.getItem(chaveCache) || "null");
+                if (salvo && Array.isArray(salvo.confirmados)) desenharLista(salvo);
+            } catch (e) { /* sem cache, tudo bem */ }
+
+            // 2) dispara o servidor JÁ, em paralelo com a leitura do evento
+            //    (antes ele esperava o Firestore terminar para só então começar)
+            const listaPromessa = chamarPresenca({ acao: "lista", eventoId });
+            const estadoPromessa = chamarPresenca({ acao: "estado", eventoId }).catch(() => null);
+            listaPromessa.catch(() => {});   // o erro é tratado abaixo
+
             try {
                 const eventoSnap = await getDoc(doc(db, "eventos", eventoId));
 
@@ -246,13 +274,13 @@
                     podeGerenciar = membroSnap.exists() && membroSnap.data().papel === "colaborador";
                 }
 
-                await carregarLista();
+                const dadosLista = await listaPromessa;
+                desenharLista(dadosLista);
+                try { localStorage.setItem(chaveCache, JSON.stringify(dadosLista)); } catch (e) { /* ok */ }
 
                 if (podeGerenciar) {
-                    try {
-                        const estado = await chamarPresenca({ acao: "estado", eventoId });
-                        tokenPresenca = estado.ativo ? estado.token : null;
-                    } catch (e) { /* sem o servidor, só não mostra o link */ }
+                    const estado = await estadoPromessa;
+                    tokenPresenca = estado && estado.ativo ? estado.token : null;
                     atualizarPainelLink();
                 }
             } catch (erro) {

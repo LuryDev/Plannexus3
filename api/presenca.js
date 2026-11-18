@@ -61,12 +61,17 @@ function hashDoDispositivo(d) {
 
 // este aparelho já confirmou presença neste evento?
 async function aparelhoJaConfirmou(fb, eventoId, dispositivo) {
-    if (!dispositivoValido(dispositivo)) return false;
+    if (!dispositivoValido(dispositivo)) return null;
     const achado = await fb.db.collection("presencas")
         .where("eventoId", "==", eventoId)
         .where("dispositivo", "==", hashDoDispositivo(dispositivo))
         .limit(1).get();
-    return !achado.empty;
+    return achado.empty ? null : respostaDe(achado.docs[0].data());
+}
+
+// registros antigos não têm o campo: contam como "vai"
+function respostaDe(dados) {
+    return dados && dados.resposta === "nao" ? "nao" : "sim";
 }
 
 async function usuarioDaRequisicao(req, fb) {
@@ -151,16 +156,19 @@ export default async function handler(req, res) {
 
             if (acao === "lista") {
                 const snap = await fb.db.collection("presencas").where("eventoId", "==", eventoId).get();
-                const confirmados = snap.docs
-                    .map((d) => ({ id: d.id, nome: texto(d.data().nome, 60), quando: milissegundos(d.data().criadoEm) }))
+                const todos = snap.docs
+                    .map((d) => ({ id: d.id, nome: texto(d.data().nome, 60), resposta: respostaDe(d.data()), quando: milissegundos(d.data().criadoEm) }))
                     .sort((a, b) => a.quando - b.quando)
-                    .map(({ id, nome }) => ({ id, nome }));
+                    .map(({ id, nome, resposta }) => ({ id, nome, resposta }));
+                const confirmados = todos.filter((x) => x.resposta === "sim").map(({ id, nome }) => ({ id, nome }));
+                const ausentes = todos.filter((x) => x.resposta === "nao").map(({ id, nome }) => ({ id, nome }));
                 const esperados = Number(permissao.evento.convidados) > 0 ? Number(permissao.evento.convidados) : 0;
                 return res.status(200).json({
                     ok: true,
                     evento: texto(permissao.evento.nome, 120),
                     esperados,
-                    confirmados
+                    confirmados,
+                    ausentes
                 });
             }
 
@@ -213,7 +221,10 @@ export default async function handler(req, res) {
                 ok: true,
                 organizador,
                 eventoId: organizador ? eventoId : undefined,
-                jaConfirmou: await aparelhoJaConfirmou(fb, eventoId, corpo.dispositivo),
+                ...(await (async () => {
+                    const anterior = await aparelhoJaConfirmou(fb, eventoId, corpo.dispositivo);
+                    return { jaConfirmou: !!anterior, respostaAnterior: anterior || undefined };
+                })()),
                 evento: texto(evento.nome, 120),
                 data: texto(evento.data, 10),
                 horario: texto(evento.horario, 5),
@@ -227,6 +238,7 @@ export default async function handler(req, res) {
 
             const nome = texto(corpo.nome, 60);
             const email = texto(corpo.email, 120).toLowerCase();
+            const resposta = corpo.resposta === "nao" ? "nao" : "sim";
 
             if (await ehOrganizador(req, fb, eventoId)) {
                 return res.status(403).json({ erro: "Você é o organizador deste evento e não precisa confirmar presença." });
@@ -236,8 +248,9 @@ export default async function handler(req, res) {
             if (!emailValido(email)) return res.status(400).json({ erro: "Digite um e-mail válido." });
 
             // mesmo aparelho (navegador) já confirmou: bloqueia, mesmo com outro e-mail
-            if (await aparelhoJaConfirmou(fb, eventoId, corpo.dispositivo)) {
-                return res.status(409).json({ erro: "Você já confirmou presença!" });
+            const respostaDoAparelho = await aparelhoJaConfirmou(fb, eventoId, corpo.dispositivo);
+            if (respostaDoAparelho) {
+                return res.status(409).json({ erro: "Você já respondeu a este convite!", resposta: respostaDoAparelho });
             }
 
             const ref = fb.db.collection("presencas").doc(eventoId + "_" + hashDoEmail(email));
@@ -246,13 +259,16 @@ export default async function handler(req, res) {
                 await ref.create({
                     eventoId,
                     nome,
+                    resposta,
                     dispositivo: dispositivoValido(corpo.dispositivo) ? hashDoDispositivo(corpo.dispositivo) : "",
                     criadoEm: fb.FieldValue.serverTimestamp()
                 });
             } catch (e) {
                 // 6 = ALREADY_EXISTS: esse e-mail já confirmou
                 if (e && (e.code === 6 || e.code === "already-exists" || /already exists/i.test(String(e.message)))) {
-                    return res.status(409).json({ erro: "Você já confirmou presença!" });
+                    let anterior = "sim";
+                    try { anterior = respostaDe((await ref.get()).data()); } catch (e2) { /* mantém "sim" */ }
+                    return res.status(409).json({ erro: "Você já respondeu a este convite!", resposta: anterior });
                 }
                 throw e;
             }
@@ -266,15 +282,19 @@ export default async function handler(req, res) {
                         uid: donoUid,
                         eventoId,
                         ferramenta: "convidados",
-                        mensagem: `${nome} confirmou presença — ${texto(evento.nome, 80)}`,
+                        mensagem: resposta === "nao"
+                            ? `Que pena! ${nome} não poderá comparecer — ${texto(evento.nome, 80)}`
+                            : `${nome} confirmou presença — ${texto(evento.nome, 80)}`,
                         lida: false,
                         dataCriacao: fb.FieldValue.serverTimestamp()
                     });
 
                     if (!(await categoriasDesligadas(fb, donoUid)).includes("colaboracao")) {
                         await enviarPush(fb, donoUid, {
-                            titulo: "✅ Presença confirmada",
-                            corpo: `${nome} vai ao evento — ${texto(evento.nome, 80)}`,
+                            titulo: resposta === "nao" ? "😕 Não poderá comparecer" : "✅ Presença confirmada",
+                            corpo: resposta === "nao"
+                                ? `Que pena! ${nome} não poderá comparecer — ${texto(evento.nome, 80)}`
+                                : `${nome} vai ao evento — ${texto(evento.nome, 80)}`,
                             url: `/convidados.html?id=${encodeURIComponent(eventoId)}`,
                             tag: `presenca-${eventoId}`
                         });

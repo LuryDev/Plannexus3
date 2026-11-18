@@ -20,3 +20,7 @@
 .remover:hover { color: #c03535; background: #fdeaea; }
 .remover:focus-visible { outline: 3px solid #b9a6f5; outline-offset: 2px; }
 .painel-botoes[hidden] { display: none; }
+
+.subtitulo-lista#subtituloAusentes { margin-top: 20px; }
+.lista-ausentes li { background: #f7f5fb; color: #6b6480; }
+.lista-ausentes .nome-confirmado { text-decoration: none; }
