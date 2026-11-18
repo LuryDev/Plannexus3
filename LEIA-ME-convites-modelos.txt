@@ -56,3 +56,10 @@ Informações opcionais (todos os modelos)
   Os textos do desenho ligados a um item usam item: "id" e andam junto com ele.
 - Ao criar um modelo novo, a arte base deve vir SEM esses itens; cada item vira um PNG com fundo transparente.
 - Formatura: o parágrafo muda a frase se o nome do formando ficar em branco.
+
+MODELO CORPORATIVO (categoria "Evento Corporativo")
+- Arte: fotos/convites/corporativo.jpg. Campos: nome do evento (fonte Bebas Neue, com sombra),
+  quem convidou, data, horário e local. Todos opcionais; data/horário/local se realinham sozinhos.
+- Frase do parágrafo: com "quem convidou" -> "<nome> tem a satisfação de convidar você para participar do encontro!";
+  vazio -> "Você está convidado(a) para participar do encontro!".
+- Nova opção de desenho "sombra: {cor, dx, dy}" em js/convitesModelos.js; nova fonte Bebas Neue (convite.html e LINK_FONTES).

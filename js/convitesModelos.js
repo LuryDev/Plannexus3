@@ -29,10 +29,11 @@ export const FONTES = [
     { f: "Great Vibes",      p: 400, n: "Caligráfica" },
     { f: "Dancing Script",   p: 600, n: "Cursiva" },
     { f: "Lobster",          p: 400, n: "Retrô" },
-    { f: "Josefin Sans",     p: 400, n: "Fina" }
+    { f: "Josefin Sans",     p: 400, n: "Fina" },
+    { f: "Bebas Neue",       p: 400, n: "Condensada" }
 ];
 
-export const LINK_FONTES = "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Chewy&family=Baloo+2:wght@600&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@500;700&family=Playfair+Display:wght@600;700&family=Allura&family=Great+Vibes&family=Dancing+Script:wght@600&family=Lobster&family=Josefin+Sans:wght@400&display=swap";
+export const LINK_FONTES = "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Chewy&family=Baloo+2:wght@600&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@500;700&family=Playfair+Display:wght@600;700&family=Allura&family=Great+Vibes&family=Dancing+Script:wght@600&family=Lobster&family=Josefin+Sans:wght@400&family=Bebas+Neue&display=swap";
 
 function pesoDa(f) {
     const achada = FONTES.find((x) => x.f === f);
@@ -238,6 +239,35 @@ MODELOS.push(
         ]
     }
 );
+
+// ---------- evento corporativo ----------
+MODELOS.push({
+    id: "corporativo", grupo: "Corporativo", categoria: "Evento Corporativo", nome: "Corporativo",
+    arte: "fotos/convites/corporativo.jpg", arquivo: "convite-corporativo",
+    itens: {
+        data:    { campos: ["data"],    x: 654, y: 488, w: 800, h: 45, passo: 85 },
+        horario: { campos: ["horario"], x: 654, y: 573, w: 800, h: 45, passo: 97 },
+        local:   { campos: ["local"],   x: 654, y: 670, w: 800, h: 45 }
+    },
+    fluxos: [{ tipo: "pilha", ids: ["data", "horario", "local"], alinhar: "esq" }],
+    campos: [
+        { c: "evento",  rotulo: "Nome do evento",   fonte: "Bebas Neue", auto: (e) => e.nome || "" },
+        { c: "convidou", rotulo: "Quem convidou (empresa ou pessoa)", fonte: "Poppins", ex: "" },
+        { c: "data",    rotulo: "Data",    fonte: "Poppins", auto: (e) => dataCurta(e.data) },
+        { c: "horario", rotulo: "Horário", fonte: "Poppins", auto: (e) => horaCurta(e.horario) },
+        { c: "local",   rotulo: "Local",   fonte: "Poppins", auto: (e) => e.local || "" }
+    ],
+    desenho: [
+        { c: "evento", x: 1071, y: 186, tam: 118, cor: "#220050", max: 740, duas: true, maiusc: true, sombra: { cor: "#a3adc8", dx: 5, dy: 5 } },
+        { paragrafo: true, x: 654, y: 326, tam: 35, linha: 43, larg: 790, cor: "#525669",
+          partes: (v) => preenchido(v.convidou)
+              ? [{ c: "convidou" }, " tem a satisfação de convidar você para participar do encontro!"]
+              : ["Você está convidado(a) para participar do encontro!"] },
+        { c: "data",    item: "data",    x: 654, y: 511, tam: 54, cor: "#162045", max: 780, esq: true },
+        { c: "horario", item: "horario", x: 654, y: 596, tam: 54, cor: "#162045", max: 780, esq: true },
+        { c: "local",   item: "local",   x: 654, y: 693, tam: 54, cor: "#162045", max: 780, esq: true }
+    ]
+});
 
 // ---------- tipo "Outro" ----------
 MODELOS.push({
@@ -483,6 +513,13 @@ function desenharTexto(ctx, d, valores, fontes, tamIgual) {
                 const t2 = Math.min(d.tam, ajustar(ctx, melhor.l1.length > melhor.l2.length ? melhor.l1 : melhor.l2, fontes[d.c], d.tam, d.max));
                 ctx.font = fonteCss(fontes[d.c], t2);
                 ctx.textAlign = alinhamento;
+                if (d.sombra) {
+                    const cor = ctx.fillStyle;
+                    ctx.fillStyle = d.sombra.cor;
+                    ctx.fillText(melhor.l1, d.x + d.sombra.dx, d.y - t2 * 0.55 + d.sombra.dy);
+                    ctx.fillText(melhor.l2, d.x + d.sombra.dx, d.y + t2 * 0.55 + d.sombra.dy);
+                    ctx.fillStyle = cor;
+                }
                 ctx.fillText(melhor.l1, d.x, d.y - t2 * 0.55);
                 ctx.fillText(melhor.l2, d.x, d.y + t2 * 0.55);
                 return fim();
@@ -493,6 +530,12 @@ function desenharTexto(ctx, d, valores, fontes, tamIgual) {
     const tam = d.igual && tamIgual[d.igual] ? tamIgual[d.igual] : ajustar(ctx, texto, fontes[d.c], d.tam, d.max);
     ctx.font = fonteCss(fontes[d.c], tam);
     ctx.textAlign = alinhamento;
+    if (d.sombra) {
+        const cor = ctx.fillStyle;
+        ctx.fillStyle = d.sombra.cor;
+        ctx.fillText(texto, d.x + d.sombra.dx, d.y + d.sombra.dy);
+        ctx.fillStyle = cor;
+    }
     ctx.fillText(texto, d.x, d.y);
     fim();
 }
