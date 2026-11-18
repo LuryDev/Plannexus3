@@ -58,22 +58,23 @@
 
                 <section class="bloco">
                     <h3>Mensagem para enviar junto</h3>
-                    <p class="dica-campos">Esse texto acompanha a imagem quando você compartilha. Já veio preenchido com os dados do evento e você pode editar.</p>
+                    <textarea id="textoMensagem" rows="5" maxlength="700" aria-label="Mensagem do convite"></textarea>
+
                     <label class="incluir-link" id="blocoIncluirLink" hidden>
                         <input type="checkbox" id="incluirLinkPresenca" checked>
-                        Incluir o link para o convidado confirmar presença
+                        Incluir link para confirmar presença
                     </label>
-                    <div class="ideias-titulo">
-                        <span>Sem ideia do que escrever? Toque em uma sugestão:</span>
-                        <button type="button" class="outras-ideias" id="botaoOutrasIdeias"><i class="fa-solid fa-shuffle"></i> Outras ideias</button>
-                    </div>
-                    <div id="listaIdeias" class="lista-ideias"></div>
-                    <textarea id="textoMensagem" rows="8" maxlength="700" aria-label="Mensagem do convite"></textarea>
+
+                    <details class="ideias" id="blocoIdeias">
+                        <summary><i class="fa-regular fa-lightbulb"></i> Ideias de mensagem</summary>
+                        <div id="listaIdeias" class="lista-ideias"></div>
+                        <button type="button" class="outras-ideias" id="botaoOutrasIdeias"><i class="fa-solid fa-shuffle"></i> Mostrar outras ideias</button>
+                    </details>
+
                     <div class="linha-mensagem">
-                        <button type="button" class="botao-secundario" id="botaoCopiarTexto"><i class="fa-regular fa-copy"></i>Copiar texto</button>
-                        <button type="button" class="botao-secundario" id="botaoZap"><i class="fa-brands fa-whatsapp"></i>Texto no WhatsApp</button>
+                        <button type="button" class="botao-pequeno" id="botaoCopiarTexto"><i class="fa-regular fa-copy"></i> Copiar texto</button>
+                        <button type="button" class="botao-pequeno" id="botaoZap"><i class="fa-brands fa-whatsapp"></i> Só o texto no WhatsApp</button>
                     </div>
-                    <p class="dica-campos">Para mandar a imagem junto, use o botão Compartilhar abaixo. Se o seu aparelho não abrir a janela de compartilhar, baixamos a imagem e copiamos o texto para você.</p>
                 </section>
             </div>
 
@@ -484,9 +485,12 @@
                 botao.type = "button";
                 botao.className = "ideia";
                 const partes = montarIdeia(modelo).split("\n\nOrganize")[0].split("\n").filter((l) => l && !/^[📅📍✅]/u.test(l));
-                botao.textContent = partes.join(" ");
+                const trecho = document.createElement("span");
+                trecho.textContent = partes.join(" ");
+                botao.appendChild(trecho);
                 botao.addEventListener("click", () => {
                     document.getElementById("textoMensagem").value = montarIdeia(modelo);
+                    document.getElementById("blocoIdeias").open = false;
                     avisar("Mensagem trocada. Você ainda pode editar o texto.");
                 });
                 lista.appendChild(botao);
@@ -537,7 +541,7 @@
 
         document.getElementById("botaoZap").addEventListener("click", () => {
             window.open("https://wa.me/?text=" + encodeURIComponent(textoAtual()), "_blank", "noopener");
-            avisar("Abrimos o WhatsApp só com o texto. Para mandar a imagem, use o botão Compartilhar.");
+            avisar("O WhatsApp abriu só com o texto. Para enviar a imagem, use Compartilhar.");
         });
 
         document.getElementById("botaoCompartilhar").addEventListener("click", async () => {
