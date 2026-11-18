@@ -266,3 +266,210 @@ main {
 .mensagem.erro {
     color: #C0392B;
 }
+
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* ===========================
+        LISTA DE MODELOS
+=========================== */
+
+.dica-modelos {
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #6b6480;
+    line-height: 1.5;
+}
+
+.grupo-modelos {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0 10px;
+    font-size: 15px;
+    color: #29243D;
+}
+
+.tag-sugerido {
+    padding: 2px 9px;
+    border-radius: 99px;
+    background: #e6f6ed;
+    color: #2f8f5b;
+    font-size: 10.5px;
+    font-weight: 600;
+}
+
+.grade-modelos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.card-modelo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding: 8px;
+    border: none;
+    border-radius: 14px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+}
+
+.card-modelo canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    background: #ece8f7;
+    aspect-ratio: 1600 / 1135;
+}
+
+.card-modelo span {
+    padding: 0 4px 4px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.card-simples {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px;
+    border: 1px dashed #cfc6ea;
+    border-radius: 14px;
+    background: white;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+}
+
+.card-simples i {
+    font-size: 20px;
+    color: #5A32D3;
+}
+
+.card-simples strong {
+    display: block;
+    font-size: 14px;
+}
+
+.card-simples small {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: #6b6480;
+    line-height: 1.4;
+}
+
+
+/* ===========================
+        MODELO COM DESIGN
+=========================== */
+
+.previa-fixa {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.dica-campos {
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: #6b6480;
+    line-height: 1.45;
+}
+
+.campo-modelo label {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.marcas-campo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tag-auto {
+    padding: 1px 8px;
+    border-radius: 99px;
+    background: #e6f6ed;
+    color: #2f8f5b;
+    font-size: 10.5px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.refazer-campo {
+    padding: 0;
+    border: none;
+    background: none;
+    color: #5A32D3;
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.linha-campo {
+    display: flex;
+    gap: 8px;
+}
+
+.linha-campo input {
+    flex: 1;
+    min-width: 0;
+}
+
+.linha-campo select {
+    max-width: 128px;
+    padding: 0 8px;
+    border: 1px solid #ddd5f7;
+    border-radius: 10px;
+    background: #eee9ff;
+    color: #4d2fb8;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.botao-trocar {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border: none;
+    background: none;
+    color: #5A32D3;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+
+.aviso-modelos {
+    margin-top: 20px;
+    padding: 14px;
+    border: 1px dashed #cfc6ea;
+    border-radius: 14px;
+    background: white;
+    font-size: 12.5px;
+    color: #6b6480;
+    line-height: 1.5;
+    text-align: center;
+}

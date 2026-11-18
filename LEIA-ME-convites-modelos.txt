@@ -1,0 +1,33 @@
+CONVITES COM DESIGN PRÓPRIO
+===========================
+
+Como funciona (convite.html)
+1) O usuário vê a lista de modelos, agrupada por tipo de evento. O grupo do
+   tipo do evento vem primeiro, com "Sugerido para o seu evento".
+2) Ao escolher um modelo, abre a pré-visualização + formulário. Só os textos
+   que estavam entre chaves {} no design são editáveis; cada um tem seletor de fonte.
+3) Dados do evento preenchem sozinhos (nome, data, horário, local, primeiro
+   presente da lista). Quem altera vê o botão "voltar ao do evento".
+4) O Modelo simples foi removido. Tipos de evento sem design mostram só os modelos
+   disponíveis e o aviso "Novos modelos chegam em breve".
+5) Baixar e Compartilhar geram a imagem em 1600 x 1135.
+
+Preenchimento automático do nome
+- Vem do nome do evento: "Chá de bebê do Théo" -> pronome DO, nome THÉO.
+  "Formatura da Maria Silva" -> nome Maria, sobrenome Silva.
+- Se o nome do evento não tiver "do/da + nome", os campos ficam vazios para o usuário digitar.
+
+Modelos já criados
+- Chá de bebê, Chá revelação (grupo "Chá de bebê"), Formatura.
+
+Como adicionar um modelo novo
+1) Coloque a arte, sem os textos entre chaves, em fotos/convites/ (1600 x 1135).
+2) Em js/convitesModelos.js acrescente um item em MODELOS: grupo, categoria
+   (igual ao tipo em criarEvento: "Casamento", "Aniversário", "Formatura",
+   "Evento Corporativo", "Chá de Bebê"), campos e desenho (posição, tamanho,
+   cor e largura máxima de cada texto).
+3) Nada mais: a lista e o formulário são montados a partir desse item.
+
+Fontes
+- As fontes novas vêm do Google Fonts (link no convite.html). As fontes originais
+  dos designs não foram informadas; as atuais são parecidas.
