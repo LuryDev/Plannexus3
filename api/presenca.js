@@ -90,6 +90,18 @@ async function permissaoNoEvento(fb, eventoId, uid, { qualquerMembro = false } =
     return { ok: false, status: 403, erro: "Sem permissão." };
 }
 
+// quem abriu o link é o organizador (dono/colaborador) logado? Visitante sem login -> false
+async function ehOrganizador(req, fb, eventoId) {
+    if (!String(req.headers.authorization || "").startsWith("Bearer ")) return false;
+    try {
+        const usuario = await usuarioDaRequisicao(req, fb);
+        const permissao = await permissaoNoEvento(fb, eventoId, usuario.uid);
+        return !!permissao.ok;
+    } catch (e) {
+        return false;
+    }
+}
+
 async function linkDoEvento(fb, eventoId) {
     const achado = await fb.db.collection("confirmacoesPublicas").where("eventoId", "==", eventoId).limit(1).get();
     return achado.empty ? null : achado.docs[0];
@@ -196,8 +208,11 @@ export default async function handler(req, res) {
         const evento = eventoSnap.data();
 
         if (acao === "ver") {
+            const organizador = await ehOrganizador(req, fb, eventoId);
             return res.status(200).json({
                 ok: true,
+                organizador,
+                eventoId: organizador ? eventoId : undefined,
                 jaConfirmou: await aparelhoJaConfirmou(fb, eventoId, corpo.dispositivo),
                 evento: texto(evento.nome, 120),
                 data: texto(evento.data, 10),
@@ -212,6 +227,10 @@ export default async function handler(req, res) {
 
             const nome = texto(corpo.nome, 60);
             const email = texto(corpo.email, 120).toLowerCase();
+
+            if (await ehOrganizador(req, fb, eventoId)) {
+                return res.status(403).json({ erro: "Você é o organizador deste evento e não precisa confirmar presença." });
+            }
 
             if (nome.length < 2) return res.status(400).json({ erro: "Digite seu nome." });
             if (!emailValido(email)) return res.status(400).json({ erro: "Digite um e-mail válido." });

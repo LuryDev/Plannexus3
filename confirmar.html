@@ -51,12 +51,37 @@
                 <p id="textoResultado"></p>
             </section>
 
+            <section class="cartao resultado" id="organizador" hidden>
+                <div class="icone-resultado"><i class="fa-solid fa-circle-check"></i></div>
+                <h2>Tudo certo por aqui!</h2>
+                <p>Gostaria de saber quem já confirmou presença? Vá para a lista de convidados!</p>
+                <a class="confirmar botao-link" id="irParaLista" href="#">Ir para a lista de convidados</a>
+            </section>
+
             <p class="aviso" id="aviso" hidden></p>
         </main>
 
         <p class="rodape">Fornecido por <a href="https://plannexus.vercel.app" target="_blank" rel="noopener">Plannexus</a> - Eventos</p>
     </div>
 
+    <!-- Só descobre se quem abriu está logado (para reconhecer o organizador). Visitantes não são afetados. -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        window.plannexusToken = function () {
+            return new Promise(function (resolve) {
+                try {
+                    var auth = getAuth(initializeApp(FIREBASE_CONFIG));
+                    var parar = onAuthStateChanged(auth, function (u) {
+                        parar();
+                        if (!u) return resolve("");
+                        try { u.getIdToken().then(resolve, function () { resolve(""); }); } catch (e) { resolve(""); }
+                    }, function () { resolve(""); });
+                } catch (e) { resolve(""); }
+            });
+        };
+    </script>
+    <script src="js/config.js"></script>
     <script src="js/confirmarPublica.js"></script>
 </body>
 

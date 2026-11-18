@@ -44,12 +44,23 @@
 
     var aparelho = codigoDoAparelho();
 
-    function chamar(corpo) {
+    // se quem abriu estiver logado no Plannexus, manda o login (só para reconhecer o organizador)
+    function pegarLogin() {
+        if (typeof window.plannexusToken !== "function") return Promise.resolve("");
+        return Promise.race([
+            window.plannexusToken(),
+            new Promise(function (ok) { setTimeout(function () { ok(""); }, 3000); })
+        ]).catch(function () { return ""; });
+    }
+
+    function chamar(corpo, bearer) {
         corpo.token = codigo;
         corpo.dispositivo = aparelho;
+        var cab = { "Content-Type": "application/json" };
+        if (bearer) cab.Authorization = "Bearer " + bearer;
         return fetch("/api/presenca", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: cab,
             body: JSON.stringify(corpo)
         }).then(function (r) {
             return r.json().catch(function () { return {}; }).then(function (dados) {
@@ -93,7 +104,9 @@
             return;
         }
 
-        chamar({ acao: "ver" }).then(function (r) {
+        pegarLogin().then(function (login) {
+            return chamar({ acao: "ver" }, login);
+        }).then(function (r) {
             if (!r.ok) {
                 nomeEventoEl.textContent = "Convite indisponível";
                 mostrarAviso(r.dados.erro || "Não foi possível abrir o convite.");
@@ -102,6 +115,11 @@
             nomeEventoEl.textContent = r.dados.evento || "Evento";
             document.title = "Confirmar presença - " + (r.dados.evento || "Plannexus");
             mostrarDetalhes(r.dados);
+            if (r.dados.organizador) {   // quem criou o evento: não confirma, vai para a lista
+                document.getElementById("irParaLista").href = "convidados.html?id=" + encodeURIComponent(r.dados.eventoId || "");
+                document.getElementById("organizador").hidden = false;
+                return;
+            }
             if (r.dados.jaConfirmou) return mostrarResultado(true);   // este aparelho já confirmou
             form.hidden = false;
         }).catch(function () {
@@ -145,5 +163,7 @@
         });
     });
 
-    carregar();
+    // scripts do tipo module rodam só depois da leitura da página: espera por eles
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", carregar);
+    else carregar();
 })();

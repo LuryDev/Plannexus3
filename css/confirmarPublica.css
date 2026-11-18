@@ -23,3 +23,5 @@
 .resultado p { font-size: 14px; color: #6b6480; line-height: 1.5; }
 .icone-resultado { font-size: 46px; color: #2f8f5b; }
 .icone-resultado.aviso-ja { color: #d89b00; }
+
+.botao-link { display: block; text-decoration: none; text-align: center; margin-top: 14px; width: 100%; box-sizing: border-box; }
