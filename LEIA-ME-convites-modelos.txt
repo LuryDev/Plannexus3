@@ -19,6 +19,7 @@ Preenchimento automático do nome
 
 Modelos já criados
 - Chá de bebê, Chá revelação (grupo "Chá de bebê"), Formatura.
+- Aniversário (bolo), Aniversário (balões), Casamento (floral).
 
 Como adicionar um modelo novo
 1) Coloque a arte, sem os textos entre chaves, em fotos/convites/ (1600 x 1135).
@@ -31,3 +32,10 @@ Como adicionar um modelo novo
 Fontes
 - As fontes novas vêm do Google Fonts (link no convite.html). As fontes originais
   dos designs não foram informadas; as atuais são parecidas.
+
+Artes novas (aniversário e casamento)
+- As artes foram limpas apagando só os textos entre chaves; os textos fixos ficam na imagem.
+- No aniversário, o campo entre chaves {sobrenome}/{nome} é o nome completo em letra manuscrita.
+- Idade começa como "10 ANOS" (o evento não tem idade); pronome vem do nome do evento (DO/DA).
+- Fonte nova: Josefin Sans (fina), usada no casamento.
+- Opções novas no desenho: esp (espaçamento de letras), maiusc, dir (alinha à direita) e linha1 (uma linha com campos e textos fixos).
