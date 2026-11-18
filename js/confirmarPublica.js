@@ -10,7 +10,7 @@
     var form = document.getElementById("form");
     var nomeInput = document.getElementById("nome");
     var emailInput = document.getElementById("email");
-    var iscaInput = document.getElementById("site");
+    var iscaInput = document.getElementById("kq7armadilha");
     var mensagemEl = document.getElementById("mensagem");
     var confirmarEl = document.getElementById("confirmar");
     var resultadoEl = document.getElementById("resultado");
@@ -168,7 +168,7 @@
         var textoOriginal = botao.textContent;
         botao.textContent = "Enviando...";
 
-        chamar({ acao: "confirmar", resposta: resposta, nome: nome, email: email, site: iscaInput.value }).then(function (r) {
+        chamar({ acao: "confirmar", resposta: resposta, nome: nome, email: email, armadilha: iscaInput.value }).then(function (r) {
             if (r.ok) return mostrarResultado(resposta === "nao" ? "nao" : "confirmou", nome.split(" ")[0]);
             if (r.status === 409) return mostrarResultado(r.dados.resposta === "nao" ? "ja-nao" : "ja-sim");
             mostrarErro(r.dados.erro || "Não foi possível enviar. Tente de novo.");

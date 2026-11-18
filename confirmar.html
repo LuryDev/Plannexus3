@@ -37,8 +37,8 @@
                 <input type="email" id="email" maxlength="120" placeholder="voce@email.com" autocomplete="email" inputmode="email" required>
                 <p class="dica">Usamos o e-mail só para evitar confirmação repetida. O organizador vê apenas o seu nome.</p>
 
-                <!-- campo-isca contra robôs: pessoas não veem -->
-                <input type="text" id="site" class="isca" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <!-- campo-isca contra robôs: pessoas não veem. NÃO use nomes como site/url/website: o preenchimento automático do celular preenche e a confirmação some. -->
+                <input type="text" id="kq7armadilha" class="isca" tabindex="-1" autocomplete="off" aria-hidden="true" data-lpignore="true" data-1p-ignore="true">
 
                 <p class="mensagem" id="mensagem" role="status"></p>
 

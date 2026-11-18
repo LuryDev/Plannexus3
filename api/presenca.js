@@ -234,7 +234,7 @@ export default async function handler(req, res) {
 
         if (acao === "confirmar") {
             // campo-isca: robôs preenchem, pessoas não veem
-            if (corpo.site) return res.status(200).json({ ok: true });
+            if (corpo.armadilha) return res.status(200).json({ ok: true });
 
             const nome = texto(corpo.nome, 60);
             const email = texto(corpo.email, 120).toLowerCase();
