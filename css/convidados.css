@@ -24,3 +24,15 @@
 .subtitulo-lista#subtituloAusentes { margin-top: 20px; }
 .lista-ausentes li { background: #f7f5fb; color: #6b6480; }
 .lista-ausentes .nome-confirmado { text-decoration: none; }
+
+/* Detalhes e resumo (regras do evento) */
+.detalhe-conf { display: block; font-size: 12px; color: #8b82a8; font-weight: 400; margin-top: 2px; }
+.resumo-evento { background: #fff; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+.resumo-evento[hidden] { display: none; }
+.resumo-titulo { font-size: 14px; font-weight: 700; color: #4d2fb8; }
+.resumo-numeros { display: flex; gap: 8px; margin-top: 10px; }
+.resumo-numeros div { flex: 1; background: #f6f3ff; border-radius: 12px; padding: 8px; text-align: center; }
+.resumo-numeros b { display: block; font-size: 20px; color: #4d2fb8; line-height: 1.1; }
+.resumo-numeros span { font-size: 11px; color: #8b82a8; }
+.resumo-alim { margin-top: 10px; font-size: 13px; color: #6b6480; }
+.resumo-alim b { color: #4d2fb8; }

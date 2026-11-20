@@ -56,7 +56,7 @@ export function mensagemColaboracao(aviso) {
 
 // categoria (para o liga/desliga) de qualquer aviso; avisos antigos não têm categoria
 export function categoriaDoAviso(aviso) {
-    if (aviso.tipo === "colaboracao" || aviso.tipo === "aceitou-convite" || aviso.tipo === "papel" || aviso.tipo === "presente" || aviso.tipo === "presenca") return "colaboracao";
+    if (aviso.tipo === "colaboracao" || aviso.tipo === "aceitou-convite" || aviso.tipo === "papel" || aviso.tipo === "presente" || aviso.tipo === "pix" || aviso.tipo === "presenca") return "colaboracao";
     if (aviso.tipo === "lembrete") return aviso.categoria || "";
     return "";
 }

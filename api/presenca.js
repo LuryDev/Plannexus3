@@ -9,12 +9,14 @@
 //    { acao: "criar",     eventoId }              -> { token }   (reaproveita o link ativo)
 //    { acao: "desativar", eventoId }              -> o link antigo para de funcionar
 //    { acao: "remover",   eventoId, presencaId }  -> apaga uma confirmação
+//    { acao: "regras",    eventoId, regras? }     -> lê (ou salva, se vier "regras") as regras do evento
 //  Com login (qualquer pessoa do evento):
 //    { acao: "lista",     eventoId }              -> { evento, esperados, confirmados: [{id, nome}] }
 //
 //  Sem login (convidado):
 //    { acao: "ver",       token, dispositivo }    -> dados do evento (+ jaConfirmou)
-//    { acao: "confirmar", token, nome, email, dispositivo } -> registra a presença
+//    { acao: "confirmar", token, nome, email, dispositivo, criancas, acompanhantes, alimentacao, relacao }
+//      -> registra a presença (o servidor confere tudo contra as regras do organizador)
 //      (bloqueia e-mail repetido E aparelho que já confirmou)
 //
 //  O e-mail e o código do aparelho servem só para impedir confirmação repetida:
@@ -40,6 +42,28 @@ function tokenValido(t) {
 
 function novoToken() {
     return randomBytes(18).toString("base64url");   // 24 caracteres
+}
+
+// ---------- regras do evento (definidas pelo organizador) ----------
+const ALIMENTACAO = ["Vegetariana", "Vegana", "Sem glúten", "Sem lactose"];
+const RELACOES = ["Família", "Amigo(a)", "Trabalho", "Outro"];
+
+function limparRegras(r) {
+    r = r && typeof r === "object" ? r : {};
+    const ac = r.acompanhantes && typeof r.acompanhantes === "object" ? r.acompanhantes : {};
+    const soAdultos = r.soAdultos === true;
+    return {
+        soAdultos,
+        criancas: !soAdultos && r.criancas === true,
+        acompanhantes: { ativo: ac.ativo === true, max: Math.min(10, Math.max(1, Math.floor(Number(ac.max)) || 2)) },
+        alimentacao: ALIMENTACAO.filter((a) => Array.isArray(r.alimentacao) && r.alimentacao.includes(a)),
+        parentesco: r.parentesco === true
+    };
+}
+
+function contagem(v) {
+    const n = Math.floor(Number(v));
+    return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
 function emailValido(e) {
@@ -87,10 +111,12 @@ async function permissaoNoEvento(fb, eventoId, uid, { qualquerMembro = false } =
     if (!eventoSnap.exists) return { ok: false, status: 404, erro: "Evento não encontrado." };
 
     const evento = eventoSnap.data();
-    if (evento.usuarioId === uid) return { ok: true, evento };
+    if (evento.usuarioId === uid) return { ok: true, evento, gestor: true };
 
     const membro = await eventoRef.collection("membros").doc(uid).get();
-    if (membro.exists && (qualquerMembro || membro.data().papel === "colaborador")) return { ok: true, evento };
+    if (membro.exists && (qualquerMembro || membro.data().papel === "colaborador")) {
+        return { ok: true, evento, gestor: membro.data().papel === "colaborador" };
+    }
 
     return { ok: false, status: 403, erro: "Sem permissão." };
 }
@@ -140,7 +166,7 @@ export default async function handler(req, res) {
         const acao = texto(corpo.acao, 20);
 
         // ================= ÁREA DO ORGANIZADOR =================
-        if (["estado", "criar", "desativar", "remover", "lista"].includes(acao)) {
+        if (["estado", "criar", "desativar", "remover", "lista", "regras"].includes(acao)) {
             let usuario;
             try {
                 usuario = await usuarioDaRequisicao(req, fb);
@@ -154,19 +180,54 @@ export default async function handler(req, res) {
             const permissao = await permissaoNoEvento(fb, eventoId, usuario.uid, { qualquerMembro: acao === "lista" });
             if (!permissao.ok) return res.status(permissao.status).json({ erro: permissao.erro });
 
+            if (acao === "regras") {
+                const ref = fb.db.collection("eventos").doc(eventoId);
+                if (corpo.regras !== undefined) {
+                    const limpas = limparRegras(corpo.regras);
+                    await ref.update({ regras: limpas });
+                    return res.status(200).json({ ok: true, regras: limpas });
+                }
+                return res.status(200).json({ ok: true, regras: limparRegras(permissao.evento.regras) });
+            }
+
             if (acao === "lista") {
                 const snap = await fb.db.collection("presencas").where("eventoId", "==", eventoId).get();
                 const todos = snap.docs
-                    .map((d) => ({ id: d.id, nome: texto(d.data().nome, 60), resposta: respostaDe(d.data()), quando: milissegundos(d.data().criadoEm) }))
-                    .sort((a, b) => a.quando - b.quando)
-                    .map(({ id, nome, resposta }) => ({ id, nome, resposta }));
-                const confirmados = todos.filter((x) => x.resposta === "sim").map(({ id, nome }) => ({ id, nome }));
+                    .map((d) => {
+                        const x = d.data();
+                        const criancas = contagem(x.criancas);
+                        const acompanhantes = contagem(x.acompanhantes);
+                        return {
+                            id: d.id, nome: texto(x.nome, 60), resposta: respostaDe(x), quando: milissegundos(x.criadoEm),
+                            criancas, acompanhantes, pessoas: 1 + criancas + acompanhantes,
+                            alimentacao: Array.isArray(x.alimentacao) ? x.alimentacao.filter((a) => ALIMENTACAO.includes(a)) : [],
+                            relacao: RELACOES.includes(x.relacao) ? x.relacao : ""
+                        };
+                    })
+                    .sort((a, b) => a.quando - b.quando);
+                const sim = todos.filter((x) => x.resposta === "sim");
+                // detalhes (crianças, restrições, parentesco) só para dono/colaborador
+                const confirmados = sim.map((x) => permissao.gestor
+                    ? { id: x.id, nome: x.nome, pessoas: x.pessoas, criancas: x.criancas, acompanhantes: x.acompanhantes, alimentacao: x.alimentacao, relacao: x.relacao }
+                    : { id: x.id, nome: x.nome, pessoas: x.pessoas });
                 const ausentes = todos.filter((x) => x.resposta === "nao").map(({ id, nome }) => ({ id, nome }));
                 const esperados = Number(permissao.evento.convidados) > 0 ? Number(permissao.evento.convidados) : 0;
+
+                const totais = { pessoas: 0, criancas: 0, adultos: 0, alimentacao: {} };
+                sim.forEach((x) => {
+                    totais.pessoas += x.pessoas;
+                    totais.criancas += x.criancas;
+                    x.alimentacao.forEach((a) => { totais.alimentacao[a] = (totais.alimentacao[a] || 0) + 1; });
+                });
+                totais.adultos = totais.pessoas - totais.criancas;
+                if (!permissao.gestor) { totais.criancas = 0; totais.adultos = 0; totais.alimentacao = {}; }
+
                 return res.status(200).json({
                     ok: true,
                     evento: texto(permissao.evento.nome, 120),
                     esperados,
+                    gestor: !!permissao.gestor,
+                    totais,
                     confirmados,
                     ausentes
                 });
@@ -228,7 +289,8 @@ export default async function handler(req, res) {
                 evento: texto(evento.nome, 120),
                 data: texto(evento.data, 10),
                 horario: texto(evento.horario, 5),
-                local: texto(evento.local, 120)
+                local: texto(evento.local, 120),
+                regras: limparRegras(evento.regras)
             });
         }
 
@@ -253,6 +315,30 @@ export default async function handler(req, res) {
                 return res.status(409).json({ erro: "Você já respondeu a este convite!", resposta: respostaDoAparelho });
             }
 
+            // regras do organizador: o servidor confere (a tela só mostra o que está liberado)
+            const regras = limparRegras(evento.regras);
+            let criancas = 0, acompanhantes = 0, alimentacao = [], relacao = "";
+            if (resposta === "sim") {
+                criancas = contagem(corpo.criancas);
+                acompanhantes = contagem(corpo.acompanhantes);
+                if (criancas > 0 && !regras.criancas) {
+                    return res.status(400).json({ erro: regras.soAdultos ? "Este evento é exclusivo para adultos." : "O organizador não liberou crianças neste evento." });
+                }
+                if (criancas > 10) return res.status(400).json({ erro: "Quantidade de crianças inválida." });
+                if (acompanhantes > 0 && !regras.acompanhantes.ativo) {
+                    return res.status(400).json({ erro: "O organizador não liberou acompanhantes neste evento." });
+                }
+                if (acompanhantes > regras.acompanhantes.max) {
+                    return res.status(400).json({ erro: "O máximo de acompanhantes é " + regras.acompanhantes.max + "." });
+                }
+                const pedidas = Array.isArray(corpo.alimentacao) ? corpo.alimentacao.slice(0, 10).map((a) => texto(a, 30)) : [];
+                if (pedidas.some((a) => !regras.alimentacao.includes(a))) {
+                    return res.status(400).json({ erro: "Essa opção de alimentação não é oferecida neste evento." });
+                }
+                alimentacao = regras.alimentacao.filter((a) => pedidas.includes(a));
+                if (regras.parentesco) relacao = RELACOES.includes(corpo.relacao) ? corpo.relacao : "";
+            }
+
             const ref = fb.db.collection("presencas").doc(eventoId + "_" + hashDoEmail(email));
 
             try {
@@ -260,6 +346,10 @@ export default async function handler(req, res) {
                     eventoId,
                     nome,
                     resposta,
+                    criancas,
+                    acompanhantes,
+                    alimentacao,
+                    relacao,
                     dispositivo: dispositivoValido(corpo.dispositivo) ? hashDoDispositivo(corpo.dispositivo) : "",
                     criadoEm: fb.FieldValue.serverTimestamp()
                 });
@@ -284,7 +374,7 @@ export default async function handler(req, res) {
                         ferramenta: "convidados",
                         mensagem: resposta === "nao"
                             ? `Que pena! ${nome} não poderá comparecer — ${texto(evento.nome, 80)}`
-                            : `${nome} confirmou presença — ${texto(evento.nome, 80)}`,
+                            : `${nome} confirmou presença${1 + criancas + acompanhantes > 1 ? " (" + (1 + criancas + acompanhantes) + " pessoas)" : ""} — ${texto(evento.nome, 80)}`,
                         lida: false,
                         dataCriacao: fb.FieldValue.serverTimestamp()
                     });
@@ -294,7 +384,7 @@ export default async function handler(req, res) {
                             titulo: resposta === "nao" ? "😕 Não poderá comparecer" : "✅ Presença confirmada",
                             corpo: resposta === "nao"
                                 ? `Que pena! ${nome} não poderá comparecer — ${texto(evento.nome, 80)}`
-                                : `${nome} vai ao evento — ${texto(evento.nome, 80)}`,
+                                : `${nome} vai ao evento${1 + criancas + acompanhantes > 1 ? " com mais " + (criancas + acompanhantes) : ""} — ${texto(evento.nome, 80)}`,
                             url: `/convidados.html?id=${encodeURIComponent(eventoId)}`,
                             tag: `presenca-${eventoId}`
                         });

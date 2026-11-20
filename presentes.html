@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/presentes.css">
+    <link rel="stylesheet" href="css/ajuda.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;1,700&display=swap">
 
     <!-- PWA: manifest, cor do tema e service worker -->
@@ -62,6 +63,28 @@
                 </div>
             </div>
 
+            <!-- PIX: o dono informa a chave; o convidado vê no link da lista (o Plannexus não processa pagamento) -->
+            <div class="painel-link" id="painelPix" hidden>
+                <label class="pix-liga" for="pixAtivo">
+                    <span class="painel-titulo"><i class="fa-brands fa-pix"></i> Receber presente em Pix<button type="button" class="ajuda-btn" data-ajuda-titulo="Presente em Pix" data-ajuda="Informe a sua chave Pix: ela aparece para quem abrir o link da lista de presentes. | O convidado paga no app do banco dele; o Plannexus não processa nem confirma o pagamento. | Quando alguém tocar em Já enviei meu Pix, você recebe um aviso aqui e nas notificações. | Confira sempre no seu banco." aria-label="Ajuda">?</button></span>
+                    <input type="checkbox" id="pixAtivo">
+                </label>
+                <div class="pix-campos" id="pixCampos" hidden>
+                    <label for="pixTipo">Tipo da chave</label>
+                    <select id="pixTipo">
+                        <option value="E-mail">E-mail</option><option value="CPF">CPF</option>
+                        <option value="Telefone">Telefone</option><option value="Aleatória">Aleatória</option>
+                    </select>
+                    <label for="pixChave">Chave Pix</label>
+                    <input type="text" id="pixChave" maxlength="77" autocomplete="off" placeholder="Sua chave Pix">
+                    <label for="pixFavorecido">Nome de quem recebe</label>
+                    <input type="text" id="pixFavorecido" maxlength="60" autocomplete="off" placeholder="Como aparece no banco">
+                    <p class="painel-texto" id="pixAviso">Aparece para quem abrir o link da lista. Use "Compartilhar lista" para gerar o link.</p>
+                </div>
+                <p class="pix-status" id="pixStatus" role="status"></p>
+                <div class="pix-avisados" id="pixAvisados" hidden></div>
+            </div>
+
             <!-- LISTA (preenchida pelo JavaScript) -->
             <section class="lista-presentes" id="listaPresentes">
                 <p class="aviso">Carregando presentes...</p>
@@ -109,6 +132,7 @@
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/ajuda.js"></script>
     <script type="module">
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
@@ -207,6 +231,66 @@
         });
 
 
+        // ================= PIX (dono) =================
+        function dinheiroBR(v) { return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
+        function esc(t) {
+            return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        }
+
+        async function iniciarPix() {
+            const painel = document.getElementById("painelPix");
+            const ativo = document.getElementById("pixAtivo");
+            const campos = document.getElementById("pixCampos");
+            const tipo = document.getElementById("pixTipo");
+            const chave = document.getElementById("pixChave");
+            const fav = document.getElementById("pixFavorecido");
+            const status = document.getElementById("pixStatus");
+
+            const dados = await chamarLista({ acao: "pix", eventoId });
+            const p = dados.pix || {};
+            ativo.checked = !!p.ativo;
+            tipo.value = p.tipo || "E-mail";
+            chave.value = p.chave || "";
+            fav.value = p.favorecido || "";
+            campos.hidden = !ativo.checked;
+            painel.hidden = false;
+
+            let espera = null;
+            const salvar = (imediato) => {
+                campos.hidden = !ativo.checked;
+                status.textContent = "";
+                clearTimeout(espera);
+                espera = setTimeout(async () => {
+                    try {
+                        status.textContent = "Salvando...";
+                        await chamarLista({ acao: "pix", eventoId, pix: { ativo: ativo.checked, tipo: tipo.value, chave: chave.value, favorecido: fav.value } });
+                        status.textContent = "Salvo ✓";
+                    } catch (erro) {
+                        status.textContent = erro.message;
+                    }
+                }, imediato ? 0 : 900);
+            };
+            ativo.addEventListener("change", () => salvar(true));
+            tipo.addEventListener("change", () => salvar(false));
+            chave.addEventListener("input", () => salvar(false));
+            fav.addEventListener("input", () => salvar(false));
+
+            carregarPixAvisados().catch(() => {});
+        }
+
+        async function carregarPixAvisados() {
+            const dados = await chamarLista({ acao: "pixlista", eventoId });
+            const el = document.getElementById("pixAvisados");
+            const lista = dados.avisos || [];
+            el.hidden = !lista.length;
+            if (!lista.length) return;
+            el.innerHTML =
+                '<p class="pix-avisados-titulo">Pix avisados: ' + esc(dinheiroBR(dados.total)) + '</p>' +
+                lista.map((a) => '<div class="pix-linha"><span>' + (a.anonimo ? "Anônimo" : esc(a.nome)) + '</span><b>' + (a.valor > 0 ? esc(dinheiroBR(a.valor)) : "valor não informado") + '</b></div>').join("") +
+                '<p class="painel-texto">Confira no seu banco: o valor é o que o convidado informou.</p>';
+        }
+
+
         // ================= INÍCIO =================
         async function iniciar() {
 
@@ -252,6 +336,7 @@
                         tokenLista = estado.ativo ? estado.token : null;
                         atualizarPainelLink();
                     } catch (e) { /* sem o servidor, só não mostra o painel */ }
+                    iniciarPix().catch(() => { /* sem o servidor, não mostra o painel de Pix */ });
                 }
             }
             catch (erro) {

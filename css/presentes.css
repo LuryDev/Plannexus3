@@ -589,3 +589,18 @@ main {
 .quem-vai-dar { font-size: 12px; color: #2f8f5b; margin-top: 4px; }
 .quem-vai-dar strong { color: #1f6f43; }
 .liberar { border: 1px solid #ddd5f7; background: #fff; color: #5A32D3; border-radius: 8px; padding: 4px 8px; font-size: 11px; cursor: pointer; }
+
+/* Pix (dono) */
+.pix-liga { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
+.pix-liga input { width: 20px; height: 20px; accent-color: #5A32D3; flex-shrink: 0; }
+.pix-campos { margin-top: 10px; }
+.pix-campos[hidden] { display: none; }
+.pix-campos label { display: block; font-size: 12px; color: #666; margin: 10px 0 4px; }
+.pix-campos input, .pix-campos select { width: 100%; border: 1px solid #ddd5f7; border-radius: 10px; padding: 10px 12px; font-size: 14px; background: #fff; outline: none; font-family: inherit; }
+.pix-campos input:focus, .pix-campos select:focus { border-color: #5A32D3; }
+.pix-status { min-height: 16px; margin-top: 8px; font-size: 12px; color: #8b82a8; text-align: right; }
+.pix-avisados { margin-top: 10px; border-top: 1px solid #eee9ff; padding-top: 10px; }
+.pix-avisados[hidden] { display: none; }
+.pix-avisados-titulo { font-size: 13px; font-weight: 700; color: #4d2fb8; margin-bottom: 6px; }
+.pix-linha { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; padding: 5px 0; color: #2b2250; }
+.pix-linha b { color: #4d2fb8; font-size: 13px; }

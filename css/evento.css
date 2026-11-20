@@ -902,3 +902,26 @@ header {
     margin-left: 4px;
     font-size: 11px;
 }
+
+/* Regras de confirmação (dentro de Recursos do evento) */
+.regras-evento { margin-top: 10px; background: #fff; border: 1px solid #E7E3F6; border-radius: 14px; padding: 0 16px 14px; }
+.regras-evento summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px 0; font-size: 13px; font-weight: 600; color: #3B2A7A; cursor: pointer; list-style: none; }
+.regras-evento summary::-webkit-details-marker { display: none; }
+.regras-evento summary::after { content: "\25BE"; color: #4D2FB8; margin-left: 4px; }
+.regras-evento[open] summary::after { content: "\25B4"; }
+.regras-evento summary span { flex: 1; }
+.regras-evento summary i { margin-right: 6px; color: #4D2FB8; }
+.regras-evento .ajuda-btn { margin-left: 0; }
+.regras-texto { font-size: 12px; color: #7A7488; margin-bottom: 4px; }
+.regras-evento .recurso-opcao { background: #F7F6FB; box-shadow: none; }
+.regras-max { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; padding: 0 4px 0 16px; font-size: 12px; color: #7A7488; }
+.regras-max[hidden] { display: none; }
+.regras-max select { border: 1px solid #E7E3F6; border-radius: 10px; padding: 8px 10px; font: 600 13px Poppins, sans-serif; color: #3B2A7A; background: #fff; }
+.regras-subtitulo { margin: 14px 0 6px; font-size: 12px; font-weight: 600; color: #3B2A7A; }
+.regras-fichas { display: flex; flex-wrap: wrap; gap: 8px; }
+.regras-fichas label { cursor: pointer; }
+.regras-fichas input { position: absolute; opacity: 0; pointer-events: none; }
+.regras-fichas span { display: inline-block; padding: 8px 14px; border: 1.5px solid #CFC6F2; border-radius: 99px; font-size: 12px; font-weight: 600; color: #4D2FB8; background: #fff; }
+.regras-fichas input:checked + span { background: #5A32D3; border-color: #5A32D3; color: #fff; }
+.regras-fichas input:focus-visible + span { outline: 3px solid #b9a6f5; outline-offset: 2px; }
+.regras-status { min-height: 18px; margin-top: 8px; font-size: 12px; color: #7A7488; text-align: right; }

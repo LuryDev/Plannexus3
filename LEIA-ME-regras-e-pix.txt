@@ -1,0 +1,30 @@
+REGRAS DE CONFIRMAÇÃO E PIX NOS PRESENTES (Specime 1)
+=====================================================
+
+REGRAS DE CONFIRMAÇÃO (o organizador decide o que oferece)
+- evento.html > "Recursos do evento" > "Regras de confirmação" (só o dono).
+  Salva sozinho (api/presenca.js, acao "regras") no campo evento.regras:
+    { soAdultos, criancas, acompanhantes:{ativo,max}, alimentacao:[...], parentesco }
+- confirmar.html mostra ao convidado SÓ o que estiver ligado:
+  aviso "exclusivo para adultos" (só nesta página, não no convite),
+  crianças, acompanhantes (com máximo), restrições alimentares e relação.
+- O servidor confere tudo de novo (api/presenca.js): crianças em evento só para
+  adultos, acompanhantes acima do máximo ou comida não oferecida são recusados.
+- presencas/{id} ganhou: criancas, acompanhantes, alimentacao, relacao.
+- convidados.html: contagem em PESSOAS, detalhes sob cada nome e um
+  "Resumo para o evento" (adultos, crianças, restrições). Só dono/colaborador
+  veem os detalhes.
+
+PIX NOS PRESENTES
+- presentes.html: cartão "Receber presente em Pix" (tipo, chave, nome). Salva sozinho.
+  A chave fica em pixEventos/{eventoId} (coleção SEM regra no Firestore: só o
+  servidor lê). Se criar regras novas, NÃO libere pixEventos para o app.
+- lista.html (link público): o convidado copia a chave e pode tocar em
+  "Já enviei meu Pix" (nome ou anônimo, valor opcional). O dono recebe aviso
+  (sininho + push) e vê "Pix avisados" em presentes.html.
+- O Plannexus NÃO processa nem confirma pagamento.
+- Ainda NÃO tem: anexar comprovante (precisa de armazenamento privado) e QR Code.
+
+BOTÃO "?" DE AJUDA
+- js/ajuda.js + css/ajuda.css. Pequeno ao lado dos títulos novos (data-ajuda="dica 1 | dica 2")
+  e flutuante em confirmar.html e lista.html.

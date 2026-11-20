@@ -9,6 +9,7 @@
     <link rel="icon" href="fotos/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/evento.css">
+    <link rel="stylesheet" href="css/ajuda.css">
 
     <!-- PWA: manifest, cor do tema e service worker -->
     <link rel="manifest" href="manifest.json">
@@ -237,6 +238,49 @@
                     <input type="checkbox" id="chaveCriadorConvites">
                     <span><i class="fa-solid fa-envelope-open-text"></i> Criador de convites Plannexus</span>
                 </label>
+
+                <!-- Regras de confirmação: o convidado só vê o que estiver ligado aqui -->
+                <details class="regras-evento" id="regrasEvento">
+                    <summary>
+                        <span><i class="fa-solid fa-clipboard-check"></i> Regras de confirmação</span>
+                        <button type="button" class="ajuda-btn" data-ajuda-titulo="Regras de confirmação" data-ajuda="Marque só o que você consegue oferecer. | Na página de confirmar presença, o convidado vê apenas as opções ligadas aqui. | Se for só para adultos, o aviso aparece na página de confirmação (não no convite). | As mudanças salvam sozinhas." aria-label="Ajuda">?</button>
+                    </summary>
+                    <p class="regras-texto">Os convidados verão apenas o que estiver ligado.</p>
+
+                    <label class="recurso-opcao" for="regraSoAdultos">
+                        <input type="checkbox" id="regraSoAdultos">
+                        <span>Evento só para adultos</span>
+                    </label>
+                    <label class="recurso-opcao" for="regraCriancas">
+                        <input type="checkbox" id="regraCriancas">
+                        <span>Podem levar crianças</span>
+                    </label>
+                    <label class="recurso-opcao" for="regraAcompanhantes">
+                        <input type="checkbox" id="regraAcompanhantes">
+                        <span>Podem levar acompanhantes</span>
+                    </label>
+                    <div class="regras-max" id="regraMaxBloco" hidden>
+                        <label for="regraMax">Máximo por convidado</label>
+                        <select id="regraMax">
+                            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                            <option value="4">4</option><option value="5">5</option>
+                        </select>
+                    </div>
+
+                    <p class="regras-subtitulo">Opções de alimentação que ofereço</p>
+                    <div class="regras-fichas" id="regraAlimentacao">
+                        <label><input type="checkbox" value="Vegetariana"><span>Vegetariana</span></label>
+                        <label><input type="checkbox" value="Vegana"><span>Vegana</span></label>
+                        <label><input type="checkbox" value="Sem glúten"><span>Sem glúten</span></label>
+                        <label><input type="checkbox" value="Sem lactose"><span>Sem lactose</span></label>
+                    </div>
+
+                    <label class="recurso-opcao" for="regraParentesco">
+                        <input type="checkbox" id="regraParentesco">
+                        <span>Perguntar a relação com o anfitrião</span>
+                    </label>
+                    <p class="regras-status" id="regrasStatus" role="status"></p>
+                </details>
             </section>
 
             <section class="secao-perigo" id="secaoPerigo" hidden>
@@ -258,6 +302,7 @@
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/icones.js"></script>
+    <script src="js/ajuda.js"></script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
@@ -541,6 +586,67 @@
             `;
         }
 
+        // ---------- Regras de confirmação (salvam sozinhas pelo servidor) ----------
+        function iniciarRegras(regras) {
+            const r = regras || {};
+            const ac = r.acompanhantes || {};
+            const soAdultos = document.getElementById("regraSoAdultos");
+            const criancas = document.getElementById("regraCriancas");
+            const acomp = document.getElementById("regraAcompanhantes");
+            const max = document.getElementById("regraMax");
+            const parent = document.getElementById("regraParentesco");
+            const fichas = [...document.querySelectorAll("#regraAlimentacao input")];
+            const status = document.getElementById("regrasStatus");
+
+            soAdultos.checked = !!r.soAdultos;
+            criancas.checked = !!r.criancas && !r.soAdultos;
+            acomp.checked = !!ac.ativo;
+            max.value = String(Math.min(5, Math.max(1, Number(ac.max) || 2)));
+            parent.checked = !!r.parentesco;
+            fichas.forEach((f) => { f.checked = Array.isArray(r.alimentacao) && r.alimentacao.includes(f.value); });
+
+            const sincronizar = () => {
+                if (soAdultos.checked) criancas.checked = false;
+                criancas.disabled = soAdultos.checked;
+                document.getElementById("regraMaxBloco").hidden = !acomp.checked;
+            };
+            sincronizar();
+
+            let espera = null;
+            const salvar = () => {
+                sincronizar();
+                status.textContent = "Salvando...";
+                clearTimeout(espera);
+                espera = setTimeout(async () => {
+                    try {
+                        const idToken = await auth.currentUser.getIdToken();
+                        const resposta = await fetch("/api/presenca", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                            body: JSON.stringify({
+                                acao: "regras",
+                                eventoId,
+                                regras: {
+                                    soAdultos: soAdultos.checked,
+                                    criancas: criancas.checked,
+                                    acompanhantes: { ativo: acomp.checked, max: Number(max.value) },
+                                    alimentacao: fichas.filter((f) => f.checked).map((f) => f.value),
+                                    parentesco: parent.checked
+                                }
+                            })
+                        });
+                        if (!resposta.ok) throw new Error("erro " + resposta.status);
+                        status.textContent = "Salvo ✓";
+                    } catch (erro) {
+                        console.error("Erro ao salvar regras:", erro);
+                        status.textContent = "Não foi possível salvar. Tente novamente.";
+                    }
+                }, 500);
+            };
+
+            [soAdultos, criancas, acomp, max, parent, ...fichas].forEach((el) => el.addEventListener("change", salvar));
+        }
+
         async function carregarPreviaPresentes() {
             const previa = document.getElementById("previaPresentes");
             const resultado = await getDocs(collection(db, "eventos", eventoId, "presentes"));
@@ -686,6 +792,7 @@
                     };
                     ligarChave(chavePresentes, "listaPresentes", document.getElementById("cardListaPresentes"));
                     ligarChave(chaveConvites, "criadorConvites", document.getElementById("cardCriadorConvites"));
+                    iniciarRegras(evento.regras);
                 }
 
                 nomeEvento.textContent = evento.nome || "Evento sem nome";

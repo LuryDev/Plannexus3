@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/listaPublica.css">
     <link rel="stylesheet" href="css/confirmarPublica.css">
+    <link rel="stylesheet" href="css/ajuda.css">
 </head>
 
 <body>
@@ -35,7 +36,10 @@
 
                 <label for="email">Seu e-mail</label>
                 <input type="email" id="email" maxlength="120" placeholder="voce@email.com" autocomplete="email" inputmode="email" required>
-                <p class="dica">Usamos o e-mail só para evitar confirmação repetida. O organizador vê apenas o seu nome.</p>
+                <p class="dica">Usamos o e-mail só para evitar confirmação repetida. O organizador não vê o e-mail, só o seu nome e o que você informar aqui.</p>
+
+                <!-- opções liberadas pelo organizador (só aparece o que ele ativou) -->
+                <div class="extras" id="extras" hidden></div>
 
                 <!-- campo-isca contra robôs: pessoas não veem. NÃO use nomes como site/url/website: o preenchimento automático do celular preenche e a confirmação some. -->
                 <input type="text" id="kq7armadilha" class="isca" tabindex="-1" autocomplete="off" aria-hidden="true" data-lpignore="true" data-1p-ignore="true">
@@ -84,6 +88,8 @@
     </script>
     <script src="js/config.js"></script>
     <script src="js/confirmarPublica.js"></script>
+    <script src="js/ajuda.js"></script>
+    <script>plannexusAjuda.flutuante({ titulo: "Como confirmar", itens: ["Digite seu nome e e-mail e toque em Confirmar presença.", "Se o organizador liberou, informe quantas pessoas vão com você e suas restrições alimentares.", "Se não puder ir, toque em Não poderei comparecer para avisar.", "O e-mail serve só para evitar confirmação repetida."] });</script>
 </body>
 
 </html>

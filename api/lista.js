@@ -10,8 +10,12 @@
 //    { acao: "desativar",  eventoId }   -> apaga o link (o link antigo para de funcionar)
 //    { acao: "liberar",    eventoId, presenteId } -> tira o nome e deixa o presente livre de novo
 //
+//    { acao: "pix",        eventoId, pix? }   -> lê (ou salva, se vier "pix") a chave Pix do evento
+//    { acao: "pixlista",   eventoId }         -> Pix que os convidados avisaram que enviaram
+//
 //  Sem login (convidado):
-//    { acao: "ver",      token }                                    -> nome do evento + presentes
+//    { acao: "ver",      token }                                    -> nome do evento + presentes (+ chave Pix, se ativa)
+//    { acao: "pixavisar", token, nome, anonimo, valor }             -> "Já enviei meu Pix" (avisa o dono)
 //    { acao: "escolher", token, presenteId, nome, anonimo }         -> marca o presente
 //
 //  O convidado só vê "já escolhido"; o nome de quem vai dar o presente
@@ -45,6 +49,33 @@ function linkSeguro(url) {
     } catch (e) {
         return "";
     }
+}
+
+// ---------- Pix ----------
+// O Plannexus NÃO processa pagamento: só mostra a chave do organizador a quem tem o link.
+// A chave fica em pixEventos/{eventoId} (coleção sem regra para o app: só este servidor lê).
+const TIPOS_PIX = ["CPF", "E-mail", "Telefone", "Aleatória"];
+
+function chavePixValida(tipo, chave) {
+    if (tipo === "CPF") return /^\d{11}$/.test(chave.replace(/[.\-\s]/g, ""));
+    if (tipo === "E-mail") return chave.length <= 77 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(chave);
+    if (tipo === "Telefone") return /^\+?\d{10,14}$/.test(chave.replace(/[()\-\s]/g, ""));
+    if (tipo === "Aleatória") return /^[0-9a-fA-F-]{32,36}$/.test(chave);
+    return false;
+}
+
+function pixLimpo(p) {
+    p = p && typeof p === "object" ? p : {};
+    const tipo = TIPOS_PIX.includes(p.tipo) ? p.tipo : "";
+    const chave = texto(p.chave, 77);
+    return { ativo: p.ativo === true, tipo, chave, favorecido: texto(p.favorecido, 60) };
+}
+
+function milissegundos(ts) {
+    if (!ts) return 0;
+    if (typeof ts.toMillis === "function") return ts.toMillis();
+    if (typeof ts._seconds === "number") return ts._seconds * 1000;
+    return Number(ts) || 0;
 }
 
 async function usuarioDaRequisicao(req, fb) {
@@ -94,7 +125,7 @@ export default async function handler(req, res) {
         const acao = texto(corpo.acao, 20);
 
         // ================= ÁREA DO DONO =================
-        if (acao === "estado" || acao === "criar" || acao === "desativar" || acao === "liberar") {
+        if (["estado", "criar", "desativar", "liberar", "pix", "pixlista"].includes(acao)) {
             let usuario;
             try {
                 usuario = await usuarioDaRequisicao(req, fb);
@@ -107,6 +138,32 @@ export default async function handler(req, res) {
 
             const permissao = await podeGerenciar(fb, eventoId, usuario.uid);
             if (!permissao.ok) return res.status(permissao.status).json({ erro: permissao.erro });
+
+            if (acao === "pix") {
+                const ref = fb.db.collection("pixEventos").doc(eventoId);
+                if (corpo.pix !== undefined) {
+                    const novo = pixLimpo(corpo.pix);
+                    if (novo.ativo && !chavePixValida(novo.tipo, novo.chave)) {
+                        return res.status(400).json({ erro: "Chave Pix inválida para o tipo escolhido." });
+                    }
+                    if (novo.ativo && novo.favorecido.length < 2) {
+                        return res.status(400).json({ erro: "Informe o nome de quem recebe o Pix." });
+                    }
+                    await ref.set({ ...novo, eventoId, donoUid: permissao.evento.usuarioId || usuario.uid, atualizadoEm: fb.FieldValue.serverTimestamp() });
+                    return res.status(200).json({ ok: true, pix: novo });
+                }
+                const atualPix = await ref.get();
+                return res.status(200).json({ ok: true, pix: pixLimpo(atualPix.exists ? atualPix.data() : null) });
+            }
+
+            if (acao === "pixlista") {
+                const snap = await fb.db.collection("pixEventos").doc(eventoId).collection("avisos").orderBy("criadoEm", "desc").limit(200).get();
+                const avisos = snap.docs.map((d) => {
+                    const a = d.data();
+                    return { id: d.id, nome: a.anonimo ? "" : texto(a.nome, 60), anonimo: !!a.anonimo, valor: Number(a.valor) > 0 ? Number(a.valor) : 0, quando: milissegundos(a.criadoEm) };
+                });
+                return res.status(200).json({ ok: true, avisos, total: avisos.reduce((t, a) => t + a.valor, 0) });
+            }
 
             if (acao === "liberar") {
                 const presenteId = texto(corpo.presenteId, 100);
@@ -175,7 +232,66 @@ export default async function handler(req, res) {
                 };
             }).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 
-            return res.status(200).json({ ok: true, evento: texto(evento.nome, 120), presentes });
+            let pix = null;
+            const pixSnap = await fb.db.collection("pixEventos").doc(eventoId).get();
+            if (pixSnap.exists && pixSnap.data().ativo) {
+                const x = pixLimpo(pixSnap.data());
+                pix = { tipo: x.tipo, chave: x.chave, favorecido: x.favorecido };
+            }
+
+            return res.status(200).json({ ok: true, evento: texto(evento.nome, 120), presentes, pix });
+        }
+
+        if (acao === "pixavisar") {
+            // campo-isca contra robôs
+            if (corpo.armadilha) return res.status(200).json({ ok: true });
+
+            const anonimo = corpo.anonimo === true;
+            const nome = texto(corpo.nome, 60);
+            const valor = corpo.valor == null || corpo.valor === "" ? 0 : Math.round(Number(corpo.valor) * 100) / 100;
+
+            if (!anonimo && nome.length < 2) return res.status(400).json({ erro: "Digite seu nome (ou marque como anônimo)." });
+            if (!(valor >= 0) || valor > 100000) return res.status(400).json({ erro: "Valor inválido." });
+
+            const pixRef = fb.db.collection("pixEventos").doc(eventoId);
+            const pixSnap = await pixRef.get();
+            if (!pixSnap.exists || !pixSnap.data().ativo) return res.status(400).json({ erro: "O Pix não está ativo neste evento." });
+
+            // limite de segurança: evita encher o banco de avisos falsos
+            const quantos = (await pixRef.collection("avisos").count().get()).data().count;
+            if (quantos >= 300) return res.status(429).json({ erro: "Muitos avisos neste evento. Fale com o organizador." });
+
+            await pixRef.collection("avisos").add({ nome: anonimo ? "" : nome, anonimo, valor: valor > 0 ? valor : 0, criadoEm: fb.FieldValue.serverTimestamp() });
+
+            try {
+                const donoUid = evento.usuarioId;
+                if (donoUid) {
+                    const quem = anonimo ? "Alguém (anônimo)" : nome;
+                    const quanto = valor > 0 ? " de " + valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "";
+                    await fb.db.collection("avisos").add({
+                        tipo: "pix",
+                        uid: donoUid,
+                        eventoId,
+                        ferramenta: "presentes",
+                        mensagem: `${quem} avisou que enviou um Pix${quanto} — ${texto(evento.nome, 80)}`,
+                        lida: false,
+                        dataCriacao: fb.FieldValue.serverTimestamp()
+                    });
+
+                    if (!(await categoriasDesligadas(fb, donoUid)).includes("colaboracao")) {
+                        await enviarPush(fb, donoUid, {
+                            titulo: "💸 Pix enviado",
+                            corpo: `${quem} avisou que enviou um Pix${quanto} — ${texto(evento.nome, 80)}`,
+                            url: `/presentes.html?id=${encodeURIComponent(eventoId)}`,
+                            tag: `pix-${eventoId}`
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("LISTA: falha ao avisar o dono do Pix", e.message);
+            }
+
+            return res.status(200).json({ ok: true });
         }
 
         if (acao === "escolher") {

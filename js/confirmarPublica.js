@@ -15,6 +15,12 @@
     var confirmarEl = document.getElementById("confirmar");
     var resultadoEl = document.getElementById("resultado");
     var avisoEl = document.getElementById("aviso");
+    var extrasEl = document.getElementById("extras");
+
+    // regras do organizador e o que o convidado escolheu
+    var regras = { soAdultos: false, criancas: false, acompanhantes: { ativo: false, max: 2 }, alimentacao: [], parentesco: false };
+    var RELACOES = ["Família", "Amigo(a)", "Trabalho", "Outro"];
+    var escolha = { criancas: 0, acompanhantes: 0, alimentacao: [], relacao: "" };
 
     function esc(t) {
         return String(t == null ? "" : t)
@@ -84,6 +90,49 @@
         detalhesEl.hidden = !linhas.length;
     }
 
+    // ---------- opções liberadas pelo organizador ----------
+    function desenharExtras() {
+        var h = "";
+        if (regras.soAdultos) {
+            h += '<div class="aviso-publico"><i class="fa-solid fa-user-group"></i><span>Evento exclusivo para adultos.</span></div>';
+        }
+        if (regras.criancas) {
+            h += '<div class="opcao"><div class="opcao-linha"><div><b>Vai levar crianças?</b><small>Quantas</small></div>' +
+                '<div class="contador"><button type="button" data-a="cri-" aria-label="Menos crianças"' + (escolha.criancas <= 0 ? " disabled" : "") + '>&minus;</button><span>' + escolha.criancas + '</span><button type="button" data-a="cri+" aria-label="Mais crianças"' + (escolha.criancas >= 10 ? " disabled" : "") + '>+</button></div></div></div>';
+        }
+        if (regras.acompanhantes.ativo) {
+            h += '<div class="opcao"><div class="opcao-linha"><div><b>Acompanhantes</b><small>Adultos que vão com você (máx. ' + regras.acompanhantes.max + ')</small></div>' +
+                '<div class="contador"><button type="button" data-a="aco-" aria-label="Menos acompanhantes"' + (escolha.acompanhantes <= 0 ? " disabled" : "") + '>&minus;</button><span>' + escolha.acompanhantes + '</span><button type="button" data-a="aco+" aria-label="Mais acompanhantes"' + (escolha.acompanhantes >= regras.acompanhantes.max ? " disabled" : "") + '>+</button></div></div></div>';
+        }
+        if (regras.alimentacao.length) {
+            h += '<div class="opcao"><b style="font-size:14px;color:#2b2250;font-weight:600">Restrição alimentar?</b><small style="display:block;font-size:12px;color:#8b82a8">Opcional. O organizador preparou estas opções.</small><div class="fichas">' +
+                regras.alimentacao.map(function (a) { return '<button type="button" class="ficha' + (escolha.alimentacao.indexOf(a) > -1 ? " on" : "") + '" data-a="ali" data-v="' + esc(a) + '" aria-pressed="' + (escolha.alimentacao.indexOf(a) > -1) + '">' + esc(a) + '</button>'; }).join("") + '</div></div>';
+        }
+        if (regras.parentesco) {
+            h += '<div class="opcao"><b style="font-size:14px;color:#2b2250;font-weight:600">Sua relação com o anfitrião</b><div class="fichas">' +
+                RELACOES.map(function (r) { return '<button type="button" class="ficha' + (escolha.relacao === r ? " on" : "") + '" data-a="rel" data-v="' + esc(r) + '" aria-pressed="' + (escolha.relacao === r) + '">' + esc(r) + '</button>'; }).join("") + '</div></div>';
+        }
+        var total = 1 + escolha.criancas + escolha.acompanhantes;
+        if (total > 1) h += '<p class="total-pessoas">Total de pessoas: <b>' + total + '</b></p>';
+        extrasEl.innerHTML = h;
+        extrasEl.hidden = !h;
+    }
+
+    extrasEl.addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-a]");
+        if (!b || b.disabled) return;
+        var a = b.getAttribute("data-a"), v = b.getAttribute("data-v");
+        if (a === "cri-") escolha.criancas = Math.max(0, escolha.criancas - 1);
+        else if (a === "cri+") escolha.criancas = Math.min(10, escolha.criancas + 1);
+        else if (a === "aco-") escolha.acompanhantes = Math.max(0, escolha.acompanhantes - 1);
+        else if (a === "aco+") escolha.acompanhantes = Math.min(regras.acompanhantes.max, escolha.acompanhantes + 1);
+        else if (a === "ali") {
+            var i = escolha.alimentacao.indexOf(v);
+            if (i > -1) escolha.alimentacao.splice(i, 1); else escolha.alimentacao.push(v);
+        } else if (a === "rel") escolha.relacao = escolha.relacao === v ? "" : v;
+        desenharExtras();
+    });
+
     // tela de resultado. tipo: "confirmou" | "nao" (não poderá ir) | "ja-sim" | "ja-nao"
     function mostrarResultado(tipo, nome) {
         form.hidden = true;
@@ -129,6 +178,8 @@
             nomeEventoEl.textContent = r.dados.evento || "Evento";
             document.title = "Confirmar presença - " + (r.dados.evento || "Plannexus");
             mostrarDetalhes(r.dados);
+            if (r.dados.regras) regras = r.dados.regras;
+            desenharExtras();
             if (r.dados.organizador) {   // quem criou o evento: não confirma, vai para a lista
                 document.getElementById("irParaLista").href = "convidados.html?id=" + encodeURIComponent(r.dados.eventoId || "");
                 document.getElementById("organizador").hidden = false;
@@ -168,7 +219,14 @@
         var textoOriginal = botao.textContent;
         botao.textContent = "Enviando...";
 
-        chamar({ acao: "confirmar", resposta: resposta, nome: nome, email: email, armadilha: iscaInput.value }).then(function (r) {
+        var corpo = { acao: "confirmar", resposta: resposta, nome: nome, email: email, armadilha: iscaInput.value };
+        if (resposta === "sim") {
+            corpo.criancas = regras.criancas ? escolha.criancas : 0;
+            corpo.acompanhantes = regras.acompanhantes.ativo ? escolha.acompanhantes : 0;
+            corpo.alimentacao = escolha.alimentacao.filter(function (a) { return regras.alimentacao.indexOf(a) > -1; });
+            corpo.relacao = regras.parentesco ? escolha.relacao : "";
+        }
+        chamar(corpo).then(function (r) {
             if (r.ok) return mostrarResultado(resposta === "nao" ? "nao" : "confirmou", nome.split(" ")[0]);
             if (r.status === 409) return mostrarResultado(r.dados.resposta === "nao" ? "ja-nao" : "ja-sim");
             mostrarErro(r.dados.erro || "Não foi possível enviar. Tente de novo.");

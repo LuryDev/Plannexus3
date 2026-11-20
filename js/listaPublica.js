@@ -17,6 +17,8 @@
     var toastEl = document.getElementById("toast");
 
     var presenteAtual = null;
+    var pixCartao = document.getElementById("pixCartao");
+    var pixAvisado = false;
 
     function esc(t) {
         return String(t == null ? "" : t)
@@ -83,6 +85,61 @@
         });
     }
 
+    // ---------- Pix ----------
+    function desenharPix(pix) {
+        if (!pix) { pixCartao.hidden = true; return; }
+        document.getElementById("pixPara").textContent = pix.favorecido ? "Para " + pix.favorecido + " (" + pix.tipo + ")" : pix.tipo;
+        document.getElementById("pixChave").textContent = pix.chave;
+        pixCartao.hidden = false;
+        pixCartao._chave = pix.chave;
+    }
+
+    document.getElementById("pixCopiar").addEventListener("click", function () {
+        var chave = pixCartao._chave || "";
+        if (!chave) return;
+        var ok = function () { toast("Chave Pix copiada! 💜"); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(chave).then(ok, function () { window.prompt("Copie a chave Pix:", chave); });
+        else window.prompt("Copie a chave Pix:", chave);
+    });
+
+    document.getElementById("pixJa").addEventListener("click", function () {
+        document.getElementById("pixForm").hidden = false;
+        this.hidden = true;
+        document.getElementById("pixNome").focus();
+    });
+
+    document.getElementById("pixAnonimo").addEventListener("change", function () {
+        var n = document.getElementById("pixNome");
+        n.disabled = this.checked;
+        if (this.checked) n.value = "";
+    });
+
+    document.getElementById("pixForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (pixAvisado) return;
+        var msg = document.getElementById("pixMensagem");
+        var anonimo = document.getElementById("pixAnonimo").checked;
+        var nome = document.getElementById("pixNome").value.trim();
+        var bruto = document.getElementById("pixValor").value.trim().replace(/[^\d,.]/g, "");
+        // "1.234,50" -> 1234.50 ; "100" -> 100
+        var valor = bruto ? Number(bruto.indexOf(",") > -1 ? bruto.replace(/\./g, "").replace(",", ".") : bruto) : 0;
+        if (!anonimo && nome.length < 2) { msg.textContent = "Digite seu nome ou marque a opção de ficar anônimo."; return; }
+        if (!(valor >= 0) || valor > 100000) { msg.textContent = "Confira o valor digitado."; return; }
+        var botao = document.getElementById("pixEnviar");
+        botao.disabled = true; botao.textContent = "Enviando...";
+        chamar({ acao: "pixavisar", nome: nome, anonimo: anonimo, valor: valor, armadilha: document.getElementById("pixIsca").value }).then(function (r) {
+            if (r.ok) {
+                pixAvisado = true;
+                document.getElementById("pixForm").hidden = true;
+                document.getElementById("pixOk").hidden = false;
+                return;
+            }
+            msg.textContent = r.dados.erro || "Não foi possível avisar. Tente de novo.";
+        }).catch(function () {
+            msg.textContent = "Sem conexão. Tente de novo.";
+        }).then(function () { botao.disabled = false; botao.textContent = "Avisar o organizador"; });
+    });
+
     function carregar() {
         if (!codigo) {
             nomeEventoEl.textContent = "Link inválido";
@@ -98,6 +155,7 @@
             }
             nomeEventoEl.textContent = r.dados.evento || "Evento";
             document.title = "Lista de presentes - " + (r.dados.evento || "Plannexus");
+            desenharPix(r.dados.pix || null);
             desenhar(r.dados.presentes || []);
         }).catch(function () {
             listaEl.innerHTML = '<p class="aviso erro">Sem conexão. Tente de novo.</p>';

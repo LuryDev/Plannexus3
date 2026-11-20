@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/presentes.css">
     <link rel="stylesheet" href="css/convidados.css">
+    <link rel="stylesheet" href="css/ajuda.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
 
     <!-- PWA: manifest, cor do tema e service worker -->
@@ -43,7 +44,7 @@
 
             <!-- LINK QUE O CONVIDADO ABRE PARA CONFIRMAR -->
             <div class="painel-link" id="painelLink" hidden>
-                <p class="painel-titulo"><i class="fa-solid fa-link"></i> Link de confirmação de presença</p>
+                <p class="painel-titulo"><i class="fa-solid fa-link"></i> Link de confirmação de presença<button type="button" class="ajuda-btn" data-ajuda-titulo="Link de confirmação" data-ajuda="Envie o link aos convidados: eles confirmam sem precisar de conta. | O que o convidado pode informar (crianças, acompanhantes, alimentação) você define na página do evento, em Recursos do evento > Regras de confirmação. | Toque em um nome para ver os detalhes; o X remove da lista." aria-label="Ajuda">?</button></p>
                 <p class="painel-texto" id="painelTexto">Quem receber o link coloca nome e e-mail para confirmar presença. Cada e-mail confirma uma vez só.</p>
                 <div class="painel-botoes" id="botoesLink">
                     <button type="button" id="botaoCopiarLink"><i class="fa-regular fa-copy"></i> Copiar link</button>
@@ -53,6 +54,9 @@
                     <button type="button" id="botaoCriarLink"><i class="fa-solid fa-link"></i> Criar link de confirmação</button>
                 </div>
             </div>
+
+            <!-- resumo para o buffet: aparece só para dono/colaborador e só se houver o que somar -->
+            <div class="resumo-evento" id="resumoEvento" hidden></div>
 
             <p class="subtitulo-lista" id="subtitulo" hidden>Convidados que confirmaram presença:</p>
 
@@ -68,6 +72,7 @@
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
 
+    <script src="js/ajuda.js"></script>
     <script type="module">
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
@@ -114,6 +119,33 @@
             avisoEl.hidden = !texto;
         }
 
+        // texto pequeno sob o nome: "3 pessoas · 2 crianças · Vegetariana · Família"
+        function detalhesDe(c) {
+            const partes = [];
+            if (c.pessoas > 1) partes.push(c.pessoas + " pessoas");
+            if (c.criancas) partes.push(c.criancas + (c.criancas > 1 ? " crianças" : " criança"));
+            if (c.alimentacao && c.alimentacao.length) partes.push(c.alimentacao.join(", "));
+            if (c.relacao) partes.push(c.relacao);
+            return partes.length ? '<small class="detalhe-conf">' + escaparTexto(partes.join(" · ")) + '</small>' : "";
+        }
+
+        function desenharResumo(dados) {
+            const t = dados.totais || {};
+            const el = document.getElementById("resumoEvento");
+            const ali = Object.keys(t.alimentacao || {});
+            const temAlgo = dados.gestor && (t.criancas > 0 || ali.length > 0);
+            el.hidden = !temAlgo;
+            if (!temAlgo) return;
+            el.innerHTML =
+                '<p class="resumo-titulo"><i class="fa-solid fa-utensils"></i> Resumo para o evento</p>' +
+                '<div class="resumo-numeros">' +
+                    '<div><b>' + t.pessoas + '</b><span>pessoas</span></div>' +
+                    '<div><b>' + t.adultos + '</b><span>adultos</span></div>' +
+                    '<div><b>' + t.criancas + '</b><span>crianças</span></div>' +
+                '</div>' +
+                (ali.length ? '<p class="resumo-alim">' + ali.map((a) => escaparTexto(a) + ": <b>" + t.alimentacao[a] + "</b>").join(" · ") + '</p>' : "");
+        }
+
         // ---------- lista de confirmados ----------
         function desenharLista(dados) {
             const confirmados = dados.confirmados || [];
@@ -122,15 +154,17 @@
             tituloEl.textContent = "Sua lista de convidados do evento - " + (dados.evento || nomeDoEvento);
 
             document.getElementById("contagem").hidden = false;
+            const totalPessoas = dados.totais && dados.totais.pessoas ? dados.totais.pessoas : confirmados.length;
             document.getElementById("contagemNumeros").textContent =
-                confirmados.length + (esperados > 0 ? "/" + esperados : "");
+                totalPessoas + (esperados > 0 ? "/" + esperados : "");
 
             const barra = document.getElementById("barra");
             barra.hidden = !(esperados > 0);
             document.getElementById("barraPreenchida").style.width =
-                esperados > 0 ? Math.min(100, Math.round(confirmados.length / esperados * 100)) + "%" : "0%";
+                esperados > 0 ? Math.min(100, Math.round(totalPessoas / esperados * 100)) + "%" : "0%";
 
             const ausentes = dados.ausentes || [];
+            desenharResumo(dados);
 
             document.getElementById("subtitulo").hidden = !confirmados.length;
             document.getElementById("subtituloAusentes").hidden = !ausentes.length;
@@ -142,7 +176,7 @@
                 const item = document.createElement("li");
                 item.innerHTML =
                     (posicao ? '<span class="posicao">' + posicao + ' -</span>' : '') +
-                    '<span class="nome-confirmado">' + escaparTexto(c.nome) + '</span>' +
+                    '<span class="nome-confirmado">' + escaparTexto(c.nome) + detalhesDe(c) + '</span>' +
                     (podeGerenciar ? '<button type="button" class="remover" title="Remover da lista" aria-label="Remover ' + escaparTexto(c.nome) + ' da lista"><i class="fa-solid fa-xmark"></i></button>' : "");
 
                 if (podeGerenciar) {
