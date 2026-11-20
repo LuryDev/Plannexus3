@@ -26,25 +26,35 @@
 
         <main>
             <p class="intro" id="intro" hidden>Escolha um presente e avise que você vai dar. Assim ninguém repete! 🎁</p>
-            <!-- Pix: só aparece se o organizador ativou -->
+            <!-- Transferência Instantânea (Pix): só aparece se o organizador ativou -->
             <section class="pix-cartao" id="pixCartao" hidden>
-                <h2><i class="fa-brands fa-pix"></i> Presentear com Pix</h2>
+                <h2><i class="fa-brands fa-pix"></i> Transferência Instantânea</h2>
+                <div class="pix-aviso" role="note">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <p><b>O Plannexus não realiza transferências, não recebe dinheiro e não se responsabiliza por elas.</b> A Transferência Instantânea é feita no app do seu banco, direto entre você e o anfitrião.</p>
+                </div>
                 <p class="pix-para" id="pixPara"></p>
                 <div class="pix-chave" id="pixChave"></div>
-                <button type="button" class="botao-dar" id="pixCopiar"><i class="fa-regular fa-copy"></i> Copiar chave Pix</button>
-                <p class="dica">Abra o app do seu banco, escolha Pix e cole a chave. O pagamento é feito direto para o organizador, o Plannexus não participa.</p>
-                <button type="button" class="pix-ja" id="pixJa">Já enviei meu Pix</button>
+                <button type="button" class="botao-dar" id="pixCopiar"><i class="fa-regular fa-copy"></i> Copiar chave</button>
+                <p class="dica">Cole a chave no app do seu banco e faça a transferência por lá.</p>
+                <button type="button" class="pix-ja" id="pixJa">Já fiz a transferência</button>
                 <form class="pix-form" id="pixForm" hidden novalidate>
                     <label for="pixNome">Seu nome</label>
                     <input type="text" id="pixNome" maxlength="60" placeholder="Como você quer aparecer" autocomplete="name">
                     <label class="anonimo"><input type="checkbox" id="pixAnonimo"> Quero ficar anônimo</label>
-                    <label for="pixValor">Valor enviado (opcional)</label>
+                    <label for="pixValor">Valor transferido (opcional)</label>
                     <input type="text" id="pixValor" inputmode="decimal" placeholder="Ex.: 100">
+                    <div id="pixCompBloco">
+                        <label>Comprovante (opcional)</label>
+                        <input type="file" id="pixArquivo" accept="image/*" hidden>
+                        <button type="button" class="pix-anexar" id="pixAnexar"><i class="fa-solid fa-paperclip"></i> <span id="pixAnexarTexto">Anexar foto ou print do comprovante</span></button>
+                        <p class="dica">Só o anfitrião vê. O Plannexus não confirma, não realiza e não se responsabiliza pela transferência: este aviso é só um recado para o anfitrião.</p>
+                    </div>
                     <input type="text" id="pixIsca" class="isca" tabindex="-1" autocomplete="off" aria-hidden="true" data-lpignore="true" data-1p-ignore="true">
                     <p class="mensagem" id="pixMensagem" role="status"></p>
-                    <button type="submit" class="confirmar" id="pixEnviar">Avisar o organizador</button>
+                    <button type="submit" class="confirmar" id="pixEnviar">Avisar o anfitrião</button>
                 </form>
-                <div class="pix-ok" id="pixOk" hidden>Obrigado! O organizador foi avisado do seu Pix. 💜</div>
+                <div class="pix-ok" id="pixOk" hidden>Obrigado! O anfitrião foi avisado da sua transferência. 💜</div>
             </section>
 
             <section class="lista" id="lista">
@@ -81,7 +91,7 @@
 
     <script src="js/listaPublica.js"></script>
     <script src="js/ajuda.js"></script>
-    <script>plannexusAjuda.flutuante({ titulo: "Como funciona", itens: ["Escolha um presente e toque em Eu vou dar este presente.", "Se o organizador aceitar Pix, copie a chave e pague no app do seu banco.", "Depois, toque em Já enviei meu Pix para avisar o organizador (opcional).", "O Plannexus não processa nenhum pagamento."] });</script>
+    <script>plannexusAjuda.flutuante({ titulo: "Como funciona", itens: ["Escolha um presente e toque em Eu vou dar este presente.", "Se o anfitrião aceitar Transferência Instantânea, copie a chave e transfira pelo app do seu banco.", "Depois, avise o anfitrião em Já fiz a transferência (opcional).", "O Plannexus não realiza transferências e não se responsabiliza por elas: tudo é entre você e o anfitrião."] });</script>
 </body>
 
 </html>

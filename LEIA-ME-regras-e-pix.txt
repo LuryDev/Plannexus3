@@ -15,15 +15,21 @@ REGRAS DE CONFIRMAÇÃO (o organizador decide o que oferece)
   "Resumo para o evento" (adultos, crianças, restrições). Só dono/colaborador
   veem os detalhes.
 
-PIX NOS PRESENTES
-- presentes.html: cartão "Receber presente em Pix" (tipo, chave, nome). Salva sozinho.
+PIX NOS PRESENTES (na tela aparece como "Transferência Instantânea")
+- presentes.html: cartão de Transferência Instantânea (tipo, chave, nome). A chave só vale depois de "Confirmar dados":
+  aparece "Confira se os dados estão todos corretos!", o botão vira "Está tudo certo!" e só então salva.
+  Qualquer edição exige confirmar de novo; desligar vale na hora.
   A chave fica em pixEventos/{eventoId} (coleção SEM regra no Firestore: só o
   servidor lê). Se criar regras novas, NÃO libere pixEventos para o app.
 - lista.html (link público): o convidado copia a chave e pode tocar em
   "Já enviei meu Pix" (nome ou anônimo, valor opcional). O dono recebe aviso
   (sininho + push) e vê "Pix avisados" em presentes.html.
 - O Plannexus NÃO processa nem confirma pagamento.
-- Ainda NÃO tem: anexar comprovante (precisa de armazenamento privado) e QR Code.
+- Comprovante (opcional): o convidado anexa foto/print; o navegador reduz para JPEG (até ~400 KB) e o servidor
+  guarda em pixEventos/{evento}/avisos/{id}.comprovante (sem Firebase Storage, sem regra para o app).
+  Só dono/colaborador abrem (api/lista, acao "pixcomp"). O dono pode desligar o comprovante no cartão de Pix.
+- Os textos deixam claro que o Plannexus não realiza transferências nem se responsabiliza por elas: é tudo entre anfitrião e convidado.
+- Ainda NÃO tem: QR Code do Pix.
 
 BOTÃO "?" DE AJUDA
 - js/ajuda.js + css/ajuda.css. Pequeno ao lado dos títulos novos (data-ajuda="dica 1 | dica 2")

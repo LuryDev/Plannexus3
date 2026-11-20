@@ -604,3 +604,22 @@ main {
 .pix-avisados-titulo { font-size: 13px; font-weight: 700; color: #4d2fb8; margin-bottom: 6px; }
 .pix-linha { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; padding: 5px 0; color: #2b2250; }
 .pix-linha b { color: #4d2fb8; font-size: 13px; }
+
+.pix-opcao { display: flex; align-items: center; gap: 8px; margin: 12px 0 !important; font-size: 13px !important; color: #3b2a7a !important; cursor: pointer; }
+.pix-opcao input { width: auto !important; accent-color: #5A32D3; }
+.pix-aviso { display: flex; gap: 10px; align-items: flex-start; background: #fff4d6; border: 1px solid #f0d58a; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+.pix-aviso i { color: #d89b00; margin-top: 2px; }
+.pix-aviso p { font-size: 12.5px; line-height: 1.45; color: #5b4300; }
+.ver-comp { border: 1px solid #ddd5f7; background: #eee9ff; color: #5A32D3; border-radius: 8px; padding: 2px 8px; font-size: 11px; font-weight: 600; cursor: pointer; margin-left: 6px; }
+.visor-comp { position: fixed; inset: 0; background: rgba(20,12,50,.85); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.visor-comp img { max-width: 100%; max-height: 100%; border-radius: 12px; background: #fff; }
+.visor-comp button { position: absolute; top: 12px; right: 16px; border: 0; background: none; color: #fff; font-size: 32px; cursor: pointer; }
+
+.pix-confirma { margin-top: 10px; }
+.pix-confirma[hidden], .pix-confirma-msg[hidden], .pix-resumo[hidden] { display: none; }
+.pix-confirma-msg { background: #fff4d6; border: 1px solid #f0d58a; border-radius: 10px; padding: 9px 12px; font-size: 13px; font-weight: 700; color: #5b4300; }
+.pix-resumo { display: flex; flex-direction: column; gap: 2px; background: #f3f0fd; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 12px; color: #6b6480; }
+.pix-resumo b { font-size: 15px; color: #4d2fb8; word-break: break-all; }
+.pix-botao { width: 100%; margin-top: 10px; border: 0; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; background: #8b82a8; }
+.pix-botao.certo { background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%); }
+.pix-botao:disabled { opacity: .6; }

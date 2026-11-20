@@ -63,10 +63,10 @@
                 </div>
             </div>
 
-            <!-- PIX: o dono informa a chave; o convidado vê no link da lista (o Plannexus não processa pagamento) -->
+            <!-- Transferência Instantânea (Pix): o dono informa a chave; o convidado vê no link da lista -->
             <div class="painel-link" id="painelPix" hidden>
                 <label class="pix-liga" for="pixAtivo">
-                    <span class="painel-titulo"><i class="fa-brands fa-pix"></i> Receber presente em Pix<button type="button" class="ajuda-btn" data-ajuda-titulo="Presente em Pix" data-ajuda="Informe a sua chave Pix: ela aparece para quem abrir o link da lista de presentes. | O convidado paga no app do banco dele; o Plannexus não processa nem confirma o pagamento. | Quando alguém tocar em Já enviei meu Pix, você recebe um aviso aqui e nas notificações. | Confira sempre no seu banco." aria-label="Ajuda">?</button></span>
+                    <span class="painel-titulo"><i class="fa-brands fa-pix"></i> Receber por Transferência Instantânea<button type="button" class="ajuda-btn" data-ajuda-titulo="Transferência Instantânea" data-ajuda="Informe sua chave: ela aparece no link da lista de presentes. | O convidado transfere pelo banco dele, direto para você. | O Plannexus não realiza, não confirma e não se responsabiliza por transferências: confira no seu banco. | Você recebe um aviso quando alguém disser que transferiu." aria-label="Ajuda">?</button></span>
                     <input type="checkbox" id="pixAtivo">
                 </label>
                 <div class="pix-campos" id="pixCampos" hidden>
@@ -75,11 +75,21 @@
                         <option value="E-mail">E-mail</option><option value="CPF">CPF</option>
                         <option value="Telefone">Telefone</option><option value="Aleatória">Aleatória</option>
                     </select>
-                    <label for="pixChave">Chave Pix</label>
+                    <label for="pixChave">Chave</label>
                     <input type="text" id="pixChave" maxlength="77" autocomplete="off" placeholder="Sua chave Pix">
                     <label for="pixFavorecido">Nome de quem recebe</label>
                     <input type="text" id="pixFavorecido" maxlength="60" autocomplete="off" placeholder="Como aparece no banco">
-                    <p class="painel-texto" id="pixAviso">Aparece para quem abrir o link da lista. Use "Compartilhar lista" para gerar o link.</p>
+                    <label class="pix-opcao" for="pixComp"><input type="checkbox" id="pixComp"> Permitir comprovante</label>
+                    <div class="pix-aviso" role="note">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <p><b>O Plannexus não realiza transferências, não recebe dinheiro e não se responsabiliza por elas.</b> A Transferência Instantânea é feita no banco do convidado, direto para você. Confira sempre no seu banco.</p>
+                    </div>
+                    <div class="pix-confirma" id="pixConfirma" hidden>
+                        <p class="pix-confirma-msg" id="pixConfirmaMsg" hidden><i class="fa-solid fa-triangle-exclamation"></i> Confira se os dados estão todos corretos!</p>
+                        <div class="pix-resumo" id="pixResumo" hidden></div>
+                        <button type="button" class="pix-botao" id="pixBotao">Confirmar dados</button>
+                    </div>
+                    <p class="painel-texto" id="pixAviso">A chave aparece no link da lista. Gere o link em "Compartilhar lista".</p>
                 </div>
                 <p class="pix-status" id="pixStatus" role="status"></p>
                 <div class="pix-avisados" id="pixAvisados" hidden></div>
@@ -244,39 +254,113 @@
             const tipo = document.getElementById("pixTipo");
             const chave = document.getElementById("pixChave");
             const fav = document.getElementById("pixFavorecido");
+            const comp = document.getElementById("pixComp");
             const status = document.getElementById("pixStatus");
+            const confirma = document.getElementById("pixConfirma");
+            const msg = document.getElementById("pixConfirmaMsg");
+            const resumo = document.getElementById("pixResumo");
+            const botao = document.getElementById("pixBotao");
 
             const dados = await chamarLista({ acao: "pix", eventoId });
             const p = dados.pix || {};
+            let salvo = (p.ativo || p.chave) ? p : null;   // o que o servidor guarda (só vale depois de confirmado)
+            let estado = "ok";                              // "ok" | "editando" | "conferir"
+
             ativo.checked = !!p.ativo;
             tipo.value = p.tipo || "E-mail";
             chave.value = p.chave || "";
             fav.value = p.favorecido || "";
-            campos.hidden = !ativo.checked;
+            comp.checked = p.comprovante !== false;
             painel.hidden = false;
 
-            let espera = null;
-            const salvar = (imediato) => {
-                campos.hidden = !ativo.checked;
-                status.textContent = "";
-                clearTimeout(espera);
-                espera = setTimeout(async () => {
-                    try {
-                        status.textContent = "Salvando...";
-                        await chamarLista({ acao: "pix", eventoId, pix: { ativo: ativo.checked, tipo: tipo.value, chave: chave.value, favorecido: fav.value } });
-                        status.textContent = "Salvo ✓";
-                    } catch (erro) {
-                        status.textContent = erro.message;
-                    }
-                }, imediato ? 0 : 900);
-            };
-            ativo.addEventListener("change", () => salvar(true));
-            tipo.addEventListener("change", () => salvar(false));
-            chave.addEventListener("input", () => salvar(false));
-            fav.addEventListener("input", () => salvar(false));
+            const atuais = () => ({ ativo: true, tipo: tipo.value, chave: chave.value.trim(), favorecido: fav.value.trim(), comprovante: comp.checked });
 
+            // desenha conforme o estado: editando -> "Confirmar dados"; conferir -> "Está tudo certo!"
+            function desenhar() {
+                campos.hidden = !ativo.checked;
+                confirma.hidden = !ativo.checked || estado === "ok";
+                msg.hidden = estado !== "conferir";
+                resumo.hidden = estado !== "conferir";
+                botao.textContent = estado === "conferir" ? "Está tudo certo!" : "Confirmar dados";
+                botao.classList.toggle("certo", estado === "conferir");
+                if (estado === "conferir") {
+                    const d = atuais();
+                    resumo.innerHTML = "<span>" + esc(d.tipo) + "</span><b>" + esc(d.chave) + "</b><span>Para " + esc(d.favorecido) + "</span>";
+                }
+                if (ativo.checked && estado === "ok" && salvo && salvo.ativo) status.textContent = "✓ Ativo: os convidados já veem a chave no link da lista.";
+                else if (ativo.checked && estado !== "ok") status.textContent = "A chave só vale depois que você confirmar os dados.";
+                else status.textContent = "";
+            }
+
+            async function gravar(pix) {
+                await chamarLista({ acao: "pix", eventoId, pix });
+                salvo = pix;
+            }
+
+            // qualquer mudança nos dados exige confirmar de novo
+            const editou = () => { if (ativo.checked) { estado = "editando"; desenhar(); } };
+            [tipo, comp].forEach((el) => el.addEventListener("change", editou));
+            [chave, fav].forEach((el) => el.addEventListener("input", editou));
+
+            ativo.addEventListener("change", async () => {
+                if (ativo.checked) { estado = "editando"; desenhar(); return; }
+                // desligar vale na hora (e a chave deixa de aparecer para os convidados)
+                estado = "ok";
+                desenhar();
+                if (salvo && salvo.ativo) {
+                    try { await gravar({ ...salvo, ativo: false }); status.textContent = "Desativado."; }
+                    catch (erro) { ativo.checked = true; status.textContent = erro.message; desenhar(); }
+                }
+            });
+
+            botao.addEventListener("click", async () => {
+                if (estado === "editando") {
+                    const d = atuais();
+                    if (!d.chave || d.favorecido.length < 2) { status.textContent = "Preencha a chave e o nome de quem recebe."; return; }
+                    estado = "conferir";
+                    desenhar();
+                    return;
+                }
+                if (estado === "conferir") {
+                    botao.disabled = true;
+                    status.textContent = "Salvando...";
+                    try {
+                        await gravar(atuais());
+                        estado = "ok";
+                        desenhar();
+                    } catch (erro) {
+                        estado = "editando";
+                        desenhar();
+                        status.textContent = erro.message;   // ex.: chave inválida para o tipo escolhido
+                    } finally {
+                        botao.disabled = false;
+                    }
+                }
+            });
+
+            desenhar();
             carregarPixAvisados().catch(() => {});
         }
+
+        // abre o comprovante (só dono/colaborador conseguem; o servidor confere)
+        document.getElementById("pixAvisados").addEventListener("click", async (e) => {
+            const b = e.target.closest(".ver-comp");
+            if (!b) return;
+            b.disabled = true;
+            try {
+                const dados = await chamarLista({ acao: "pixcomp", eventoId, avisoId: b.dataset.id });
+                const visor = document.createElement("div");
+                visor.className = "visor-comp";
+                visor.innerHTML = '<button type="button" aria-label="Fechar">&times;</button><img alt="Comprovante enviado pelo convidado">';
+                visor.querySelector("img").src = dados.imagem;
+                visor.addEventListener("click", () => visor.remove());
+                document.body.appendChild(visor);
+            } catch (erro) {
+                alert("Não foi possível abrir o comprovante: " + erro.message);
+            } finally {
+                b.disabled = false;
+            }
+        });
 
         async function carregarPixAvisados() {
             const dados = await chamarLista({ acao: "pixlista", eventoId });
@@ -285,9 +369,9 @@
             el.hidden = !lista.length;
             if (!lista.length) return;
             el.innerHTML =
-                '<p class="pix-avisados-titulo">Pix avisados: ' + esc(dinheiroBR(dados.total)) + '</p>' +
-                lista.map((a) => '<div class="pix-linha"><span>' + (a.anonimo ? "Anônimo" : esc(a.nome)) + '</span><b>' + (a.valor > 0 ? esc(dinheiroBR(a.valor)) : "valor não informado") + '</b></div>').join("") +
-                '<p class="painel-texto">Confira no seu banco: o valor é o que o convidado informou.</p>';
+                '<p class="pix-avisados-titulo">Transferências avisadas: ' + esc(dinheiroBR(dados.total)) + '</p>' +
+                lista.map((a) => '<div class="pix-linha"><span>' + (a.anonimo ? "Anônimo" : esc(a.nome)) + (a.comprovante ? ' <button type="button" class="ver-comp" data-id="' + esc(a.id) + '"><i class="fa-solid fa-paperclip"></i> comprovante</button>' : "") + '</span><b>' + (a.valor > 0 ? esc(dinheiroBR(a.valor)) : "valor não informado") + '</b></div>').join("") +
+                '<p class="painel-texto">Confira no banco: o valor é o informado pelo convidado.</p>';
         }
 
 

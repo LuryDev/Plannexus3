@@ -68,3 +68,10 @@ main { padding: 20px; }
 .pix-form .isca { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .pix-ok { background: #e6f6ed; border-radius: 10px; padding: 12px; font-size: 13px; color: #1f6f43; font-weight: 600; text-align: center; }
 .pix-ok[hidden] { display: none; }
+
+.pix-aviso { display: flex; gap: 10px; align-items: flex-start; background: #fff4d6; border: 1px solid #f0d58a; border-radius: 12px; padding: 10px 12px; }
+.pix-aviso i { color: #d89b00; margin-top: 2px; }
+.pix-aviso p { font-size: 12.5px; line-height: 1.45; color: #5b4300; }
+#pixCompBloco[hidden] { display: none; }
+.pix-anexar { width: 100%; border: 1.5px dashed #c9bdf5; background: #faf9fe; color: #4d2fb8; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+.pix-anexar.anexado { border-style: solid; background: #e6f6ed; border-color: #9fd9bf; color: #1f6f43; }

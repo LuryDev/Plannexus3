@@ -19,6 +19,7 @@
     var presenteAtual = null;
     var pixCartao = document.getElementById("pixCartao");
     var pixAvisado = false;
+    var comprovanteB64 = "";   // foto/print já reduzida para JPEG (opcional)
 
     function esc(t) {
         return String(t == null ? "" : t)
@@ -90,6 +91,7 @@
         if (!pix) { pixCartao.hidden = true; return; }
         document.getElementById("pixPara").textContent = pix.favorecido ? "Para " + pix.favorecido + " (" + pix.tipo + ")" : pix.tipo;
         document.getElementById("pixChave").textContent = pix.chave;
+        document.getElementById("pixCompBloco").hidden = pix.comprovante === false;
         pixCartao.hidden = false;
         pixCartao._chave = pix.chave;
     }
@@ -97,9 +99,9 @@
     document.getElementById("pixCopiar").addEventListener("click", function () {
         var chave = pixCartao._chave || "";
         if (!chave) return;
-        var ok = function () { toast("Chave Pix copiada! 💜"); };
-        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(chave).then(ok, function () { window.prompt("Copie a chave Pix:", chave); });
-        else window.prompt("Copie a chave Pix:", chave);
+        var ok = function () { toast("Chave copiada! 💜"); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(chave).then(ok, function () { window.prompt("Copie a chave:", chave); });
+        else window.prompt("Copie a chave:", chave);
     });
 
     document.getElementById("pixJa").addEventListener("click", function () {
@@ -112,6 +114,55 @@
         var n = document.getElementById("pixNome");
         n.disabled = this.checked;
         if (this.checked) n.value = "";
+    });
+
+    // reduz a foto/print para JPEG pequeno (o servidor só aceita até ~400 KB)
+    function reduzirImagem(arquivo) {
+        return new Promise(function (ok, erro) {
+            if (!/^image\//.test(arquivo.type)) return erro(new Error("Escolha uma foto ou print (imagem)."));
+            var img = new Image();
+            var url = URL.createObjectURL(arquivo);
+            img.onload = function () {
+                URL.revokeObjectURL(url);
+                var esc = Math.min(1, 1400 / Math.max(img.width, img.height));
+                var c = document.createElement("canvas");
+                c.width = Math.max(1, Math.round(img.width * esc));
+                c.height = Math.max(1, Math.round(img.height * esc));
+                var g = c.getContext("2d");
+                g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+                g.drawImage(img, 0, 0, c.width, c.height);
+                var q = 0.8, saida = "";
+                do { saida = c.toDataURL("image/jpeg", q).split(",")[1]; q -= 0.1; } while (saida.length > 520000 && q > 0.25);
+                if (saida.length > 520000) erro(new Error("A imagem ficou grande demais. Tente um print menor."));
+                else ok(saida);
+            };
+            img.onerror = function () { URL.revokeObjectURL(url); erro(new Error("Não consegui abrir essa imagem.")); };
+            img.src = url;
+        });
+    }
+
+    var arquivoInput = document.getElementById("pixArquivo");
+    var anexarBotao = document.getElementById("pixAnexar");
+    var anexarTexto = document.getElementById("pixAnexarTexto");
+    anexarBotao.addEventListener("click", function () {
+        if (comprovanteB64) {   // já anexado: o botão remove
+            comprovanteB64 = ""; arquivoInput.value = "";
+            anexarTexto.textContent = "Anexar foto ou print do comprovante";
+            anexarBotao.classList.remove("anexado");
+            return;
+        }
+        arquivoInput.click();
+    });
+    arquivoInput.addEventListener("change", function () {
+        var f = arquivoInput.files && arquivoInput.files[0];
+        if (!f) return;
+        var msg = document.getElementById("pixMensagem");
+        msg.textContent = "";
+        reduzirImagem(f).then(function (b64) {
+            comprovanteB64 = b64;
+            anexarTexto.textContent = "Comprovante anexado. Toque para remover";
+            anexarBotao.classList.add("anexado");
+        }).catch(function (e) { msg.textContent = e.message; arquivoInput.value = ""; });
     });
 
     document.getElementById("pixForm").addEventListener("submit", function (e) {
@@ -127,7 +178,7 @@
         if (!(valor >= 0) || valor > 100000) { msg.textContent = "Confira o valor digitado."; return; }
         var botao = document.getElementById("pixEnviar");
         botao.disabled = true; botao.textContent = "Enviando...";
-        chamar({ acao: "pixavisar", nome: nome, anonimo: anonimo, valor: valor, armadilha: document.getElementById("pixIsca").value }).then(function (r) {
+        chamar({ acao: "pixavisar", nome: nome, anonimo: anonimo, valor: valor, armadilha: document.getElementById("pixIsca").value, comprovante: comprovanteB64 }).then(function (r) {
             if (r.ok) {
                 pixAvisado = true;
                 document.getElementById("pixForm").hidden = true;
@@ -137,7 +188,7 @@
             msg.textContent = r.dados.erro || "Não foi possível avisar. Tente de novo.";
         }).catch(function () {
             msg.textContent = "Sem conexão. Tente de novo.";
-        }).then(function () { botao.disabled = false; botao.textContent = "Avisar o organizador"; });
+        }).then(function () { botao.disabled = false; botao.textContent = "Avisar o anfitrião"; });
     });
 
     function carregar() {
