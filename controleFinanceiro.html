@@ -37,7 +37,11 @@
 
             <div class="orcamento">
                 <h3>Total: R$ <span id="totalOrcamento">0</span></h3>
+                <p class="grafico-titulo">Investimentos por categoria</p>
                 <canvas id="orcamentoGrafico" class="grafico"></canvas>
+                <ul class="legenda-cat" id="legendaCat"></ul>
+                <p class="grafico-titulo">Receitas x Investimentos</p>
+                <canvas id="graficoSimples" class="grafico grafico-simples"></canvas>
             </div>
 
             <!-- FILTRO -->
@@ -88,6 +92,11 @@
                 <option value="receita">Receita</option>
                 <option value="despesa">Investimento</option>
             </select>
+
+            <div id="blocoCategoria" hidden>
+                <label for="categoriaOrcamento">Categoria do gasto:</label>
+                <select id="categoriaOrcamento" name="categoriaOrcamento"></select>
+            </div>
 
             <button type="submit" id="botaoSalvar">Adicionar</button>
             <p id="mensagem"></p>
@@ -159,6 +168,7 @@
 
         botaoNovo.addEventListener("click", () => {
             itemEditando = null;
+            setTimeout(alternarCategoria, 0);
             document.getElementById("tituloModalFinanceiro").textContent = "Adicionar Item Financeiro";
             botaoSalvar.textContent = "Adicionar";
         });
@@ -171,6 +181,8 @@
             document.getElementById("descricaoOrcamento").value = item.descricao || "";
             document.getElementById("valorOrcamento").value = Number.isFinite(Number(item.valor)) ? item.valor : "";
             document.getElementById("tipoOrcamento").value = item.tipo || "";
+            selCat.value = categoriaDe(item);
+            alternarCategoria();
             document.getElementById("tituloModalFinanceiro").textContent = "Editar Item Financeiro";
             botaoSalvar.textContent = "Salvar alterações";
             document.getElementById("modal").hidden = false;
@@ -193,6 +205,23 @@
                 alert("Não foi possível excluir: " + erro.message);
             }
         }
+
+        // ============ CATEGORIAS DE GASTO =============
+        const CATEGORIAS = [
+            ["Local / espaço", "#5A32D3"], ["Buffet / comida", "#E8590C"], ["Bebidas", "#0CA678"],
+            ["Decoração", "#E64980"], ["Música / som", "#1C7ED6"], ["Foto e vídeo", "#7048E8"],
+            ["Convites e papelaria", "#F59F00"], ["Lembrancinhas", "#D6336C"], ["Transporte", "#12B886"],
+            ["Equipe / serviços", "#4263EB"], ["Roupas e beleza", "#AE3EC9"], ["Outros", "#868E96"]
+        ];
+        const COR_CAT = {};
+        CATEGORIAS.forEach((c) => { COR_CAT[c[0]] = c[1]; });
+        const selCat = document.getElementById("categoriaOrcamento");
+        CATEGORIAS.forEach((c) => { const o = document.createElement("option"); o.value = c[0]; o.textContent = c[0]; selCat.appendChild(o); });
+        function categoriaDe(item) { return COR_CAT[item.categoria] ? item.categoria : "Outros"; }
+        function alternarCategoria() {
+            document.getElementById("blocoCategoria").hidden = document.getElementById("tipoOrcamento").value !== "despesa";
+        }
+        document.getElementById("tipoOrcamento").addEventListener("change", alternarCategoria);
 
         function rotuloTipo(tipo) {
             if (tipo === "receita") return "Receita";
@@ -270,6 +299,7 @@
                     valor: valor,
                     tipo: document.getElementById('tipoOrcamento').value
                 };
+                campos.categoria = campos.tipo === "despesa" ? selCat.value : "";
                 if (itemEditando) {
                     await updateDoc(doc(db, "eventos", eventoId, "controleFinanceiro", itemEditando.id), campos);
                     avisarColaboracao(db, auth.currentUser, eventoId, "financeiro", "editou", titulo);
@@ -314,8 +344,23 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
-            graficoOrcamento.data.datasets[0].data = [totais.receitas, totais.despesas];
+            // por categoria (só investimentos), cada uma com sua cor
+            const porCat = {};
+            itensOrcamento.forEach((item) => {
+                const v = Number(item.valor);
+                if (item.tipo === "despesa" && Number.isFinite(v) && v > 0) porCat[categoriaDe(item)] = (porCat[categoriaDe(item)] || 0) + v;
+            });
+            const nomes = CATEGORIAS.map((c) => c[0]).filter((n) => porCat[n]);
+            graficoOrcamento.data.labels = nomes;
+            graficoOrcamento.data.datasets[0].data = nomes.map((n) => porCat[n]);
+            graficoOrcamento.data.datasets[0].backgroundColor = nomes.map((n) => COR_CAT[n]);
             graficoOrcamento.update();
+            const somaCat = nomes.reduce((t, n) => t + porCat[n], 0);
+            document.getElementById("legendaCat").innerHTML = nomes.length
+                ? nomes.map((n) => '<li><i style="background:' + COR_CAT[n] + '"></i>' + n + ' <b>' + Math.round(porCat[n] / somaCat * 100) + '%</b></li>').join("")
+                : '<li class="vazio">Adicione investimentos para ver as categorias.</li>';
+            graficoSimples.data.datasets[0].data = [totais.receitas, totais.despesas];
+            graficoSimples.update();
             desenhar();
         }
 
@@ -323,9 +368,9 @@
         const graficoOrcamento = new Chart(document.getElementById("orcamentoGrafico"), {
             type: "pie",
             data: {
-                labels: ["Receita", "Investimento"],
+                labels: [],
                 datasets: [{
-                    backgroundColor: ["#925edb", "#47158c"],
+                    backgroundColor: [],
                     borderColor: "#fff",
                     borderWidth: 1,
                     hoverOffset: 4,
@@ -348,6 +393,13 @@
             }
         });
 
+
+        // gráfico simples: barras de receitas x investimentos
+        const graficoSimples = new Chart(document.getElementById("graficoSimples"), {
+            type: "bar",
+            data: { labels: ["Receitas", "Investimentos"], datasets: [{ data: [0, 0], backgroundColor: ["#925edb", "#47158c"], borderRadius: 8 }] },
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
 
         // ============ DESENHAR ITENS =============
 
@@ -382,7 +434,7 @@
                 const valorNumerico = Number(item.valor);
                 valor.textContent = `Valor: R$ ${Number.isFinite(valorNumerico) ? valorNumerico.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0,00"}`;
                 const tipo = document.createElement("p");
-                tipo.textContent = `Tipo: ${rotuloTipo(item.tipo)}`;
+                tipo.textContent = `Tipo: ${rotuloTipo(item.tipo)}` + (item.tipo === "despesa" ? ` · ${categoriaDe(item)}` : "");
                 card.append(titulo, descricao, valor, tipo);
                 if (!souVisitante) {
                     const acoes = document.createElement("div");
