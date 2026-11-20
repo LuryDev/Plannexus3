@@ -620,6 +620,6 @@ main {
 .pix-confirma-msg { background: #fff4d6; border: 1px solid #f0d58a; border-radius: 10px; padding: 9px 12px; font-size: 13px; font-weight: 700; color: #5b4300; }
 .pix-resumo { display: flex; flex-direction: column; gap: 2px; background: #f3f0fd; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 12px; color: #6b6480; }
 .pix-resumo b { font-size: 15px; color: #4d2fb8; word-break: break-all; }
-.pix-botao { width: 100%; margin-top: 10px; border: 0; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; background: #8b82a8; }
-.pix-botao.certo { background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%); }
+.pix-botao { width: 100%; margin-top: 10px; border: 0; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%); box-shadow: 0 4px 10px rgba(77,47,184,.25); }
+.pix-botao.certo { background: linear-gradient(135deg, #2f9e6b 0%, #1f7a50 100%); box-shadow: 0 4px 10px rgba(31,122,80,.25); }
 .pix-botao:disabled { opacity: .6; }
