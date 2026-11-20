@@ -40,7 +40,7 @@
                 <p class="grafico-titulo">Investimentos por categoria</p>
                 <canvas id="orcamentoGrafico" class="grafico"></canvas>
                 <ul class="legenda-cat" id="legendaCat"></ul>
-                <p class="grafico-titulo">Receitas x Investimentos</p>
+                <p class="grafico-titulo">Comparação dos tipos de gastos</p>
                 <canvas id="graficoSimples" class="grafico grafico-simples"></canvas>
             </div>
 
@@ -359,7 +359,11 @@
             document.getElementById("legendaCat").innerHTML = nomes.length
                 ? nomes.map((n) => '<li><i style="background:' + COR_CAT[n] + '"></i>' + n + ' <b>' + Math.round(porCat[n] / somaCat * 100) + '%</b></li>').join("")
                 : '<li class="vazio">Adicione investimentos para ver as categorias.</li>';
-            graficoSimples.data.datasets[0].data = [totais.receitas, totais.despesas];
+            // barras: mesmas categorias, da que mais gasta para a que menos gasta
+            const ordenadas = nomes.slice().sort((a, b) => porCat[b] - porCat[a]);
+            graficoSimples.data.labels = ordenadas;
+            graficoSimples.data.datasets[0].data = ordenadas.map((n) => porCat[n]);
+            graficoSimples.data.datasets[0].backgroundColor = ordenadas.map((n) => COR_CAT[n]);
             graficoSimples.update();
             desenhar();
         }
@@ -397,8 +401,12 @@
         // gráfico simples: barras de receitas x investimentos
         const graficoSimples = new Chart(document.getElementById("graficoSimples"), {
             type: "bar",
-            data: { labels: ["Receitas", "Investimentos"], datasets: [{ data: [0, 0], backgroundColor: ["#925edb", "#47158c"], borderRadius: 8 }] },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 6 }] },
+            options: {
+                indexAxis: "y",
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => "R$ " + Number(c.raw).toLocaleString("pt-BR", { minimumFractionDigits: 2 }) } } },
+                scales: { x: { beginAtZero: true, ticks: { callback: (v) => "R$ " + v } } }
+            }
         });
 
         // ============ DESENHAR ITENS =============

@@ -34,5 +34,5 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 6) Orçamento: categorias e 2º gráfico
    - Investimentos têm categoria (Local, Buffet, Bebidas, Decoração, Música, Foto e vídeo, Convites,
      Lembrancinhas, Transporte, Equipe, Roupas e beleza, Outros), cada uma com cor própria.
-   - Gráfico de pizza por categoria (com legenda em %) e gráfico de barras simples Receitas x Investimentos.
+   - Gráfico de pizza por categoria (com legenda em %) e gráfico de barras com a comparação dos tipos de gastos (do maior para o menor).
    - Itens antigos sem categoria aparecem como "Outros".
