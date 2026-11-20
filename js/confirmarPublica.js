@@ -160,40 +160,6 @@
         document.getElementById("textoResultado").textContent = texto;
     }
 
-    // documentos que o organizador deixou visíveis
-    function carregarDocumentos() {
-        fetch("/api/anexos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao: "listarpub", token: codigo }) })
-            .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (d) {
-                if (!d || !d.anexos || !d.anexos.length) return;
-                var alvo = document.getElementById("listaDocsPub");
-                alvo.innerHTML = "";
-                d.anexos.forEach(function (a) {
-                    var b = document.createElement("button");
-                    b.type = "button";
-                    b.className = "doc-pub";
-                    b.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i><span>' + esc(a.nome) + '</span>';
-                    b.addEventListener("click", function () { baixarDocumento(a); });
-                    alvo.appendChild(b);
-                });
-                document.getElementById("docsPublicos").hidden = false;
-            }).catch(function () { /* sem documentos, tudo bem */ });
-    }
-
-    function baixarDocumento(a) {
-        fetch("/api/anexos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao: "baixarpub", token: codigo, id: a.id }) })
-            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-            .then(function (x) {
-                if (!x.ok) throw new Error(x.d.erro || "Erro");
-                var bin = atob(x.d.base64), bytes = new Uint8Array(bin.length);
-                for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-                var url = URL.createObjectURL(new Blob([bytes], { type: x.d.tipo }));
-                var l = document.createElement("a");
-                l.href = url; l.download = x.d.nome; document.body.appendChild(l); l.click(); l.remove();
-                setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-            }).catch(function () { alert("Não foi possível baixar o arquivo."); });
-    }
-
     // aviso "antes/depois" quando o organizador muda data, horário ou local
     function mostrarMudanca(at) {
         var campos = [["Data", "data", dataBR], ["Horário", "horario", function (x) { return x; }], ["Local", "local", function (x) { return x; }]];
@@ -245,7 +211,6 @@
             nomeEventoEl.textContent = r.dados.evento || "Evento";
             document.title = "Confirmar presença - " + (r.dados.evento || "Plannexus");
             mostrarDetalhes(r.dados);
-            carregarDocumentos();
             if (r.dados.regras) regras = r.dados.regras;
             desenharExtras();
             if (r.dados.organizador) {   // quem criou o evento: não confirma, vai para a lista

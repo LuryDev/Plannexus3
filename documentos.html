@@ -32,7 +32,7 @@
             <h2 class="titulo-lista" id="titulo">Documentos do evento</h2>
 
             <div class="painel-link" id="painelEnviar" hidden>
-                <p class="painel-titulo"><i class="fa-solid fa-paperclip"></i> Anexar documento<button type="button" class="ajuda-btn" data-ajuda-titulo="Documentos" data-ajuda="Anexe PDF, Word ou Excel de até 2 MB (máximo de 10 arquivos). | Por padrão só a equipe do evento vê. | Ligue &quot;Visível para convidados&quot; para o arquivo aparecer na página de confirmação de presença." aria-label="Ajuda">?</button></p>
+                <p class="painel-titulo"><i class="fa-solid fa-paperclip"></i> Anexar documento<button type="button" class="ajuda-btn" data-ajuda-titulo="Documentos" data-ajuda="Anexe PDF, Word ou Excel de até 2 MB (máximo de 10 arquivos). | Só a equipe do evento vê os arquivos. | Use o botão de compartilhar para enviar um documento por WhatsApp, e-mail etc." aria-label="Ajuda">?</button></p>
                 <p class="painel-texto">PDF, Word ou Excel, até 2 MB.</p>
                 <div class="painel-botoes">
                     <button type="button" id="botaoEscolher"><i class="fa-solid fa-plus"></i> Escolher arquivo</button>
@@ -100,16 +100,12 @@
                 li.innerHTML =
                     '<span class="doc-icone ' + ic[1] + '"><i class="' + ic[0] + '"></i></span>' +
                     '<div class="doc-info"><b>' + esc(a.nome) + '</b><small>' + tamanhoBonito(a.tamanho) + '</small>' +
-                    (gestor ? '<label class="doc-visivel"><input type="checkbox"' + (a.visivel ? " checked" : "") + '> Visível para convidados</label>' : "") +
                     '</div>' +
-                    '<div class="doc-acoes"><button type="button" class="baixar" title="Baixar" aria-label="Baixar ' + esc(a.nome) + '"><i class="fa-solid fa-download"></i></button>' +
+                    '<div class="doc-acoes"><button type="button" class="compartilhar" title="Compartilhar" aria-label="Compartilhar ' + esc(a.nome) + '"><i class="fa-solid fa-share-nodes"></i></button><button type="button" class="baixar" title="Baixar" aria-label="Baixar ' + esc(a.nome) + '"><i class="fa-solid fa-download"></i></button>' +
                     (gestor ? '<button type="button" class="remover" title="Remover" aria-label="Remover ' + esc(a.nome) + '"><i class="fa-solid fa-xmark"></i></button>' : "") + '</div>';
                 li.querySelector(".baixar").addEventListener("click", () => baixar(a));
+                li.querySelector(".compartilhar").addEventListener("click", () => baixar(a, true));
                 if (gestor) {
-                    li.querySelector("input").addEventListener("change", async (e) => {
-                        try { await chamar({ acao: "visivel", eventoId, id: a.id, visivel: e.target.checked }); }
-                        catch (err) { e.target.checked = !e.target.checked; alert("Não foi possível alterar: " + err.message); }
-                    });
                     li.querySelector(".remover").addEventListener("click", async () => {
                         if (!confirm('Remover "' + a.nome + '"? Isso não pode ser desfeito.')) return;
                         try { await chamar({ acao: "remover", eventoId, id: a.id }); await carregar(); }
@@ -122,18 +118,28 @@
             avisoEl.textContent = gestor ? "Nenhum documento ainda. Toque em Escolher arquivo para anexar." : "Nenhum documento disponível.";
         }
 
-        async function baixar(a) {
+        // compartilhar = abre o menu do celular (WhatsApp, e-mail...) com o arquivo; sem suporte, baixa
+        async function baixar(a, compartilhar) {
             try {
                 const d = await chamar({ acao: "baixar", eventoId, id: a.id });
                 const bin = atob(d.base64);
                 const bytes = new Uint8Array(bin.length);
                 for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
                 const blob = new Blob([bytes], { type: d.tipo });
+                if (compartilhar) {
+                    try {
+                        const arquivo = new File([blob], d.nome, { type: d.tipo });
+                        if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+                            await navigator.share({ files: [arquivo], title: d.nome });
+                            return;
+                        }
+                    } catch (e) { if (e && e.name === "AbortError") return; }
+                }
                 const url = URL.createObjectURL(blob);
                 const l = document.createElement("a");
                 l.href = url; l.download = d.nome; document.body.appendChild(l); l.click(); l.remove();
                 setTimeout(() => URL.revokeObjectURL(url), 4000);
-            } catch (err) { alert("Não foi possível baixar: " + err.message); }
+            } catch (err) { alert("Não foi possível " + (compartilhar ? "compartilhar" : "baixar") + ": " + err.message); }
         }
 
         async function carregar() {
@@ -154,7 +160,7 @@
             leitor.onload = async () => {
                 try {
                     await chamar({ acao: "enviar", eventoId, nome: f.name, base64: String(leitor.result).split(",")[1] || "" });
-                    msgEl.textContent = "Enviado! Para os convidados verem, ligue \"Visível para convidados\".";
+                    msgEl.textContent = "Enviado! Use o botão de compartilhar para mandar a quem quiser.";
                     await carregar();
                 } catch (err) { msgEl.textContent = err.message; }
             };

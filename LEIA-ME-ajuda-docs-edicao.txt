@@ -19,7 +19,8 @@ NOVIDADES (protótipo -> sistema)  — sem a parte "Demonstração"
 4) Documentos (documentos.html, api/anexos.js)
    - PDF/Word/Excel até 2 MB, 10 por evento, conferidos pelo conteúdo. Guardados no Firestore
      (coleção "anexos" + subcoleção "partes", sem regra para o app — só o servidor acessa).
-   - "Visível para convidados": aparece em "Documentos do evento" na página de confirmação.
+   - Cada arquivo tem botão de compartilhar (menu do celular: WhatsApp, e-mail...; sem suporte, baixa o arquivo).
+     Os convidados NÃO veem os documentos.
 
 5) Ajuda e sugestões (ajuda.html, api/sugestoes.js)
    - Ícone de interrogação na barra do topo do início (ao lado do sino).

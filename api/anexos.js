@@ -2,18 +2,14 @@
 //  /api/anexos  -  documentos do evento (PDF, Word, Excel)
 //
 //  Com login (dono/colaborador):
-//    { acao: "listar",  eventoId }                         -> { anexos: [{id, nome, tamanho, visivel, quando}] }
+//    { acao: "listar",  eventoId }                         -> { anexos: [{id, nome, tamanho, quando}] }
 //    { acao: "enviar",  eventoId, nome, base64 }           -> envia um arquivo (até 2 MB, 10 por evento)
-//    { acao: "visivel", eventoId, id, visivel }            -> mostra/esconde para os convidados
 //    { acao: "remover", eventoId, id }
 //    { acao: "baixar",  eventoId, id }                     -> { nome, base64 }
 //  Com login (qualquer pessoa do evento): "listar" e "baixar"
-//  Sem login (convidado, pelo link de confirmação):
-//    { acao: "listarpub", token }                          -> só os marcados como visíveis
-//    { acao: "baixarpub", token, id }
 //
 //  Os arquivos ficam em coleções SEM regra para o app (só este servidor lê/escreve):
-//    anexos/{id}                -> { eventoId, nome, tamanho, visivel, partes, criadoEm }
+//    anexos/{id}                -> { eventoId, nome, tamanho, partes, criadoEm }
 //    anexos/{id}/partes/{n}     -> { dados }   (pedaços do arquivo em base64)
 // ==========================================================
 
@@ -70,7 +66,7 @@ async function permissao(fb, eventoId, uid, soGestor) {
 function resumo(d) {
     const x = d.data();
     return {
-        id: d.id, nome: x.nome, tamanho: x.tamanho || 0, visivel: !!x.visivel,
+        id: d.id, nome: x.nome, tamanho: x.tamanho || 0,
         quando: x.criadoEm && x.criadoEm.toMillis ? x.criadoEm.toMillis() : 0
     };
 }
@@ -114,24 +110,8 @@ export default async function handler(req, res) {
         const fb = await iniciarFirebase();
         const acao = texto(corpo.acao, 20);
 
-        // ---------- convidado (sem login) ----------
-        if (acao === "listarpub" || acao === "baixarpub") {
-            const token = texto(corpo.token, 40);
-            if (!/^[A-Za-z0-9_-]{24}$/.test(token)) return res.status(404).json({ erro: "Link inválido." });
-            const link = await fb.db.collection("confirmacoesPublicas").doc(token).get();
-            if (!link.exists) return res.status(404).json({ erro: "Link inválido." });
-            const eventoId = link.data().eventoId;
-            const todos = (await doEvento(fb, eventoId)).filter((d) => d.data().visivel);
-            if (acao === "listarpub") {
-                return res.status(200).json({ ok: true, anexos: todos.map((d) => { const r = resumo(d); return { id: r.id, nome: r.nome, tamanho: r.tamanho }; }) });
-            }
-            const alvo = todos.find((d) => d.id === texto(corpo.id, 60));
-            if (!alvo) return res.status(404).json({ erro: "Arquivo não disponível." });
-            return res.status(200).json(Object.assign({ ok: true }, await lerArquivo(fb, alvo)));
-        }
-
         // ---------- organizador / membros (com login) ----------
-        if (!["listar", "enviar", "visivel", "remover", "baixar"].includes(acao)) {
+        if (!["listar", "enviar", "remover", "baixar"].includes(acao)) {
             return res.status(400).json({ erro: "Ação inválida." });
         }
         let usuario;
@@ -165,7 +145,7 @@ export default async function handler(req, res) {
 
             const partes = Math.ceil(base64.length / PEDACO);
             const ref = await fb.db.collection("anexos").add({
-                eventoId, nome, tamanho: bytes.length, visivel: false, partes, autorUid: usuario.uid,
+                eventoId, nome, tamanho: bytes.length, partes, autorUid: usuario.uid,
                 criadoEm: fb.FieldValue.serverTimestamp()
             });
             for (let i = 0; i < partes; i++) {
@@ -177,10 +157,6 @@ export default async function handler(req, res) {
         const alvo = todos.find((d) => d.id === texto(corpo.id, 60));
         if (!alvo) return res.status(404).json({ erro: "Arquivo não encontrado." });
 
-        if (acao === "visivel") {
-            await alvo.ref.update({ visivel: !!corpo.visivel });
-            return res.status(200).json({ ok: true });
-        }
         if (acao === "remover") {
             await apagar(fb, alvo);
             return res.status(200).json({ ok: true });
