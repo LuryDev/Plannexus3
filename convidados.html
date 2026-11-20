@@ -58,6 +58,23 @@
             <!-- resumo para o buffet: aparece só para dono/colaborador e só se houver o que somar -->
             <div class="resumo-evento" id="resumoEvento" hidden></div>
 
+            <!-- filtros e exportação: só para dono/colaborador -->
+            <div class="barra-lista" id="barraLista" hidden>
+                <div class="filtros" id="filtros" role="group" aria-label="Filtrar lista">
+                    <button type="button" class="filtro ativo" data-f="todos">Todos</button>
+                    <button type="button" class="filtro" data-f="sim">Confirmados</button>
+                    <button type="button" class="filtro" data-f="nao">Ausentes</button>
+                </div>
+                <div class="exportar">
+                    <button type="button" class="btn-exportar" id="botaoExportar" aria-expanded="false"><i class="fa-solid fa-file-export"></i> Exportar</button>
+                    <div class="menu-exportar" id="menuExportar" hidden>
+                        <button type="button" data-fmt="pdf"><i class="fa-regular fa-file-pdf"></i> PDF</button>
+                        <button type="button" data-fmt="csv"><i class="fa-regular fa-file-excel"></i> Planilha</button>
+                    </div>
+                </div>
+                <button type="button" class="ajuda-btn" data-ajuda-titulo="Lista de convidados" data-ajuda="Toque em um nome para ver família, crianças e alimentação. | Use os filtros para ver só quem confirmou ou quem não poderá ir. | Exportar gera a lista do filtro escolhido em PDF ou planilha (abre no Excel)." aria-label="Ajuda">?</button>
+            </div>
+
             <p class="subtitulo-lista" id="subtitulo" hidden>Convidados que confirmaram presença:</p>
 
             <ol class="lista-confirmados" id="listaConfirmados"></ol>
@@ -120,36 +137,51 @@
             avisoEl.hidden = !texto;
         }
 
-        // texto pequeno sob o nome: "3 pessoas · 2 crianças · Vegetariana · Família"
-        function detalhesDe(c) {
+        // resumo curto sob o nome: "3 pessoas · 2 crianças"
+        function resumoCurto(c) {
             const partes = [];
             if (c.pessoas > 1) partes.push(c.pessoas + " pessoas");
             if (c.criancas) partes.push(c.criancas + (c.criancas > 1 ? " crianças" : " criança"));
-            if (c.alimentacao && c.alimentacao.length) partes.push(c.alimentacao.join(", "));
-            if (c.relacao) partes.push(c.relacao);
-            return partes.length ? '<small class="detalhe-conf">' + escaparTexto(partes.join(" · ")) + '</small>' : "";
+            return partes.join(" · ");
+        }
+
+        // detalhes que aparecem ao tocar no nome (só dono/colaborador)
+        function linhasDetalhe(c) {
+            const l = [];
+            if (c.pessoas != null) l.push(["Pessoas", c.pessoas + (c.acompanhantes ? " (com " + c.acompanhantes + (c.acompanhantes > 1 ? " acompanhantes" : " acompanhante") + ")" : "")]);
+            if (c.criancas) l.push(["Crianças", String(c.criancas)]);
+            if (c.alimentacao && c.alimentacao.length) l.push(["Alimentação", c.alimentacao.join(", ")]);
+            if (c.relacao) l.push(["Relação", c.relacao]);
+            if (c.quando) l.push(["Respondeu em", new Date(c.quando).toLocaleDateString("pt-BR")]);
+            return l;
         }
 
         function desenharResumo(dados) {
             const t = dados.totais || {};
             const el = document.getElementById("resumoEvento");
             const ali = Object.keys(t.alimentacao || {});
-            const temAlgo = dados.gestor && (t.criancas > 0 || ali.length > 0);
+            const nConf = (dados.confirmados || []).length, nAus = (dados.ausentes || []).length;
+            const temAlgo = dados.gestor && (nConf + nAus) > 0;
             el.hidden = !temAlgo;
             if (!temAlgo) return;
             el.innerHTML =
-                '<p class="resumo-titulo"><i class="fa-solid fa-utensils"></i> Resumo para o evento</p>' +
+                '<p class="resumo-titulo"><i class="fa-solid fa-chart-simple"></i> Totais</p>' +
                 '<div class="resumo-numeros">' +
                     '<div><b>' + t.pessoas + '</b><span>pessoas</span></div>' +
                     '<div><b>' + t.adultos + '</b><span>adultos</span></div>' +
                     '<div><b>' + t.criancas + '</b><span>crianças</span></div>' +
                 '</div>' +
+                '<p class="resumo-alim">Situação: <b>' + nConf + '</b> confirmaram · <b>' + nAus + '</b> não poderão</p>' +
                 (ali.length ? '<p class="resumo-alim">' + ali.map((a) => escaparTexto(a) + ": <b>" + t.alimentacao[a] + "</b>").join(" · ") + '</p>' : "");
         }
 
         // ---------- lista de confirmados ----------
+        let ultimosDados = null;
+        let filtro = "todos";
+
         function desenharLista(dados) {
-            const confirmados = dados.confirmados || [];
+            ultimosDados = dados;
+            const confirmados = filtro === "nao" ? [] : (dados.confirmados || []);
             const esperados = dados.esperados || 0;
 
             tituloEl.textContent = "Sua lista de convidados do evento - " + (dados.evento || nomeDoEvento);
@@ -164,8 +196,9 @@
             document.getElementById("barraPreenchida").style.width =
                 esperados > 0 ? Math.min(100, Math.round(totalPessoas / esperados * 100)) + "%" : "0%";
 
-            const ausentes = dados.ausentes || [];
+            const ausentes = filtro === "sim" ? [] : (dados.ausentes || []);
             desenharResumo(dados);
+            document.getElementById("barraLista").hidden = !(dados.gestor && ((dados.confirmados || []).length + (dados.ausentes || []).length) > 0);
 
             document.getElementById("subtitulo").hidden = !confirmados.length;
             document.getElementById("subtituloAusentes").hidden = !ausentes.length;
@@ -175,10 +208,23 @@
             // uma linha da lista (com o X de remover para dono/colaborador)
             function montarItem(c, posicao, ondeColocar, textoRemover) {
                 const item = document.createElement("li");
+                const detalhes = dados.gestor && posicao ? linhasDetalhe(c) : [];
+                const curto = dados.gestor && posicao ? resumoCurto(c) : "";
                 item.innerHTML =
                     (posicao ? '<span class="posicao">' + posicao + ' -</span>' : '') +
-                    '<span class="nome-confirmado">' + escaparTexto(c.nome) + detalhesDe(c) + '</span>' +
+                    '<span class="nome-confirmado">' + (detalhes.length
+                        ? '<button type="button" class="abrir-detalhe" aria-expanded="false"><span>' + escaparTexto(c.nome) + (curto ? '<small class="detalhe-conf">' + escaparTexto(curto) + '</small>' : '') + '</span><i class="fa-solid fa-chevron-down"></i></button>' +
+                          '<dl class="detalhes-conf" hidden>' + detalhes.map((d) => '<dt>' + d[0] + '</dt><dd>' + escaparTexto(d[1]) + '</dd>').join("") + '</dl>'
+                        : escaparTexto(c.nome)) + '</span>' +
                     (podeGerenciar ? '<button type="button" class="remover" title="Remover da lista" aria-label="Remover ' + escaparTexto(c.nome) + ' da lista"><i class="fa-solid fa-xmark"></i></button>' : "");
+
+                const abrir = item.querySelector(".abrir-detalhe");
+                if (abrir) abrir.addEventListener("click", () => {
+                    const dl = item.querySelector(".detalhes-conf");
+                    dl.hidden = !dl.hidden;
+                    item.classList.toggle("aberto", !dl.hidden);
+                    abrir.setAttribute("aria-expanded", String(!dl.hidden));
+                });
 
                 if (podeGerenciar) {
                     item.querySelector(".remover").addEventListener("click", async () => {
@@ -199,11 +245,13 @@
             ausentes.forEach((c) => montarItem(c, 0, listaAusentesEl,
                 "Remover " + c.nome + " da lista? Essa pessoa poderá responder de novo."));
 
-            if (!confirmados.length && !ausentes.length) {
+            if (!confirmados.length && !ausentes.length && filtro !== "todos") {
+                mostrarAviso("Ninguém nesta categoria.");
+            } else if (!confirmados.length && !ausentes.length) {
                 mostrarAviso(podeGerenciar
                     ? "Ninguém confirmou presença ainda. Compartilhe o link de confirmação com seus convidados."
                     : "Ninguém confirmou presença ainda.");
-            } else if (!confirmados.length) {
+            } else if (!confirmados.length && filtro === "todos") {
                 mostrarAviso("Ninguém confirmou presença ainda.");
             } else {
                 mostrarAviso("");
@@ -214,6 +262,127 @@
             const dados = await chamarPresenca({ acao: "lista", eventoId });
             desenharLista(dados);
         }
+
+        // ---------- filtros e exportação ----------
+        document.getElementById("filtros").addEventListener("click", (e) => {
+            const b = e.target.closest(".filtro");
+            if (!b) return;
+            filtro = b.dataset.f;
+            document.querySelectorAll("#filtros .filtro").forEach((x) => x.classList.toggle("ativo", x === b));
+            if (ultimosDados) desenharLista(ultimosDados);
+        });
+
+        const menuExp = document.getElementById("menuExportar");
+        const botaoExp = document.getElementById("botaoExportar");
+        botaoExp.addEventListener("click", (e) => {
+            e.stopPropagation();
+            menuExp.hidden = !menuExp.hidden;
+            botaoExp.setAttribute("aria-expanded", String(!menuExp.hidden));
+        });
+        document.addEventListener("click", () => { menuExp.hidden = true; botaoExp.setAttribute("aria-expanded", "false"); });
+
+        // linhas da tabela exportada, respeitando o filtro escolhido
+        function linhasExportacao() {
+            const d = ultimosDados || {};
+            const linhas = [];
+            if (filtro !== "nao") (d.confirmados || []).forEach((c) => linhas.push([c.nome, "Confirmado", c.pessoas || 1, c.criancas || 0,
+                (c.alimentacao || []).join(", "), c.relacao || ""]));
+            if (filtro !== "sim") (d.ausentes || []).forEach((c) => linhas.push([c.nome, "Não poderá", 0, 0, "", ""]));
+            return linhas;
+        }
+        const CABECALHO = ["Nome", "Situação", "Pessoas", "Crianças", "Alimentação", "Relação"];
+
+        function nomeArquivo(ext) {
+            const base = (nomeDoEvento || "evento").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase() || "evento";
+            return "convidados-" + base + "." + ext;
+        }
+
+        function montarCsv(linhas) {
+            const cel = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+            return "\ufeff" + [CABECALHO].concat(linhas).map((l) => l.map(cel).join(";")).join("\r\n");
+        }
+
+        // PDF simples (Helvetica), sem bibliotecas
+        function montarPdf(titulo, subtitulo, linhas) {
+            const esc = (t) => String(t).replace(/[\\()]/g, "\\$&").replace(/[^\x20-\x7e]/g, (ch) => {
+                const c = ch.charCodeAt(0);
+                return c < 256 ? "\\" + c.toString(8).padStart(3, "0") : "?";
+            });
+            const colunas = [0, 190, 270, 325, 380]; // x de cada coluna
+            const paginas = [];
+            let atual = null, y = 0;
+            function nova() { atual = []; paginas.push(atual); y = 800;
+                atual.push("BT /F2 15 Tf 40 " + y + " Td (" + esc(titulo) + ") Tj ET"); y -= 20;
+                atual.push("BT /F1 10 Tf 40 " + y + " Td (" + esc(subtitulo) + ") Tj ET"); y -= 26;
+                cabecalho(); }
+            function texto(x, t, fonte, tam) { atual.push("BT /" + fonte + " " + tam + " Tf " + x + " " + y + " Td (" + esc(t) + ") Tj ET"); }
+            function cabecalho() {
+                ["Nome", "Situação", "Pessoas", "Crianças", "Alimentação / relação"].forEach((h, i) => texto(40 + colunas[i], h, "F2", 10));
+                y -= 6; atual.push("40 " + y + " m 555 " + y + " l S"); y -= 14; }
+            nova();
+            linhas.forEach((l) => {
+                if (y < 50) nova();
+                const extra = [l[4], l[5]].filter(Boolean).join(" / ");
+                const nome = String(l[0]).slice(0, 32);
+                texto(40 + colunas[0], nome, "F1", 10);
+                texto(40 + colunas[1], l[1], "F1", 10);
+                texto(40 + colunas[2], l[1] === "Confirmado" ? String(l[2]) : "-", "F1", 10);
+                texto(40 + colunas[3], l[1] === "Confirmado" ? String(l[3]) : "-", "F1", 10);
+                texto(40 + colunas[4], extra.slice(0, 28), "F1", 10);
+                y -= 16;
+            });
+            const objs = [];
+            const total = paginas.length;
+            objs[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+            objs[2] = "<< /Type /Pages /Kids [" + paginas.map((_, i) => (6 + i * 2) + " 0 R").join(" ") + "] /Count " + total + " >>";
+            objs[3] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+            objs[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+            objs[5] = "<< >>";
+            paginas.forEach((cmds, i) => {
+                const conteudo = cmds.join("\n");
+                objs[6 + i * 2] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents " + (7 + i * 2) + " 0 R >>";
+                objs[7 + i * 2] = "<< /Length " + conteudo.length + " >>\nstream\n" + conteudo + "\nendstream";
+            });
+            let pdf = "%PDF-1.4\n"; const pos = [];
+            for (let i = 1; i < objs.length; i++) { pos[i] = pdf.length; pdf += i + " 0 obj\n" + objs[i] + "\nendobj\n"; }
+            const xref = pdf.length;
+            pdf += "xref\n0 " + objs.length + "\n0000000000 65535 f \n";
+            for (let i = 1; i < objs.length; i++) pdf += String(pos[i]).padStart(10, "0") + " 00000 n \n";
+            pdf += "trailer\n<< /Size " + objs.length + " /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF";
+            const bytes = new Uint8Array(pdf.length);
+            for (let i = 0; i < pdf.length; i++) bytes[i] = pdf.charCodeAt(i) & 255;
+            return bytes;
+        }
+
+        async function entregarArquivo(blob, nome) {
+            try {
+                const arquivo = new File([blob], nome, { type: blob.type });
+                if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+                    await navigator.share({ files: [arquivo], title: nome });
+                    return;
+                }
+            } catch (e) { if (e && e.name === "AbortError") return; }
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 4000);
+        }
+
+        menuExp.addEventListener("click", async (e) => {
+            const b = e.target.closest("button[data-fmt]");
+            if (!b) return;
+            const linhas = linhasExportacao();
+            if (!linhas.length) { alert("Não há ninguém nesta lista para exportar."); return; }
+            if (b.dataset.fmt === "csv") {
+                await entregarArquivo(new Blob([montarCsv(linhas)], { type: "text/csv;charset=utf-8" }), nomeArquivo("csv"));
+            } else {
+                const t = (ultimosDados && ultimosDados.totais) || {};
+                const sub = (filtro === "sim" ? "Confirmados" : filtro === "nao" ? "Não poderão" : "Todos") +
+                    " · " + (t.pessoas || 0) + " pessoas (" + (t.adultos || 0) + " adultos, " + (t.criancas || 0) + " crianças) · " + new Date().toLocaleDateString("pt-BR");
+                await entregarArquivo(new Blob([montarPdf("Convidados - " + (nomeDoEvento || "Evento"), sub, linhas)], { type: "application/pdf" }), nomeArquivo("pdf"));
+            }
+            menuExp.hidden = true;
+        });
 
         // ---------- link de confirmação ----------
         function urlDoLink() {

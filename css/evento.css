@@ -946,3 +946,22 @@ header {
 .com-bolinha { position: relative; }
 .com-bolinha > .bolinha-pend { position: absolute; top: -6px; right: -4px; z-index: 2; }
 .regras-evento summary > span { display: inline-flex; align-items: center; gap: 8px; }
+
+/* Editar evento */
+.botao-editar-evento { margin-top: 10px; border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.14); color: inherit; border-radius: 999px; padding: 6px 12px; font: 600 12px Poppins, sans-serif; cursor: pointer; }
+.botao-editar-evento[hidden] { display: none; }
+.fundo-editar { position: fixed; inset: 0; background: rgba(30,15,80,.5); display: flex; align-items: flex-end; justify-content: center; z-index: 50; padding: 0; }
+.fundo-editar[hidden] { display: none; }
+.caixa-editar { background: #fff; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; padding: 20px 18px 24px; font-family: Poppins, sans-serif; color: #2b2250; }
+.caixa-editar h2 { font-size: 18px; color: #4d2fb8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.caixa-editar label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 4px; }
+.caixa-editar input[type="date"], .caixa-editar input[type="time"], .caixa-editar input[type="text"] { width: 100%; padding: 11px 12px; border: 1px solid #ddd5f5; border-radius: 12px; font: 400 15px Poppins, sans-serif; background: #faf9fe; }
+.marcar-avisar { display: flex !important; gap: 10px; align-items: flex-start; background: #f6f3ff; border-radius: 12px; padding: 10px 12px; margin-top: 14px !important; font-weight: 400 !important; }
+.marcar-avisar small { display: block; color: #8b82a8; font-size: 12px; }
+.marcar-avisar input { margin-top: 4px; accent-color: #5A32D3; }
+.msg-editar { min-height: 18px; font-size: 13px; color: #c03535; margin-top: 8px; }
+.botoes-editar { display: flex; gap: 10px; margin-top: 8px; }
+.botoes-editar button { flex: 1; border: none; border-radius: 12px; padding: 12px; font: 600 14px Poppins, sans-serif; cursor: pointer; }
+.cancelar-editar { background: #f0ecfb; color: #4d2fb8; }
+.salvar-editar { background: linear-gradient(135deg, #6d4bd8, #4d2fb8); color: #fff; }
+.salvar-editar:disabled { opacity: .6; }

@@ -10,6 +10,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/tarefas.css">
+    <link rel="stylesheet" href="css/desfazer.css">
 
     <!-- PWA: manifest, cor do tema e service worker -->
     <link rel="manifest" href="manifest.json">
@@ -170,12 +171,13 @@
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/desfazer.js"></script>
     <script type="module">
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { avisarColaboracao } from "./js/avisos.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app  = initializeApp(FIREBASE_CONFIG);
@@ -537,14 +539,20 @@
                     <div class="lado-direito">
                         <span class="prioridade ${prioridade}">${NOMES_PRIORIDADE[prioridade]}</span>
                         ${souVisitante ? "" : `
-                        <button class="excluir" title="Excluir tarefa">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>`}
+                        <div class="acoes-linha">
+                            <button class="editar" title="Editar tarefa" aria-label="Editar tarefa">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="excluir" title="Excluir tarefa" aria-label="Excluir tarefa">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>`}
                     </div>
                 `;
 
                 if (!souVisitante) {
                     card.querySelector(".check").addEventListener("click", () => alternarConcluida(tarefa));
+                    card.querySelector(".editar").addEventListener("click", () => abrirEdicao(tarefa));
                     card.querySelector(".excluir").addEventListener("click", () => excluirTarefa(tarefa));
                 }
 
@@ -580,48 +588,49 @@
             }
         }
 
-        function excluirTarefa(tarefa) {
-            tarefaSelecionada = tarefa;
-
-            textoExcluir.textContent = `Tem certeza de que deseja excluir "${tarefa.titulo}"? Essa ação não poderá ser desfeita.`;
-
-            modalExcluir.hidden = false;
-            botaoConfirmarExclusao.focus();
-        }
-
-        function fecharModalExcluir() {
-            modalExcluir.hidden = true;
-            tarefaSelecionada = null;
-        
-            botaoConfirmarExclusao.disabled = false;
-            botaoConfirmarExclusao.textContent = "Excluir tarefa";
-        }
-
-        async function confirmarExclusaoTarefa() {
-            if (!tarefaSelecionada) return;
-        
-            const tarefa = tarefaSelecionada;
-        
-            botaoConfirmarExclusao.disabled = true;
-            botaoConfirmarExclusao.textContent = "Excluindo...";
-        
+        // exclui na hora e oferece DESFAZER (recria a tarefa com o mesmo id)
+        async function excluirTarefa(tarefa) {
+            const copia = Object.assign({}, tarefa);
+            delete copia.id;
             try {
                 await deleteDoc(doc(db, "eventos", eventoId, "tarefas", tarefa.id));
-            
                 avisarColaboracao(db, auth.currentUser, eventoId, "tarefas", "removeu", tarefa.titulo);
-            
-                fecharModalExcluir();
                 await carregarTarefas();
+                plannexusDesfazer("Tarefa excluída", async () => {
+                    await setDoc(doc(db, "eventos", eventoId, "tarefas", tarefa.id), copia);
+                    await carregarTarefas();
+                });
             }
             catch (erro) {
-                fecharModalExcluir();
                 mostrarErro(erro);
             }
         }
 
+        function fecharModalExcluir() { modalExcluir.hidden = true; }
+        async function confirmarExclusaoTarefa() { fecharModalExcluir(); }
+
 
         // ================= NOVA TAREFA =================
+        let tarefaEditando = null;
+
+        function abrirEdicao(tarefa) {
+            tarefaEditando = tarefa;
+            form.reset();
+            mensagemEl.textContent = "";
+            document.getElementById("tituloTarefa").value = tarefa.titulo || "";
+            document.getElementById("descricaoTarefa").value = tarefa.descricao || "";
+            document.getElementById("dataTarefa").value = tarefa.data || "";
+            document.getElementById("prioridadeTarefa").value = NOMES_PRIORIDADE[tarefa.prioridade] ? tarefa.prioridade : "media";
+            document.querySelector("#modal .modal-topo h2").textContent = "Editar tarefa";
+            botaoSalvar.textContent = "Salvar alterações";
+            modal.hidden = false;
+            document.getElementById("tituloTarefa").focus();
+        }
+
         function abrirModal() {
+            tarefaEditando = null;
+            document.querySelector("#modal .modal-topo h2").textContent = "Nova tarefa";
+            botaoSalvar.textContent = "Salvar tarefa";
             form.reset();
             mensagemEl.textContent = "";
             modal.hidden = false;
@@ -692,16 +701,19 @@
             botaoSalvar.textContent = "Salvando...";
 
             try {
-                await addDoc(collection(db, "eventos", eventoId, "tarefas"), {
+                const campos = {
                     titulo: titulo,
                     descricao: document.getElementById("descricaoTarefa").value.trim(),
                     data: document.getElementById("dataTarefa").value,       // "AAAA-MM-DD"
-                    prioridade: document.getElementById("prioridadeTarefa").value,
-                    concluida: false,
-                    criadoEm: serverTimestamp()
-                });
-
-                avisarColaboracao(db, auth.currentUser, eventoId, "tarefas", "adicionou", titulo);
+                    prioridade: document.getElementById("prioridadeTarefa").value
+                };
+                if (tarefaEditando) {
+                    await updateDoc(doc(db, "eventos", eventoId, "tarefas", tarefaEditando.id), campos);
+                    avisarColaboracao(db, auth.currentUser, eventoId, "tarefas", "editou", titulo);
+                } else {
+                    await addDoc(collection(db, "eventos", eventoId, "tarefas"), Object.assign({ concluida: false, criadoEm: serverTimestamp() }, campos));
+                    avisarColaboracao(db, auth.currentUser, eventoId, "tarefas", "adicionou", titulo);
+                }
                 fecharModal();
                 await carregarTarefas();
             }
@@ -711,7 +723,7 @@
             }
             finally {
                 botaoSalvar.disabled = false;
-                botaoSalvar.textContent = "Salvar tarefa";
+                botaoSalvar.textContent = tarefaEditando ? "Salvar alterações" : "Salvar tarefa";
             }
         });
 

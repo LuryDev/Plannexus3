@@ -93,6 +93,19 @@ async function aparelhoJaConfirmou(fb, eventoId, dispositivo) {
     return achado.empty ? null : respostaDe(achado.docs[0].data());
 }
 
+// documento de presença deste aparelho (ou null)
+async function presencaDoAparelho(fb, eventoId, dispositivo) {
+    if (!dispositivoValido(dispositivo)) return null;
+    const achado = await fb.db.collection("presencas")
+        .where("eventoId", "==", eventoId)
+        .where("dispositivo", "==", hashDoDispositivo(dispositivo))
+        .limit(1).get();
+    return achado.empty ? null : achado.docs[0];
+}
+
+function dataValida(d) { return /^\d{4}-\d{2}-\d{2}$/.test(String(d || "")); }
+function horaValida(h) { return /^\d{2}:\d{2}$/.test(String(h || "")); }
+
 // registros antigos não têm o campo: contam como "vai"
 function respostaDe(dados) {
     return dados && dados.resposta === "nao" ? "nao" : "sim";
@@ -166,7 +179,7 @@ export default async function handler(req, res) {
         const acao = texto(corpo.acao, 20);
 
         // ================= ÁREA DO ORGANIZADOR =================
-        if (["estado", "criar", "desativar", "remover", "lista", "regras"].includes(acao)) {
+        if (["estado", "criar", "desativar", "remover", "lista", "regras", "editar"].includes(acao)) {
             let usuario;
             try {
                 usuario = await usuarioDaRequisicao(req, fb);
@@ -188,6 +201,24 @@ export default async function handler(req, res) {
                     return res.status(200).json({ ok: true, regras: limpas });
                 }
                 return res.status(200).json({ ok: true, regras: limparRegras(permissao.evento.regras) });
+            }
+
+            if (acao === "editar") {
+                // altera data/horário/local; com "avisar", os convidados veem o antes/depois
+                const ev = permissao.evento;
+                const novo = {
+                    data: corpo.data === "" ? "" : (dataValida(corpo.data) ? corpo.data : texto(ev.data, 10)),
+                    horario: corpo.horario === "" ? "" : (horaValida(corpo.horario) ? corpo.horario : texto(ev.horario, 5)),
+                    local: corpo.local === undefined ? texto(ev.local, 120) : texto(corpo.local, 120)
+                };
+                const antes = { data: texto(ev.data, 10), horario: texto(ev.horario, 5), local: texto(ev.local, 120) };
+                const mudou = antes.data !== novo.data || antes.horario !== novo.horario || antes.local !== novo.local;
+                const mudanca = Object.assign({}, novo);
+                if (mudou && corpo.avisar) {
+                    mudanca.atualizacao = { quando: Date.now(), antes, depois: novo };
+                }
+                await fb.db.collection("eventos").doc(eventoId).update(mudanca);
+                return res.status(200).json({ ok: true, mudou, avisou: !!(mudou && corpo.avisar) });
             }
 
             if (acao === "lista") {
@@ -283,8 +314,16 @@ export default async function handler(req, res) {
                 organizador,
                 eventoId: organizador ? eventoId : undefined,
                 ...(await (async () => {
-                    const anterior = await aparelhoJaConfirmou(fb, eventoId, corpo.dispositivo);
-                    return { jaConfirmou: !!anterior, respostaAnterior: anterior || undefined };
+                    const docAnterior = await presencaDoAparelho(fb, eventoId, corpo.dispositivo);
+                    const anterior = docAnterior ? respostaDe(docAnterior.data()) : null;
+                    const at = evento.atualizacao && evento.atualizacao.quando ? evento.atualizacao : null;
+                    const vista = docAnterior ? Number(docAnterior.data().vistaAtualizacao || 0) : 0;
+                    // só mostra o aviso a quem já disse que vai e ainda não respondeu a esta mudança
+                    const mostrarAt = !!(at && anterior === "sim" && vista < at.quando);
+                    return {
+                        jaConfirmou: !!anterior, respostaAnterior: anterior || undefined,
+                        atualizacao: mostrarAt ? { antes: at.antes || {}, depois: at.depois || {} } : undefined
+                    };
                 })()),
                 evento: texto(evento.nome, 120),
                 data: texto(evento.data, 10),
@@ -292,6 +331,35 @@ export default async function handler(req, res) {
                 local: texto(evento.local, 120),
                 regras: limparRegras(evento.regras)
             });
+        }
+
+        if (acao === "reagir") {
+            // convidado que já confirmou responde ao aviso de mudança do evento
+            const docP = await presencaDoAparelho(fb, eventoId, corpo.dispositivo);
+            const at = evento.atualizacao && evento.atualizacao.quando ? evento.atualizacao : null;
+            if (!docP || !at) return res.status(404).json({ erro: "Nada para responder." });
+            const dados = docP.data();
+            if (respostaDe(dados) !== "sim") return res.status(409).json({ erro: "Você já respondeu." });
+            const vai = corpo.resposta !== "nao";
+            const mudanca = { vistaAtualizacao: at.quando };
+            if (!vai) Object.assign(mudanca, { resposta: "nao", criancas: 0, acompanhantes: 0, alimentacao: [], relacao: "" });
+            await docP.ref.update(mudanca);
+            try {
+                if (!vai && evento.usuarioId) {
+                    const msg = `${texto(dados.nome, 60)} não poderá mais ir — ${texto(evento.nome, 80)}`;
+                    await fb.db.collection("avisos").add({
+                        tipo: "presenca", uid: evento.usuarioId, eventoId, ferramenta: "convidados",
+                        mensagem: msg, lida: false, dataCriacao: fb.FieldValue.serverTimestamp()
+                    });
+                    if (!(await categoriasDesligadas(fb, evento.usuarioId)).includes("colaboracao")) {
+                        await enviarPush(fb, evento.usuarioId, {
+                            titulo: "😕 Não poderá mais ir", corpo: msg,
+                            url: `/convidados.html?id=${encodeURIComponent(eventoId)}`, tag: `presenca-${eventoId}`
+                        });
+                    }
+                }
+            } catch (e) { console.error("PRESENCA: falha ao avisar", e.message); }
+            return res.status(200).json({ ok: true, resposta: vai ? "sim" : "nao" });
         }
 
         if (acao === "confirmar") {

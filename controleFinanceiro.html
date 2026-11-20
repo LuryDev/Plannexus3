@@ -8,6 +8,7 @@
     <link rel="icon" href="fotos/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/controleFinanceiro.css">
+    <link rel="stylesheet" href="css/desfazer.css">
 
     <!-- PWA: manifest, cor do tema e service worker -->
     <link rel="manifest" href="manifest.json">
@@ -66,7 +67,7 @@
     <div class="modal" id="modal" hidden>
         <form class="modal-caixa" id="formControleFinanceiro">
             <div class="modal-topo">
-                <h2>Adicionar Item Financeiro</h2>
+                <h2 id="tituloModalFinanceiro">Adicionar Item Financeiro</h2>
                 <button type="button" class="fechar" id="fecharModal" title="Fechar">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -122,13 +123,14 @@
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/desfazer.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module">
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { avisarColaboracao } from "./js/avisos.js";
-        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app = initializeApp(FIREBASE_CONFIG);
@@ -153,6 +155,44 @@
         let itensOrcamento = [];
         let filtroAtivo = "todos";
         let souVisitante = false;
+        let itemEditando = null;
+
+        botaoNovo.addEventListener("click", () => {
+            itemEditando = null;
+            document.getElementById("tituloModalFinanceiro").textContent = "Adicionar Item Financeiro";
+            botaoSalvar.textContent = "Adicionar";
+        });
+
+        function abrirEdicao(item) {
+            itemEditando = item;
+            form.reset();
+            mensagemEl.textContent = "";
+            document.getElementById("tituloOrcamento").value = item.titulo || "";
+            document.getElementById("descricaoOrcamento").value = item.descricao || "";
+            document.getElementById("valorOrcamento").value = Number.isFinite(Number(item.valor)) ? item.valor : "";
+            document.getElementById("tipoOrcamento").value = item.tipo || "";
+            document.getElementById("tituloModalFinanceiro").textContent = "Editar Item Financeiro";
+            botaoSalvar.textContent = "Salvar alterações";
+            document.getElementById("modal").hidden = false;
+            document.getElementById("tituloOrcamento").focus();
+        }
+
+        // exclui na hora e oferece DESFAZER (recria o item com o mesmo id)
+        async function excluirItem(item) {
+            const copia = Object.assign({}, item);
+            delete copia.id;
+            try {
+                await deleteDoc(doc(db, "eventos", eventoId, "controleFinanceiro", item.id));
+                avisarColaboracao(db, auth.currentUser, eventoId, "financeiro", "removeu", item.titulo);
+                await carregarControleFinanceiro();
+                plannexusDesfazer("Item excluído", async () => {
+                    await setDoc(doc(db, "eventos", eventoId, "controleFinanceiro", item.id), copia);
+                    await carregarControleFinanceiro();
+                });
+            } catch (erro) {
+                alert("Não foi possível excluir: " + erro.message);
+            }
+        }
 
         function rotuloTipo(tipo) {
             if (tipo === "receita") return "Receita";
@@ -224,15 +264,19 @@
             botaoSalvar.textContent = "Salvando...";
 
             try {
-                await addDoc(collection(db, "eventos", eventoId, "controleFinanceiro"), {
+                const campos = {
                     titulo: titulo,
                     descricao: document.getElementById('descricaoOrcamento').value.trim(),
                     valor: valor,
-                    tipo: document.getElementById('tipoOrcamento').value,
-                    criadoEm: serverTimestamp()
-                });
-
-                avisarColaboracao(db, auth.currentUser, eventoId, "financeiro", "adicionou", titulo);
+                    tipo: document.getElementById('tipoOrcamento').value
+                };
+                if (itemEditando) {
+                    await updateDoc(doc(db, "eventos", eventoId, "controleFinanceiro", itemEditando.id), campos);
+                    avisarColaboracao(db, auth.currentUser, eventoId, "financeiro", "editou", titulo);
+                } else {
+                    await addDoc(collection(db, "eventos", eventoId, "controleFinanceiro"), Object.assign({ criadoEm: serverTimestamp() }, campos));
+                    avisarColaboracao(db, auth.currentUser, eventoId, "financeiro", "adicionou", titulo);
+                }
                 await carregarControleFinanceiro();
                 window.fecharModalControleFinanceiro();
             }
@@ -242,7 +286,7 @@
                 mensagemEl.textContent = "Não foi possível salvar ou atualizar os itens financeiros.";
             } finally {
                 botaoSalvar.disabled = false;
-                botaoSalvar.textContent = "Adicionar";
+                botaoSalvar.textContent = itemEditando ? "Salvar alterações" : "Adicionar";
             }
 
         });
@@ -340,6 +384,20 @@
                 const tipo = document.createElement("p");
                 tipo.textContent = `Tipo: ${rotuloTipo(item.tipo)}`;
                 card.append(titulo, descricao, valor, tipo);
+                if (!souVisitante) {
+                    const acoes = document.createElement("div");
+                    acoes.className = "acoes-linha";
+                    const bEd = document.createElement("button");
+                    bEd.type = "button"; bEd.className = "editar"; bEd.title = "Editar item"; bEd.setAttribute("aria-label", "Editar item");
+                    bEd.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                    bEd.addEventListener("click", () => abrirEdicao(item));
+                    const bEx = document.createElement("button");
+                    bEx.type = "button"; bEx.className = "excluir"; bEx.title = "Excluir item"; bEx.setAttribute("aria-label", "Excluir item");
+                    bEx.innerHTML = '<i class="fa-regular fa-trash-can"></i>';
+                    bEx.addEventListener("click", () => excluirItem(item));
+                    acoes.append(bEd, bEx);
+                    card.appendChild(acoes);
+                }
                 listaEl.appendChild(card);
             });
         }

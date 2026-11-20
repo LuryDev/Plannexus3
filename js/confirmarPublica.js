@@ -160,6 +160,73 @@
         document.getElementById("textoResultado").textContent = texto;
     }
 
+    // documentos que o organizador deixou visíveis
+    function carregarDocumentos() {
+        fetch("/api/anexos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao: "listarpub", token: codigo }) })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+                if (!d || !d.anexos || !d.anexos.length) return;
+                var alvo = document.getElementById("listaDocsPub");
+                alvo.innerHTML = "";
+                d.anexos.forEach(function (a) {
+                    var b = document.createElement("button");
+                    b.type = "button";
+                    b.className = "doc-pub";
+                    b.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i><span>' + esc(a.nome) + '</span>';
+                    b.addEventListener("click", function () { baixarDocumento(a); });
+                    alvo.appendChild(b);
+                });
+                document.getElementById("docsPublicos").hidden = false;
+            }).catch(function () { /* sem documentos, tudo bem */ });
+    }
+
+    function baixarDocumento(a) {
+        fetch("/api/anexos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao: "baixarpub", token: codigo, id: a.id }) })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (x) {
+                if (!x.ok) throw new Error(x.d.erro || "Erro");
+                var bin = atob(x.d.base64), bytes = new Uint8Array(bin.length);
+                for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                var url = URL.createObjectURL(new Blob([bytes], { type: x.d.tipo }));
+                var l = document.createElement("a");
+                l.href = url; l.download = x.d.nome; document.body.appendChild(l); l.click(); l.remove();
+                setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+            }).catch(function () { alert("Não foi possível baixar o arquivo."); });
+    }
+
+    // aviso "antes/depois" quando o organizador muda data, horário ou local
+    function mostrarMudanca(at) {
+        var campos = [["Data", "data", dataBR], ["Horário", "horario", function (x) { return x; }], ["Local", "local", function (x) { return x; }]];
+        var h = "";
+        campos.forEach(function (c) {
+            var a = c[2](at.antes[c[1]] || ""), d = c[2](at.depois[c[1]] || "");
+            if (a === d) return;
+            h += '<div class="linha-mudanca"><b>' + c[0] + '</b><span class="antes">' + esc(a || "não informado") + '</span><i class="fa-solid fa-arrow-right"></i><span class="depois">' + esc(d || "não informado") + '</span></div>';
+        });
+        if (!h) return;
+        document.getElementById("antesDepois").innerHTML = h;
+        document.getElementById("mudanca").hidden = false;
+    }
+
+    function responderMudanca(resposta, botao) {
+        var msg = document.getElementById("msgMudanca");
+        var a = document.getElementById("continuoIndo"), b = document.getElementById("naoMais");
+        a.disabled = b.disabled = true;
+        msg.textContent = "Enviando...";
+        chamar({ acao: "reagir", resposta: resposta }).then(function (r) {
+            if (!r.ok && r.status !== 404 && r.status !== 409) { msg.textContent = r.dados.erro || "Não foi possível enviar."; a.disabled = b.disabled = false; return; }
+            document.getElementById("mudanca").hidden = true;
+            if (resposta === "nao") mostrarResultado("ja-nao");
+            else {
+                mostrarResultado("ja-sim");
+                document.getElementById("tituloResultado").textContent = "Combinado!";
+                document.getElementById("textoResultado").textContent = "Avisamos que você continua indo. Te esperamos lá! 💜";
+            }
+        }).catch(function () { msg.textContent = "Sem conexão. Tente de novo."; a.disabled = b.disabled = false; });
+    }
+    document.getElementById("continuoIndo").addEventListener("click", function () { responderMudanca("sim"); });
+    document.getElementById("naoMais").addEventListener("click", function () { responderMudanca("nao"); });
+
     function carregar() {
         if (!codigo) {
             nomeEventoEl.textContent = "Link inválido";
@@ -178,6 +245,7 @@
             nomeEventoEl.textContent = r.dados.evento || "Evento";
             document.title = "Confirmar presença - " + (r.dados.evento || "Plannexus");
             mostrarDetalhes(r.dados);
+            carregarDocumentos();
             if (r.dados.regras) regras = r.dados.regras;
             desenharExtras();
             if (r.dados.organizador) {   // quem criou o evento: não confirma, vai para a lista
@@ -185,6 +253,7 @@
                 document.getElementById("organizador").hidden = false;
                 return;
             }
+            if (r.dados.atualizacao) { form.hidden = true; mostrarMudanca(r.dados.atualizacao); if (!document.getElementById("mudanca").hidden) return; }
             if (r.dados.jaConfirmou) return mostrarResultado(r.dados.respostaAnterior === "nao" ? "ja-nao" : "ja-sim");   // este aparelho já confirmou
             form.hidden = false;
         }).catch(function () {

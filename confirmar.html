@@ -28,6 +28,11 @@
         <main>
             <section class="detalhes" id="detalhes" hidden></section>
 
+            <section class="docs-publicos" id="docsPublicos" hidden>
+                <h3><i class="fa-solid fa-paperclip"></i> Documentos do evento</h3>
+                <div id="listaDocsPub"></div>
+            </section>
+
             <form class="cartao" id="form" hidden novalidate>
                 <h2>Confirme sua presença</h2>
 
@@ -54,6 +59,16 @@
                 <div class="icone-resultado" id="iconeResultado"><i class="fa-solid fa-circle-check"></i></div>
                 <h2 id="tituloResultado"></h2>
                 <p id="textoResultado"></p>
+            </section>
+
+            <!-- aviso de mudança no evento: só para quem já confirmou -->
+            <section class="cartao mudanca" id="mudanca" hidden>
+                <h2><i class="fa-solid fa-triangle-exclamation"></i> O evento mudou</h2>
+                <div class="antes-depois" id="antesDepois"></div>
+                <p class="dica">Você havia confirmado presença. Continua indo?</p>
+                <button type="button" class="confirmar" id="continuoIndo">Continuo indo</button>
+                <button type="button" class="nao-vou" id="naoMais">Não poderei mais ir</button>
+                <p class="mensagem" id="msgMudanca" role="status"></p>
             </section>
 
             <section class="cartao resultado" id="organizador" hidden>

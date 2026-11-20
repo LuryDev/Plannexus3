@@ -43,6 +43,7 @@
                     <span class="subtitulo">GERENCIAMENTO DE EVENTO</span>
                     <h1 id="nomeEvento">Carregando...</h1>
                     <p id="resumoEvento">Organize todos os detalhes do seu evento em um só lugar.</p>
+                    <button type="button" class="botao-editar-evento" id="botaoEditarEvento" hidden><i class="fa-solid fa-pen"></i> Editar data, hora e local</button>
                     <p class="selo-nexus" id="seloNexus" hidden>
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         Evento gerado com ajuda do Nexus!
@@ -179,6 +180,26 @@
                     </a>
 
 
+                    <!-- DOCUMENTOS -->
+                    <a href="#" id="linkDocumentos" class="card-item">
+                        <div class="card-topo">
+                            <div class="icone-card icone-notas">
+                                <i class="fa-solid fa-paperclip"></i>
+                            </div>
+                            <i class="fa-solid fa-arrow-up-right-from-square seta-card"></i>
+                        </div>
+
+                        <div class="card-titulo">
+                            <h3>Documentos</h3>
+                            <p>Cardápio, contrato, orçamento: PDF, Word e Excel.</p>
+                        </div>
+
+                        <div class="card-rodape">
+                            <span>Acessar documentos</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </div>
+                    </a>
+
                     <!-- LISTA DE PRESENTES (só aparece se marcada na criação) -->
                     <a href="#" id="cardListaPresentes" class="card-item" hidden>
                         <div class="card-topo">
@@ -307,6 +328,25 @@
                 </button>
             </section>
         </main>
+    </div>
+
+    <!-- EDITAR EVENTO: data, horário e local; opcionalmente avisa os convidados -->
+    <div class="fundo-editar" id="fundoEditar" hidden>
+        <form class="caixa-editar" id="formEditar" novalidate>
+            <h2>Editar evento <button type="button" class="ajuda-btn" data-ajuda-titulo="Editar evento" data-ajuda="Mude data, horário ou local. | Com &quot;Avisar convidados&quot; ligado, quem já confirmou vê o antes e o depois e escolhe se continua indo. | Desligue se for só uma correção pequena." aria-label="Ajuda">?</button></h2>
+            <label for="editData">Data</label>
+            <input type="date" id="editData">
+            <label for="editHora">Horário</label>
+            <input type="time" id="editHora">
+            <label for="editLocal">Local</label>
+            <input type="text" id="editLocal" maxlength="120" placeholder="Onde será o evento">
+            <label class="marcar-avisar"><input type="checkbox" id="editAvisar" checked> <span><b>Avisar convidados</b><small>Quem já confirmou verá a mudança e poderá responder.</small></span></label>
+            <p class="msg-editar" id="msgEditar" role="status"></p>
+            <div class="botoes-editar">
+                <button type="button" class="cancelar-editar" id="cancelarEditar">Cancelar</button>
+                <button type="submit" class="salvar-editar" id="salvarEditar">Salvar</button>
+            </div>
+        </form>
     </div>
 
     <script src="js/config.js"></script>
@@ -599,6 +639,56 @@
         }
 
         // ---------- Pendências e novidades (guardadas neste aparelho; ver js/pendencias.js) ----------
+
+        // ---------- editar evento ----------
+        function iniciarEdicao() {
+            const botao = document.getElementById("botaoEditarEvento");
+            const fundo = document.getElementById("fundoEditar");
+            const msg = document.getElementById("msgEditar");
+            botao.hidden = false;
+            botao.onclick = () => {
+                document.getElementById("editData").value = eventoAtual.data || "";
+                document.getElementById("editHora").value = eventoAtual.horario || "";
+                document.getElementById("editLocal").value = eventoAtual.local || "";
+                msg.textContent = "";
+                fundo.hidden = false;
+            };
+            document.getElementById("cancelarEditar").onclick = () => { fundo.hidden = true; };
+            fundo.onclick = (e) => { if (e.target === fundo) fundo.hidden = true; };
+            document.getElementById("formEditar").onsubmit = async (e) => {
+                e.preventDefault();
+                const salvar = document.getElementById("salvarEditar");
+                salvar.disabled = true; msg.textContent = "Salvando...";
+                try {
+                    const idToken = await auth.currentUser.getIdToken();
+                    const corpo = {
+                        acao: "editar", eventoId,
+                        data: document.getElementById("editData").value,
+                        horario: document.getElementById("editHora").value,
+                        local: document.getElementById("editLocal").value.trim(),
+                        avisar: document.getElementById("editAvisar").checked
+                    };
+                    const resposta = await fetch("/api/presenca", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                        body: JSON.stringify(corpo)
+                    });
+                    const dados = await resposta.json().catch(() => ({}));
+                    if (!resposta.ok) throw new Error(dados.erro || "Erro " + resposta.status);
+                    eventoAtual.data = corpo.data; eventoAtual.horario = corpo.horario; eventoAtual.local = corpo.local;
+                    const det = [];
+                    if (corpo.data) det.push(formatarData(corpo.data));
+                    if (corpo.local) det.push(corpo.local);
+                    resumoEvento.textContent = det.length ? det.join(" • ") : "Acesse as ferramentas para organizar seu evento.";
+                    mostrarInformacoes(eventoAtual);
+                    fundo.hidden = true;
+                    alert(dados.avisou ? "Evento atualizado. Os convidados que já confirmaram foram avisados na página de confirmação." : "Evento atualizado.");
+                } catch (erro) {
+                    msg.textContent = "Não foi possível salvar: " + erro.message;
+                } finally { salvar.disabled = false; }
+            };
+        }
+
         let eventoAtual = null;
         let souDonoAtual = false;
         let novidades = {};   // função -> quantas novidades depois da última vez que o usuário viu
@@ -861,6 +951,7 @@
             linkTarefas.hidden = true;
             linkControleFinanceiro.hidden = true;
             linkBlocodeNotas.hidden = true;
+            document.getElementById("linkDocumentos").hidden = true;
             secaoPerigo.hidden = true;
         }
 
@@ -967,8 +1058,10 @@
                 linkTarefas.href = `tarefas.html?id=${encodeURIComponent(eventoId)}`;
                 linkControleFinanceiro.href = `controleFinanceiro.html?id=${encodeURIComponent(eventoId)}`;
                 linkBlocodeNotas.href = `blocoNotas.html?id=${encodeURIComponent(eventoId)}`;
+                document.getElementById("linkDocumentos").href = `documentos.html?id=${encodeURIComponent(eventoId)}`;
 
                 eventoAtual = { id: eventoId, ...evento };
+                if (papelUsuario === "dono" || papelUsuario === "colaborador") iniciarEdicao();
                 souDonoAtual = souDono;
                 desenharPendencias();
                 carregarNovidades().catch((erro) => console.warn("Não foi possível checar novidades:", erro));

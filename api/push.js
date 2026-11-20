@@ -21,7 +21,7 @@ const FERRAMENTAS = {
     notas:      { nome: "Bloco de Notas",      pagina: "blocoNotas.html" },
     calendario: { nome: "Calendário",          pagina: "calendario.html" }
 };
-const VERBOS = { adicionou: "adicionou", removeu: "removeu", concluiu: "concluiu", comentou: "comentou em" };
+const VERBOS = { adicionou: "adicionou", removeu: "removeu", editou: "editou", concluiu: "concluiu", comentou: "comentou em" };
 const INTERVALO_MS = 10 * 60 * 1000;   // no máximo 1 push por pessoa/ferramenta a cada 10 min
 
 function texto(v, max) {

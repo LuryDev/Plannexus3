@@ -29,7 +29,8 @@ export const FERRAMENTAS = {
     presentes:  { nome: "Lista de Presentes",  pagina: "presentes.html" },
     convidados: { nome: "Convidados",          pagina: "convidados.html" },
     notas:      { nome: "Bloco de Notas",      pagina: "blocoNotas.html" },
-    calendario: { nome: "Calendário",          pagina: "calendario.html" }
+    calendario: { nome: "Calendário",          pagina: "calendario.html" },
+    documentos: { nome: "Documentos",           pagina: "documentos.html" }
 };
 
 function idSeguro(texto) {
@@ -42,7 +43,7 @@ export function mensagemColaboracao(aviso) {
     const quem = aviso.autorNome || "Um colaborador";
     const evento = aviso.eventoNome ? ` — ${aviso.eventoNome}` : "";
     const qtd = Number(aviso.quantidade) || 1;
-    const acao = ({ removeu: "removeu", concluiu: "concluiu", comentou: "comentou" })[aviso.acao] || "adicionou";
+    const acao = ({ removeu: "removeu", editou: "editou", concluiu: "concluiu", comentou: "comentou" })[aviso.acao] || "adicionou";
 
     if (acao === "comentou") {
         return `${quem} comentou em "${aviso.ultimoItem || "uma anotação"}" no ${ferramenta}${evento}`;

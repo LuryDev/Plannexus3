@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Documentos - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="css/presentes.css">
+    <link rel="stylesheet" href="css/convidados.css">
+    <link rel="stylesheet" href="css/documentos.css">
+    <link rel="stylesheet" href="css/ajuda.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+    <link rel="stylesheet" href="css/nexusFlutuante.css">
+</head>
+
+<body>
+    <div class="app">
+        <header>
+            <a class="voltar" id="voltar" href="evento.html" title="Voltar"><i class="fa-solid fa-arrow-left"></i></a>
+            <h1>Documentos</h1>
+        </header>
+
+        <main>
+            <h2 class="titulo-lista" id="titulo">Documentos do evento</h2>
+
+            <div class="painel-link" id="painelEnviar" hidden>
+                <p class="painel-titulo"><i class="fa-solid fa-paperclip"></i> Anexar documento<button type="button" class="ajuda-btn" data-ajuda-titulo="Documentos" data-ajuda="Anexe PDF, Word ou Excel de até 2 MB (máximo de 10 arquivos). | Por padrão só a equipe do evento vê. | Ligue &quot;Visível para convidados&quot; para o arquivo aparecer na página de confirmação de presença." aria-label="Ajuda">?</button></p>
+                <p class="painel-texto">PDF, Word ou Excel, até 2 MB.</p>
+                <div class="painel-botoes">
+                    <button type="button" id="botaoEscolher"><i class="fa-solid fa-plus"></i> Escolher arquivo</button>
+                </div>
+                <input type="file" id="arquivo" accept=".pdf,.doc,.docx,.xls,.xlsx" hidden>
+                <p class="msg-doc" id="msgDoc" role="status"></p>
+            </div>
+
+            <ul class="lista-docs" id="listaDocs"></ul>
+            <p class="aviso" id="aviso">Carregando...</p>
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/desfazer.js"></script>
+    <script src="js/ajuda.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+        const app = initializeApp(FIREBASE_CONFIG);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const eventoId = pegarIdDaUrl();
+
+        const listaEl = document.getElementById("listaDocs");
+        const avisoEl = document.getElementById("aviso");
+        const msgEl = document.getElementById("msgDoc");
+        let gestor = false;
+
+        function esc(t) {
+            return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        }
+
+        async function chamar(corpo) {
+            const idToken = await auth.currentUser.getIdToken();
+            const r = await fetch("/api/anexos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                body: JSON.stringify(corpo)
+            });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(d.erro || "Erro " + r.status);
+            return d;
+        }
+
+        function tamanhoBonito(b) {
+            return b >= 1048576 ? (b / 1048576).toFixed(1).replace(".", ",") + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
+        }
+
+        function icone(nome) {
+            const e = (nome.split(".").pop() || "").toLowerCase();
+            if (e === "pdf") return ["fa-regular fa-file-pdf", "pdf"];
+            if (e === "xls" || e === "xlsx") return ["fa-regular fa-file-excel", "xls"];
+            return ["fa-regular fa-file-word", "doc"];
+        }
+
+        function desenhar(anexos) {
+            listaEl.innerHTML = "";
+            anexos.forEach((a) => {
+                const ic = icone(a.nome);
+                const li = document.createElement("li");
+                li.innerHTML =
+                    '<span class="doc-icone ' + ic[1] + '"><i class="' + ic[0] + '"></i></span>' +
+                    '<div class="doc-info"><b>' + esc(a.nome) + '</b><small>' + tamanhoBonito(a.tamanho) + '</small>' +
+                    (gestor ? '<label class="doc-visivel"><input type="checkbox"' + (a.visivel ? " checked" : "") + '> Visível para convidados</label>' : "") +
+                    '</div>' +
+                    '<div class="doc-acoes"><button type="button" class="baixar" title="Baixar" aria-label="Baixar ' + esc(a.nome) + '"><i class="fa-solid fa-download"></i></button>' +
+                    (gestor ? '<button type="button" class="remover" title="Remover" aria-label="Remover ' + esc(a.nome) + '"><i class="fa-solid fa-xmark"></i></button>' : "") + '</div>';
+                li.querySelector(".baixar").addEventListener("click", () => baixar(a));
+                if (gestor) {
+                    li.querySelector("input").addEventListener("change", async (e) => {
+                        try { await chamar({ acao: "visivel", eventoId, id: a.id, visivel: e.target.checked }); }
+                        catch (err) { e.target.checked = !e.target.checked; alert("Não foi possível alterar: " + err.message); }
+                    });
+                    li.querySelector(".remover").addEventListener("click", async () => {
+                        if (!confirm('Remover "' + a.nome + '"? Isso não pode ser desfeito.')) return;
+                        try { await chamar({ acao: "remover", eventoId, id: a.id }); await carregar(); }
+                        catch (err) { alert("Não foi possível remover: " + err.message); }
+                    });
+                }
+                listaEl.appendChild(li);
+            });
+            avisoEl.hidden = anexos.length > 0;
+            avisoEl.textContent = gestor ? "Nenhum documento ainda. Toque em Escolher arquivo para anexar." : "Nenhum documento disponível.";
+        }
+
+        async function baixar(a) {
+            try {
+                const d = await chamar({ acao: "baixar", eventoId, id: a.id });
+                const bin = atob(d.base64);
+                const bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                const blob = new Blob([bytes], { type: d.tipo });
+                const url = URL.createObjectURL(blob);
+                const l = document.createElement("a");
+                l.href = url; l.download = d.nome; document.body.appendChild(l); l.click(); l.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 4000);
+            } catch (err) { alert("Não foi possível baixar: " + err.message); }
+        }
+
+        async function carregar() {
+            const d = await chamar({ acao: "listar", eventoId });
+            gestor = !!d.gestor;
+            document.getElementById("painelEnviar").hidden = !gestor;
+            desenhar(d.anexos || []);
+        }
+
+        document.getElementById("botaoEscolher").addEventListener("click", () => document.getElementById("arquivo").click());
+        document.getElementById("arquivo").addEventListener("change", (e) => {
+            const f = e.target.files[0];
+            e.target.value = "";
+            if (!f) return;
+            if (f.size > 2 * 1024 * 1024) { msgEl.textContent = "O arquivo deve ter até 2 MB."; return; }
+            msgEl.textContent = "Enviando...";
+            const leitor = new FileReader();
+            leitor.onload = async () => {
+                try {
+                    await chamar({ acao: "enviar", eventoId, nome: f.name, base64: String(leitor.result).split(",")[1] || "" });
+                    msgEl.textContent = "Enviado! Para os convidados verem, ligue \"Visível para convidados\".";
+                    await carregar();
+                } catch (err) { msgEl.textContent = err.message; }
+            };
+            leitor.onerror = () => { msgEl.textContent = "Não foi possível ler o arquivo."; };
+            leitor.readAsDataURL(f);
+        });
+
+        async function iniciar() {
+            if (!eventoId) { avisoEl.textContent = "Abra os documentos a partir da página de um evento."; return; }
+            document.getElementById("voltar").href = "evento.html?id=" + encodeURIComponent(eventoId);
+            const usuario = await exigirLogin(auth, onAuthStateChanged);
+            if (!usuario) return;
+            try {
+                const ev = await getDoc(doc(db, "eventos", eventoId));
+                if (ev.exists()) document.getElementById("titulo").textContent = "Documentos - " + (ev.data().nome || "");
+                await carregar();
+            } catch (err) {
+                avisoEl.hidden = false;
+                avisoEl.textContent = "Não foi possível carregar os documentos.";
+            }
+        }
+        iniciar();
+    </script>
+    <script type="module" src="js/nexusFlutuante.js"></script>
+</body>
+
+</html>

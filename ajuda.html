@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ajuda e sugestões - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="css/ajudaPagina.css">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+</head>
+
+<body>
+    <div class="app">
+        <header>
+            <a class="voltar" href="inicio.html" title="Voltar" aria-label="Voltar"><i class="fa-solid fa-arrow-left"></i></a>
+            <h1>Ajuda e sugestões</h1>
+        </header>
+
+        <main>
+
+            <section class="bloco">
+                <h2><i class="fa-regular fa-circle-question"></i> Dúvidas rápidas</h2>
+                <details><summary>Como os convidados confirmam presença?</summary>
+                    <p>Abra o evento, entre em <b>Convidados</b> e toque em <b>Criar link de confirmação</b>. Envie o link: ninguém precisa de conta.</p></details>
+                <details><summary>Como mudo data, horário ou local?</summary>
+                    <p>Na página do evento, toque em <b>Editar data, hora e local</b>. Com "Avisar convidados" ligado, quem já confirmou vê o antes e o depois.</p></details>
+                <details><summary>Como exporto a lista de convidados?</summary>
+                    <p>Em <b>Convidados</b>, escolha o filtro e toque em <b>Exportar</b> (PDF ou planilha).</p></details>
+                <details><summary>Errei ao excluir uma tarefa ou item do orçamento.</summary>
+                    <p>Toque em <b>DESFAZER</b> na barra que aparece embaixo da tela por alguns segundos.</p></details>
+                <details><summary>Como envio um cardápio ou contrato?</summary>
+                    <p>No evento, abra <b>Documentos</b>, anexe o arquivo e ligue <b>Visível para convidados</b> se quiser que eles vejam.</p></details>
+                <details><summary>Preciso de outra ajuda</summary>
+                    <p>Fale com a gente pelo <a href="feedback.html">formulário de feedback</a>.</p></details>
+            </section>
+
+            <section class="bloco">
+                <div class="topo-sug">
+                    <h2><i class="fa-regular fa-lightbulb"></i> Sugestões</h2>
+                    <button type="button" class="botao-nova" id="botaoNova"><i class="fa-solid fa-plus"></i> Enviar nova sugestão</button>
+                </div>
+                <p class="dica">Vote no que você quer ver no Plannexus. As mais votadas vão para a frente da fila.</p>
+
+                <form class="form-sug" id="formSug" hidden novalidate>
+                    <label for="sugTitulo">Sua ideia</label>
+                    <input type="text" id="sugTitulo" maxlength="80" placeholder="Ex.: modo escuro">
+                    <label for="sugDesc">Detalhes (opcional)</label>
+                    <textarea id="sugDesc" rows="3" maxlength="300" placeholder="Conte como isso ajudaria"></textarea>
+                    <p class="msg" id="sugMsg" role="status"></p>
+                    <div class="botoes">
+                        <button type="button" class="sec" id="sugCancelar">Cancelar</button>
+                        <button type="submit" class="pri" id="sugEnviar">Enviar</button>
+                    </div>
+                </form>
+
+                <ul class="lista-sug" id="listaSug"></ul>
+                <p class="aviso" id="avisoSug">Carregando...</p>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+        const auth = getAuth(initializeApp(FIREBASE_CONFIG));
+        const listaEl = document.getElementById("listaSug");
+        const avisoEl = document.getElementById("avisoSug");
+        const form = document.getElementById("formSug");
+        const msg = document.getElementById("sugMsg");
+        const ROTULOS = { recebido: "Recebido", andamento: "Em andamento", lancado: "Lançado" };
+
+        function esc(t) {
+            return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        }
+
+        async function chamar(corpo) {
+            const idToken = await auth.currentUser.getIdToken();
+            const r = await fetch("/api/sugestoes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                body: JSON.stringify(corpo)
+            });
+            const d = await r.json().catch(() => ({}));
+            if (!r.ok) throw new Error(d.erro || "Erro " + r.status);
+            return d;
+        }
+
+        function desenhar(lista) {
+            listaEl.innerHTML = "";
+            lista.forEach((s) => {
+                const li = document.createElement("li");
+                li.innerHTML =
+                    '<div class="sug-texto"><b>' + esc(s.titulo) + '</b>' +
+                    (s.descricao ? '<small>' + esc(s.descricao) + '</small>' : "") +
+                    '<span class="status ' + s.status + '">' + ROTULOS[s.status] + '</span></div>' +
+                    '<button type="button" class="voto' + (s.votei ? " on" : "") + '" aria-pressed="' + s.votei + '" aria-label="Votar nesta sugestão"><i class="fa-solid fa-caret-up"></i><b>' + s.votos + '</b></button>';
+                li.querySelector(".voto").addEventListener("click", async () => {
+                    try { await chamar({ acao: "votar", id: s.id }); await carregar(); }
+                    catch (e) { alert("Não foi possível votar: " + e.message); }
+                });
+                listaEl.appendChild(li);
+            });
+            avisoEl.hidden = lista.length > 0;
+            avisoEl.textContent = "Ainda não há sugestões. Seja o primeiro!";
+        }
+
+        async function carregar() {
+            try {
+                desenhar((await chamar({ acao: "listar" })).sugestoes || []);
+            } catch (e) {
+                avisoEl.hidden = false;
+                avisoEl.textContent = "Não foi possível carregar as sugestões.";
+            }
+        }
+
+        document.getElementById("botaoNova").addEventListener("click", () => { form.hidden = !form.hidden; if (!form.hidden) document.getElementById("sugTitulo").focus(); });
+        document.getElementById("sugCancelar").addEventListener("click", () => { form.hidden = true; msg.textContent = ""; });
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const botao = document.getElementById("sugEnviar");
+            botao.disabled = true; msg.textContent = "Enviando...";
+            try {
+                await chamar({ acao: "criar", titulo: document.getElementById("sugTitulo").value, descricao: document.getElementById("sugDesc").value });
+                form.reset(); form.hidden = true; msg.textContent = "";
+                await carregar();
+            } catch (err) { msg.textContent = err.message; }
+            finally { botao.disabled = false; }
+        });
+
+        (async () => {
+            const usuario = await exigirLogin(auth, onAuthStateChanged);
+            if (usuario) carregar();
+        })();
+    </script>
+</body>
+
+</html>

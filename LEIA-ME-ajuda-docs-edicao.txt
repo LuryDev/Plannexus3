@@ -1,0 +1,31 @@
+NOVIDADES (protótipo -> sistema)  — sem a parte "Demonstração"
+
+1) Convidados (convidados.html)
+   - Filtros Todos / Confirmados / Ausentes e botão Exportar (PDF ou planilha CSV com ";" que abre no Excel).
+     Exporta o que o filtro mostra. Pendentes não existe (não há lista prévia de convidados).
+   - Tocar no nome abre os detalhes (pessoas, crianças, alimentação, relação, data). Card "Totais" com
+     pessoas/adultos/crianças, situação e alimentação. Só dono/colaborador vê os detalhes.
+
+2) Editar evento (evento.html, api/presenca.js ação "editar"/"reagir")
+   - Botão "Editar data, hora e local" no topo do evento (dono/colaborador).
+   - "Avisar convidados" ligado: grava evento.atualizacao {quando, antes, depois}. Quem já confirmou "vou"
+     vê na confirmar.html o antes/depois e escolhe "Continuo indo" ou "Não poderei mais ir"
+     (o dono recebe aviso/push se for "não"). O convidado é reconhecido pelo aparelho (como já era).
+
+3) Editar e desfazer (tarefas.html, controleFinanceiro.html, js/desfazer.js)
+   - Lápis para editar e lixeira para excluir. Excluir é imediato e aparece "DESFAZER" por 7 s
+     (recria o documento com o mesmo id).
+
+4) Documentos (documentos.html, api/anexos.js)
+   - PDF/Word/Excel até 2 MB, 10 por evento, conferidos pelo conteúdo. Guardados no Firestore
+     (coleção "anexos" + subcoleção "partes", sem regra para o app — só o servidor acessa).
+   - "Visível para convidados": aparece em "Documentos do evento" na página de confirmação.
+
+5) Ajuda e sugestões (ajuda.html, api/sugestoes.js)
+   - Ícone de interrogação na barra do topo do início (ao lado do sino).
+   - Dúvidas rápidas + quadro de sugestões com votos. Para mudar o andamento, no Firestore em
+     sugestoes/{id} troque "status" para: recebido | andamento | lancado.
+   - Limite: 5 sugestões "recebido" por pessoa.
+
+Funções serverless: agora são 9 (anexos e sugestoes são novas) — dentro do limite do plano Hobby (12).
+Testado com Firestore simulado; ainda não testado no Firebase real.
