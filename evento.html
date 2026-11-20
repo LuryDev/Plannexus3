@@ -50,6 +50,17 @@
                 </div>
             </section>
 
+            <!-- PENDÊNCIAS: funções que o usuário ainda não abriu (a bolinha some ao abrir) -->
+            <section class="secao-pendencias" id="secaoPendencias" hidden>
+                <div class="titulo-secao">
+                    <div>
+                        <h2>Pendências do evento</h2>
+                        <p>Funções que você ainda não abriu.</p>
+                    </div>
+                </div>
+                <div class="lista-pendencias" id="listaPendencias"></div>
+            </section>
+
             <section class="secao-informacoes" id="secaoInformacoes" hidden>
                 <div class="titulo-secao">
                     <div>
@@ -586,6 +597,75 @@
             `;
         }
 
+        // ---------- Pendências: bolinha "1" nas funções que ainda não foram abertas ----------
+        // Guardado neste aparelho, por usuário e evento (sem mexer nas regras do Firestore).
+        const FUNCOES_PENDENTES = [
+            { k: "calendario", id: "linkCalendario", nome: "Calendário", icone: "fa-regular fa-calendar-days" },
+            { k: "tarefas", id: "linkTarefas", nome: "Tarefas", icone: "fa-solid fa-list-check" },
+            { k: "financeiro", id: "linkControleFinanceiro", nome: "Controle orçamentário", icone: "fa-solid fa-coins" },
+            { k: "notas", id: "linkBlocodeNotas", nome: "Bloco de notas", icone: "fa-regular fa-note-sticky" },
+            { k: "presentes", id: "cardListaPresentes", nome: "Lista de presentes", icone: "fa-solid fa-gift" },
+            { k: "convites", id: "cardCriadorConvites", nome: "Criador de convites", icone: "fa-solid fa-envelope-open-text" },
+            { k: "convidados", id: null, nome: "Convidados", icone: "fa-solid fa-user-check" }
+        ];
+        let chavePendencias = null;
+
+        function lerVistas() {
+            try { const v = JSON.parse(localStorage.getItem(chavePendencias) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+        }
+
+        function marcarVista(k) {
+            if (!chavePendencias) return;
+            const vistas = lerVistas();
+            if (vistas.includes(k)) return;
+            vistas.push(k);
+            try { localStorage.setItem(chavePendencias, JSON.stringify(vistas)); } catch (e) { /* sem armazenamento: a bolinha volta */ }
+        }
+
+        function desenharPendencias() {
+            if (!chavePendencias) return;
+            const vistas = lerVistas();
+            const lista = document.getElementById("listaPendencias");
+            lista.innerHTML = "";
+            let total = 0;
+
+            FUNCOES_PENDENTES.forEach((f) => {
+                const cartao = f.id ? document.getElementById(f.id) : null;
+                const ativa = f.id ? !!cartao && !cartao.hidden : true;
+                const pendente = ativa && !vistas.includes(f.k);
+
+                if (cartao) {   // bolinha no próprio cartão da ferramenta
+                    cartao.dataset.pend = f.k;
+                    let bolinha = cartao.querySelector(".bolinha-pend");
+                    if (pendente && !bolinha) {
+                        bolinha = document.createElement("span");
+                        bolinha.className = "bolinha-pend";
+                        bolinha.textContent = "1";
+                        bolinha.setAttribute("aria-label", "Ainda não aberto");
+                        cartao.appendChild(bolinha);
+                    }
+                    if (!pendente && bolinha) bolinha.remove();
+                }
+
+                if (!pendente) return;
+                total++;
+                const link = document.createElement("a");
+                link.className = "item-pendencia";
+                link.dataset.pend = f.k;
+                link.href = f.id ? (cartao.getAttribute("href") || "#") : "convidados.html?id=" + encodeURIComponent(eventoId);
+                link.innerHTML = '<i class="' + f.icone + '" aria-hidden="true"></i><span>' + f.nome + '</span><span class="bolinha-pend" aria-label="Ainda não aberto">1</span>';
+                lista.appendChild(link);
+            });
+
+            document.getElementById("secaoPendencias").hidden = total === 0;
+        }
+
+        // ao abrir uma função (pela lista ou pelo cartão), a bolinha some
+        document.addEventListener("click", (e) => {
+            const alvo = e.target.closest("[data-pend]");
+            if (alvo) marcarVista(alvo.dataset.pend);
+        });
+
         // ---------- Regras de confirmação (salvam sozinhas pelo servidor) ----------
         function iniciarRegras(regras) {
             const r = regras || {};
@@ -778,6 +858,7 @@
                             try {
                                 await updateDoc(referenciaEvento, { [campo]: ligado });
                                 cartao.hidden = !ligado;
+                                desenharPendencias();
                                 if (campo === "listaPresentes") {
                                     if (ligado) carregarPreviaPresentes().catch(() => {});
                                 }
@@ -819,6 +900,9 @@
                 linkTarefas.href = `tarefas.html?id=${encodeURIComponent(eventoId)}`;
                 linkControleFinanceiro.href = `controleFinanceiro.html?id=${encodeURIComponent(eventoId)}`;
                 linkBlocodeNotas.href = `blocoNotas.html?id=${encodeURIComponent(eventoId)}`;
+
+                chavePendencias = `pendencias_${usuario.uid}_${eventoId}`;
+                desenharPendencias();
 
                 const resultados = await Promise.allSettled([
                     carregarPreviaCalendario(evento),
