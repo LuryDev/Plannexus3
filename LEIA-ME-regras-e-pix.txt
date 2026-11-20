@@ -29,8 +29,13 @@ BOTÃO "?" DE AJUDA
 - js/ajuda.js + css/ajuda.css. Pequeno ao lado dos títulos novos (data-ajuda="dica 1 | dica 2")
   e flutuante em confirmar.html e lista.html.
 
-PENDÊNCIAS DO EVENTO (evento.html)
-- Seção "Pendências do evento" no topo: uma bolinha roxa "1" em cada função ainda não aberta
-  (calendário, tarefas, orçamento, notas, presentes, convites, convidados), e a mesma bolinha no cartão da ferramenta.
-- Ao tocar na função (pela lista ou pelo cartão), a bolinha some. Guardado no aparelho (localStorage),
-  por usuário e evento. Quando todas foram abertas, a seção some.
+PENDÊNCIAS E NOVIDADES (js/pendencias.js)
+- evento.html: cartão recolhido "Pendências do evento" (bolinha roxa com o total). Ao abrir, uma linha por função
+  com o motivo: "Ainda não aberto", "N novidades" (outro colaborador mexeu; vem dos avisos não lidos) ou
+  "N novas respostas" (convidados que confirmaram/recusaram depois da última vez que viu a lista).
+  A mesma bolinha com número aparece no cartão de cada ferramenta e em "Número de convidados".
+- A bolinha some quando o usuário abre a função (pela lista ou pelo cartão) ou, no caso de convidados, a lista.
+- inicio.html: bolinha roxa "!" no evento que tem funções não abertas ou novidades desde a última visita.
+- Tudo é guardado no aparelho (localStorage) por usuário e evento: pendencias_*, atividade_*, visita_*.
+  Trocar de aparelho ou limpar os dados do navegador faz as bolinhas voltarem.
+- api/presenca.js (acao "lista") agora devolve "quando" (ms) em cada confirmado/ausente.

@@ -77,6 +77,7 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { marcarVista, marcarAtividadeVista } from "./js/pendencias.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
@@ -311,6 +312,9 @@
                 const dadosLista = await listaPromessa;
                 desenharLista(dadosLista);
                 try { localStorage.setItem(chaveCache, JSON.stringify(dadosLista)); } catch (e) { /* ok */ }
+                // viu a lista: some a bolinha de "novas respostas" na página do evento
+                marcarVista(usuario.uid, eventoId, "convidados");
+                marcarAtividadeVista(usuario.uid, eventoId, "convidados");
 
                 if (podeGerenciar) {
                     const estado = await estadoPromessa;

@@ -208,9 +208,9 @@ export default async function handler(req, res) {
                 const sim = todos.filter((x) => x.resposta === "sim");
                 // detalhes (crianças, restrições, parentesco) só para dono/colaborador
                 const confirmados = sim.map((x) => permissao.gestor
-                    ? { id: x.id, nome: x.nome, pessoas: x.pessoas, criancas: x.criancas, acompanhantes: x.acompanhantes, alimentacao: x.alimentacao, relacao: x.relacao }
-                    : { id: x.id, nome: x.nome, pessoas: x.pessoas });
-                const ausentes = todos.filter((x) => x.resposta === "nao").map(({ id, nome }) => ({ id, nome }));
+                    ? { id: x.id, nome: x.nome, quando: x.quando, pessoas: x.pessoas, criancas: x.criancas, acompanhantes: x.acompanhantes, alimentacao: x.alimentacao, relacao: x.relacao }
+                    : { id: x.id, nome: x.nome, quando: x.quando, pessoas: x.pessoas });
+                const ausentes = todos.filter((x) => x.resposta === "nao").map(({ id, nome, quando }) => ({ id, nome, quando }));
                 const esperados = Number(permissao.evento.convidados) > 0 ? Number(permissao.evento.convidados) : 0;
 
                 const totais = { pessoas: 0, criancas: 0, adultos: 0, alimentacao: {} };

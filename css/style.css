@@ -2232,3 +2232,6 @@ gap:22px;
     text-transform: uppercase;
     z-index: 2;
 }
+/* Bolinha "!" nos eventos da página inicial (pendências ou novidades) */
+#listaEventos .evento { position: relative; }
+.bolinha-aviso { position: absolute; top: 8px; right: 8px; z-index: 3; width: 22px; height: 22px; border-radius: 50%; background: #5A32D3; color: #fff; font: 700 13px/22px Poppins, 'Segoe UI', sans-serif; text-align: center; box-shadow: 0 0 0 2px #fff, 0 2px 8px rgba(90, 50, 211, .45); }

@@ -926,13 +926,23 @@ header {
 .regras-fichas input:focus-visible + span { outline: 3px solid #b9a6f5; outline-offset: 2px; }
 .regras-status { min-height: 18px; margin-top: 8px; font-size: 12px; color: #7A7488; text-align: right; }
 
-/* Pendências do evento */
-.secao-pendencias { width: 100%; margin-top: 28px; }
+/* Pendências do evento (cartão recolhido) */
+.secao-pendencias { width: 100%; margin-top: 22px; background: #fff; border: 1px solid #E7E3F6; border-radius: 18px; padding: 0 18px; }
 .secao-pendencias[hidden] { display: none; }
-.lista-pendencias { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-.item-pendencia { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 11px 38px 11px 14px; background: #fff; border: 1px solid #E7E3F6; border-radius: 14px; font-size: 13px; font-weight: 600; color: #3B2A7A; text-decoration: none; }
-.item-pendencia i { color: #4D2FB8; }
-.item-pendencia .bolinha-pend { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
-.bolinha-pend { min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: #5A32D3; color: #fff; font: 700 11px/20px Poppins, sans-serif; text-align: center; box-shadow: 0 0 0 2px #fff; }
-.card-item { position: relative; }
-.card-item > .bolinha-pend { position: absolute; top: -6px; right: -4px; z-index: 2; }
+.secao-pendencias summary { display: flex; align-items: center; gap: 10px; padding: 15px 0; cursor: pointer; list-style: none; font-size: 15px; font-weight: 600; color: #3B2A7A; }
+.secao-pendencias summary::-webkit-details-marker { display: none; }
+.secao-pendencias summary::after { content: "\25BE"; margin-left: auto; color: #4D2FB8; }
+.secao-pendencias[open] summary::after { content: "\25B4"; }
+.secao-pendencias summary i { color: #4D2FB8; }
+.pend-titulo { font-weight: 600; }
+.lista-pendencias { display: flex; flex-direction: column; border-top: 1px solid #F0EDF9; padding: 4px 0 8px; }
+.linha-pend { display: flex; align-items: center; gap: 12px; padding: 11px 0; text-decoration: none; color: #3B2A7A; border-bottom: 1px solid #F6F4FC; }
+.linha-pend:last-child { border-bottom: 0; }
+.linha-pend > i { width: 34px; height: 34px; border-radius: 10px; background: #F1EDFD; color: #4D2FB8; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.pend-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.pend-texto b { font-size: 13.5px; font-weight: 600; }
+.pend-texto small { font-size: 11.5px; color: #7A7488; }
+.bolinha-pend { min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: #5A32D3; color: #fff; font: 700 11px/20px Poppins, sans-serif; text-align: center; box-shadow: 0 0 0 2px #fff; flex-shrink: 0; }
+.com-bolinha { position: relative; }
+.com-bolinha > .bolinha-pend { position: absolute; top: -6px; right: -4px; z-index: 2; }
+.regras-evento summary > span { display: inline-flex; align-items: center; gap: 8px; }

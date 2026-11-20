@@ -50,16 +50,15 @@
                 </div>
             </section>
 
-            <!-- PENDÊNCIAS: funções que o usuário ainda não abriu (a bolinha some ao abrir) -->
-            <section class="secao-pendencias" id="secaoPendencias" hidden>
-                <div class="titulo-secao">
-                    <div>
-                        <h2>Pendências do evento</h2>
-                        <p>Funções que você ainda não abriu.</p>
-                    </div>
-                </div>
+            <!-- PENDÊNCIAS: recolhido; mostra funções ainda não abertas e novidades (bolinha roxa com número) -->
+            <details class="secao-pendencias" id="secaoPendencias" hidden>
+                <summary>
+                    <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                    <span class="pend-titulo">Pendências do evento</span>
+                    <span class="bolinha-pend" id="totalPendencias">0</span>
+                </summary>
                 <div class="lista-pendencias" id="listaPendencias"></div>
-            </section>
+            </details>
 
             <section class="secao-informacoes" id="secaoInformacoes" hidden>
                 <div class="titulo-secao">
@@ -329,6 +328,8 @@
             query,
             where
         } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { FUNCOES, lerVistas, marcarVista, funcoesDoEvento, atividadeVista, marcarAtividadeVista, contarNovidades, marcarVisita } from "./js/pendencias.js";
+        import { categoriaDoAviso, carregarDesligadas } from "./js/avisos.js";
 
         const app = initializeApp(window.FIREBASE_CONFIG);
         const auth = getAuth(app);
@@ -597,74 +598,139 @@
             `;
         }
 
-        // ---------- Pendências: bolinha "1" nas funções que ainda não foram abertas ----------
-        // Guardado neste aparelho, por usuário e evento (sem mexer nas regras do Firestore).
-        const FUNCOES_PENDENTES = [
-            { k: "calendario", id: "linkCalendario", nome: "Calendário", icone: "fa-regular fa-calendar-days" },
-            { k: "tarefas", id: "linkTarefas", nome: "Tarefas", icone: "fa-solid fa-list-check" },
-            { k: "financeiro", id: "linkControleFinanceiro", nome: "Controle orçamentário", icone: "fa-solid fa-coins" },
-            { k: "notas", id: "linkBlocodeNotas", nome: "Bloco de notas", icone: "fa-regular fa-note-sticky" },
-            { k: "presentes", id: "cardListaPresentes", nome: "Lista de presentes", icone: "fa-solid fa-gift" },
-            { k: "convites", id: "cardCriadorConvites", nome: "Criador de convites", icone: "fa-solid fa-envelope-open-text" },
-            { k: "convidados", id: null, nome: "Convidados", icone: "fa-solid fa-user-check" }
-        ];
-        let chavePendencias = null;
+        // ---------- Pendências e novidades (guardadas neste aparelho; ver js/pendencias.js) ----------
+        let eventoAtual = null;
+        let souDonoAtual = false;
+        let novidades = {};   // função -> quantas novidades depois da última vez que o usuário viu
 
-        function lerVistas() {
-            try { const v = JSON.parse(localStorage.getItem(chavePendencias) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+        function itensPendencias() {
+            const vistas = lerVistas(usuarioAtual.uid, eventoId);
+            return funcoesDoEvento(eventoAtual, souDonoAtual).map((f) => {
+                const novas = novidades[f.k] || 0;
+                return { f, novas, n: novas > 0 ? novas : (vistas.includes(f.k) ? 0 : 1) };
+            }).filter((x) => x.n > 0);
         }
 
-        function marcarVista(k) {
-            if (!chavePendencias) return;
-            const vistas = lerVistas();
-            if (vistas.includes(k)) return;
-            vistas.push(k);
-            try { localStorage.setItem(chavePendencias, JSON.stringify(vistas)); } catch (e) { /* sem armazenamento: a bolinha volta */ }
+        function textoMotivo(x) {
+            if (x.f.k === "convidados" && x.novas > 0) return x.novas === 1 ? "1 nova resposta" : x.novas + " novas respostas";
+            if (x.novas > 0) return x.novas === 1 ? "1 novidade" : x.novas + " novidades";
+            if (x.f.k === "regras") return "Defina o que você oferece aos convidados";
+            return "Ainda não aberto";
         }
 
         function desenharPendencias() {
-            if (!chavePendencias) return;
-            const vistas = lerVistas();
-            const lista = document.getElementById("listaPendencias");
-            lista.innerHTML = "";
-            let total = 0;
+            if (!usuarioAtual || !eventoAtual) return;
+            const itens = itensPendencias();
+            const porFuncao = {};
+            itens.forEach((x) => { porFuncao[x.f.k] = x; });
 
-            FUNCOES_PENDENTES.forEach((f) => {
-                const cartao = f.id ? document.getElementById(f.id) : null;
-                const ativa = f.id ? !!cartao && !cartao.hidden : true;
-                const pendente = ativa && !vistas.includes(f.k);
-
-                if (cartao) {   // bolinha no próprio cartão da ferramenta
-                    cartao.dataset.pend = f.k;
-                    let bolinha = cartao.querySelector(".bolinha-pend");
-                    if (pendente && !bolinha) {
-                        bolinha = document.createElement("span");
-                        bolinha.className = "bolinha-pend";
-                        bolinha.textContent = "1";
-                        bolinha.setAttribute("aria-label", "Ainda não aberto");
-                        cartao.appendChild(bolinha);
-                    }
-                    if (!pendente && bolinha) bolinha.remove();
+            // bolinha no cartão de cada ferramenta (e no cartão "Número de convidados")
+            FUNCOES.forEach((f) => {
+                const alvo = f.id ? document.getElementById(f.id)
+                    : f.k === "convidados" ? document.querySelector("#listaInformacoes a.informacao-item.clicavel") : null;
+                if (!alvo) return;
+                alvo.dataset.pend = f.k;
+                alvo.classList.add("com-bolinha");
+                const x = porFuncao[f.k];
+                let b = alvo.querySelector(":scope > .bolinha-pend");
+                if (x && !b) {
+                    b = document.createElement("span");
+                    b.className = "bolinha-pend";
+                    b.setAttribute("aria-label", "Novidade ou ainda não aberto");
+                    alvo.appendChild(b);
                 }
-
-                if (!pendente) return;
-                total++;
-                const link = document.createElement("a");
-                link.className = "item-pendencia";
-                link.dataset.pend = f.k;
-                link.href = f.id ? (cartao.getAttribute("href") || "#") : "convidados.html?id=" + encodeURIComponent(eventoId);
-                link.innerHTML = '<i class="' + f.icone + '" aria-hidden="true"></i><span>' + f.nome + '</span><span class="bolinha-pend" aria-label="Ainda não aberto">1</span>';
-                lista.appendChild(link);
+                if (b) { if (x) b.textContent = x.n; else b.remove(); }
             });
 
-            document.getElementById("secaoPendencias").hidden = total === 0;
+            // cartão recolhido: um resumo + uma linha por função
+            const lista = document.getElementById("listaPendencias");
+            lista.innerHTML = "";
+            itens.forEach((x) => {
+                const linha = document.createElement("a");
+                linha.className = "linha-pend";
+                linha.dataset.pend = x.f.k;
+                linha.href = x.f.k === "regras" ? "#regrasEvento"
+                    : x.f.k === "convidados" ? "convidados.html?id=" + encodeURIComponent(eventoId)
+                    : (document.getElementById(x.f.id).getAttribute("href") || "#");
+                linha.innerHTML = '<i class="' + x.f.icone + '" aria-hidden="true"></i>' +
+                    '<span class="pend-texto"><b>' + x.f.nome + '</b><small>' + textoMotivo(x) + '</small></span>' +
+                    '<span class="bolinha-pend">' + x.n + '</span>';
+                lista.appendChild(linha);
+            });
+            document.getElementById("totalPendencias").textContent = itens.length;
+            document.getElementById("secaoPendencias").hidden = itens.length === 0;
+
+            // bolinha também no título das regras (dentro de Recursos do evento)
+            const resumo = document.querySelector("#regrasEvento summary");
+            const pendRegras = !!porFuncao.regras;
+            let b = resumo.querySelector(".bolinha-pend");
+            if (pendRegras && !b) {
+                b = document.createElement("span");
+                b.className = "bolinha-pend";
+                b.textContent = "1";
+                resumo.querySelector("span").appendChild(b);
+            }
+            if (!pendRegras && b) b.remove();
         }
 
-        // ao abrir uma função (pela lista ou pelo cartão), a bolinha some
+        // abrir uma função (pela lista ou pelo cartão): some a bolinha dela
+        function marcarAbertura(k) {
+            if (!usuarioAtual) return;
+            marcarVista(usuarioAtual.uid, eventoId, k);
+            marcarAtividadeVista(usuarioAtual.uid, eventoId, k);
+            delete novidades[k];
+        }
+
         document.addEventListener("click", (e) => {
             const alvo = e.target.closest("[data-pend]");
-            if (alvo) marcarVista(alvo.dataset.pend);
+            if (!alvo) return;
+            if (alvo.dataset.pend === "regras") {
+                e.preventDefault();
+                const det = document.getElementById("regrasEvento");
+                det.open = true;
+                marcarAbertura("regras");
+                desenharPendencias();
+                det.scrollIntoView({ behavior: "smooth", block: "center" });
+                return;
+            }
+            marcarAbertura(alvo.dataset.pend);
         });
+
+        // voltar para esta página (botão "voltar"): refaz as bolinhas com o que já foi aberto
+        window.addEventListener("pageshow", () => desenharPendencias());
+
+        document.getElementById("regrasEvento").addEventListener("toggle", (e) => {
+            if (e.target.open) { marcarAbertura("regras"); desenharPendencias(); }
+        });
+
+        // novidades vindas dos outros colaboradores (avisos não lidos) e novas respostas de convidados
+        async function carregarNovidades() {
+            const uid = usuarioAtual.uid;
+            const visto = atividadeVista(uid, eventoId);
+            const [avisosSnap, desligadas] = await Promise.all([
+                getDocs(query(collection(db, "avisos"), where("uid", "==", uid), where("eventoId", "==", eventoId), where("lida", "==", false))),
+                carregarDesligadas(db, uid)
+            ]);
+            const avisos = avisosSnap.docs.map((d) => d.data()).filter((a) => !desligadas.includes(categoriaDoAviso(a)));
+            novidades = contarNovidades(avisos, eventoId, visto);
+
+            try {
+                const idToken = await auth.currentUser.getIdToken();
+                const resposta = await fetch("/api/presenca", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                    body: JSON.stringify({ acao: "lista", eventoId })
+                });
+                if (resposta.ok) {
+                    const dados = await resposta.json();
+                    const desde = visto.convidados || 0;
+                    const novas = [...(dados.confirmados || []), ...(dados.ausentes || [])].filter((x) => x.quando > desde).length;
+                    if (novas > 0) novidades.convidados = novas;
+                }
+            } catch (e) { /* sem o servidor: só não mostra as novas respostas */ }
+
+            desenharPendencias();
+        }
 
         // ---------- Regras de confirmação (salvam sozinhas pelo servidor) ----------
         function iniciarRegras(regras) {
@@ -858,6 +924,7 @@
                             try {
                                 await updateDoc(referenciaEvento, { [campo]: ligado });
                                 cartao.hidden = !ligado;
+                                if (eventoAtual) eventoAtual[campo] = ligado;
                                 desenharPendencias();
                                 if (campo === "listaPresentes") {
                                     if (ligado) carregarPreviaPresentes().catch(() => {});
@@ -901,8 +968,11 @@
                 linkControleFinanceiro.href = `controleFinanceiro.html?id=${encodeURIComponent(eventoId)}`;
                 linkBlocodeNotas.href = `blocoNotas.html?id=${encodeURIComponent(eventoId)}`;
 
-                chavePendencias = `pendencias_${usuario.uid}_${eventoId}`;
+                eventoAtual = { id: eventoId, ...evento };
+                souDonoAtual = souDono;
                 desenharPendencias();
+                carregarNovidades().catch((erro) => console.warn("Não foi possível checar novidades:", erro));
+                marcarVisita(usuario.uid, eventoId);
 
                 const resultados = await Promise.allSettled([
                     carregarPreviaCalendario(evento),

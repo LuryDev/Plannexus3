@@ -196,6 +196,7 @@
     } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
     import { categoriaDoAviso, carregarDesligadas } from "./js/avisos.js";
+    import { pendentesDoEvento, temNovidadeDesdeVisita } from "./js/pendencias.js";
     import { pushDisponivel, pushAtivo } from "./js/push.js";
 
     // FIREBASE_CONFIG vem do arquivo js/config.js
@@ -365,6 +366,34 @@
     }
 
     // ==========================================
+    // BOLINHA "!" NOS EVENTOS
+    // Aparece se o evento tem funções que o usuário ainda não abriu ou se
+    // alguém mexeu nele (avisos não lidos) depois da última visita dele.
+    // ==========================================
+    async function marcarPontosDosEventos(usuario, eventos) {
+        let avisos = [];
+        try {
+            const snap = await getDocs(query(collection(db, "avisos"), where("uid", "==", usuario.uid), where("lida", "==", false)));
+            const desligadas = await carregarDesligadas(db, usuario.uid);
+            avisos = snap.docs.map((d) => d.data()).filter((a) => !desligadas.includes(categoriaDoAviso(a)));
+        } catch (erro) { /* sem avisos: só as pendências */ }
+
+        eventos.forEach((evento) => {
+            const card = listaEventos.querySelector('.evento[data-id="' + evento.id + '"]');
+            if (!card) return;
+            const novidade = temNovidadeDesdeVisita(avisos, usuario.uid, evento.id);
+            const pendencias = pendentesDoEvento(usuario.uid, evento, evento.papel === "dono").length;
+            if (!novidade && !pendencias) return;
+            const ponto = document.createElement("span");
+            ponto.className = "bolinha-aviso";
+            ponto.textContent = "!";
+            ponto.title = novidade ? "Novidades neste evento" : "Funções ainda não abertas";
+            ponto.setAttribute("aria-label", ponto.title);
+            card.appendChild(ponto);
+        });
+    }
+
+    // ==========================================
     // BUSCAR EVENTOS DO USUÁRIO
     // ==========================================
 
@@ -521,6 +550,9 @@
                 });
 
             });
+
+            // bolinha "!" nos eventos com pendências ou novidades (não trava a lista se falhar)
+            marcarPontosDosEventos(usuario, todosEventos).catch((erro) => console.warn("Pontos dos eventos:", erro));
 
         }
 
