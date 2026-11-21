@@ -120,3 +120,8 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
      mesma animação flutuante, mesmo tamanho e mesma posição em todas as telas.
    - Ao criar novas imagens, deixe livre o lado direito (PC: a partir de 900 px da esquerda; celular: a partir de 430 px, na arte de 700 px).
    - A imagem de celular só é usada em telas de até 480 px; tablets e PC usam a imagem larga.
+
+21) SOM NO VIDEO DE ABERTURA (js/splash.js)
+   O video animacoes/intro.mp4 ja tem trilha de audio. Agora o app tenta tocar COM som.
+   Se o navegador bloquear (acontece no navegador comum), ele toca mudo e o som liga no
+   primeiro toque na tela. No app instalado (TWA/PWA) o Chrome costuma permitir som direto.
