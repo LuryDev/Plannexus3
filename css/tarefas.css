@@ -13,7 +13,7 @@ body {
 .app {
     width: 100%;
     max-width: 430px;
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     margin: auto;
     background: #f4f4f8;
 }
@@ -100,6 +100,8 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-bottom: 15px;
 }
 
@@ -107,15 +109,13 @@ main {
     font-size: 18px;
     color: #222;
     font-weight: 700;
+    min-width: 0;
 }
 
 .nova-tarefa {
+    flex-shrink: 0;
     border: none;
-    background: linear-gradient(
-        135deg,
-        #6d4bd8 0%,
-        #4d2fb8 100%
-    );
+    background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%);
     color: white;
     padding: 10px 13px;
     border-radius: 9px;
@@ -336,28 +336,24 @@ main {
 
 .filtros {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
     margin-bottom: 15px;
 }
 
 .filtro {
+    flex: 0 0 auto;
     border: 1px solid #ddd5f7;
     background: white;
     color: #6b6480;
-    padding: 6px 12px;
+    padding: 7px 12px;
     border-radius: 99px;
     font-size: 12px;
     cursor: pointer;
     transition: 0.2s ease;
+    white-space: nowrap;
 }
-
-.filtro.ativo {
-    background: #5A32D3;
-    border-color: #5A32D3;
-    color: white;
-}
-
-
 /* ===========================
         LADO DIREITO DO CARD
 =========================== */
@@ -495,7 +491,7 @@ main {
 
 .duplo {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
 }
 
@@ -647,21 +643,36 @@ main {
     cursor: not-allowed;
 }
 
+.botoes-confirmacao {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+}
 .acoes-sugestoes {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 10px;
     margin-top: 18px;
 }
 
 .acoes-sugestoes button {
-    flex: 1;
-    padding: 11px;
-    border: none;
-    border-radius: 9px;
-    background: #7354c8;
+    flex: 1 1 calc(50% - 5px);
+    min-width: 0;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid #7354c8;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7354c8, #4d2fb8);
     color: white;
-    font-weight: bold;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
+    box-shadow: 0 4px 10px rgba(90, 50, 211, .18);
+    transition: .2s ease;
 }
 
 .acoes-sugestoes button:first-child {
@@ -670,11 +681,16 @@ main {
     border: 1px solid #7354c8;
 }
 
+.acoes-sugestoes button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(90, 50, 211, .22);
+}
+
 .acoes-sugestoes button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
 }
-
 #mensagemSugestoes {
     font-size: 13px;
     margin-bottom: 0;
@@ -727,4 +743,37 @@ main {
 .botao-excluir:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+/* ==========================================
+   SOMBRAS ROXAS — TODOS OS CARDS
+========================================== */
+
+.tarefa,
+.progresso,
+.aviso,
+.sugestoes,
+.item-sugestao {
+    box-shadow:
+        0 4px 12px rgba(90, 50, 211, 0.574),
+        0 8px 22px rgba(90, 50, 211, 0.10);
+
+    border: 1px solid rgba(90, 50, 211, 0.10);
+}
+
+/* Efeito ao passar o mouse */
+
+.tarefa:hover,
+.item-sugestao:hover {
+    box-shadow:
+        0 6px 15px rgba(90, 50, 211, 0.741),
+        0 10px 26px rgba(90, 50, 211, 0.14);
+}
+
+/* Cards com destaque */
+
+.sugestoes {
+    box-shadow:
+        0 5px 15px rgba(90, 50, 211, 0.714),
+        0 10px 25px rgba(90, 50, 211, 0.10);
 }

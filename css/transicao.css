@@ -1,124 +1,283 @@
 /* ==========================================================
-   TRANSIÇÃO DE CONFIRMAÇÃO
-   Tela cheia mostrada entre "deu certo" e a próxima página.
-   O JS está em js/transicao.js.
-
-   >>> QUEM FOR FAZER A ANIMAÇÃO: edite este arquivo. <<<
-
-   - --transicao-duracao  = quanto tempo a tela fica antes de trocar de
-     página (o JS lê este valor). Deve cobrir a duração da animação.
-   - #animacao-confirmacao  = palco da animação.
-   - .transicao.ativa       = classe adicionada quando a animação começa.
-   - [data-tipo="..."]      = login | cadastro | evento-criado
-     (use para fazer uma animação diferente para cada caso).
-
-   - GIF ou vídeo: liste o arquivo em MIDIAS (js/transicao.js). Ele aparece
-     dentro do palco com a classe .transicao-midia (veja abaixo).
-
-   Abaixo há uma versão provisória (check desenhado) só para o app
-   funcionar até a animação final existir. Pode apagar e refazer.
+   css/transicao.css
+   Roxo do app: ajuste --roxo se for outro tom.
    ========================================================== */
+/* As variáveis ficam restritas à transição/splash. Antes estavam em :root e,
+   na nexus.html, sobrescreviam o --roxo da própria página (mudando a cor dela). */
+.transicao, .splash {
+    --roxo: #6d28d9;
+    --roxo-claro: #a78bfa;
+    --roxo-fundo: #f5f3fe;
+}
 
+/* ---------------- ABERTURA (vídeo) ---------------- */
+.splash {
+    position: fixed; inset: 0; z-index: 10000;
+    background: #0b0b17;   /* mesma cor das bordas do vídeo: sem faixa preta em tela larga */
+    display: flex; align-items: center; justify-content: center;
+    opacity: 1; transition: opacity .4s ease;
+    touch-action: manipulation; -webkit-user-select: none; user-select: none;
+}
+.splash.sai { opacity: 0; pointer-events: none; }
+.splash-video { width: 100%; height: 100%; object-fit: contain; }
+.splash-dica {
+    position: absolute; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%);
+    max-width: calc(100% - 32px); text-align: center;
+    padding: 8px 16px; border-radius: 999px; font: 500 13px system-ui, sans-serif;
+    color: #fff; background: rgba(109, 40, 217, .75); transition: opacity .5s;
+}
+.splash-dica.some { opacity: 0; pointer-events: none; }
+
+/* ---------------- BASE DAS TRANSIÇÕES ---------------- */
 .transicao {
     --transicao-duracao: 1400ms;
-
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    background: #5A32D3;
-    color: #fff;
-    opacity: 0;
-    transition: opacity 250ms ease;
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--roxo-fundo);
+    opacity: 0; transition: opacity .25s ease;
+    overflow: hidden;
+    touch-action: none; overscroll-behavior: contain;
+    -webkit-tap-highlight-color: transparent;
 }
-
-.transicao.ativa {
-    opacity: 1;
-}
-
-/* ---------- palco ---------- */
-
-.transicao-palco {
-    width: 96px;
-    height: 96px;
-}
-
-.transicao-check {
-    width: 100%;
-    height: 100%;
-}
-
-.transicao-circulo,
-.transicao-visto {
-    stroke: #fff;
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.transicao-circulo {
-    stroke-dasharray: 151;
-    stroke-dashoffset: 151;
-}
-
-.transicao-visto {
-    stroke-dasharray: 40;
-    stroke-dashoffset: 40;
-}
-
-.transicao.ativa .transicao-circulo {
-    animation: transicao-desenhar 600ms ease forwards;
-}
-
-.transicao.ativa .transicao-visto {
-    animation: transicao-desenhar 350ms ease 450ms forwards;
-}
-
-@keyframes transicao-desenhar {
-    to { stroke-dashoffset: 0; }
-}
-
-/* ---------- GIF / vídeo (quando listado em MIDIAS) ---------- */
-
-.transicao-midia {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-}
-
-/* palco maior quando a mídia for grande (exemplo, descomente e ajuste):
-.transicao[data-tipo="evento-criado"] .transicao-palco {
-    width: min(80vw, 360px);
-    height: min(80vw, 360px);
-}
-*/
-
-/* ---------- mensagem ---------- */
-
+html.transicao-aberta, html.transicao-aberta body { overflow: hidden; }
+.transicao.ativa { opacity: 1; }
+.transicao-palco { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .transicao-mensagem {
-    font-family: 'Poppins', Arial, sans-serif;
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-    padding: 0 24px;
+    position: absolute; left: 0; right: 0; bottom: 18%; margin: 0; text-align: center;
+    font: 700 1.3rem system-ui, sans-serif; color: var(--roxo);
+    padding: 0 max(24px, env(safe-area-inset-right)) 0 max(24px, env(safe-area-inset-left));
+    overflow-wrap: anywhere; text-wrap: balance;
+}
+.transicao-midia { max-width: 80%; max-height: 80%; object-fit: contain; }
+
+/* check padrão */
+.transicao-check { width: 96px; height: 96px; }
+.transicao-circulo, .transicao-visto { stroke: var(--roxo); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 160; stroke-dashoffset: 160; }
+.transicao.ativa .transicao-circulo { animation: desenhar .6s ease forwards; }
+.transicao.ativa .transicao-visto { animation: desenhar .4s .5s ease forwards; }
+@keyframes desenhar { to { stroke-dashoffset: 0; } }
+
+/* ==========================================================
+   2) LOGIN / CADASTRO — voa da esquerda p/ direita
+   ========================================================== */
+.transicao[data-tipo="login"], .transicao[data-tipo="cadastro"] { --transicao-duracao: 1700ms; }
+
+.voo-onda {
+    position: absolute; inset: 0;
+    background: linear-gradient(100deg, transparent 0%, rgba(167,139,250,.55) 45%, rgba(109,40,217,.85) 100%);
+    transform: translateX(-110%);
+}
+.ativa .voo-onda { animation: onda 1.5s cubic-bezier(.5,0,.3,1) forwards; }
+@keyframes onda { to { transform: translateX(110%); } }
+
+.voo-linha { position: absolute; left: 0; right: 0; top: 50%; height: 0; }
+.voo-personagem, .voo-trilha {
+    position: absolute; top: 0; left: 0;
+    transform: translate(-60vw, -50%);
+}
+.voo-personagem { width: min(60vw, 260px, 45vh); filter: drop-shadow(0 12px 18px rgba(109,40,217,.45)); }
+.voo-trilha {
+    width: min(70vw, 360px); height: 70px; border-radius: 999px;
+    margin-left: calc(-1 * min(60vw, 300px));
+    background: linear-gradient(90deg, transparent, rgba(167,139,250,.8));
+    filter: blur(14px);
+}
+.ativa .voo-personagem { animation: voar 1.5s cubic-bezier(.45,0,.35,1) forwards; }
+.ativa .voo-trilha { animation: voar 1.5s cubic-bezier(.45,0,.35,1) forwards; }
+@keyframes voar {
+    0%   { transform: translate(-60vw, -50%) rotate(-6deg); }
+    50%  { transform: translate(calc(50vw - 50%), -60%) rotate(2deg); }
+    100% { transform: translate(115vw, -50%) rotate(-4deg); }
+}
+.voo-faisca {
+    position: absolute; top: var(--y); left: 0; width: var(--tam); height: var(--tam);
+    border-radius: 50%; background: var(--roxo-claro); opacity: 0;
+}
+.ativa .voo-faisca { animation: faisca .9s var(--atraso) ease-out forwards; }
+@keyframes faisca {
+    0%   { opacity: 0; transform: translateX(-30vw) scale(.4); }
+    30%  { opacity: 1; }
+    100% { opacity: 0; transform: translateX(60vw) scale(1.3); }
 }
 
-/* ---------- quem desativou animações no celular ---------- */
+/* ==========================================================
+   3) EVENTO CRIADO — sobe até o meio + mensagem
+   ========================================================== */
+.transicao[data-tipo="evento-criado"] { --transicao-duracao: 2600ms; }
+
+.evento-brilho {
+    position: absolute; left: 50%; top: 45%; width: 70vmin; height: 70vmin;
+    border-radius: 50%; transform: translate(-50%, -50%) scale(0);
+    background: radial-gradient(circle, rgba(167,139,250,.7), transparent 65%);
+}
+.ativa .evento-brilho { animation: brilho 1.2s .7s ease-out forwards; }
+@keyframes brilho { to { transform: translate(-50%, -50%) scale(1.2); } }
+
+.evento-sobe {
+    position: absolute; left: 50%; top: 45%; width: min(60vw, 280px, 45vh);
+    transform: translate(-50%, 90vh);
+    transform: translate(-50%, 90dvh);
+}
+.ativa .evento-sobe { animation: sobe 1s cubic-bezier(.2,.9,.3,1.1) forwards; }
+@keyframes sobe { to { transform: translate(-50%, -50%); } }
+.evento-personagem { display: block; width: 100%; filter: drop-shadow(0 14px 18px rgba(109,40,217,.45)); }
+.ativa .evento-personagem { animation: pulo .5s 1s ease-in-out 2; }
+@keyframes pulo { 50% { transform: translateY(-14px) scale(1.04); } }
+
+.evento-explosao { position: absolute; left: 50%; top: 50%; }
+.evento-particula {
+    position: absolute; width: var(--tam); height: var(--tam); border-radius: 50%;
+    background: var(--roxo); opacity: 0; margin: calc(var(--tam) / -2);
+}
+.evento-particula:nth-child(even) { background: var(--roxo-claro); border-radius: 3px; }
+.ativa .evento-particula { animation: estoura .9s calc(.8s + var(--atraso)) ease-out forwards; }
+@keyframes estoura {
+    0%   { opacity: 1; transform: rotate(var(--ang)) translateX(0); }
+    100% { opacity: 0; transform: rotate(var(--ang)) translateX(var(--dist)); }
+}
+
+/* mensagem aparece depois que o personagem chega */
+.transicao[data-tipo="evento-criado"] .transicao-mensagem {
+    bottom: 16%; font-size: 1.6rem; opacity: 0; transform: scale(.8);
+}
+.transicao[data-tipo="evento-criado"].ativa .transicao-mensagem {
+    animation: msg .5s .9s cubic-bezier(.2,1.4,.4,1) forwards;
+}
+@keyframes msg { to { opacity: 1; transform: scale(1); } }
+
+/* ==========================================================
+   4) EXCLUIR EVENTO / CONTA — personagem sugado pela lixeira
+      0.0s  lixeira aparece e abre a tampa
+      0.9s  personagem é sugado em espiral (redemoinho + partículas roxas)
+      2.0s  lixeira "engole", tampa fecha, pulso roxo
+      2.1s  aparece "Excluído com sucesso!"
+   ========================================================== */
+.transicao[data-tipo^="excluir"] { --transicao-duracao: 3400ms; }
+
+.lixo-cena {
+    --lixo: min(90px, 16vh);            /* largura da lixeira */
+    position: relative; width: 100%; height: 100%;
+}
+
+/* brilho roxo atrás da lixeira */
+.lixo-brilho {
+    position: absolute; left: 50%; bottom: calc(10% + var(--lixo) * .3);
+    width: calc(var(--lixo) * 4); height: calc(var(--lixo) * 4);
+    transform: translate(-50%, 50%) scale(0); border-radius: 50%;
+    background: radial-gradient(circle, rgba(167,139,250,.65), transparent 65%);
+}
+.ativa .lixo-brilho { animation: lixo-brilho 2.2s .5s ease-in-out forwards; }
+@keyframes lixo-brilho {
+    0%   { transform: translate(-50%, 50%) scale(0); opacity: 0; }
+    40%  { transform: translate(-50%, 50%) scale(1); opacity: 1; }
+    75%  { transform: translate(-50%, 50%) scale(1.15); opacity: 1; }
+    100% { transform: translate(-50%, 50%) scale(.8); opacity: 0; }
+}
+
+/* centro do redemoinho = boca da lixeira */
+.lixo-succao { position: absolute; left: 50%; bottom: calc(10% + var(--lixo) * .84); width: 0; height: 0; }
+
+.lixo-anel {
+    position: absolute; left: 0; top: 0;
+    width: min(46vw, 200px, 30vh); height: calc(min(46vw, 200px, 30vh) * .42);
+    border: 3px solid var(--roxo-claro); border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0); opacity: 0;
+}
+.ativa .lixo-anel { animation: lixo-anel .9s ease-in forwards; }
+.ativa .lixo-anel:nth-of-type(1) { animation-delay: .9s; }
+.ativa .lixo-anel:nth-of-type(2) { animation-delay: 1.15s; border-color: var(--roxo); }
+.ativa .lixo-anel:nth-of-type(3) { animation-delay: 1.4s; }
+@keyframes lixo-anel {
+    0%   { transform: translate(-50%, -50%) scale(1.3) rotate(0);    opacity: 0; }
+    25%  { opacity: .9; }
+    100% { transform: translate(-50%, -50%) scale(.1) rotate(140deg); opacity: 0; }
+}
+
+/* partículas roxas giram para dentro da lixeira */
+.lixo-particula {
+    position: absolute; width: var(--tam); height: var(--tam); border-radius: 50%;
+    background: var(--roxo); opacity: 0; margin: calc(var(--tam) / -2);
+}
+.lixo-particula:nth-child(even) { background: var(--roxo-claro); border-radius: 3px; }
+.ativa .lixo-particula { animation: lixo-succao .9s calc(.9s + var(--atraso) * 3) ease-in forwards; }
+@keyframes lixo-succao {
+    0%   { opacity: 0; transform: rotate(var(--ang)) translateX(var(--dist)) scale(1); }
+    20%  { opacity: 1; }
+    100% { opacity: 0; transform: rotate(calc(var(--ang) + 170deg)) translateX(0) scale(.2); }
+}
+
+/* pulso final quando a lixeira "engole" */
+.lixo-pulso {
+    position: absolute; left: 0; top: 0; width: calc(var(--lixo) * 1.2); height: calc(var(--lixo) * 1.2);
+    border: 4px solid var(--roxo); border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0); opacity: 0;
+}
+.ativa .lixo-pulso { animation: lixo-pulso .7s 2s ease-out forwards; }
+@keyframes lixo-pulso {
+    0%   { transform: translate(-50%, -50%) scale(.3); opacity: .9; }
+    100% { transform: translate(-50%, -50%) scale(3);  opacity: 0; }
+}
+
+/* personagem: treme, "infla" e é sugado em espiral até a boca da lixeira */
+.lixo-item {
+    position: absolute; left: 50%; top: 38%; width: min(55vw, 240px, 38vh);
+    transform: translate(-50%, -50%);
+    --dy: calc(52vh - var(--lixo) * .84);   /* distância até a boca da lixeira */
+    --dy: calc(52dvh - var(--lixo) * .84);
+    --dx: min(16vw, 70px);
+}
+.ativa .lixo-item { animation: lixo-sugado 2.4s ease-in forwards; }
+.lixo-personagem { display: block; width: 100%; filter: drop-shadow(0 12px 18px rgba(109,40,217,.45)); }
+@keyframes lixo-sugado {
+    0%   { transform: translate(-50%, -50%) rotate(0) scale(1); opacity: 1; }
+    6%   { transform: translate(-50%, -50%) rotate(-4deg) scale(1); }
+    12%  { transform: translate(-50%, -50%) rotate(4deg) scale(1); }
+    18%  { transform: translate(-50%, -50%) rotate(-3deg) scale(1); }
+    26%  { transform: translate(-50%, -50%) rotate(0) scale(1); }
+    38%  { transform: translate(-50%, calc(-50% - 2vh)) rotate(0) scale(1.07); }
+    55%  { transform: translate(calc(-50% - var(--dx)), calc(-50% + var(--dy) * .38)) rotate(-150deg) scale(.7, .8); }
+    72%  { transform: translate(calc(-50% + var(--dx) * .6), calc(-50% + var(--dy) * .78)) rotate(-290deg) scale(.38, .5); opacity: 1; }
+    82%  { transform: translate(-50%, calc(-50% + var(--dy))) rotate(-420deg) scale(.08, .14); opacity: 0; }
+    100% { transform: translate(-50%, calc(-50% + var(--dy))) rotate(-420deg) scale(.08, .14); opacity: 0; }
+}
+
+/* lixeira */
+.lixo-lixeira {
+    position: absolute; left: 50%; bottom: 10%; width: var(--lixo); transform: translateX(-50%) scale(0);
+}
+.ativa .lixo-lixeira { animation: lixeira-entra .4s .2s cubic-bezier(.2,1.5,.4,1) forwards; }
+@keyframes lixeira-entra { to { transform: translateX(-50%) scale(1); } }
+.lixo-svg { width: 100%; overflow: visible; transform-origin: 50% 100%; }
+.ativa .lixo-svg { animation: lixo-engole .55s 1.95s ease-in-out; }
+@keyframes lixo-engole {
+    0%, 100% { transform: scale(1); }
+    35%      { transform: scale(1.14, .88); }
+    70%      { transform: scale(.96, 1.06); }
+}
+.lixo-corpo { fill: var(--roxo); }
+.lixo-listras { stroke: var(--roxo-fundo); stroke-width: 3; stroke-linecap: round; fill: none; }
+.lixo-tampa rect { fill: var(--roxo); }
+.lixo-tampa { transform-origin: 8px 15px; transform-box: view-box; }
+.ativa .lixo-tampa { animation: tampa 2.4s forwards; }
+@keyframes tampa {
+    0%, 8%   { transform: rotate(0); }
+    16%, 80% { transform: rotate(-35deg) translateY(-4px); }
+    90%, 100% { transform: rotate(0); }
+}
+
+/* mensagem aparece depois que o personagem some, logo acima da lixeira */
+.transicao[data-tipo^="excluir"] .transicao-mensagem {
+    bottom: calc(10% + var(--lixo-msg, min(90px, 16vh)) * 1.125 + 16px);
+    font-size: 1.6rem; opacity: 0; transform: scale(.8);
+}
+.transicao[data-tipo^="excluir"].ativa .transicao-mensagem {
+    animation: msg .5s 2.1s cubic-bezier(.2,1.4,.4,1) forwards;
+}
 
 @media (prefers-reduced-motion: reduce) {
-    .transicao {
-        --transicao-duracao: 700ms;
-        transition: none;
-    }
-
-    .transicao-circulo,
-    .transicao-visto {
-        animation: none !important;
-        stroke-dashoffset: 0;
+    .transicao, .transicao *, .transicao *::before, .transicao *::after {
+        animation-duration: .01ms !important; animation-delay: 0ms !important;
+        animation-iteration-count: 1 !important; transition-duration: .01ms !important;
     }
 }

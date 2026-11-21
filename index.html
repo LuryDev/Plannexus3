@@ -29,9 +29,34 @@
     <meta name="theme-color" content="#5A32D3">
     <script src="js/versaoApp.js"></script>
     <script src="js/pwa.js" defer></script>
+    <link rel="stylesheet" href="css/transicao.css">
+    <script src="js/splash.js"></script>
+    <link rel="stylesheet" href="css/responsivo.css">
 </head>
 
 <body>
+
+    <!-- Vídeo de abertura (animacoes/intro.mp4). Toca ao abrir o app e, quando termina
+         (ou se o usuário der 2 toques para acelerar), segue o fluxo normal abaixo:
+         logado -> inicio.html | não logado -> carrossel.
+         Toca 1 vez por sessão, então voltar para esta tela não repete o vídeo. -->
+    <script>
+        window.splashFim = false;
+        window.aoFimDoSplash = null;
+        (function () {
+            var jaViu = false;
+            try { jaViu = sessionStorage.getItem("splashVisto") === "1"; } catch (e) {}
+
+            function fim() {
+                window.splashFim = true;
+                try { sessionStorage.setItem("splashVisto", "1"); } catch (e) {}
+                if (typeof window.aoFimDoSplash === "function") window.aoFimDoSplash();
+            }
+
+            if (jaViu || typeof iniciarSplash !== "function") { window.splashFim = true; return; }
+            iniciarSplash({ aoTerminar: fim });
+        })();
+    </script>
 
     <!-- Tela de espera: aparece enquanto o app confere se já existe login.
          Quem já está logado vai direto para o início, sem ver o carrossel. -->
@@ -282,7 +307,14 @@
 
                 if (usuario) {
                     // replace: o botão "voltar" não traz o usuário de volta para esta tela
-                    window.location.replace("inicio.html");
+                    // Se o vídeo de abertura ainda está tocando, espera ele terminar.
+                    const irParaInicio = () => window.location.replace("inicio.html");
+
+                    if (window.splashFim) {
+                        irParaInicio();
+                    } else {
+                        window.aoFimDoSplash = irParaInicio;
+                    }
                 } else {
                     mostrarCarrossel();
                 }
@@ -303,4 +335,3 @@
 </body>
 
 </html>
-```

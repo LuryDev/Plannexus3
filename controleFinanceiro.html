@@ -15,6 +15,7 @@
     <meta name="theme-color" content="#5A32D3">
     <script src="js/pwa.js" defer></script>
     <link rel="stylesheet" href="css/nexusFlutuante.css">
+    <link rel="stylesheet" href="css/responsivo.css">
 </head>
 
 <body>
@@ -35,14 +36,13 @@
                 <h2 id="nomeEvento">Carregando...</h2>
             </div>
 
-            <div class="orcamento">
-                <h3>Total: R$ <span id="totalOrcamento">0</span></h3>
-                <p class="grafico-titulo">Investimentos por categoria</p>
-                <canvas id="orcamentoGrafico" class="grafico"></canvas>
-                <ul class="legenda-cat" id="legendaCat"></ul>
-                <p class="grafico-titulo">Comparação dos tipos de gastos</p>
-                <canvas id="graficoSimples" class="grafico grafico-simples"></canvas>
-            </div>
+            
+<div class="orcamento">
+    <h3>Total: R$ <span id="totalOrcamento">0</span></h3>
+
+    <p class="grafico-titulo">Investimentos por categoria</p>
+    <canvas id="graficoSimples" class="grafico grafico-simples"></canvas>
+</div>
 
             <!-- FILTRO -->
             <div class="wrap">
@@ -344,70 +344,98 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
-            // por categoria (só investimentos), cada uma com sua cor
-            const porCat = {};
-            itensOrcamento.forEach((item) => {
-                const v = Number(item.valor);
-                if (item.tipo === "despesa" && Number.isFinite(v) && v > 0) porCat[categoriaDe(item)] = (porCat[categoriaDe(item)] || 0) + v;
-            });
-            const nomes = CATEGORIAS.map((c) => c[0]).filter((n) => porCat[n]);
-            graficoOrcamento.data.labels = nomes;
-            graficoOrcamento.data.datasets[0].data = nomes.map((n) => porCat[n]);
-            graficoOrcamento.data.datasets[0].backgroundColor = nomes.map((n) => COR_CAT[n]);
-            graficoOrcamento.update();
-            const somaCat = nomes.reduce((t, n) => t + porCat[n], 0);
-            document.getElementById("legendaCat").innerHTML = nomes.length
-                ? nomes.map((n) => '<li><i style="background:' + COR_CAT[n] + '"></i>' + n + ' <b>' + Math.round(porCat[n] / somaCat * 100) + '%</b></li>').join("")
-                : '<li class="vazio">Adicione investimentos para ver as categorias.</li>';
-            // barras: mesmas categorias, da que mais gasta para a que menos gasta
-            const ordenadas = nomes.slice().sort((a, b) => porCat[b] - porCat[a]);
-            graficoSimples.data.labels = ordenadas;
-            graficoSimples.data.datasets[0].data = ordenadas.map((n) => porCat[n]);
-            graficoSimples.data.datasets[0].backgroundColor = ordenadas.map((n) => COR_CAT[n]);
-            graficoSimples.update();
-            desenhar();
+            
+// Gráfico de barras verticais: investimentos por categoria
+const porCat = {};
+
+itensOrcamento.forEach((item) => {
+    const v = Number(item.valor);
+
+    if (item.tipo === "despesa" && Number.isFinite(v) && v > 0) {
+        const categoria = categoriaDe(item);
+        porCat[categoria] = (porCat[categoria] || 0) + v;
+    }
+});
+
+const ordenadas = Object.keys(porCat)
+    .sort((a, b) => porCat[b] - porCat[a]);
+
+graficoSimples.data.labels = ordenadas;
+graficoSimples.data.datasets[0].data =
+    ordenadas.map((n) => porCat[n]);
+
+graficoSimples.data.datasets[0].backgroundColor =
+    ordenadas.map((n) => COR_CAT[n]);
+
+graficoSimples.update();
+
+desenhar();
         }
 
         // ========== GRAFICO ==========
-        const graficoOrcamento = new Chart(document.getElementById("orcamentoGrafico"), {
-            type: "pie",
-            data: {
-                labels: [],
-                datasets: [{
-                    backgroundColor: [],
-                    borderColor: "#fff",
-                    borderWidth: 1,
-                    hoverOffset: 4,
-                    data: [0, 0]
-                }]
+       
+// ========== GRÁFICO DE BARRAS VERTICAIS ==========
+
+const graficoSimples = new Chart(
+    document.getElementById("graficoSimples"),
+    {
+        type: "bar",
+        data: {
+            labels: [],
+            datasets: [{
+                label: "Investimentos",
+                data: [],
+                backgroundColor: [],
+                borderRadius: 8,
+                borderSkipped: false,
+                maxBarThickness: 45
+            }]
+        },
+        options: {
+            responsive: true,
+               maintainAspectRatio: false,
+                indexAxis: "x",
+
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (c) =>
+                            "R$ " + Number(c.raw).toLocaleString(
+                                "pt-BR",
+                                { minimumFractionDigits: 2 }
+                            )
+                    }
+                }
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: "#000",
-                        titleColor: "#fff"
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (v) =>
+                            "R$ " + Number(v).toLocaleString("pt-BR")
+                    },
+                    grid: {
+                        color: "rgba(90, 50, 211, 0.08)"
                     }
                 },
-                animation: {
-                    animateScale: true,
-                    animateRotate: true
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 45,
+                        minRotation: 0
+                    }
                 }
             }
-        });
+        }
+    }
+);
 
-
-        // gráfico simples: barras de receitas x investimentos
-        const graficoSimples = new Chart(document.getElementById("graficoSimples"), {
-            type: "bar",
-            data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 6 }] },
-            options: {
-                indexAxis: "y",
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => "R$ " + Number(c.raw).toLocaleString("pt-BR", { minimumFractionDigits: 2 }) } } },
-                scales: { x: { beginAtZero: true, ticks: { callback: (v) => "R$ " + v } } }
-            }
-        });
 
         // ============ DESENHAR ITENS =============
 

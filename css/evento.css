@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
+
 :root {
     --roxo: #5A32D3;
     --roxo-escuro: #4D2FB8;
@@ -8,6 +9,13 @@
     --texto: #29243D;
     --cinza: #858095;
     --borda: #ECE9F5;
+
+    /* Sombras padronizadas PlanNexus */
+    --sombra-roxa-suave: 0 4px 12px rgba(90, 50, 211, .08);
+    --sombra-roxa-media: 0 6px 18px rgba(90, 50, 211, .13);
+    --sombra-roxa-forte: 0 10px 25px rgba(90, 50, 211, .20);
+    --sombra-roxa-hover: 0 12px 28px rgba(90, 50, 211, .24);
+
 }
 
 * {
@@ -17,7 +25,7 @@
 }
 
 body {
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     background: var(--fundo);
     color: var(--texto);
     font-family: 'Poppins', Arial, sans-serif;
@@ -25,7 +33,7 @@ body {
 
 .app {
     width: 100%;
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     padding: 0 30px 60px;
 }
 
@@ -243,7 +251,7 @@ header {
     border: 2px solid transparent;
     border-radius: 21px;
     box-shadow:
-        0 0 10px rgba(90, 50, 211, .16),
+        0 0 10px rgba(83, 25, 255, 0.655),
         0 5px 20px rgba(90, 50, 211, .10);
     text-decoration: none;
     transition: transform .25s, box-shadow .25s;
@@ -252,7 +260,7 @@ header {
 .card-item:hover {
     transform: translateY(-5px);
     box-shadow:
-        0 0 0 2px rgba(164, 145, 249, .25),
+        0 0 0 2px rgba(53, 11, 238, 0.714),
         0 0 18px rgba(90, 50, 211, .35),
         0 12px 30px rgba(90, 50, 211, .20);
 }
@@ -275,10 +283,10 @@ header {
 
 .icone-calendario { color: #6744D6; background: #F0EBFF; }
 .icone-tarefas { color: #328E75; background: #E6F6F0; }
-.icone-financeiro { color: #C28A37; background: #FFF4DF; }
-.icone-notas { color: #D17C9C; background: #FCECF3; }
+.icone-financeiro { color: #15007b; background: #FFF4DF; }
+.icone-notas { color: #a819e5; background: #FCECF3; }
 .icone-presentes { color: #5A32D3; background: #EEE9FF; }
-.icone-convite { color: #E2761B; background: #FFF0E1; }
+.icone-convite { color: #18003f; background: #FFF0E1; }
 
 .card-item[hidden] { display: none; }
 
@@ -458,7 +466,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #C28A37;
+    color: #00089d;
     background: #FFF0D6;
     border-radius: 11px;
 }
@@ -499,7 +507,7 @@ header {
 }
 
 .grafico-barras div:nth-child(2) {
-    background: linear-gradient(180deg, #F2C879, #D49A3D);
+    background: linear-gradient(180deg, #350051, #1e0036);
 }
 
 .grafico-legenda {
@@ -526,7 +534,7 @@ header {
 }
 
 .legenda-receita { background: var(--roxo); }
-.legenda-despesa { background: #D49A3D; }
+.legenda-despesa { background: #300068; }
 
 .previa-notas {
     display: flex;
@@ -570,7 +578,6 @@ header {
     font-size: 13px;
     line-height: 1.6;
     display: -webkit-box;
-    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
     overflow-wrap: anywhere;
@@ -744,7 +751,7 @@ header {
     }
 
     .menu-cards {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 16px;
     }
 
@@ -965,3 +972,102 @@ header {
 .cancelar-editar { background: #f0ecfb; color: #4d2fb8; }
 .salvar-editar { background: linear-gradient(135deg, #6d4bd8, #4d2fb8); color: #fff; }
 .salvar-editar:disabled { opacity: .6; }
+
+
+/* ==========================================
+   PADRONIZAÇÃO DE SOMBRAS - PLAN NEXUS
+========================================== */
+
+/* Cabeçalho do evento */
+.card-header-evento {
+    box-shadow: var(--sombra-roxa-media);
+}
+
+/* Cards das ferramentas */
+.card-item {
+    box-shadow: var(--sombra-roxa-media);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.card-item:hover {
+    box-shadow: var(--sombra-roxa-hover);
+}
+
+/* Pré-visualizações */
+.previa {
+    box-shadow: var(--sombra-roxa-suave);
+}
+
+/* Papel das notas */
+.nota-papel {
+    box-shadow: var(--sombra-roxa-suave);
+}
+
+/* Informações do evento */
+.informacao-item {
+    box-shadow: var(--sombra-roxa-suave);
+}
+
+.informacao-item.clicavel:hover {
+    box-shadow: var(--sombra-roxa-forte);
+}
+
+/* Recursos e configurações */
+.secao-recursos,
+.secao-perigo,
+.secao-pendencias,
+.regras-evento {
+    box-shadow: var(--sombra-roxa-suave);
+}
+
+/* Opções e campos */
+.recurso-opcao,
+.regras-max select,
+.caixa-editar input[type="date"],
+.caixa-editar input[type="time"],
+.caixa-editar input[type="text"] {
+    box-shadow: var(--sombra-roxa-suave);
+    transition: box-shadow .2s ease, border-color .2s ease;
+}
+
+/* Destaque ao interagir com os campos */
+.regras-max select:focus,
+.caixa-editar input:focus {
+    outline: none;
+    border-color: var(--lilas);
+    box-shadow: 0 0 0 3px rgba(90, 50, 211, .12);
+}
+
+/* Botões */
+.botao-adicionar-pessoas,
+.botao-excluir-evento {
+    box-shadow: var(--sombra-roxa-suave);
+}
+
+.botao-adicionar-pessoas:hover {
+    box-shadow: var(--sombra-roxa-media);
+}
+
+/* Modal de edição */
+.caixa-editar {
+    box-shadow: 0 -8px 28px rgba(90, 50, 211, .14);
+}
+
+/* Botão de salvar */
+.salvar-editar {
+    box-shadow: var(--sombra-roxa-media);
+}
+
+/* Responsividade */
+@media (max-width: 700px) {
+    .card-item {
+        box-shadow: var(--sombra-roxa-media);
+    }
+
+    .secao-recursos,
+    .secao-perigo,
+    .secao-pendencias {
+        box-shadow: var(--sombra-roxa-suave);
+    }
+}
+

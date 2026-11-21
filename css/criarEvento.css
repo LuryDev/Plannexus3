@@ -32,7 +32,7 @@
 body {
     background: var(--fundo);
     color: var(--texto);
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
 }
 
 
@@ -43,7 +43,7 @@ body {
 .container {
     width: 100%;
     max-width: 600px;
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     margin: auto;
     padding: 20px;
 }
@@ -87,7 +87,8 @@ header h2 {
     border-radius: 12px;
 
     font-size: 20px;
-
+    box-shadow:
+        0 8px 17px rgba(127, 90, 249, 0.286);
     transition: all .2s ease;
 }
 
@@ -111,12 +112,6 @@ form {
 
     box-shadow: var(--sombra);
 }
-
-
-
-
-
-
 
 /* ==========================================
    CAMPOS
@@ -190,7 +185,7 @@ form {
 .duplo {
     display: grid;
 
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
     gap: 15px;
 }
@@ -265,7 +260,7 @@ button:active {
 
     .container {
         width: 100%;
-        min-height: 100vh;
+        min-height: 100vh; min-height: 100dvh;
 
         padding: 15px;
     }
@@ -286,7 +281,7 @@ button:active {
     }
 
     .duplo {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 0;
     }
 
@@ -332,7 +327,7 @@ button:active {
 
 .tipos-evento {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
 }
 
@@ -449,7 +444,7 @@ button:active {
         );
 
     box-shadow:
-        0 6px 15px rgba(77, 47, 184, .25);
+        0 6px 15px rgba(23, 10, 67, 0.286);
 
     transition:
         transform .2s ease,
@@ -498,4 +493,81 @@ button:active {
 .atalho-nexus > i {
     flex-shrink: 0;
     font-size: 15px;
+}
+/* ==========================================
+   SOMBRAS DOS CARDS E CAMPOS
+========================================== */
+
+/* Card principal do formulário */
+#formEvento {
+    box-shadow:
+        0 8px 25px rgb(40, 0, 186),
+        0 2px 8px rgba(41, 36, 61, .05);
+}
+
+/* Campos de texto, data, horário e descrição */
+.campo input,
+.campo select,
+.campo textarea {
+    box-shadow:
+        0 3px 10px rgba(77, 47, 184, 0.497),
+        0 1px 3px rgba(41, 36, 61, 0.704);
+
+    border: 1px solid #E5E0F2;
+}
+
+/* Destaque dos campos ao passar o mouse */
+.campo input:hover,
+.campo select:hover,
+.campo textarea:hover {
+    box-shadow:
+        0 4px 12px rgba(77, 47, 184, 0.396);
+}
+
+/* Campos em foco */
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+    box-shadow:
+        0 0 0 3px rgba(90, 50, 211, .10),
+        0 5px 14px rgba(77, 47, 184, .12);
+}
+
+/* Cards de categoria */
+.tipo-evento {
+    box-shadow:
+        0 3px 10px rgba(77, 47, 184, .09);
+
+    transition: all .2s ease;
+}
+
+.tipo-evento:hover {
+    box-shadow:
+        0 5px 14px rgba(77, 47, 184, .16);
+}
+
+.tipo-evento.ativo {
+    box-shadow:
+        0 5px 15px rgba(77, 47, 184, .18);
+}
+
+/* Opções de presentes e convites */
+.opcao-presentes {
+    box-shadow:
+        0 3px 10px rgba(77, 47, 184, 0.438);
+
+    transition: box-shadow .2s ease;
+}
+
+.opcao-presentes:hover {
+    box-shadow:
+        0 5px 14px rgba(77, 47, 184, 0.379);
+}
+
+/* Responsividade: mantém o efeito em celulares */
+@media (max-width: 768px) {
+    #formEvento {
+        box-shadow:
+            0 5px 18px rgba(77, 47, 184, .12);
+    }
 }

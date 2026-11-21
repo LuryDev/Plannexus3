@@ -116,7 +116,7 @@ main input, #modalAnotacao input, #modalAnotacao textarea {
 
 main input:focus, #modalAnotacao input:focus, #modalAnotacao textarea:focus {
     border-color: var(--roxo-claro);
-    box-shadow: 0 0 0 3px rgba(90,50,211,.10);
+    box-shadow: 0 0 0 3px rgba(90, 50, 211, 0.918);
 }
 
 main > section:first-child > div:nth-child(2) {
@@ -154,7 +154,7 @@ main > section:first-child > button,
     border-radius: 13px;
     color: white;
     background: linear-gradient(135deg, var(--roxo-claro), var(--roxo-escuro));
-    box-shadow: 0 7px 16px rgba(90,50,211,.2);
+    box-shadow: 0 7px 16px rgba(90, 50, 211, 0.711);
     font-size: 13px;
     font-weight: 600;
 }
@@ -163,7 +163,7 @@ main > section:first-child > button:hover,
 #botaoSalvar:hover,
 #botaoConfirmarMensagem:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(90,50,211,.25);
+    box-shadow: 0 10px 20px rgba(90, 50, 211, 0.699);
 }
 
 main > section[aria-label="Anotações do evento"] {
@@ -180,7 +180,7 @@ main > section[aria-label="Anotações do evento"] {
     border: 1px solid var(--borda);
     border-radius: 17px;
     background: white;
-    box-shadow: 0 6px 18px rgba(58,35,130,.06);
+    box-shadow: 0 6px 18px rgba(59, 35, 130, 0.779);
 }
 
 #mensagemVazia {
@@ -227,12 +227,12 @@ main > section[aria-label="Anotações do evento"] {
 #modalAnotacao > div, #modalMensagem > div {
     width: 100%;
     max-width: 420px;
-    max-height: 90vh;
+    max-height: 90vh; max-height: 90dvh;
     overflow: auto;
     padding: 22px;
     border-radius: 22px;
     background: white;
-    box-shadow: 0 20px 60px rgba(20,10,50,.25);
+    box-shadow: 0 20px 60px rgba(20, 10, 50, 0.699);
 }
 
 #modalAnotacao > div > div:first-child,
@@ -381,4 +381,134 @@ main > section[aria-label="Anotações do evento"] {
 
 [hidden] {
     display: none !important;
+}
+
+/* ========================================
+   SOMBRAS ROXAS - PADRÃO PLAN NEXUS
+======================================== */
+
+/* Inputs e campos */
+main input,
+#modalAnotacao input,
+#modalAnotacao textarea,
+.formComentario textarea {
+    border: 1px solid #ded8ed;
+    border-radius: 15px;
+    background: #faf9fd;
+    box-shadow:
+        0 4px 9px rgba(76, 48, 145, 0.83),
+        0 2px 5px rgba(106, 58, 249, 0.889);
+    transition: .25s ease;
+}
+
+/* Sombra ao passar o mouse */
+main input:hover,
+#modalAnotacao input:hover,
+#modalAnotacao textarea:hover,
+.formComentario textarea:hover {
+    border-color: #c9baf0;
+    box-shadow:
+        0 5px 12px rgba(76, 48, 145, 0.838),
+        0 2px 6px rgba(90, 50, 211, .20);
+}
+
+/* Sombra ao selecionar */
+main input:focus,
+#modalAnotacao input:focus,
+#modalAnotacao textarea:focus,
+.formComentario textarea:focus {
+    border-color: #A491F9;
+    outline: none;
+    box-shadow:
+        0 4px 12px rgba(79, 29, 207, 0.575),
+        0 0 0 3px rgba(164, 145, 249, .18);
+}
+
+/* Cards principais */
+main > section {
+    border: 1px solid #ece9f5;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow:
+        0 5px 12px rgba(76, 48, 145, 0.815),
+        0 3px 7px rgba(90, 50, 211, .10);
+}
+
+/* Cards de anotações */
+#listaAnotacoes > * {
+    border: 1px solid #ece9f5;
+    border-radius: 17px;
+    background: #fff;
+    box-shadow:
+        0 5px 11px rgba(94, 31, 253, 0.964),
+        0 2px 5px rgba(90, 50, 211, 0.752);
+}
+
+/* Cards de comentários */
+.comentarioItem {
+    border: 1px solid #ece9f5;
+    border-radius: 13px;
+    box-shadow:
+        0 4px 9px rgba(76, 48, 145, 0.86),
+        0 2px 4px rgba(90, 50, 211, 0.974);
+}
+
+/* Mensagem vazia */
+#mensagemVazia {
+    box-shadow:
+        0 5px 12px rgba(112, 56, 252, 0.681),
+        0 2px 5px rgba(90, 50, 211, .10);
+}
+
+/* Modal */
+#modalAnotacao > div,
+#modalMensagem > div {
+    box-shadow:
+        0 12px 30px rgba(76, 48, 145, 0.796),
+        0 4px 12px rgba(90, 50, 211, .12);
+}
+button,
+#botaoSalvar,
+#botaoConfirmarMensagem,
+.formComentario button {
+    background: linear-gradient(135deg, #A491F9, #4D2FB8);
+    color: #fff;
+    border: none;
+    padding: 8px;
+    border-radius: 16px;
+    font-weight: 600;
+    box-shadow: 0 6px 15px rgba(90, 50, 211, .20);
+    transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+button:hover,
+#botaoSalvar:hover,
+#botaoConfirmarMensagem:hover,
+.formComentario button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 20px rgba(90, 50, 211, .28);
+    filter: brightness(1.04);
+}
+
+button:active {
+    transform: scale(.97);
+}
+
+/* Botões secundários */
+#botaoCancelar,
+#botaoCancelarMensagem,
+#botaoFecharAnotacao,
+#botaoFecharMensagem {
+    background: #f3f0fc;
+    color: #5A32D3;
+    border: 1px solid #e5def8;
+    box-shadow: 0 3px 9px rgba(58, 35, 130, .06);
+}
+
+#botaoCancelar:hover,
+#botaoCancelarMensagem:hover,
+#botaoFecharAnotacao:hover,
+#botaoFecharMensagem:hover {
+    background: #eae4fc;
+    box-shadow: 0 5px 12px rgba(90, 50, 211, .12);
 }

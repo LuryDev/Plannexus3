@@ -13,7 +13,7 @@ body {
 .app {
     width: 100%;
     max-width: 430px;
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     margin: auto;
     background: #f4f4f8;
 }
@@ -50,6 +50,7 @@ main {
 
 .filtros {
     display: flex;
+    flex-wrap: wrap;   /* em tela estreita o botão "Novo Item" desce para a linha de baixo em vez de estourar */
     gap: 8px;
     margin-bottom: 15px;
 }
@@ -267,7 +268,7 @@ header h1 {
 
 .duplo {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
 }
 
@@ -325,3 +326,156 @@ button {
 .legenda-cat li { display: flex; align-items: center; gap: 6px; }
 .legenda-cat i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 .legenda-cat .vazio { color: #8b82a8; }
+
+/* ==========================================
+   IDENTIDADE VISUAL PLAN NEXUS
+   SOMBRAS ROXAS EM CARDS E INPUTS
+========================================== */
+
+/* CARDS PRINCIPAIS */
+
+.card,
+.cardInvestimento,
+.cardReceita {
+    border-radius: 20px;
+    border: 1px solid rgba(90, 50, 211, 0.12);
+
+    box-shadow:
+        0 4px 12px rgba(90, 50, 211, 0.13),
+        0 8px 22px rgba(90, 50, 211, 0.12);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+}
+
+/* Card padrão */
+
+.card {
+    background: linear-gradient(135deg, #2a0da9, #845cff);
+    color: #fff;
+}
+
+/* Card investimento */
+
+.cardInvestimento {
+    background: linear-gradient(135deg, #6840C8, #1e1444);
+    color: #fff;
+}
+
+/* Card receita */
+
+.cardReceita {
+    background: linear-gradient(135deg, #927eef, #7954D6);
+    color: #fff;
+}
+
+/* EFEITO AO PASSAR O MOUSE */
+
+.card:hover,
+.cardInvestimento:hover,
+.cardReceita:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 6px 16px rgba(90, 50, 211, 0.20),
+        0 12px 28px rgba(90, 50, 211, 0.18);
+}
+
+/* MODAL */
+
+.modal-caixa {
+    box-shadow:
+        0 8px 20px rgba(90, 50, 211, 0.12),
+        0 15px 35px rgba(90, 50, 211, 0.18);
+}
+
+/* INPUTS, SELECTS E TEXTAREAS */
+
+.modal-caixa input,
+.modal-caixa textarea,
+.modal-caixa select {
+    border: 1px solid #DDD5F7;
+    border-radius: 12px;
+
+    background: #FAF9FF;
+
+    box-shadow:
+        0 3px 9px rgba(90, 50, 211, 0.551),
+        0 1px 3px rgba(90, 50, 211, 0.05);
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+/* DESTAQUE AO SELECIONAR */
+
+.modal-caixa input:focus,
+.modal-caixa textarea:focus,
+.modal-caixa select:focus {
+    border-color: #5A32D3;
+
+    box-shadow:
+        0 0 0 3px rgba(164, 145, 249, 0.18),
+        0 5px 14px rgba(90, 50, 211, 0.14);
+}
+
+/* FILTROS */
+
+.filtroControle {
+    box-shadow:
+        0 3px 9px rgba(90, 50, 211, 0.08);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.filtroControle:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 5px 13px rgba(90, 50, 211, 0.388);
+}
+
+/* GRÁFICOS */
+
+.grafico {
+    filter: drop-shadow(0 4px 8px rgba(145, 108, 255, 0.732));
+    
+}
+
+/* BOTÃO SALVAR */
+
+.salvar {
+    box-shadow:
+        0 5px 13px rgba(89, 48, 213, 0.24);
+}
+
+.salvar:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 7px 18px rgba(90, 50, 211, 0.30);
+}
+
+.grafico-simples {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 280px !important;
+    margin: 0 auto;
+}
+
+.orcamento {
+    width: 100%;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ECE9F5;
+    border-radius: 20px;
+    box-shadow:
+        0 5px 14px rgba(90, 50, 211, .10),
+        0 9px 22px rgba(90, 50, 211, .08);
+}
+

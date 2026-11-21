@@ -26,13 +26,13 @@
 body {
     background: var(--fundo);
     color: var(--texto);
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
 }
 
 .container {
     width: 100%;
     max-width: 600px;
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     margin: auto;
     padding: 20px;
 }
@@ -115,7 +115,7 @@ form {
    pra deixar explícito o que cada papel pode fazer */
 .tipos-papel {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
 }
 
@@ -319,5 +319,5 @@ button.principal:disabled {
     body { background: #FFFFFF; }
     .container { padding: 15px; }
     form { padding: 20px; box-shadow: 0 5px 18px rgba(77, 47, 184, .10); }
-    .tipos-papel { grid-template-columns: 1fr; }
+    .tipos-papel { grid-template-columns: minmax(0, 1fr); }
 }

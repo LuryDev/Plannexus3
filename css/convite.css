@@ -6,16 +6,16 @@
 }
 
 body {
-    background: #f4f4f8;
+    background: #c6a2f2;
     color: #222;
 }
 
 .app {
     width: 100%;
     max-width: 430px;
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     margin: auto;
-    background: #f4f4f8;
+    background: #f3e9ff;
 }
 
 
@@ -70,6 +70,7 @@ main {
 
 .evento {
     margin-bottom: 18px;
+    
 }
 
 .evento span {
@@ -94,7 +95,9 @@ main {
     padding: 10px;
     background: white;
     border-radius: 18px;
-    box-shadow: 0 6px 18px rgba(77, 47, 184, 0.10);
+   box-shadow:
+        0 5px 12px rgba(76, 48, 145, 0.815),
+        0 3px 7px rgba(90, 50, 211, .10);
 }
 
 .previa-convite canvas {
@@ -102,6 +105,7 @@ main {
     width: 100%;
     height: auto;
     border-radius: 10px;
+    
 }
 
 
@@ -114,7 +118,9 @@ main {
     padding: 16px;
     background: white;
     border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+   box-shadow:
+        0 5px 12px rgba(76, 48, 145, 0.815),
+        0 3px 7px rgba(90, 50, 211, .10);
 }
 
 .bloco h3 {
@@ -125,8 +131,11 @@ main {
 
 .opcoes {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
+     box-shadow:
+        0 5px 12px rgba(76, 48, 145, 0.815),
+        0 3px 7px rgba(90, 50, 211, .10);
 }
 
 .opcao {
@@ -138,6 +147,9 @@ main {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+     box-shadow:
+        0 5px 12px rgba(76, 48, 145, 0.815),
+        0 3px 7px rgba(90, 50, 211, .10);
 }
 
 .opcao.ativa {
@@ -175,6 +187,7 @@ main {
     font-size: 13px;
     font-weight: 600;
     color: #555;
+    
 }
 
 .bloco input[type="text"],
@@ -187,6 +200,7 @@ main {
     font-size: 16px;
     color: #222;
     resize: vertical;
+   
 }
 
 .bloco input[type="text"]:focus,
@@ -198,7 +212,7 @@ main {
 
 .duplo {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
 }
 
@@ -224,7 +238,7 @@ main {
 
 .acoes {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
 }
 
@@ -305,7 +319,7 @@ main {
 
 .grade-modelos {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 12px;
 }
 
@@ -484,7 +498,7 @@ main {
 
 .linha-mensagem {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
     margin: 10px 0;
 }

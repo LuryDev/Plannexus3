@@ -1,6 +1,6 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
 body { background: #f4f4f8; color: #222; }
-.app { width: 100%; max-width: 430px; min-height: 100vh; margin: auto; background: #f4f4f8; }
+.app { width: 100%; max-width: 430px; min-height: 100vh; min-height: 100dvh; margin: auto; background: #f4f4f8; }
 
 header { background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%); color: #fff; padding: 26px 20px 22px; text-align: center; }
 header img { width: 64px; height: 64px; object-fit: contain; margin-bottom: 8px; }

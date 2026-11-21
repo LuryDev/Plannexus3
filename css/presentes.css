@@ -13,7 +13,7 @@ body {
 .app {
     width: 100%;
     max-width: 430px;
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     margin: auto;
     background: #f4f4f8;
 }
@@ -460,7 +460,7 @@ main {
 
 .duplo {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
 }
 
@@ -623,3 +623,223 @@ main {
 .pix-botao { width: 100%; margin-top: 10px; border: 0; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; background: linear-gradient(135deg, #6d4bd8 0%, #4d2fb8 100%); box-shadow: 0 4px 10px rgba(77,47,184,.25); }
 .pix-botao.certo { background: linear-gradient(135deg, #2f9e6b 0%, #1f7a50 100%); box-shadow: 0 4px 10px rgba(31,122,80,.25); }
 .pix-botao:disabled { opacity: .6; }
+
+/* ========================================
+   SOMBRAS ROXAS - PADRÃO PLAN NEXUS
+======================================== */
+
+/* Cards de presentes */
+.presente,
+.progresso,
+.aviso,
+.painel-link {
+    border: 1px solid #ece9f5;
+    box-shadow:
+        0 4px 10px rgba(76, 48, 145, .20),
+        0 2px 5px rgba(90, 50, 211, .12);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+/* Efeito ao passar o mouse */
+.presente:hover,
+.progresso:hover,
+.painel-link:hover {
+    box-shadow:
+        0 7px 15px rgba(76, 48, 145, .25),
+        0 3px 7px rgba(90, 50, 211, .16);
+}
+
+/* Cards de aviso */
+.aviso {
+    box-shadow:
+        0 4px 10px rgba(76, 48, 145, .18),
+        0 2px 5px rgba(90, 50, 211, .10);
+}
+
+/* Campos do modal */
+.modal-caixa input,
+.modal-caixa textarea,
+.modal-caixa select,
+.pix-campos input,
+.pix-campos select {
+    border: 1px solid #ded8ed;
+    border-radius: 12px;
+    box-shadow:
+        0 4px 9px rgba(76, 48, 145, .22),
+        0 2px 5px rgba(90, 50, 211, .15);
+    transition: .25s ease;
+}
+
+/* Hover dos campos */
+.modal-caixa input:hover,
+.modal-caixa textarea:hover,
+.modal-caixa select:hover,
+.pix-campos input:hover,
+.pix-campos select:hover {
+    border-color: #c9baf0;
+    box-shadow:
+        0 5px 12px rgba(76, 48, 145, .26),
+        0 2px 6px rgba(90, 50, 211, .18);
+}
+
+/* Foco dos campos */
+.modal-caixa input:focus,
+.modal-caixa textarea:focus,
+.modal-caixa select:focus,
+.pix-campos input:focus,
+.pix-campos select:focus {
+    outline: none;
+    border-color: #A491F9;
+    box-shadow:
+        0 4px 12px rgba(76, 48, 145, .24),
+        0 0 0 3px rgba(164, 145, 249, .18);
+}
+
+/* Painel de compartilhamento */
+.painel-link {
+    box-shadow:
+        0 5px 12px rgba(76, 48, 145, .20),
+        0 2px 5px rgba(90, 50, 211, .12);
+}
+
+/* Modal */
+.modal-caixa {
+    box-shadow:
+        0 12px 30px rgba(76, 48, 145, .22),
+        0 4px 12px rgba(90, 50, 211, .12);
+}
+
+/* Botão de adicionar presente */
+.novo-presente,
+.salvar,
+.pix-botao {
+    box-shadow:
+        0 5px 12px rgba(76, 48, 145, .25),
+        0 2px 5px rgba(90, 50, 211, .15);
+}
+
+/* Botão de compartilhar */
+.botao-compartilhar {
+    box-shadow:
+        0 4px 10px rgba(76, 48, 145, .16),
+        0 2px 5px rgba(90, 50, 211, .10);
+}
+
+/* Elementos complementares */
+.pix-aviso,
+.pix-resumo {
+    box-shadow:
+        0 4px 9px rgba(76, 48, 145, .12),
+        0 2px 4px rgba(90, 50, 211, .08);
+}
+
+/* ========================================
+   SOMBRAS ROXAS - PLAN NEXUS
+======================================== */
+
+/* Cards de presentes */
+.presente,
+.pix-cartao,
+.aviso {
+    border: 1px solid #ece9f5;
+    box-shadow:
+        0 4px 10px rgba(76, 48, 145, .20),
+        0 2px 5px rgba(90, 50, 211, .12);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+/* Efeito ao passar o mouse */
+.presente:hover,
+.pix-cartao:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 7px 15px rgba(76, 48, 145, .25),
+        0 3px 7px rgba(90, 50, 211, .16);
+}
+
+/* Campos de identificação e formulário PIX */
+.caixa input[type="text"],
+.pix-form input[type="text"] {
+    border: 1px solid #ded8ed;
+    border-radius: 12px;
+    background: #faf9fd;
+    box-shadow:
+        0 4px 9px rgba(76, 48, 145, .22),
+        0 2px 5px rgba(90, 50, 211, .15);
+    transition: .25s ease;
+}
+
+/* Hover dos campos */
+.caixa input[type="text"]:hover,
+.pix-form input[type="text"]:hover {
+    border-color: #c9baf0;
+    box-shadow:
+        0 5px 12px rgba(76, 48, 145, .26),
+        0 2px 6px rgba(90, 50, 211, .18);
+}
+
+/* Foco dos campos */
+.caixa input[type="text"]:focus,
+.pix-form input[type="text"]:focus {
+    outline: none;
+    border-color: #A491F9;
+    box-shadow:
+        0 4px 12px rgba(76, 48, 145, .24),
+        0 0 0 3px rgba(164, 145, 249, .18);
+}
+
+/* Modal */
+.caixa {
+    box-shadow:
+        0 12px 30px rgba(76, 48, 145, .22),
+        0 4px 12px rgba(90, 50, 211, .12);
+}
+
+/* Botões principais */
+.botao-dar,
+.confirmar,
+.pix-ja {
+    box-shadow:
+        0 5px 12px rgba(76, 48, 145, .25),
+        0 2px 5px rgba(90, 50, 211, .15);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.botao-dar:hover,
+.confirmar:hover,
+.pix-ja:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 16px rgba(76, 48, 145, .28),
+        0 3px 7px rgba(90, 50, 211, .18);
+}
+
+/* Informações PIX */
+.pix-chave,
+.pix-ok {
+    box-shadow:
+        0 4px 9px rgba(76, 48, 145, .13),
+        0 2px 4px rgba(90, 50, 211, .08);
+}
+
+/* Aviso PIX */
+.pix-aviso {
+    box-shadow:
+        0 4px 9px rgba(76, 48, 145, .12),
+        0 2px 4px rgba(90, 50, 211, .08);
+}
+
+/* Botão de anexar comprovante */
+.pix-anexar {
+    box-shadow:
+        0 4px 9px rgba(76, 48, 145, .15),
+        0 2px 4px rgba(90, 50, 211, .10);
+}
+
+/* Toast */
+.toast {
+    box-shadow:
+        0 6px 18px rgba(76, 48, 145, .30),
+        0 2px 6px rgba(90, 50, 211, .18);
+}
+

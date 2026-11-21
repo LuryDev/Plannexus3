@@ -16,6 +16,9 @@
     <meta name="theme-color" content="#5A32D3">
     <script src="js/pwa.js" defer></script>
     <link rel="stylesheet" href="css/nexusFlutuante.css">
+    <link rel="stylesheet" href="css/responsivo.css">
+    <link rel="stylesheet" href="css/transicao.css">
+    <script src="js/transicao.js" defer></script>
 </head>
 
 <body>
@@ -63,7 +66,7 @@
 
             <section class="secao-informacoes" id="secaoInformacoes" hidden>
                 <div class="titulo-secao">
-                    <div>
+                    <div style="text-align: center;">
                         <h2>Informações do evento</h2>
                         <p>Dados que você informou ao criar o evento.</p>
                     </div>
@@ -1136,7 +1139,16 @@
 
                 await deleteDoc(doc(db, "eventos", eventoId));
 
-                window.location.href = "inicio.html";
+                // Animação: personagem sugado pela lixeira + "Excluído com sucesso!"
+                if (typeof confirmarENavegar === "function") {
+                    confirmarENavegar({
+                        tipo: "excluir-evento",
+                        mensagem: "Excluído com sucesso!",
+                        destino: "inicio.html"
+                    });
+                } else {
+                    window.location.href = "inicio.html";
+                }
 
             } catch (erro) {
                 console.error("Erro ao excluir evento:", erro);

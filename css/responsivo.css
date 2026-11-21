@@ -1,0 +1,38 @@
+/* ==========================================================
+   css/responsivo.css  —  camada de segurança (app + web)
+   Carregado POR ÚLTIMO em todas as páginas.
+   NÃO muda o visual: só impede que algo estoure/quebre em
+   telas pequenas, celular deitado, tablet e monitor grande.
+   ========================================================== */
+
+/* iPhone/Android deitado não "infla" o tamanho das letras */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* mídia nunca passa da largura da tela */
+img, video, iframe {
+    max-width: 100%;
+}
+
+/* textos/links/e-mails compridos quebram em vez de gerar rolagem lateral */
+body {
+    overflow-wrap: break-word;
+}
+
+/* campos de formulário dentro de linhas flex/grid não empurram a tela */
+input, select, textarea {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* tabelas largas rolam dentro delas mesmas, sem alargar a página */
+table {
+    max-width: 100%;
+}
+
+/* respeita a rolagem do modo "reduzir movimento" do sistema */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto !important; }
+}

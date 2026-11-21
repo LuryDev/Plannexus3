@@ -16,7 +16,7 @@ body {
 }
 
 body {
-    min-height: 100vh;
+    min-height: 100vh; min-height: 100dvh;
     background: #5A32D3;
     overflow: hidden;
 }
@@ -58,7 +58,7 @@ body:not(.pronto) .onboarding {
 .onboarding {
     position: relative;
     width: 100%;
-    height: 100vh;
+    height: 100vh; height: 100dvh;
     max-width: 430px;
     margin: 0 auto;
     overflow: hidden;
@@ -82,8 +82,8 @@ body:not(.pronto) .onboarding {
     position: relative;
 
     width: 100%;
-    height: 100vh;
-    min-height: 100vh;
+    height: 100vh; height: 100dvh;
+    min-height: 100vh; min-height: 100dvh;
 
     flex: 0 0 100%;
 
@@ -501,7 +501,7 @@ body:not(.pronto) .onboarding {
     }
 
     .onboarding {
-        min-height: 100vh;
+        min-height: 100vh; min-height: 100dvh;
 
         box-shadow:
             0 0 40px rgba(0, 0, 0, 0.35);

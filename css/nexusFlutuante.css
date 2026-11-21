@@ -15,7 +15,7 @@
     padding: 0;
     border: none;
     border-radius: 18px;
-    background: #fff;
+    background: rgba(90, 50, 211, 0.75);
     box-shadow: 0 6px 18px rgba(77, 47, 184, .35);
     cursor: pointer;
     display: flex;
@@ -55,7 +55,7 @@
 .nxf-painel {
     width: 100%;
     max-width: 430px;
-    height: min(78vh, 640px);
+    height: min(78vh, 640px); height: min(78dvh, 640px);
     height: min(78dvh, 640px);
     display: flex;
     flex-direction: column;
@@ -295,4 +295,47 @@
     color: #5A32D3;
     background: #fff;
     cursor: pointer;
+}
+/* Efeito Neon no botão flutuante do Nexus */
+.nxf-botao {
+    border: 2px solid #A491F9 !important;
+    box-shadow:
+        0 0 8px #A491F9,
+        0 0 18px rgba(164, 145, 249, .8),
+        0 0 32px rgba(90, 50, 211, .7),
+        0 0 50px rgba(90, 50, 211, .4) !important;
+
+    animation: nexus-neon 2s ease-in-out infinite alternate;
+    transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.nxf-botao img {
+    filter:
+        drop-shadow(0 0 4px #FFFFFF)
+        drop-shadow(0 0 8px #A491F9);
+}
+
+.nxf-botao:hover {
+    transform: scale(1.08);
+    box-shadow:
+        0 0 12px #FFFFFF,
+        0 0 24px #A491F9,
+        0 0 45px #5A32D3,
+        0 0 65px rgba(90, 50, 211, .8) !important;
+}
+
+@keyframes nexus-neon {
+    from {
+        box-shadow:
+            0 0 6px #A491F9,
+            0 0 14px rgba(164, 145, 249, .6),
+            0 0 25px rgba(90, 50, 211, .4);
+    }
+
+    to {
+        box-shadow:
+            0 0 12px #A491F9,
+            0 0 25px rgba(164, 145, 249, .9),
+            0 0 40px rgba(90, 50, 211, .7);
+    }
 }

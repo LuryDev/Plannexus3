@@ -10,7 +10,7 @@
 }
 
 body {
-      min-height: 100vh;
+      min-height: 100vh; min-height: 100dvh;
     background: linear-gradient(135deg, #4D2FB2, #38208F);
     display: flex;
     align-items: center;

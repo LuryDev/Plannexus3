@@ -1,5 +1,28 @@
 .lista-docs { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
-.lista-docs li { background: #fff; border-radius: 12px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(0,0,0,.05); display: flex; align-items: center; gap: 12px; color: #2b2250; }
+.lista-docs li {
+    background: #fff;
+    border: 1px solid #ece9f5;
+    border-radius: 12px;
+    padding: 12px 14px;
+
+    box-shadow:
+        0 4px 10px rgba(76, 48, 145, .20),
+        0 2px 5px rgba(90, 50, 211, .12);
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #2b2250;
+
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.lista-docs li:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 7px 15px rgba(76, 48, 145, .25),
+        0 3px 7px rgba(90, 50, 211, .16);
+}
 .doc-icone { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 .doc-icone.pdf { background: #fdeaea; color: #c03535; }
 .doc-icone.xls { background: #e6f6ec; color: #1f8a4c; }
