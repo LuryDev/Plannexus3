@@ -55,6 +55,8 @@
             <label for="confirmarSenha">Confirmar senha</label>
             <div class="campo"><input type="password" id="confirmarSenha" placeholder="Repita a senha" autocomplete="new-password" required></div>
 
+            <label class="concordo" for="concordo"><input type="checkbox" id="concordo"><span>Li e concordo com as <a href="privacidade.html" target="_blank" rel="noopener">políticas de privacidade</a></span></label>
+
             <button type="submit" id="enter" class="pri">Criar conta</button>
         </form>
 
@@ -97,6 +99,14 @@ formulario.addEventListener("submit", async function(event) {
     const confirmarSenha = document.getElementById("confirmarSenha").value;
 
     const mensagem = document.getElementById("mensagem");
+
+    if (!document.getElementById("concordo").checked) {
+
+        mensagem.textContent = "Marque a caixa para confirmar que leu e concorda com as políticas de privacidade.";
+
+        return;
+
+    }
 
     if (senha !== confirmarSenha) {
 
@@ -179,6 +189,14 @@ formulario.addEventListener("submit", async function(event) {
 document.getElementById("googleLogin").addEventListener("click", async () => {
 
     const mensagem = document.getElementById("mensagem");
+
+    if (!document.getElementById("concordo").checked) {
+
+        mensagem.textContent = "Marque a caixa \"Li e concordo com as políticas de privacidade\" antes de continuar com o Google.";
+
+        return;
+
+    }
 
     try {
 

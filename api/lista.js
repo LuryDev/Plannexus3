@@ -16,7 +16,7 @@
 //
 //  Sem login (convidado):
 //    { acao: "ver",      token }                                    -> nome do evento + presentes (+ chave Pix, se ativa)
-//    { acao: "pixavisar", token, nome, anonimo, valor, comprovante? } -> "Já enviei meu Pix" (avisa o dono);
+//    { acao: "pixavisar", token, nome (obrigatório; sem anônimo), valor, comprovante? } -> "Já enviei meu Pix" (avisa o dono);
 //      comprovante = foto/print em JPEG (base64), opcional; só o dono/colaborador consegue ver
 //    { acao: "escolher", token, presenteId, nome, anonimo }         -> marca o presente
 //
@@ -256,11 +256,11 @@ export default async function handler(req, res) {
             // campo-isca contra robôs
             if (corpo.armadilha) return res.status(200).json({ ok: true });
 
-            const anonimo = corpo.anonimo === true;
+            const anonimo = false;   // aviso de transferência não pode ser anônimo
             const nome = texto(corpo.nome, 60);
             const valor = corpo.valor == null || corpo.valor === "" ? 0 : Math.round(Number(corpo.valor) * 100) / 100;
 
-            if (!anonimo && nome.length < 2) return res.status(400).json({ erro: "Digite seu nome (ou marque como anônimo)." });
+            if (nome.length < 2) return res.status(400).json({ erro: "Digite o seu nome." });
             if (!(valor >= 0) || valor > 100000) return res.status(400).json({ erro: "Valor inválido." });
 
             const pixRef = fb.db.collection("pixEventos").doc(eventoId);

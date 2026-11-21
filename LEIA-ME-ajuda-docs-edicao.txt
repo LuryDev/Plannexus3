@@ -87,9 +87,19 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 
 15) Termos / políticas atualizados em 21/11/2026 (para a Play Store)
    - privacidade.html: novas seções — documentos do evento, convidados sem conta (hash do e-mail e do aparelho; e-mail não é guardado),
-     lista de presentes pública + chave/comprovante Pix, ajuda e sugestões, notificações push/lembretes, preferências locais;
+     lista de presentes pública + chave/comprovante de transação instantânea (com aviso de que o Plannexus não se responsabiliza e o usuário deve conferir banco e chave), ajuda e sugestões, notificações push/lembretes, preferências locais;
      compartilhamento com o organizador, Firebase Cloud Messaging, retenção/remoção de convidados e contagem de crianças.
    - excluir-conta.html: inclui documentos, sugestões, Pix, tokens de push e como convidados sem conta pedem remoção.
    - seguranca-infantil.html: links públicos, documentos e comprovantes cobertos pelas regras (PT e EN).
    - Lembrete: ao enviar o formulário "Segurança dos dados" da Play Console, declare também: nome/e-mail, conteúdo gerado pelo usuário,
      arquivos/documentos enviados, identificador do aparelho (token push) e mensagens enviadas à IA — e que os dados são criptografados em trânsito.
+
+16) Transferência instantânea sem opção anônima
+   - lista.html / js/listaPublica.js: removido "Quero ficar anônimo" do aviso de transferência; o nome agora é obrigatório.
+   - api/lista.js (pixavisar): o servidor exige o nome e ignora "anonimo" (continua existindo só ao escolher um presente).
+
+17) Aceite das políticas de privacidade (login.html, cadastro.html, css/autenticacao.css)
+   - Login: texto "Ao entrar na conta, você concorda com as nossas políticas de privacidade" (com link para privacidade.html) abaixo do botão do Google.
+   - Cadastro: caixa "Li e concordo com as políticas de privacidade" (link para privacidade.html). Sem marcar, não cria a conta,
+     nem por e-mail/senha nem por "Continuar com Google".
+   - A marcação não é gravada no banco; é só uma trava no formulário. (Se quiser provar o aceite, dá para gravar data/hora no perfil.)

@@ -76,3 +76,10 @@ html.tema-escuro body { filter: invert(1) hue-rotate(180deg); }
 html.tema-escuro .cartao { filter: invert(1) hue-rotate(180deg); }
 html.tema-escuro .topo, html.tema-escuro .pri { filter: none; }
 html.tema-escuro .topo .mascote, html.tema-escuro .topo .marca img, html.tema-escuro .cartao img { filter: none; }
+
+
+/* aceite das políticas de privacidade */
+.aceite { margin: 16px 0 0; font-size: 12px; line-height: 1.5; text-align: center; color: #6f6893; }
+.aceite a, .concordo a { color: #5A32D3; font-weight: 600; text-decoration: underline; }
+.concordo { display: flex; align-items: flex-start; gap: 10px; margin: 16px 0 4px; font-size: 13px; line-height: 1.4; color: #4a4468; font-weight: 500; cursor: pointer; }
+.concordo input { width: 20px; height: 20px; flex-shrink: 0; margin: 1px 0 0; accent-color: #5A32D3; cursor: pointer; }

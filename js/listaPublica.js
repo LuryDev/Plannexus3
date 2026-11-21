@@ -110,12 +110,6 @@
         document.getElementById("pixNome").focus();
     });
 
-    document.getElementById("pixAnonimo").addEventListener("change", function () {
-        var n = document.getElementById("pixNome");
-        n.disabled = this.checked;
-        if (this.checked) n.value = "";
-    });
-
     // reduz a foto/print para JPEG pequeno (o servidor só aceita até ~400 KB)
     function reduzirImagem(arquivo) {
         return new Promise(function (ok, erro) {
@@ -169,16 +163,15 @@
         e.preventDefault();
         if (pixAvisado) return;
         var msg = document.getElementById("pixMensagem");
-        var anonimo = document.getElementById("pixAnonimo").checked;
         var nome = document.getElementById("pixNome").value.trim();
         var bruto = document.getElementById("pixValor").value.trim().replace(/[^\d,.]/g, "");
         // "1.234,50" -> 1234.50 ; "100" -> 100
         var valor = bruto ? Number(bruto.indexOf(",") > -1 ? bruto.replace(/\./g, "").replace(",", ".") : bruto) : 0;
-        if (!anonimo && nome.length < 2) { msg.textContent = "Digite seu nome ou marque a opção de ficar anônimo."; return; }
+        if (nome.length < 2) { msg.textContent = "Digite o seu nome."; return; }
         if (!(valor >= 0) || valor > 100000) { msg.textContent = "Confira o valor digitado."; return; }
         var botao = document.getElementById("pixEnviar");
         botao.disabled = true; botao.textContent = "Enviando...";
-        chamar({ acao: "pixavisar", nome: nome, anonimo: anonimo, valor: valor, armadilha: document.getElementById("pixIsca").value, comprovante: comprovanteB64 }).then(function (r) {
+        chamar({ acao: "pixavisar", nome: nome, anonimo: false, valor: valor, armadilha: document.getElementById("pixIsca").value, comprovante: comprovanteB64 }).then(function (r) {
             if (r.ok) {
                 pixAvisado = true;
                 document.getElementById("pixForm").hidden = true;
