@@ -36,3 +36,12 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
      Lembrancinhas, Transporte, Equipe, Roupas e beleza, Outros), cada uma com cor própria.
    - Gráfico de pizza por categoria (com legenda em %) e gráfico de barras com a comparação dos tipos de gastos (do maior para o menor).
    - Itens antigos sem categoria aparecem como "Outros".
+
+7) Login e cadastro (login.html, cadastro.html, css/autenticacao.css, js/senhaVer.js)
+   - Novo visual na identidade do app: cabeçalho roxo com logo e mascote, cartão branco, abas Entrar / Criar conta,
+     botão principal roxo com texto branco, botão do Google com borda, "Mostrar/Ocultar" na senha.
+   - Removidos: botão "Logar como Admin" (admin.html continua existindo, acessível pelo endereço) e os textos
+     "Ainda não possui uma conta?" / "Já possui uma conta?" (as abas fazem esse papel).
+   - Celular: ocupa a tela; PC: painel central de 430 px, como o resto do app.
+   - css/login.css e css/cadastro.css não são mais usados (podem ser apagados).
+   - Orçamento: botão "Novo Item" alinhado à direita; evento: título "Informações do evento" alinhado à esquerda.

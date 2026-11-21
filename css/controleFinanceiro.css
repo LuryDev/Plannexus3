@@ -479,3 +479,6 @@ button {
         0 9px 22px rgba(90, 50, 211, .08);
 }
 
+
+/* "Novo Item" alinhado à direita; em tela estreita desce inteiro para a linha de baixo */
+.filtros .botao-novo { margin-left: auto; }

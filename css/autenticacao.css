@@ -1,0 +1,72 @@
+/* ==========================================================
+   css/autenticacao.css - login e cadastro (identidade do app)
+   Roxo #5A32D3, Poppins, cartão branco arredondado.
+   Celular: ocupa a tela toda. PC: painel central de até 430px,
+   igual ao resto do app.
+   ========================================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", Arial, Helvetica, sans-serif; }
+
+body {
+    min-height: 100vh; min-height: 100dvh;
+    background: linear-gradient(160deg, #5A32D3 0%, #4D2FB8 55%, #38208F 100%);
+    display: flex; justify-content: center;
+}
+
+.tela {
+    width: 100%; max-width: 430px;
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+}
+.tela::before, .tela::after { content: ""; position: absolute; border-radius: 50%; background: rgba(255, 255, 255, .07); pointer-events: none; }
+.tela::before { width: 220px; height: 220px; top: -70px; right: -70px; }
+.tela::after { width: 120px; height: 120px; top: 150px; left: -50px; }
+
+.topo { padding: 24px 28px 26px; color: #fff; position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; min-height: 210px; }
+.marca { display: flex; align-items: center; gap: 10px; position: absolute; top: 24px; left: 28px; font-weight: 700; font-size: 17px; letter-spacing: .3px; }
+.marca img { width: 36px; height: 36px; border-radius: 10px; }
+.topo .textos { padding-top: 56px; min-width: 0; }
+.topo h1 { font-size: 26px; line-height: 1.2; font-weight: 700; color: #fff; text-align: left; margin: 0; }
+.topo p { font-size: 13px; opacity: .85; margin: 6px 0 0; line-height: 1.5; color: #fff; text-align: left; }
+.topo .mascote { width: 104px; flex-shrink: 0; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .25)); }
+
+.cartao { flex: 1; background: #fff; border-radius: 28px 28px 0 0; padding: 26px 24px 30px; position: relative; box-shadow: 0 -10px 30px rgba(30, 15, 80, .25); }
+
+.abas { display: flex; background: #f1eefb; border-radius: 14px; padding: 4px; margin-bottom: 22px; }
+.abas a { flex: 1; text-align: center; text-decoration: none; border-radius: 11px; padding: 10px; font-size: 14px; font-weight: 600; color: #7b72a3; }
+.abas a.on { background: #fff; color: #4D2FB8; box-shadow: 0 3px 10px rgba(77, 47, 184, .15); }
+
+label { display: block; font-size: 13px; font-weight: 600; color: #2b2250; margin: 14px 0 6px; }
+.campo { position: relative; }
+.campo input { width: 100%; max-width: none; height: 50px; border: 1.5px solid #e6e0f7; background: #faf9fe; border-radius: 14px; padding: 0 16px; margin: 0; font-size: 15px; color: #2b2250; outline: none; transition: .2s; }
+.campo input.com-botao { padding-right: 82px; }
+.campo input::placeholder { color: #a9a2c4; }
+.campo input:focus { border-color: #5A32D3; background: #fff; box-shadow: 0 0 0 4px rgba(90, 50, 211, .12); }
+.ver { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: none; background: none; color: #7b72a3; font-size: 12px; font-weight: 600; padding: 10px; cursor: pointer; }
+
+.pri { width: 100%; height: 52px; margin-top: 22px; border: none; border-radius: 16px; background: linear-gradient(135deg, #6d4bd8, #4D2FB8); color: #ffffff; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px rgba(90, 50, 211, .35); transition: .2s; }
+.pri:hover { transform: translateY(-2px); }
+.pri:active { transform: translateY(0); }
+
+.ou { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: #a9a2c4; font-size: 12px; }
+.ou::before, .ou::after { content: ""; flex: 1; height: 1px; background: #ece8f8; }
+
+.google { width: 100%; height: 50px; border: 1.5px solid #e6e0f7; background: #fff; border-radius: 16px; font-size: 14px; font-weight: 600; color: #2b2250; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: .2s; }
+.google:hover { background: #faf9fe; }
+.google svg { width: 18px; height: 18px; }
+
+#mensagem { min-height: 20px; margin: 14px 0 0; font-size: 13px; line-height: 1.4; text-align: center; color: #c03535; }
+
+/* PC e tablet: painel central, como o resto do app */
+@media (min-width: 520px) {
+    body { align-items: center; padding: 28px 0; }
+    .tela { min-height: 0; border-radius: 28px; box-shadow: 0 24px 60px rgba(20, 10, 70, .45); }
+}
+
+@media (max-width: 360px) {
+    .topo { padding-left: 20px; padding-right: 20px; }
+    .marca { left: 20px; }
+    .topo h1 { font-size: 22px; }
+    .topo .mascote { width: 84px; }
+    .cartao { padding: 22px 18px 26px; }
+}
