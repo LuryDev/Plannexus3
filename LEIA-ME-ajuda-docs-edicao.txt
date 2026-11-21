@@ -64,3 +64,12 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    - O tema escuro inverte as cores da página (css/acessibilidade.css) e mantém roxo da marca, fotos e vídeos.
      Telas/cartões novos com fundo roxo precisam entrar na lista de seletores "html.tema-escuro ..." desse arquivo
      (ou ganhar a classe "reinverter") para manter o roxo no tema escuro.
+
+12) Calendário de verdade (calendario.html, js/calendario.js, css/calendario.css)
+   - Grade do mês com setas para mudar de mês (tocar no nome do mês volta para hoje). Dia de hoje com contorno roxo.
+   - Dias com compromisso ganham uma bolinha roxa. Tocar num dia filtra a lista só com aquele dia ("Ver todos" limpa);
+     o botão "Novo" já abre com a data do dia escolhido.
+   - Cronômetro até o próximo compromisso (considera data e horário). Só aparecem as unidades necessárias:
+     anos e meses só se faltar 1 ano/1 mês ou mais; dias só se faltar 1 dia ou mais; sempre horas/min/seg.
+     Compromisso de hoje sem horário mostra "É hoje!". Ao chegar a hora, passa sozinho para o próximo.
+   - Sem mudanças no banco: usa a mesma coleção eventos/{id}/calendario.

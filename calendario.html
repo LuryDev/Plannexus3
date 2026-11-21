@@ -44,6 +44,35 @@
                 </button>
             </div>
 
+            <section class="contagem reinverter" id="contagem" aria-live="off" hidden>
+                <p class="contagem-rotulo" id="contagemRotulo">Próximo compromisso</p>
+                <h3 class="contagem-titulo" id="contagemTitulo"></h3>
+                <div class="contagem-tempo" id="contagemTempo" role="timer"></div>
+                <p class="contagem-quando" id="contagemQuando"></p>
+            </section>
+
+            <section class="cal" id="cal" aria-label="Calendário">
+                <div class="cal-topo">
+                    <button type="button" class="cal-nav" id="mesAnterior" aria-label="Mês anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button type="button" class="cal-mes" id="calMes" title="Voltar para o mês de hoje"></button>
+                    <button type="button" class="cal-nav" id="mesSeguinte" aria-label="Próximo mês">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="cal-semana" aria-hidden="true">
+                    <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                </div>
+                <div class="cal-grade" id="calGrade"></div>
+                <p class="cal-legenda"><span class="ponto reinverter"></span> Dia com compromisso</p>
+            </section>
+
+            <div class="filtro-dia" id="filtroDia" hidden>
+                <span id="filtroDiaTexto"></span>
+                <button type="button" id="verTodos">Ver todos</button>
+            </div>
+
             <section class="lista-compromissos" id="listaCompromissos">
                 <p class="aviso">Carregando agenda...</p>
             </section>

@@ -712,3 +712,244 @@ header h1 {
         border-radius: 20px;
     }
 }
+
+
+/* ==========================================
+   CONTAGEM REGRESSIVA
+========================================== */
+
+.contagem {
+    border-radius: var(--border-radius);
+    background: var(--card-bg);
+    color: #fff;
+    padding: 18px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.contagem[hidden] { display: none; }
+
+.contagem::after {
+    content: "";
+    position: absolute;
+    width: 120px; height: 120px;
+    right: -40px; bottom: -55px;
+    background: rgba(255, 255, 255, 0.10);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.contagem-rotulo {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    opacity: .85;
+}
+
+.contagem-titulo {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 4px 0 12px;
+    word-break: break-word;
+}
+
+.contagem-tempo {
+    display: flex;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+}
+
+.contagem-tempo .un {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 78px;
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    padding: 9px 4px 7px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.contagem-tempo .un strong {
+    font-size: 22px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.contagem-tempo .un span {
+    font-size: 10px;
+    font-weight: 600;
+    opacity: .9;
+}
+
+.contagem-hoje {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.contagem-quando {
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: .9;
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ==========================================
+   CALENDÁRIO (GRADE DO MÊS)
+========================================== */
+
+.cal {
+    background: #fff;
+    border: 1px solid #ece8fb;
+    border-radius: var(--border-radius);
+    padding: 14px 12px 12px;
+    box-shadow: 0 4px 14px rgba(77, 47, 184, 0.07);
+}
+
+.cal-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.cal-nav {
+    width: 36px; height: 36px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 10px;
+    background: #eeeeff;
+    color: var(--purple-dark);
+    cursor: pointer;
+}
+
+.cal-nav:active { transform: scale(.94); }
+
+.cal-mes {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+    cursor: pointer;
+    padding: 6px;
+}
+
+.cal-semana,
+.cal-grade {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+}
+
+.cal-semana span {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-light);
+    padding: 4px 0;
+}
+
+.cal-dia {
+    aspect-ratio: 1 / 1;
+    max-height: 52px;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: none;
+    color: var(--text-dark);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+.cal-dia:hover { background: #f4f1ff; }
+
+.cal-dia .num { line-height: 1; }
+
+.cal-dia.hoje {
+    border-color: var(--purple);
+    font-weight: 700;
+    color: var(--purple-dark);
+}
+
+.cal-dia.selecionado {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: #fff;
+}
+
+.ponto {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--purple);
+}
+
+.cal-dia.selecionado .ponto { background: #fff; }
+
+.cal-legenda {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--text-gray);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filtro-dia {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #f4f1ff;
+    border-radius: 12px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--purple-dark);
+}
+
+.filtro-dia[hidden] { display: none; }
+
+.filtro-dia button {
+    border: none;
+    background: none;
+    color: var(--purple);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+@media (max-width: 360px) {
+    .contagem-tempo { gap: 5px; }
+    .contagem-tempo .un strong { font-size: 19px; }
+}
+
+@media (min-width: 769px) {
+    .calendario-container {
+        display: grid;
+        grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+        column-gap: 28px;
+        align-items: start;
+    }
+    .titulo { grid-column: 1 / -1; }
+    .contagem, .cal, .filtro-dia { grid-column: 1; }
+    .lista-compromissos { grid-column: 2; grid-row: 2 / span 3; }
+}
+
+.cal[hidden] { display: none; }

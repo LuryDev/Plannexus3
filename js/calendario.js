@@ -42,6 +42,16 @@ const fecharModalBtn = document.getElementById("fecharModal");
 const eventoId = pegarIdDaUrl();
 
 let souVisitante = false;
+let todosItens = [];
+let diaSelecionado = null;
+let mesVisivel = new Date();
+mesVisivel = new Date(mesVisivel.getFullYear(), mesVisivel.getMonth(), 1);
+let cronometro = null;
+
+const calGrade = document.getElementById("calGrade");
+const calMes = document.getElementById("calMes");
+const contagemEl = document.getElementById("contagem");
+const filtroDiaEl = document.getElementById("filtroDia");
 
 const MESES = [
     "Janeiro",
@@ -61,6 +71,8 @@ const MESES = [
 
 async function iniciar() {
 
+    desenharCalendario();
+
     if (!eventoId) {
         nomeEventoEl.textContent = "Evento não encontrado";
         listaEl.innerHTML = `
@@ -70,6 +82,7 @@ async function iniciar() {
         `;
 
         botaoNovo.disabled = true;
+        document.getElementById("cal").hidden = true;
         return;
     }
 
@@ -93,6 +106,7 @@ async function iniciar() {
             `;
 
             botaoNovo.disabled = true;
+            document.getElementById("cal").hidden = true;
             return;
         }
 
@@ -137,14 +151,283 @@ async function carregarCalendario() {
         return dataA.localeCompare(dataB);
     });
 
-    desenhar(itens);
+    todosItens = itens;
+
+    desenharCalendario();
+    atualizarContagem();
+    desenharLista();
 }
 
 
-function desenhar(itens) {
+// ---------- Calendário (grade do mês) ----------
+
+function dataDoItem(item) {
+    return dataParaOrdenar(item.data);
+}
+
+function iso(ano, mes, dia) {
+    return ano + "-" + String(mes + 1).padStart(2, "0") + "-" + String(dia).padStart(2, "0");
+}
+
+function desenharCalendario() {
+
+    const ano = mesVisivel.getFullYear();
+    const mes = mesVisivel.getMonth();
+
+    calMes.textContent = MESES[mes] + " de " + ano;
+
+    const comCompromisso = {};
+    todosItens.forEach((item) => {
+        comCompromisso[dataDoItem(item)] = (comCompromisso[dataDoItem(item)] || 0) + 1;
+    });
+
+    const primeiroDia = new Date(ano, mes, 1).getDay();
+    const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+    const hoje = hojeISO();
+
+    let html = "";
+
+    for (let i = 0; i < primeiroDia; i++) {
+        html += '<span class="cal-vazio"></span>';
+    }
+
+    for (let dia = 1; dia <= diasNoMes; dia++) {
+
+        const chave = iso(ano, mes, dia);
+        const qtd = comCompromisso[chave] || 0;
+
+        const classes = ["cal-dia"];
+        if (chave === hoje) classes.push("hoje");
+        if (chave === diaSelecionado) classes.push("selecionado", "reinverter");
+        if (qtd) classes.push("tem");
+
+        const rotulo = dia + " de " + MESES[mes] +
+            (qtd ? ", " + qtd + (qtd === 1 ? " compromisso" : " compromissos") : "");
+
+        html += '<button type="button" class="' + classes.join(" ") + '" data-dia="' + chave + '"' +
+            ' aria-label="' + rotulo + '"' +
+            (chave === diaSelecionado ? ' aria-pressed="true"' : "") + '>' +
+            '<span class="num">' + dia + '</span>' +
+            (qtd ? '<span class="ponto reinverter"></span>' : "") +
+            '</button>';
+    }
+
+    calGrade.innerHTML = html;
+}
+
+
+calGrade.addEventListener("click", (evento) => {
+
+    const botao = evento.target.closest(".cal-dia");
+    if (!botao) return;
+
+    const chave = botao.getAttribute("data-dia");
+
+    diaSelecionado = diaSelecionado === chave ? null : chave;
+
+    desenharCalendario();
+    desenharLista();
+});
+
+document.getElementById("mesAnterior").addEventListener("click", () => {
+    mesVisivel = new Date(mesVisivel.getFullYear(), mesVisivel.getMonth() - 1, 1);
+    desenharCalendario();
+});
+
+document.getElementById("mesSeguinte").addEventListener("click", () => {
+    mesVisivel = new Date(mesVisivel.getFullYear(), mesVisivel.getMonth() + 1, 1);
+    desenharCalendario();
+});
+
+calMes.addEventListener("click", () => {
+    const agora = new Date();
+    mesVisivel = new Date(agora.getFullYear(), agora.getMonth(), 1);
+    desenharCalendario();
+});
+
+document.getElementById("verTodos").addEventListener("click", () => {
+    diaSelecionado = null;
+    desenharCalendario();
+    desenharLista();
+});
+
+
+function desenharLista() {
+
+    if (!diaSelecionado) {
+        filtroDiaEl.hidden = true;
+        desenhar(todosItens);
+        return;
+    }
+
+    const doDia = todosItens.filter((item) => dataDoItem(item) === diaSelecionado);
+
+    document.getElementById("filtroDiaTexto").textContent =
+        "Compromissos de " + formatarData(diaSelecionado);
+
+    filtroDiaEl.hidden = false;
+
+    desenhar(doDia, "Nenhum compromisso neste dia.");
+}
+
+
+// ---------- Contagem regressiva até o próximo compromisso ----------
+
+function alvoDoItem(item) {
+
+    const partes = dataDoItem(item).split("-");
+    if (partes.length !== 3) return null;
+
+    const hm = /^(\d{1,2}):(\d{2})/.exec(item.horario || "");
+
+    const alvo = new Date(
+        Number(partes[0]),
+        Number(partes[1]) - 1,
+        Number(partes[2]),
+        hm ? Number(hm[1]) : 0,
+        hm ? Number(hm[2]) : 0,
+        0
+    );
+
+    return isNaN(alvo.getTime()) ? null : alvo;
+}
+
+function proximoCompromisso() {
+
+    const agora = new Date();
+    const hoje = hojeISO();
+    let melhor = null;
+
+    todosItens.forEach((item) => {
+
+        const alvo = alvoDoItem(item);
+        if (!alvo) return;
+
+        const semHora = !/^\d{1,2}:\d{2}/.test(item.horario || "");
+        const ehHoje = dataDoItem(item) === hoje;
+
+        // sem horário e hoje: ainda conta como "hoje"
+        if (alvo <= agora && !(semHora && ehHoje)) return;
+
+        if (!melhor || alvo < melhor.alvo) {
+            melhor = { item: item, alvo: alvo, semHora: semHora, ehHoje: ehHoje };
+        }
+    });
+
+    return melhor;
+}
+
+function somarMeses(base, n) {
+
+    const alvo = new Date(
+        base.getFullYear(), base.getMonth() + n, 1,
+        base.getHours(), base.getMinutes(), base.getSeconds()
+    );
+
+    const dias = new Date(alvo.getFullYear(), alvo.getMonth() + 1, 0).getDate();
+    alvo.setDate(Math.min(base.getDate(), dias));
+
+    return alvo;
+}
+
+function calcularRestante(agora, alvo) {
+
+    let meses = (alvo.getFullYear() - agora.getFullYear()) * 12 +
+        (alvo.getMonth() - agora.getMonth());
+
+    while (meses > 0 && somarMeses(agora, meses) > alvo) meses--;
+
+    const resto = Math.max(0, alvo - somarMeses(agora, meses));
+
+    const seg = Math.floor(resto / 1000);
+
+    return {
+        anos: Math.floor(meses / 12),
+        meses: meses % 12,
+        dias: Math.floor(seg / 86400),
+        horas: Math.floor((seg % 86400) / 3600),
+        minutos: Math.floor((seg % 3600) / 60),
+        segundos: seg % 60
+    };
+}
+
+function plural(n, um, varios) {
+    return n === 1 ? um : varios;
+}
+
+// Só mostra ano/mês/dia quando já são necessários.
+function montarUnidades(r) {
+
+    const todas = [
+        { n: r.anos, um: "ano", varios: "anos" },
+        { n: r.meses, um: "mês", varios: "meses" },
+        { n: r.dias, um: "dia", varios: "dias" },
+        { n: r.horas, um: "hora", varios: "horas" },
+        { n: r.minutos, um: "min", varios: "min" },
+        { n: r.segundos, um: "seg", varios: "seg" }
+    ];
+
+    let inicio = 0;
+    while (inicio < todas.length - 2 && todas[inicio].n === 0) inicio++;
+
+    return todas.slice(inicio);
+}
+
+function atualizarContagem() {
+
+    clearInterval(cronometro);
+    cronometro = null;
+
+    const prox = proximoCompromisso();
+
+    if (!prox) {
+        contagemEl.hidden = true;
+        return;
+    }
+
+    contagemEl.hidden = false;
+
+    document.getElementById("contagemTitulo").textContent = prox.item.titulo || "Sem título";
+
+    document.getElementById("contagemQuando").textContent =
+        formatarData(prox.item.data) + (prox.item.horario ? " às " + prox.item.horario : "");
+
+    const tempoEl = document.getElementById("contagemTempo");
+
+    function tique() {
+
+        const agora = new Date();
+
+        if (prox.semHora && prox.ehHoje) {
+            tempoEl.innerHTML = '<span class="contagem-hoje">É hoje!</span>';
+            return;
+        }
+
+        if (agora >= prox.alvo) {
+            // chegou a hora: procura o próximo
+            atualizarContagem();
+            return;
+        }
+
+        const unidades = montarUnidades(calcularRestante(agora, prox.alvo));
+
+        tempoEl.innerHTML = unidades.map((u) =>
+            '<div class="un"><strong>' + String(u.n).padStart(2, "0") + '</strong><span>' +
+            plural(u.n, u.um, u.varios) + '</span></div>'
+        ).join("");
+    }
+
+    tique();
+    cronometro = setInterval(tique, 1000);
+}
+
+
+function desenhar(itens, textoVazio) {
 
     if (itens.length === 0) {
-        listaEl.innerHTML = `
+        listaEl.innerHTML = textoVazio
+            ? `<p class="aviso">${textoVazio}</p>`
+            : `
             <p class="aviso">
                 Nenhum compromisso marcado.<br>
                 Toque em <strong>Novo</strong> para adicionar.
@@ -182,7 +465,7 @@ function desenhar(itens) {
         const card = document.createElement("article");
 
         card.className =
-            "card-compromisso" +
+            "card-compromisso reinverter" +
             (dataISO < hoje ? " passado" : "");
 
         card.innerHTML = `
@@ -261,6 +544,8 @@ function abrirModal() {
 
     form.reset();
     mensagemEl.textContent = "";
+
+    if (diaSelecionado) dataInput.value = diaSelecionado;
 
     modal.hidden = false;
 
