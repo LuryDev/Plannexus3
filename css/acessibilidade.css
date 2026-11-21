@@ -12,6 +12,65 @@ html.fonte-maior { zoom: 1.3; }
 
 /* Alto contraste: cores mais fortes, bordas nítidas e foco bem visível */
 html.alto-contraste { filter: contrast(1.35); }
+
+/* Tema escuro: inverte as cores da página inteira (o roxo continua roxo) e desfaz a inversão
+   em fotos, vídeos, imagens de fundo e nas superfícies roxas da marca (banners, botões, cartões),
+   para elas manterem a identidade do app. */
+html.tema-escuro { filter: invert(.92) hue-rotate(180deg); background: #fff; }
+html.tema-escuro.alto-contraste { filter: invert(.92) hue-rotate(180deg) contrast(1.35); }
+html.tema-escuro img,
+html.tema-escuro video,
+html.tema-escuro iframe,
+html.tema-escuro picture,
+html.tema-escuro [style*="background-image"] { filter: invert(1) hue-rotate(180deg); }
+html.tema-escuro .banner,
+html.tema-escuro .evento,
+html.tema-escuro .add,
+html.tema-escuro .card-header-evento,
+html.tema-escuro .card-item,
+html.tema-escuro .botao-adicionar-pessoas,
+html.tema-escuro .salvar-editar,
+html.tema-escuro .topo,
+html.tema-escuro .pri,
+html.tema-escuro .previa,
+html.tema-escuro .botao-nova,
+html.tema-escuro .nova-tarefa,
+html.tema-escuro .salvar,
+html.tema-escuro .confirmar,
+html.tema-escuro .botao-novo,
+html.tema-escuro .cardInvestimento,
+html.tema-escuro .filtro.ativo,
+html.tema-escuro .filtroControle.ativo,
+html.tema-escuro .principal,
+html.tema-escuro .novo,
+html.tema-escuro .novo-presente,
+html.tema-escuro .pix-botao,
+html.tema-escuro .btn-push,
+html.tema-escuro .voto.on,
+html.tema-escuro .modal-nexus-sim,
+html.tema-escuro .atalho-nexus,
+html.tema-escuro .bolinha-pend,
+html.tema-escuro .bolinha-aviso,
+html.tema-escuro #barraPreenchida,
+html.tema-escuro #barraProgresso,
+html.tema-escuro .barra-preenchida,
+html.tema-escuro #adicionarTodas,
+html.tema-escuro #dispensarSugestoes,
+html.tema-escuro #botaoCriar,
+html.tema-escuro #botaoSalvar,
+html.tema-escuro #botaoNovaAnotacao,
+html.tema-escuro #botaoConfirmarMensagem,
+html.tema-escuro #botaoEnviar,
+html.tema-escuro #sair,
+html.tema-escuro #enter,
+html.tema-escuro .splash,
+html.tema-escuro .transicao,
+html.tema-escuro .reinverter { filter: invert(1) hue-rotate(180deg); }
+/* o que está DENTRO de uma superfície já "desinvertida" não pode ser invertido de novo */
+html.tema-escuro :is(.banner, .evento, .add, .card-header-evento, .card-item, .botao-adicionar-pessoas, .salvar-editar, .topo, .pri, .previa, .botao-nova, .nova-tarefa, .salvar, .confirmar, .botao-novo, .cardInvestimento, .filtro.ativo, .filtroControle.ativo, .principal, .novo, .novo-presente, .pix-botao, .btn-push, .voto.on, .modal-nexus-sim, .atalho-nexus, .bolinha-pend, .bolinha-aviso, #barraPreenchida, #barraProgresso, .barra-preenchida, #adicionarTodas, #dispensarSugestoes, #botaoCriar, #botaoSalvar, #botaoNovaAnotacao, #botaoConfirmarMensagem, #botaoEnviar, #sair, #enter, .splash, .transicao, .reinverter) img,
+html.tema-escuro :is(.banner, .evento, .add, .card-header-evento, .card-item, .botao-adicionar-pessoas, .salvar-editar, .topo, .pri, .previa, .botao-nova, .nova-tarefa, .salvar, .confirmar, .botao-novo, .cardInvestimento, .filtro.ativo, .filtroControle.ativo, .principal, .novo, .novo-presente, .pix-botao, .btn-push, .voto.on, .modal-nexus-sim, .atalho-nexus, .bolinha-pend, .bolinha-aviso, #barraPreenchida, #barraProgresso, .barra-preenchida, #adicionarTodas, #dispensarSugestoes, #botaoCriar, #botaoSalvar, #botaoNovaAnotacao, #botaoConfirmarMensagem, #botaoEnviar, #sair, #enter, .splash, .transicao, .reinverter) video,
+html.tema-escuro :is(.banner, .evento, .add, .card-header-evento, .card-item, .botao-adicionar-pessoas, .salvar-editar, .topo, .pri, .previa, .botao-nova, .nova-tarefa, .salvar, .confirmar, .botao-novo, .cardInvestimento, .filtro.ativo, .filtroControle.ativo, .principal, .novo, .novo-presente, .pix-botao, .btn-push, .voto.on, .modal-nexus-sim, .atalho-nexus, .bolinha-pend, .bolinha-aviso, #barraPreenchida, #barraProgresso, .barra-preenchida, #adicionarTodas, #dispensarSugestoes, #botaoCriar, #botaoSalvar, #botaoNovaAnotacao, #botaoConfirmarMensagem, #botaoEnviar, #sair, #enter, .splash, .transicao, .reinverter) [style*="background-image"] { filter: none; }
+
 html.alto-contraste body { color: #000; }
 html.alto-contraste a { text-decoration: underline; }
 html.alto-contraste input,

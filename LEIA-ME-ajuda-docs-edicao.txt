@@ -57,3 +57,10 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    - Vale em todas as páginas (o script é carregado no <head> de cada uma). Fica salvo no aparelho (localStorage
      "plannexus_preferencias"); não sincroniza entre aparelhos.
    - Tamanho da letra usa zoom da página (todo o layout reorganiza, como o zoom do navegador).
+
+11) Engrenagem e tema escuro
+   - inicio.html: a logo do canto superior esquerdo foi trocada por uma engrenagem que abre preferencias.html.
+   - Preferências > Tema: Claro / Escuro / Automático (segue o aparelho). Salvo no aparelho.
+   - O tema escuro inverte as cores da página (css/acessibilidade.css) e mantém roxo da marca, fotos e vídeos.
+     Telas/cartões novos com fundo roxo precisam entrar na lista de seletores "html.tema-escuro ..." desse arquivo
+     (ou ganhar a classe "reinverter") para manter o roxo no tema escuro.

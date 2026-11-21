@@ -30,8 +30,17 @@
 
         <main>
             <section class="bloco">
-                <h2><i class="fa-solid fa-universal-access"></i> Acessibilidade</h2>
+                <h2><i class="fa-solid fa-universal-access"></i> Aparência e acessibilidade</h2>
                 <p class="dica">As mudanças valem na hora e ficam salvas neste aparelho.</p>
+
+                <div class="grupo" role="radiogroup" aria-labelledby="rotTema">
+                    <p class="rotulo" id="rotTema">Tema</p>
+                    <div class="opcoes-fonte">
+                        <button type="button" class="op op-tema" role="radio" data-tema="claro"><i class="fa-regular fa-sun"></i>Claro</button>
+                        <button type="button" class="op op-tema" role="radio" data-tema="escuro"><i class="fa-regular fa-moon"></i>Escuro</button>
+                        <button type="button" class="op op-tema" role="radio" data-tema="auto"><i class="fa-solid fa-circle-half-stroke"></i>Automático</button>
+                    </div>
+                </div>
 
                 <div class="grupo" role="radiogroup" aria-labelledby="rotFonte">
                     <p class="rotulo" id="rotFonte">Tamanho da letra</p>
@@ -72,12 +81,17 @@
         (function () {
             var P = window.plannexusPreferencias;
             var estado = P.ler();
-            var botoes = document.querySelectorAll(".op");
+            var botoes = document.querySelectorAll("[data-fonte]"), temas = document.querySelectorAll("[data-tema]");
             var chC = document.getElementById("chContraste"), chM = document.getElementById("chMovimento");
 
             function desenhar() {
                 botoes.forEach(function (b) {
                     var on = b.getAttribute("data-fonte") === estado.fonte;
+                    b.classList.toggle("on", on);
+                    b.setAttribute("aria-checked", on ? "true" : "false");
+                });
+                temas.forEach(function (b) {
+                    var on = b.getAttribute("data-tema") === estado.tema;
                     b.classList.toggle("on", on);
                     b.setAttribute("aria-checked", on ? "true" : "false");
                 });
@@ -87,9 +101,10 @@
             function mudar(parte) { for (var k in parte) estado[k] = parte[k]; P.salvar(estado); desenhar(); }
 
             botoes.forEach(function (b) { b.addEventListener("click", function () { mudar({ fonte: b.getAttribute("data-fonte") }); }); });
+            temas.forEach(function (b) { b.addEventListener("click", function () { mudar({ tema: b.getAttribute("data-tema") }); }); });
             chC.addEventListener("change", function () { mudar({ contraste: chC.checked }); });
             chM.addEventListener("change", function () { mudar({ movimento: chM.checked }); });
-            document.getElementById("restaurar").addEventListener("click", function () { estado = { fonte: "normal", contraste: false, movimento: false }; P.salvar(estado); desenhar(); });
+            document.getElementById("restaurar").addEventListener("click", function () { estado = { fonte: "normal", contraste: false, movimento: false, tema: "claro" }; P.salvar(estado); desenhar(); });
             desenhar();
         })();
     </script>
