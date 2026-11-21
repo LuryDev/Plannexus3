@@ -103,3 +103,14 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    - Cadastro: caixa "Li e concordo com as políticas de privacidade" (link para privacidade.html). Sem marcar, não cria a conta,
      nem por e-mail/senha nem por "Continuar com Google".
    - A marcação não é gravada no banco; é só uma trava no formulário. (Se quiser provar o aceite, dá para gravar data/hora no perfil.)
+
+18) Carrossel de banners do início (js/bannersInicio.js — arquivo único, já incluído no inicio.html)
+   - Topo do arquivo = configuração: BANNERS_NOVOS (2 itens: imagem, imagemCelular, descricao, link). Máximo 3 no total.
+   - Tamanhos (comentados no arquivo): PC 1400x380 (ideal 2800x760); celular 700x330 (ideal 1400x660). JPG/PNG/WebP até ~300 KB.
+   - Sem imagem (ou imagem que não abre) = banner ignorado; sem nenhum novo = só o "Bem-vindo(a)", sem botões.
+   - Com novos: troca sozinha a cada 5 s, em loop infinito, com botão ">" e pontinhos. "Menos movimento" desliga a troca automática.
+
+19) Banners verdes ativos no início (js/bannersInicio.js + fotos/banner-*.jpg)
+   - Banner 1: boas-vindas (fixo). Banner 2: "Um evento mais verde". Banner 3: "Consumo consciente" (Escolhas que fazem diferença).
+   - Cada um tem arte de PC (2800x760) e de celular (1400x660) com a mesma composição (texto, elementos e Nexus na mesma ordem).
+   - No celular os controles (pontinhos e ">") ficam no canto superior direito para não cobrir o Nexus.
