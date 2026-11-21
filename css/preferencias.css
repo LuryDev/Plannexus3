@@ -1,0 +1,24 @@
+.grupo { margin-top: 14px; }
+.rotulo { font-size: 13px; font-weight: 600; color: #2b2250; margin-bottom: 8px; }
+.opcoes-fonte { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.op { border: 1.5px solid #e6e0f7; background: #faf9fe; color: #2b2250; border-radius: 14px; padding: 10px 4px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.op .a { color: #5A32D3; font-weight: 700; line-height: 1.1; }
+.a1 { font-size: 16px; } .a2 { font-size: 21px; } .a3 { font-size: 27px; }
+.op.on { border-color: #5A32D3; background: #f1eefb; color: #4D2FB8; box-shadow: 0 0 0 3px rgba(90, 50, 211, .12); }
+
+.linha-chave { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 0; border-top: 1px solid #efeaf9; margin-top: 14px; cursor: pointer; position: relative; }
+.linha-chave .txt b { display: block; font-size: 14px; color: #2b2250; }
+.linha-chave .txt small { display: block; font-size: 12px; color: #6b6480; margin-top: 2px; line-height: 1.4; }
+.linha-chave input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.chave { width: 48px; height: 28px; background: #d9d3ee; border-radius: 999px; position: relative; flex-shrink: 0; transition: .2s; }
+.chave::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: #fff; border-radius: 50%; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); transition: .2s; }
+.linha-chave input:checked + .chave { background: #5A32D3; }
+.linha-chave input:checked + .chave::after { transform: translateX(20px); }
+.linha-chave input:focus-visible + .chave { outline: 3px solid #5A32D3; outline-offset: 2px; }
+
+.previa { background: linear-gradient(135deg, #5A32D3, #4D2FB8); color: #fff; border-radius: 16px; padding: 16px; }
+.previa b { font-size: 16px; }
+.previa p { font-size: 13px; opacity: .9; margin: 4px 0 12px; }
+.previa-botao { border: none; background: #fff; color: #4D2FB8; font-weight: 600; font-size: 13px; padding: 9px 16px; border-radius: 12px; }
+
+.restaurar { width: 100%; border: 1.5px solid #e6e0f7; background: #fff; color: #4D2FB8; border-radius: 14px; padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 20px; }

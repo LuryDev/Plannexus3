@@ -35,9 +35,18 @@
         var tela = null;
         var video = null;
 
+        // barras do sistema (topo/rodapé do Android) ficam da cor do vídeo enquanto ele toca
+        var metaTema = document.querySelector('meta[name="theme-color"]');
+        var temaOriginal = metaTema ? metaTema.getAttribute("content") : null;
+        if (metaTema) metaTema.setAttribute("content", "#0b0b17");
+        function devolverTema() {
+            if (metaTema && temaOriginal) metaTema.setAttribute("content", temaOriginal);
+        }
+
         function ir() {
             if (navegou) return;
             navegou = true;
+            devolverTema();
             if (typeof c.aoTerminar === "function") {
                 // some com fade e devolve o controle para a página
                 if (video) { try { video.pause(); } catch (e) {} }

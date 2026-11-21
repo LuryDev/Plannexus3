@@ -1,0 +1,32 @@
+/* ==========================================================
+   css/acessibilidade.css - efeitos das preferências (js/preferencias.js)
+   ========================================================== */
+
+/* Tamanho da letra: aumenta a página toda (como o zoom do navegador, tudo reorganiza) */
+html.fonte-grande { zoom: 1.15; }
+html.fonte-maior { zoom: 1.3; }
+@supports not (zoom: 1) {
+    html.fonte-grande { font-size: 115%; }
+    html.fonte-maior { font-size: 130%; }
+}
+
+/* Alto contraste: cores mais fortes, bordas nítidas e foco bem visível */
+html.alto-contraste { filter: contrast(1.35); }
+html.alto-contraste body { color: #000; }
+html.alto-contraste a { text-decoration: underline; }
+html.alto-contraste input,
+html.alto-contraste select,
+html.alto-contraste textarea { border: 2px solid #000 !important; }
+html.alto-contraste button { border: 2px solid currentColor; }
+html.alto-contraste :focus-visible { outline: 3px solid #000; outline-offset: 2px; box-shadow: 0 0 0 6px #fff; }
+html.alto-contraste * { text-shadow: none !important; }
+
+/* Menos movimento: sem animações nem transições */
+html.menos-movimento *,
+html.menos-movimento *::before,
+html.menos-movimento *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Preferências - PlanNexus</title>
+    <link rel="icon" href="fotos/logo.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="css/ajudaPagina.css">
+    <link rel="stylesheet" href="css/preferencias.css">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+    <link rel="stylesheet" href="css/responsivo.css">
+    <link rel="stylesheet" href="css/acessibilidade.css">
+    <script src="js/preferencias.js"></script>
+</head>
+
+<body>
+    <div class="app">
+        <header>
+            <a class="voltar" href="perfilPessoal.html" id="voltar" title="Voltar" aria-label="Voltar"><i class="fa-solid fa-arrow-left"></i></a>
+            <h1>Preferências</h1>
+        </header>
+
+        <main>
+            <section class="bloco">
+                <h2><i class="fa-solid fa-universal-access"></i> Acessibilidade</h2>
+                <p class="dica">As mudanças valem na hora e ficam salvas neste aparelho.</p>
+
+                <div class="grupo" role="radiogroup" aria-labelledby="rotFonte">
+                    <p class="rotulo" id="rotFonte">Tamanho da letra</p>
+                    <div class="opcoes-fonte">
+                        <button type="button" class="op" role="radio" data-fonte="normal"><span class="a a1">A</span>Normal</button>
+                        <button type="button" class="op" role="radio" data-fonte="grande"><span class="a a2">A</span>Grande</button>
+                        <button type="button" class="op" role="radio" data-fonte="maior"><span class="a a3">A</span>Muito grande</button>
+                    </div>
+                </div>
+
+                <label class="linha-chave">
+                    <span class="txt"><b>Alto contraste</b><small>Cores mais fortes, bordas nítidas e links sublinhados.</small></span>
+                    <input type="checkbox" id="chContraste" role="switch">
+                    <span class="chave" aria-hidden="true"></span>
+                </label>
+
+                <label class="linha-chave">
+                    <span class="txt"><b>Menos movimento</b><small>Reduz animações e transições.</small></span>
+                    <input type="checkbox" id="chMovimento" role="switch">
+                    <span class="chave" aria-hidden="true"></span>
+                </label>
+            </section>
+
+            <section class="bloco">
+                <h2><i class="fa-regular fa-eye"></i> Como fica</h2>
+                <div class="previa">
+                    <b>Aniversário da Ana</b>
+                    <p>12/12/2026 às 19:30 · Salão B</p>
+                    <button type="button" class="previa-botao">Ver detalhes</button>
+                </div>
+            </section>
+
+            <button type="button" class="restaurar" id="restaurar">Restaurar padrão</button>
+        </main>
+    </div>
+
+    <script>
+        (function () {
+            var P = window.plannexusPreferencias;
+            var estado = P.ler();
+            var botoes = document.querySelectorAll(".op");
+            var chC = document.getElementById("chContraste"), chM = document.getElementById("chMovimento");
+
+            function desenhar() {
+                botoes.forEach(function (b) {
+                    var on = b.getAttribute("data-fonte") === estado.fonte;
+                    b.classList.toggle("on", on);
+                    b.setAttribute("aria-checked", on ? "true" : "false");
+                });
+                chC.checked = estado.contraste;
+                chM.checked = estado.movimento;
+            }
+            function mudar(parte) { for (var k in parte) estado[k] = parte[k]; P.salvar(estado); desenhar(); }
+
+            botoes.forEach(function (b) { b.addEventListener("click", function () { mudar({ fonte: b.getAttribute("data-fonte") }); }); });
+            chC.addEventListener("change", function () { mudar({ contraste: chC.checked }); });
+            chM.addEventListener("change", function () { mudar({ movimento: chM.checked }); });
+            document.getElementById("restaurar").addEventListener("click", function () { estado = { fonte: "normal", contraste: false, movimento: false }; P.salvar(estado); desenhar(); });
+            desenhar();
+        })();
+    </script>
+</body>
+
+</html>

@@ -45,3 +45,15 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    - Celular: ocupa a tela; PC: painel central de 430 px, como o resto do app.
    - css/login.css e css/cadastro.css não são mais usados (podem ser apagados).
    - Orçamento: botão "Novo Item" alinhado à direita; evento: título "Informações do evento" alinhado à esquerda.
+
+8) Vídeo de abertura: faixas roxas (js/splash.js)
+   - Enquanto o vídeo toca, o theme-color da página vira #0b0b17 (cor das bordas do vídeo) e volta ao roxo no fim.
+   - Se no app Android (TWA) as faixas continuarem roxas, a cor vem do projeto Android (statusBarColor /
+     navigationBarColor, ou "themeColor" no Bubblewrap/twa-manifest.json), não da página.
+
+10) Preferências e acessibilidade (preferencias.html, js/preferencias.js, css/acessibilidade.css, css/preferencias.css)
+   - Tamanho da letra (Normal / Grande 115% / Muito grande 130%), Alto contraste, Menos movimento, Restaurar padrão.
+   - Acesso: Perfil > "Preferências e acessibilidade" (e dica na página Ajuda).
+   - Vale em todas as páginas (o script é carregado no <head> de cada uma). Fica salvo no aparelho (localStorage
+     "plannexus_preferencias"); não sincroniza entre aparelhos.
+   - Tamanho da letra usa zoom da página (todo o layout reorganiza, como o zoom do navegador).

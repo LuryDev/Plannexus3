@@ -20,6 +20,11 @@
 }
 .splash.sai { opacity: 0; pointer-events: none; }
 .splash-video { width: 100%; height: 100%; object-fit: contain; }
+/* O vídeo é 9:16. Em celular em pé (tela de 9:16 até ~1:2) ele PREENCHE a tela inteira, cortando só um pouquinho dos lados
+   (no máximo ~12%). Em tela mais estreita ou larga (PC, tablet deitado) ele continua inteiro, com o fundo da mesma cor. */
+@media (max-aspect-ratio: 9/16) and (min-aspect-ratio: 99/200) {
+    .splash-video { object-fit: cover; }
+}
 .splash-dica {
     position: absolute; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%);
     max-width: calc(100% - 32px); text-align: center;
