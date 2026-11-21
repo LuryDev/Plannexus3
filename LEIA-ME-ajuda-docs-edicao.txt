@@ -84,3 +84,12 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    - O botão do Nexus saía no meio da tela (alinhado à coluna de celular); no PC fica no canto inferior direito (e o painel abre no canto).
    - O topo (engrenagem, ajuda, sino) agora ocupa a largura toda e alinha com as bordas do banner/lista.
    - O body de inicio.html ganhou a classe "pagina-inicio" para limitar esses ajustes a essa página.
+
+15) Termos / políticas atualizados em 21/11/2026 (para a Play Store)
+   - privacidade.html: novas seções — documentos do evento, convidados sem conta (hash do e-mail e do aparelho; e-mail não é guardado),
+     lista de presentes pública + chave/comprovante Pix, ajuda e sugestões, notificações push/lembretes, preferências locais;
+     compartilhamento com o organizador, Firebase Cloud Messaging, retenção/remoção de convidados e contagem de crianças.
+   - excluir-conta.html: inclui documentos, sugestões, Pix, tokens de push e como convidados sem conta pedem remoção.
+   - seguranca-infantil.html: links públicos, documentos e comprovantes cobertos pelas regras (PT e EN).
+   - Lembrete: ao enviar o formulário "Segurança dos dados" da Play Console, declare também: nome/e-mail, conteúdo gerado pelo usuário,
+     arquivos/documentos enviados, identificador do aparelho (token push) e mensagens enviadas à IA — e que os dados são criptografados em trânsito.
