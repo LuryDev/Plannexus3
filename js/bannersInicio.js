@@ -3,6 +3,11 @@
    ---------------------------------------------------------------------
    Regras:
    - O banner de "Bem-vindo(a)" é sempre o primeiro e não sai daqui.
+   - O Nexus (mascote flutuante) dos banners novos é o MESMO do banner de
+     boas-vindas: mesma animação, tamanho e posição (canto direito). Por isso
+     a imagem deve ser feita SEM o Nexus e com o lado direito livre para ele
+     (PC: não colocar nada importante a partir de 900 px da esquerda;
+     celular: a partir de 430 px da esquerda, na arte de 700 px).
    - Dá para adicionar até 2 banners novos (no máximo 3 no total, contando
      com o de boas-vindas). Se escrever mais de 2, só os 2 primeiros valem.
    - Um banner novo só entra se tiver uma imagem (e se ela abrir). Sem
@@ -25,7 +30,7 @@ var BANNERS_NOVOS = [
        Formatos: JPG, PNG ou WebP, até ~300 KB cada.
        "imagem"        -> obrigatória (versão para PC; também serve no celular
                           se não houver "imagemCelular", mas as laterais são cortadas)
-       "imagemCelular" -> opcional (versão própria para telas até 768 px)
+       "imagemCelular" -> opcional (versão própria para telas até 480 px, celular)
        "descricao"     -> texto para leitores de tela (acessibilidade)
        "link"          -> opcional: endereço que abre ao tocar no banner
        Exemplo: imagem: "fotos/banner-natal.jpg"
@@ -35,7 +40,7 @@ var BANNERS_NOVOS = [
     /* ---- BANNER 3 ---------------------------------------------------
        Mesmas medidas do banner 2: PC 1400 x 380 px, celular 700 x 330 px.
        ------------------------------------------------------------------ */
-    { imagem: "fotos/banner-consumo-consciente-pc.jpg", imagemCelular: "fotos/banner-consumo-consciente-celular.jpg", descricao: "Consumo consciente: prefira copos reutilizáveis, materiais biodegradáveis e itens reaproveitáveis, e descarte os resíduos em locais apropriados", link: "" }
+    { imagem: "fotos/banner-consumo-consciente-pc.jpg", imagemCelular: "fotos/banner-consumo-consciente-celular.jpg", descricao: "Consumo consciente: prefira copos reutilizáveis, materiais biodegradáveis e itens reaproveitáveis, e descarte os resíduos em locais apropriados. Juntos para um mundo mais verde!", link: "" }
 ];
 
 var BANNERS_MAXIMO_NOVOS = 2;      // limite: 3 no total (1 de boas-vindas + 2 novos)
@@ -79,7 +84,7 @@ var BANNERS_INTERVALO_MS = 5000;   // tempo de cada banner (5 segundos)
         var estilo = document.createElement("style");
         estilo.textContent =
             ".banner[hidden]{display:none!important}" +
-            ".banner.banner-extra::before,.banner.banner-extra::after{display:none}" +
+            ".banner.banner-extra::before{display:none}" +
             ".banner.banner-extra a,.banner.banner-extra picture{position:absolute;inset:0;display:block}" +
             ".banner.banner-extra img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;z-index:0;transform:none;animation:none}" +
             ".banner.banner-entra{animation:bannerEntra .55s ease}" +
@@ -102,7 +107,7 @@ var BANNERS_INTERVALO_MS = 5000;   // tempo de cada banner (5 segundos)
             var pic = document.createElement("picture");
             if (b.imagemCelular && String(b.imagemCelular).trim()) {
                 var src = document.createElement("source");
-                src.media = "(max-width: 768px)";
+                src.media = "(max-width: 480px)";
                 src.srcset = String(b.imagemCelular).trim();
                 pic.appendChild(src);
             }

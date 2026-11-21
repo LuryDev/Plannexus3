@@ -114,3 +114,9 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    - Banner 1: boas-vindas (fixo). Banner 2: "Um evento mais verde". Banner 3: "Consumo consciente" (Escolhas que fazem diferença).
    - Cada um tem arte de PC (2800x760) e de celular (1400x660) com a mesma composição (texto, elementos e Nexus na mesma ordem).
    - No celular os controles (pontinhos e ">") ficam no canto superior direito para não cobrir o Nexus.
+
+20) Nexus animado nos banners verdes
+   - As imagens dos banners novos agora são feitas SEM o Nexus. O Nexus é o mesmo mascote do banner de boas-vindas (::after do .banner):
+     mesma animação flutuante, mesmo tamanho e mesma posição em todas as telas.
+   - Ao criar novas imagens, deixe livre o lado direito (PC: a partir de 900 px da esquerda; celular: a partir de 430 px, na arte de 700 px).
+   - A imagem de celular só é usada em telas de até 480 px; tablets e PC usam a imagem larga.
