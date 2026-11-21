@@ -86,7 +86,7 @@ var BANNERS_INTERVALO_MS = 5000;   // tempo de cada banner (5 segundos)
             ".banner[hidden]{display:none!important}" +
             ".banner.banner-extra::before{display:none}" +
             ".banner.banner-extra a,.banner.banner-extra picture{position:absolute;inset:0;display:block}" +
-            ".banner.banner-extra img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;z-index:0;transform:none;animation:none}" +
+            ".banner.banner-extra img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:left center;opacity:1;z-index:0;transform:none;animation:none}" +
             ".banner.banner-entra{animation:bannerEntra .55s ease}" +
             "@keyframes bannerEntra{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}" +
             ".banner-ctrl{position:absolute;right:12px;bottom:10px;z-index:20;display:flex;align-items:center;gap:6px;padding:4px 5px 4px 10px;border-radius:999px;background:rgba(25,10,70,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}" +
