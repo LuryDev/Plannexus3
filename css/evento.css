@@ -1071,3 +1071,22 @@ header {
     }
 }
 
+
+
+/* ===== Contagem regressiva do evento ===== */
+.contagem-evento {
+    border-radius: 20px;
+    background: linear-gradient(135deg, #a491f9 0%, #4d2fb8 100%);
+    color: #fff;
+    padding: 16px 18px;
+    box-shadow: 0 8px 20px rgba(77, 47, 184, 0.18);
+    margin-bottom: 16px;
+}
+.contagem-evento[hidden] { display: none; }
+.ct-rotulo { font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; opacity: .9; margin-bottom: 10px; }
+.ct-tempo { display: flex; gap: 8px; }
+.ct-un { flex: 1 1 0; min-width: 0; max-width: 84px; background: rgba(255,255,255,.18); border-radius: 12px; padding: 9px 4px 7px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+.ct-un strong { font-size: 22px; line-height: 1; font-variant-numeric: tabular-nums; }
+.ct-un span { font-size: 10px; font-weight: 600; opacity: .9; }
+.ct-msg { font-size: 20px; font-weight: 700; }
+@media (max-width: 360px) { .ct-tempo { gap: 5px; } .ct-un strong { font-size: 19px; } }

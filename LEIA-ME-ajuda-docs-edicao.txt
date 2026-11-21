@@ -73,3 +73,8 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
      anos e meses só se faltar 1 ano/1 mês ou mais; dias só se faltar 1 dia ou mais; sempre horas/min/seg.
      Compromisso de hoje sem horário mostra "É hoje!". Ao chegar a hora, passa sozinho para o próximo.
    - Sem mudanças no banco: usa a mesma coleção eventos/{id}/calendario.
+
+13) Cronômetro do evento principal (evento.html, js/contagem.js, css/evento.css)
+   - Cartão roxo logo abaixo do cabeçalho do evento, contando até a data/hora do evento.
+   - Mesma regra do calendário: ano/mês/dia só aparecem quando necessários; horas, min e seg sempre.
+   - Evento sem horário no dia: "É hoje!". Depois da hora: "O evento já aconteceu". Se o dono editar data/hora, atualiza na hora.

@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/responsivo.css">
     <link rel="stylesheet" href="css/acessibilidade.css">
     <script src="js/preferencias.js"></script>
+    <script src="js/contagem.js"></script>
     <link rel="stylesheet" href="css/transicao.css">
     <script src="js/transicao.js" defer></script>
 </head>
@@ -54,6 +55,12 @@
                         Evento gerado com ajuda do Nexus!
                     </p>
                 </div>
+            </section>
+
+            <!-- CONTAGEM REGRESSIVA até o evento -->
+            <section class="contagem-evento reinverter" id="contagemEvento" role="timer" hidden>
+                <p class="ct-rotulo">Falta pouco para o seu evento</p>
+                <div class="ct-tempo"></div>
             </section>
 
             <!-- PENDÊNCIAS: recolhido; mostra funções ainda não abertas e novidades (bolinha roxa com número) -->
@@ -686,6 +693,7 @@
                     if (corpo.local) det.push(corpo.local);
                     resumoEvento.textContent = det.length ? det.join(" • ") : "Acesse as ferramentas para organizar seu evento.";
                     mostrarInformacoes(eventoAtual);
+                    window.plannexusContagem.iniciar(document.getElementById("contagemEvento"), eventoAtual.data, eventoAtual.horario);
                     fundo.hidden = true;
                     alert(dados.avisou ? "Evento atualizado. Os convidados que já confirmaram foram avisados na página de confirmação." : "Evento atualizado.");
                 } catch (erro) {
@@ -1057,6 +1065,8 @@
                 resumoEvento.textContent = detalhes.length
                     ? detalhes.join(" • ")
                     : "Acesse as ferramentas para organizar seu evento.";
+
+                window.plannexusContagem.iniciar(document.getElementById("contagemEvento"), evento.data, evento.horario);
 
                 linkVoltar.href = "inicio.html";
                 linkCalendario.href = `calendario.html?id=${encodeURIComponent(eventoId)}`;
