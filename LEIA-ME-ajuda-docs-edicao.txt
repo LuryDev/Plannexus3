@@ -78,3 +78,9 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    - Cartão roxo logo abaixo do cabeçalho do evento, contando até a data/hora do evento.
    - Mesma regra do calendário: ano/mês/dia só aparecem quando necessários; horas, min e seg sempre.
    - Evento sem horário no dia: "É hoje!". Depois da hora: "O evento já aconteceu". Se o dono editar data/hora, atualiza na hora.
+
+14) Início na versão de PC/site (css/inicioPc.css, só vale a partir de 769px; celular não mudou)
+   - A barra de baixo (início / criar evento / perfil) estava escondida no PC pelo style.css; agora aparece como barra flutuante centralizada.
+   - O botão do Nexus saía no meio da tela (alinhado à coluna de celular); no PC fica no canto inferior direito (e o painel abre no canto).
+   - O topo (engrenagem, ajuda, sino) agora ocupa a largura toda e alinha com as bordas do banner/lista.
+   - O body de inicio.html ganhou a classe "pagina-inicio" para limitar esses ajustes a essa página.

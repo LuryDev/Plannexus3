@@ -1,0 +1,54 @@
+/* Início — versão de PC/site (a partir de 769px). O celular não usa nada daqui. */
+@media (min-width: 769px) {
+
+    /* topo ocupa a tela toda e fica alinhado com o conteúdo (banner/lista) */
+    body.pagina-inicio .app header {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding-left: calc((100% - min(1400px, 100% - 80px)) / 2);
+        padding-right: calc((100% - min(1400px, 100% - 80px)) / 2);
+        border-bottom: 1px solid rgba(90, 50, 211, .08);
+    }
+
+    /* barra de baixo (início, criar evento, perfil): flutuante e centralizada */
+    body.pagina-inicio .bottom-nav {
+        display: flex;
+        position: fixed;
+        left: 50%;
+        right: auto;
+        bottom: 22px;
+        transform: translateX(-50%);
+        width: 360px;
+        max-width: calc(100% - 40px);
+        height: 64px;
+        border: 1px solid rgba(90, 50, 211, .10);
+        border-radius: 22px;
+        background: #D9C8FF;
+        box-shadow: 0 10px 30px rgba(40, 20, 90, .18);
+        justify-content: space-around;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    body.pagina-inicio .bottom-nav a { font-size: 22px; transition: transform .2s ease; }
+    body.pagina-inicio .bottom-nav a:hover { transform: translateY(-2px); }
+    body.pagina-inicio .bottom-nav .add { width: 62px; height: 62px; margin-top: -30px; font-size: 26px; }
+
+    /* Nexus no canto inferior direito, em vez do meio da tela */
+    body.pagina-inicio .nxf-botao {
+        right: 28px;
+        bottom: 26px;
+    }
+
+    body.pagina-inicio .nxf-fundo {
+        justify-content: flex-end;
+        align-items: flex-end;
+        padding: 0 28px 26px;
+    }
+
+    body.pagina-inicio .nxf-painel {
+        border-radius: 22px;
+        max-width: 420px;
+    }
+}
