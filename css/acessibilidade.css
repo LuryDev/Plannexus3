@@ -3,8 +3,9 @@
    ========================================================== */
 
 /* Tamanho da letra: aumenta a página toda (como o zoom do navegador, tudo reorganiza) */
-html.fonte-grande { zoom: 1.15; }
-html.fonte-maior { zoom: 1.3; }
+html.fonte-grande { zoom: 1.15; --zoom: 1.15; }
+html.fonte-maior { zoom: 1.3; --zoom: 1.3; }
+/* com zoom, as unidades vh/vw crescem junto: as folhas de estilo dividem por --zoom para a tela continuar cabendo */
 @supports not (zoom: 1) {
     html.fonte-grande { font-size: 115%; }
     html.fonte-maior { font-size: 130%; }
@@ -24,7 +25,7 @@ html.tema-escuro iframe,
 html.tema-escuro picture,
 html.tema-escuro [style*="background-image"] { filter: invert(1) hue-rotate(180deg); }
 html.tema-escuro .banner,
-html.tema-escuro .evento,
+html.tema-escuro #listaEventos .evento,
 html.tema-escuro .add,
 html.tema-escuro .card-header-evento,
 html.tema-escuro .card-item,
@@ -67,9 +68,9 @@ html.tema-escuro .splash,
 html.tema-escuro .transicao,
 html.tema-escuro .reinverter { filter: invert(1) hue-rotate(180deg); }
 /* o que está DENTRO de uma superfície já "desinvertida" não pode ser invertido de novo */
-html.tema-escuro :is(.banner, .evento, .add, .card-header-evento, .card-item, .botao-adicionar-pessoas, .salvar-editar, .topo, .pri, .previa, .botao-nova, .nova-tarefa, .salvar, .confirmar, .botao-novo, .cardInvestimento, .filtro.ativo, .filtroControle.ativo, .principal, .novo, .novo-presente, .pix-botao, .btn-push, .voto.on, .modal-nexus-sim, .atalho-nexus, .bolinha-pend, .bolinha-aviso, #barraPreenchida, #barraProgresso, .barra-preenchida, #adicionarTodas, #dispensarSugestoes, #botaoCriar, #botaoSalvar, #botaoNovaAnotacao, #botaoConfirmarMensagem, #botaoEnviar, #sair, #enter, .splash, .transicao, .reinverter) img,
-html.tema-escuro :is(.banner, .evento, .add, .card-header-evento, .card-item, .botao-adicionar-pessoas, .salvar-editar, .topo, .pri, .previa, .botao-nova, .nova-tarefa, .salvar, .confirmar, .botao-novo, .cardInvestimento, .filtro.ativo, .filtroControle.ativo, .principal, .novo, .novo-presente, .pix-botao, .btn-push, .voto.on, .modal-nexus-sim, .atalho-nexus, .bolinha-pend, .bolinha-aviso, #barraPreenchida, #barraProgresso, .barra-preenchida, #adicionarTodas, #dispensarSugestoes, #botaoCriar, #botaoSalvar, #botaoNovaAnotacao, #botaoConfirmarMensagem, #botaoEnviar, #sair, #enter, .splash, .transicao, .reinverter) video,
-html.tema-escuro :is(.banner, .evento, .add, .card-header-evento, .card-item, .botao-adicionar-pessoas, .salvar-editar, .topo, .pri, .previa, .botao-nova, .nova-tarefa, .salvar, .confirmar, .botao-novo, .cardInvestimento, .filtro.ativo, .filtroControle.ativo, .principal, .novo, .novo-presente, .pix-botao, .btn-push, .voto.on, .modal-nexus-sim, .atalho-nexus, .bolinha-pend, .bolinha-aviso, #barraPreenchida, #barraProgresso, .barra-preenchida, #adicionarTodas, #dispensarSugestoes, #botaoCriar, #botaoSalvar, #botaoNovaAnotacao, #botaoConfirmarMensagem, #botaoEnviar, #sair, #enter, .splash, .transicao, .reinverter) [style*="background-image"] { filter: none; }
+html.tema-escuro :is(.banner, #listaEventos .evento, .add, .card-header-evento, .card-item, .botao-adicionar-pessoas, .salvar-editar, .topo, .pri, .previa, .botao-nova, .nova-tarefa, .salvar, .confirmar, .botao-novo, .cardInvestimento, .filtro.ativo, .filtroControle.ativo, .principal, .novo, .novo-presente, .pix-botao, .btn-push, .voto.on, .modal-nexus-sim, .atalho-nexus, .bolinha-pend, .bolinha-aviso, #barraPreenchida, #barraProgresso, .barra-preenchida, #adicionarTodas, #dispensarSugestoes, #botaoCriar, #botaoSalvar, #botaoNovaAnotacao, #botaoConfirmarMensagem, #botaoEnviar, #sair, #enter, .splash, .transicao, .reinverter) img,
+html.tema-escuro :is(.banner, #listaEventos .evento, .add, .card-header-evento, .card-item, .botao-adicionar-pessoas, .salvar-editar, .topo, .pri, .previa, .botao-nova, .nova-tarefa, .salvar, .confirmar, .botao-novo, .cardInvestimento, .filtro.ativo, .filtroControle.ativo, .principal, .novo, .novo-presente, .pix-botao, .btn-push, .voto.on, .modal-nexus-sim, .atalho-nexus, .bolinha-pend, .bolinha-aviso, #barraPreenchida, #barraProgresso, .barra-preenchida, #adicionarTodas, #dispensarSugestoes, #botaoCriar, #botaoSalvar, #botaoNovaAnotacao, #botaoConfirmarMensagem, #botaoEnviar, #sair, #enter, .splash, .transicao, .reinverter) video,
+html.tema-escuro :is(.banner, #listaEventos .evento, .add, .card-header-evento, .card-item, .botao-adicionar-pessoas, .salvar-editar, .topo, .pri, .previa, .botao-nova, .nova-tarefa, .salvar, .confirmar, .botao-novo, .cardInvestimento, .filtro.ativo, .filtroControle.ativo, .principal, .novo, .novo-presente, .pix-botao, .btn-push, .voto.on, .modal-nexus-sim, .atalho-nexus, .bolinha-pend, .bolinha-aviso, #barraPreenchida, #barraProgresso, .barra-preenchida, #adicionarTodas, #dispensarSugestoes, #botaoCriar, #botaoSalvar, #botaoNovaAnotacao, #botaoConfirmarMensagem, #botaoEnviar, #sair, #enter, .splash, .transicao, .reinverter) [style*="background-image"] { filter: none; }
 
 html.alto-contraste body { color: #000; }
 html.alto-contraste a { text-decoration: underline; }
@@ -90,17 +91,10 @@ html.menos-movimento *::after {
     scroll-behavior: auto !important;
 }
 
-/* Área de toque mínima de 44x44 px (js/leitorTela.js marca os botões pequenos com estas classes).
-   O pseudo-elemento é invisível: o desenho do botão não muda, só a área que responde ao dedo. */
-.alvo-toque::after,
-.alvo-toque-b::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 100%;
-    height: 100%;
-    min-width: 44px;
-    min-height: 44px;
-    transform: translate(-50%, -50%);
-}
+
+/* Fonte grande: o mascote do banner da tela inicial encolhe para não cobrir o texto */
+html.fonte-grande .banner:not(.banner-extra)::after { width: 105px; height: 105px; }
+html.fonte-maior .banner:not(.banner-extra)::after { width: 88px; height: 88px; }
+html.fonte-grande .banner:not(.banner-extra) .banner-overlay { padding-right: 96px; }
+html.fonte-maior .banner:not(.banner-extra) .banner-overlay { padding-right: 82px; }
+html.fonte-maior .banner:not(.banner-extra) .banner-overlay h2 { font-size: 15px; overflow-wrap: anywhere; }

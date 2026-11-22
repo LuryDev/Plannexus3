@@ -1,5 +1,5 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: Poppins, 'Segoe UI', system-ui, sans-serif; }
-body { background: #F7F6FB; color: #2b2250; min-height: 100vh; min-height: 100dvh; }
+body { background: #F7F6FB; color: #2b2250; min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1)); }
 .app { max-width: 560px; margin: 0 auto; padding: 0 16px 40px; }
 header { display: flex; align-items: center; gap: 12px; padding: 20px 0 14px; }
 header h1 { font-size: 20px; color: #4d2fb8; }

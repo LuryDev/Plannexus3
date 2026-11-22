@@ -32,7 +32,7 @@
 body {
     background: var(--fundo);
     color: var(--texto);
-    min-height: 100vh; min-height: 100dvh;
+    min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 }
 
 
@@ -43,7 +43,7 @@ body {
 .container {
     width: 100%;
     max-width: 600px;
-    min-height: 100vh; min-height: 100dvh;
+    min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
     margin: auto;
     padding: 20px;
 }
@@ -260,7 +260,7 @@ button:active {
 
     .container {
         width: 100%;
-        min-height: 100vh; min-height: 100dvh;
+        min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 
         padding: 15px;
     }

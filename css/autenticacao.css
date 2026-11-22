@@ -7,14 +7,14 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", Arial, Helvetica, sans-serif; }
 
 body {
-    min-height: 100vh; min-height: 100dvh;
+    min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
     background: linear-gradient(160deg, #5A32D3 0%, #4D2FB8 55%, #38208F 100%);
     display: flex; justify-content: center;
 }
 
 .tela {
     width: 100%; max-width: 430px;
-    min-height: 100vh; min-height: 100dvh;
+    min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
     display: flex; flex-direction: column;
     position: relative; overflow: hidden;
 }
@@ -74,7 +74,7 @@ label { display: block; font-size: 13px; font-weight: 600; color: #2b2250; margi
 /* Tema escuro: a tela mantém o roxo da marca e só o cartão escurece */
 html.tema-escuro body { filter: invert(1) hue-rotate(180deg); }
 html.tema-escuro .cartao { filter: invert(1) hue-rotate(180deg); }
-html.tema-escuro .topo, html.tema-escuro .pri { filter: none; }
+html.tema-escuro .tela .topo { filter: none; }
 html.tema-escuro .topo .mascote, html.tema-escuro .topo .marca img, html.tema-escuro .cartao img { filter: none; }
 
 

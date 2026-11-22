@@ -92,7 +92,7 @@ html.transicao-aberta, html.transicao-aberta body { overflow: hidden; }
 .ativa .voo-trilha { animation: voar 1.5s cubic-bezier(.45,0,.35,1) forwards; }
 @keyframes voar {
     0%   { transform: translate(-60vw, -50%) rotate(-6deg); }
-    50%  { transform: translate(calc(50vw - 50%), -60%) rotate(2deg); }
+    50%  { transform: translate(calc((50vw / var(--zoom, 1)) - 50%), -60%) rotate(2deg); }
     100% { transform: translate(115vw, -50%) rotate(-4deg); }
 }
 .voo-faisca {

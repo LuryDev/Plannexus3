@@ -227,7 +227,7 @@ main > section[aria-label="Anotações do evento"] {
 #modalAnotacao > div, #modalMensagem > div {
     width: 100%;
     max-width: 420px;
-    max-height: 90vh; max-height: 90dvh;
+    max-height: calc(90vh / var(--zoom, 1)); max-height: calc(90dvh / var(--zoom, 1));
     overflow: auto;
     padding: 22px;
     border-radius: 22px;

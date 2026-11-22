@@ -53,7 +53,7 @@ body {
     justify-content: center;
     align-items: flex-start;
 
-    min-height: 100vh; min-height: 100dvh;
+    min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 }
 
 
@@ -64,7 +64,7 @@ body {
 .app {
     width: 100%;
     max-width: 430px;
-    min-height: 100vh; min-height: 100dvh;
+    min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 
     background: #ffffff;
 
@@ -443,7 +443,7 @@ header h1 {
     .app {
         max-width: 900px;
 
-        min-height: 100vh; min-height: 100dvh;
+        min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 
         padding: 30px 40px;
 

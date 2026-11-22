@@ -10,7 +10,7 @@
 }
 
 body {
-      min-height: 100vh; min-height: 100dvh;
+      min-height: calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
     background: linear-gradient(135deg, #4D2FB2, #38208F);
     display: flex;
     align-items: center;

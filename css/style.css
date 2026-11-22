@@ -40,7 +40,7 @@ width:100%;
 
 max-width:430px;
 
-min-height:100vh; min-height: 100dvh;
+min-height:calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 
 margin:0 auto;
 
@@ -890,7 +890,7 @@ display:block;
 
 }.desktop-app{
 
-min-height:100vh; min-height: 100dvh;
+min-height:calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 
 display:flex;
 
@@ -1430,7 +1430,7 @@ width:100%;
 
 max-width:430px;
 
-min-height:100vh; min-height: 100dvh;
+min-height:calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 
 padding:12px
 
@@ -1936,7 +1936,7 @@ background:#f2f3f7;
 
 width:100%;
 
-min-height:100vh; min-height: 100dvh;
+min-height:calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 
 }.container{
 
@@ -2048,7 +2048,7 @@ width:100%;
 
 max-width:none;
 
-min-height:100vh; min-height: 100dvh;
+min-height:calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 
 margin:0;
 
@@ -2598,7 +2598,7 @@ width:100%;
 
 max-width:none;
 
-min-height:calc(100vh - 78px); min-height: calc(100dvh - 78px);
+min-height:calc(100vh / var(--zoom, 1) - 78px); min-height: calc(100dvh / var(--zoom, 1) - 78px);
 
 margin:0;
 
@@ -3402,7 +3402,7 @@ width:100%;
 
 max-width:none;
 
-min-height:100vh; min-height: 100dvh;
+min-height:calc(100vh / var(--zoom, 1)); min-height: calc(100dvh / var(--zoom, 1));
 
 margin:0;
 

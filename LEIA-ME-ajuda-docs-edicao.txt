@@ -126,20 +126,18 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    O splash.js toca o video sempre mudo. Para voltar a ter som, e preciso um intro.mp4
    com audio e tirar o "muted" do splash.js.
 
-22) ACESSIBILIDADE: LEITOR DE TELA E AREA DE TOQUE (js/leitorTela.js + css/acessibilidade.css)
-   Um unico arquivo, incluido em todas as paginas (depois do preferencias.js):
-   - botoes so com icone ganham nome falado (aria-label). Para mudar os nomes: lista NOMES no arquivo;
-   - icones Font Awesome ficam "mudos" para o TalkBack (aria-hidden);
-   - mensagens de erro/sucesso sao lidas em voz alta (lista MENSAGENS no arquivo);
-   - botoes de filtro dizem se estao ativos (aria-pressed);
-   - botoes menores que 44x44 px ganham area de toque de 44x44 px, sem mudar o visual
-     (classes alvo-toque no css/acessibilidade.css). As bolinhas do carrossel ficam de fora.
-   Se criar uma pagina nova, basta incluir <script src="js/leitorTela.js" defer></script>.
+22) LEITOR DE TELA REMOVIDO (js/leitorTela.js apagado e tirado das paginas).
 
 23) TELA INICIAL: FILTRO, CARD CLICAVEL E EVENTO FEITO
 - inicio.html: filtro por categoria (Todos, Casamento, Aniversario, Formatura, Corporativo, Cha de Bebe, Outro) logo abaixo da busca; funciona junto com o texto digitado (a busca tambem acha pela categoria).
-- Segunda fileira de filtros: Todos, Em andamento, Concluidos (concluido = data+horario no passado).
-- O card inteiro abre o evento (antes so a setinha). Funciona tambem com teclado (Enter) e leitor de tela.
+- Barra unica de filtros: Todos, Em andamento, Concluidos e as categorias. Pode ligar 1 situacao + 1 categoria juntas (opcional); tocar de novo desliga; Todos limpa.
+- O card inteiro abre o evento (antes so a setinha). Funciona tambem com teclado (Enter).
 - Evento que ja aconteceu (data + horario no passado) mostra o check verde no lugar do "!".
 - Filtro "Concluidos" mostra so os eventos que ja aconteceram.
 - css/style.css: estilos no final do arquivo.
+
+24) FONTE GRANDE / TEMA ESCURO: CORRECOES
+- Com fonte grande o app usa "zoom"; as alturas em vh/dvh/vw dos CSS agora dividem por var(--zoom) (definida em css/acessibilidade.css). Antes a tela ficava maior que o celular: sobrava rolagem em branco e a caixa de digitar do Nexus sumia.
+- Tema escuro: a classe .evento (titulo "Evento / Nome" de Tarefas, Presentes, Convite e Financeiro) nao e mais tratada como o card roxo da tela inicial (o texto ficava escuro sobre escuro).
+- Tema escuro no login/cadastro: texto do topo volta a ficar branco (css/autenticacao.css).
+- Fonte grande na tela inicial: mascote do banner encolhe para nao cobrir o texto.

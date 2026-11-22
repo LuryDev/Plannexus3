@@ -26,8 +26,8 @@ body {
 }
 
 .app {
-    height: 100vh; height: 100dvh;
-    height: 100dvh;
+    height: calc(100vh / var(--zoom, 1)); height: calc(100dvh / var(--zoom, 1));
+    height: calc(100dvh / var(--zoom, 1));
     max-width: 600px;
     margin: 0 auto;
     display: flex;
@@ -150,7 +150,7 @@ header {
 .resumo-evento {
     margin: 0 16px 10px;
     padding: 16px;
-    max-height: 45vh; max-height: 45dvh;
+    max-height: calc(45vh / var(--zoom, 1)); max-height: calc(45dvh / var(--zoom, 1));
     overflow-y: auto;
     background: #fff;
     border: 1px solid var(--borda);

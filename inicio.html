@@ -32,7 +32,6 @@
     <link rel="stylesheet" href="css/responsivo.css">
     <link rel="stylesheet" href="css/acessibilidade.css">
     <script src="js/preferencias.js"></script>
-    <script src="js/leitorTela.js" defer></script>
 </head>
 
 <body class="pagina-inicio">
@@ -136,21 +135,16 @@
 
     </div>
 
-    <div class="filtros-categoria" id="filtrosCategoria" role="group" aria-label="Filtrar por categoria">
-        <button type="button" class="filtro-cat ativo" data-cat="">Todos</button>
-        <button type="button" class="filtro-cat" data-cat="__feito">✅ Concluídos</button>
-        <button type="button" class="filtro-cat" data-cat="Casamento">Casamento</button>
-        <button type="button" class="filtro-cat" data-cat="Aniversário">Aniversário</button>
-        <button type="button" class="filtro-cat" data-cat="Formatura">Formatura</button>
-        <button type="button" class="filtro-cat" data-cat="Evento Corporativo">Corporativo</button>
-        <button type="button" class="filtro-cat" data-cat="Chá de Bebê">Chá de Bebê</button>
-        <button type="button" class="filtro-cat" data-cat="Outro">Outro</button>
-    </div>
-
-    <div class="filtros-categoria" id="filtrosSituacao" role="group" aria-label="Filtrar por situação">
-        <button type="button" class="filtro-cat ativo" data-sit="">Todos</button>
-        <button type="button" class="filtro-cat" data-sit="andamento">Em andamento</button>
-        <button type="button" class="filtro-cat" data-sit="concluido">Concluídos</button>
+    <div class="filtros-categoria" id="filtrosEventos" role="group" aria-label="Filtrar eventos">
+        <button type="button" class="filtro-cat ativo" data-tipo="todos" aria-pressed="true">Todos</button>
+        <button type="button" class="filtro-cat" data-tipo="sit" data-valor="andamento" aria-pressed="false">Em andamento</button>
+        <button type="button" class="filtro-cat" data-tipo="sit" data-valor="concluido" aria-pressed="false">Concluídos</button>
+        <button type="button" class="filtro-cat" data-tipo="cat" data-valor="Casamento" aria-pressed="false">Casamento</button>
+        <button type="button" class="filtro-cat" data-tipo="cat" data-valor="Aniversário" aria-pressed="false">Aniversário</button>
+        <button type="button" class="filtro-cat" data-tipo="cat" data-valor="Formatura" aria-pressed="false">Formatura</button>
+        <button type="button" class="filtro-cat" data-tipo="cat" data-valor="Evento Corporativo" aria-pressed="false">Corporativo</button>
+        <button type="button" class="filtro-cat" data-tipo="cat" data-valor="Chá de Bebê" aria-pressed="false">Chá de Bebê</button>
+        <button type="button" class="filtro-cat" data-tipo="cat" data-valor="Outro" aria-pressed="false">Outro</button>
     </div><br>
 
 
@@ -656,8 +650,7 @@
             const categoria = evento.dataset.categoria || "";
 
             const okTexto = nome.includes(texto) || categoria.toLowerCase().includes(texto);
-            const okCategoria = !categoriaFiltro
-                || (categoriaFiltro === "__feito" ? evento.dataset.feito === "1" : categoria === categoriaFiltro);
+            const okCategoria = !categoriaFiltro || categoria === categoriaFiltro;
 
             const okSituacao = !situacaoFiltro || evento.dataset.situacao === situacaoFiltro;
 
@@ -669,33 +662,30 @@
 
     pesquisaEvento.addEventListener("input", aplicarFiltros);
 
-    document.getElementById("filtrosCategoria").addEventListener("click", function (e) {
+    // Uma única barra: até 1 situação (andamento/concluído) + até 1 categoria, ambos opcionais.
+    // Tocar de novo no filtro ligado desliga; "Todos" limpa tudo.
+    document.getElementById("filtrosEventos").addEventListener("click", function (e) {
 
         const botao = e.target.closest(".filtro-cat");
         if (!botao) return;
 
-        categoriaFiltro = botao.dataset.cat;
+        const tipo = botao.dataset.tipo;
+        const valor = botao.dataset.valor || "";
 
-        document.querySelectorAll("#filtrosCategoria .filtro-cat").forEach((b) => {
-            const ativo = b === botao;
-            b.classList.toggle("ativo", ativo);
-            b.setAttribute("aria-pressed", ativo ? "true" : "false");
-        });
+        if (tipo === "todos") {
+            situacaoFiltro = "";
+            categoriaFiltro = "";
+        } else if (tipo === "sit") {
+            situacaoFiltro = (situacaoFiltro === valor) ? "" : valor;
+        } else {
+            categoriaFiltro = (categoriaFiltro === valor) ? "" : valor;
+        }
 
-        aplicarFiltros();
-
-    });
-
-
-    document.getElementById("filtrosSituacao").addEventListener("click", function (e) {
-
-        const botao = e.target.closest(".filtro-cat");
-        if (!botao) return;
-
-        situacaoFiltro = botao.dataset.sit;
-
-        document.querySelectorAll("#filtrosSituacao .filtro-cat").forEach((b) => {
-            const ativo = b === botao;
+        document.querySelectorAll("#filtrosEventos .filtro-cat").forEach((b) => {
+            let ativo;
+            if (b.dataset.tipo === "todos") ativo = !situacaoFiltro && !categoriaFiltro;
+            else if (b.dataset.tipo === "sit") ativo = b.dataset.valor === situacaoFiltro;
+            else ativo = b.dataset.valor === categoriaFiltro;
             b.classList.toggle("ativo", ativo);
             b.setAttribute("aria-pressed", ativo ? "true" : "false");
         });

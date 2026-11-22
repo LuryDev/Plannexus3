@@ -8,7 +8,7 @@
     position: fixed;
     /* acima da barra inferior (40px) e alinhado à coluna do app (430px) */
     bottom: 58px;
-    right: max(16px, calc(50vw - 215px + 16px));
+    right: max(16px, calc((50vw / var(--zoom, 1)) - 215px + 16px));
     z-index: 15;
     width: 58px;
     height: 58px;
@@ -55,8 +55,8 @@
 .nxf-painel {
     width: 100%;
     max-width: 430px;
-    height: min(78vh, 640px); height: min(78dvh, 640px);
-    height: min(78dvh, 640px);
+    height: min(calc(78vh / var(--zoom, 1)), 640px); height: min(calc(78dvh / var(--zoom, 1)), 640px);
+    height: min(calc(78dvh / var(--zoom, 1)), 640px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
