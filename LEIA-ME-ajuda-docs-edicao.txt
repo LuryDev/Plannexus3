@@ -150,3 +150,11 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 
 27) SELO "Plannexus oferece esse servico!": a IA marcava o selo em tarefas que o app nao faz (ex.: escolher local, contratar buffet). Agora o selo so aparece se o TITULO da tarefa fala da ferramenta (palavras em SERVICO_PALAVRAS, em api/nexus.js e js/utils.js). Vale tambem para tarefas antigas ja salvas. Tambem foram incluidos os servicos "convidados" e "convites", que o app ja tem. Para o Nexus novo valer, publique tambem a pasta api/ (git push).
 - Selo agora diz "Organize com Plannexus!" e, quando o evento ja existe (paginas Tarefas e Evento), e clicavel e leva a ferramenta (js/utils.js: SERVICO_PAGINAS, seloDoServico). Na tela de sugestoes do Nexus (evento ainda nao criado) o selo e so texto.
+
+28) NEXUS MAIS INTELIGENTE NA CRIACAO DE EVENTO (api/nexus.js, nexus.html, css/nexus.css, vercel.json):
+- Nome: o Nexus nunca pergunta o nome; cria um curto a partir do texto ("churrasco de 40 anos" -> "Churrasco de 40 anos"). Ele aproveita tudo da 1a mensagem (data, hora, local, convidados) e pergunta so o que falta, numa unica mensagem, comecando com "Entendi: ...".
+- Novo campo "detalhes": tudo que o usuario contou (idade, comida, bebidas, criancas...) e salvo na nota "Detalhes do evento".
+- As perguntas fixas por categoria (ex.: "quantos anos?") foram REMOVIDAS. Agora a IA devolve 0 a 2 "perguntasOpcionais", so sobre o que o usuario ainda nao disse. Se nao houver nenhuma, a etapa e pulada.
+- Tarefas: 6 a 10, especificas, com titulo, descricao (quantidades como estimativa), prioridade e prazo (diasAntes convertido em data real, nunca no passado nem depois do evento). Tudo ja vai preenchido na tela de Tarefas do evento. validarTarefas/validarPerguntas continuam nao confiando na IA.
+- maxOutputTokens do modo "criar" subiu para 2500, timeout 22 s, e vercel.json ganhou maxDuration 60 para api/nexus.js.
+- Precisa de git push (pasta api/ e vercel.json). A qualidade real das respostas so aparece com o Gemini de verdade depois do deploy.

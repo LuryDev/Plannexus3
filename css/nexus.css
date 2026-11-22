@@ -217,7 +217,7 @@ header {
 
 .tarefa-sugerida {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     padding: 6px 0;
     font-size: 13px;
@@ -225,6 +225,7 @@ header {
 }
 
 .tarefa-sugerida input {
+    margin-top: 2px;
     width: 18px;
     height: 18px;
     flex-shrink: 0;
@@ -539,4 +540,19 @@ header {
     cursor: pointer;
     border: 0;
     border-radius: 12px;
+}
+
+/* descrição, prioridade e prazo de cada tarefa sugerida */
+.tarefa-detalhe {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #666;
+    overflow-wrap: anywhere;
+}
+
+.tarefa-detalhe.tarefa-meta {
+    font-weight: 600;
+    color: #5A32D3;
 }

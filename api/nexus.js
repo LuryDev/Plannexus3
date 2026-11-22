@@ -5,7 +5,7 @@
 //   1. Confere se quem chamou está logado (token do Firebase).
 //   2. Aplica um limite de mensagens por usuário por dia.
 //   3. Chama a API do Gemini (a chave fica só aqui, no servidor).
-//   4. Devolve { resposta, evento, tarefas } já validado.
+//   4. Devolve { resposta, evento, tarefas, perguntas } já validado.
 //
 //  (arquivo em formato ESM: package.json tem "type": "module")
 //
@@ -86,24 +86,60 @@ export function validarEvento(bruto) {
         convidados: Math.round(numeroOuZero(bruto.convidados)),
         orcamento: numeroOuZero(bruto.orcamento),
         descricao: String(bruto.descricao || "").trim().slice(0, 500),
+        detalhes: String(bruto.detalhes || "").trim().slice(0, 800),
         listaPresentes: bruto.listaPresentes === true,
         criadorConvites: bruto.criadorConvites === true
     };
 }
 
-export function validarTarefas(bruto) {
+const PRIORIDADES = ["alta", "media", "baixa"];
+
+// Soma dias a uma data "AAAA-MM-DD" (sempre em UTC, sem surpresas de fuso)
+function somarDias(dataISO, dias) {
+    const d = new Date(dataISO + "T00:00:00Z");
+    d.setUTCDate(d.getUTCDate() + dias);
+    return d.toISOString().slice(0, 10);
+}
+
+// "evento" (já validado) serve para transformar "diasAntes" em um prazo real.
+export function validarTarefas(bruto, evento = null) {
     if (!Array.isArray(bruto)) return [];
+
+    const hoje = hojeNoBrasil();
 
     return bruto
         .map((t) => {
-            // aceita texto simples ou { titulo, servico }
-            const titulo = String(typeof t === "string" ? t : (t && t.titulo) || "").trim().slice(0, 80);
-            let servico = t && typeof t === "object" && SERVICOS.includes(t.servico) ? t.servico : null;
+            // aceita texto simples ou { titulo, descricao, prioridade, diasAntes, servico }
+            const obj = t && typeof t === "object" ? t : {};
+            const titulo = String(typeof t === "string" ? t : obj.titulo || "").trim().slice(0, 80);
+            const descricao = String(obj.descricao || "").trim().slice(0, 240);
+            const prioridade = PRIORIDADES.includes(obj.prioridade) ? obj.prioridade : "media";
+
+            let servico = SERVICOS.includes(obj.servico) ? obj.servico : null;
             if (servico && !SERVICO_PALAVRAS[servico].test(titulo)) servico = null;
-            return { titulo, servico };
+
+            // prazo = data do evento menos "diasAntes"; nunca no passado nem depois do evento
+            let prazo = "";
+            const dias = Number(obj.diasAntes);
+            if (evento && Number.isFinite(dias) && dias >= 0 && dias <= 365) {
+                prazo = somarDias(evento.data, -Math.round(dias));
+                if (prazo < hoje) prazo = hoje <= evento.data ? hoje : evento.data;
+            }
+
+            return { titulo, descricao, prioridade, prazo, servico };
         })
         .filter((t) => t.titulo)
-        .slice(0, 8);
+        .slice(0, 10);
+}
+
+// Perguntas opcionais que a IA acha úteis (0 a 2). Só texto curto.
+export function validarPerguntas(bruto) {
+    if (!Array.isArray(bruto)) return [];
+
+    return bruto
+        .map((p) => String(p || "").trim().slice(0, 160))
+        .filter((p) => p.length >= 8)
+        .slice(0, 2);
 }
 
 export function limparHistorico(mensagens) {
@@ -224,22 +260,30 @@ Sua única função é ajudar o usuário a CRIAR UM EVENTO. Se o usuário pedir 
 
 Hoje é ${hojeNoBrasil()} (fuso de São Paulo). Use isso para entender "amanhã", "sábado que vem" etc. A data do evento deve ser hoje ou futura.
 
-Dados que você precisa descobrir. Eles são EXATAMENTE os campos do formulário de criação de evento do app, e você deve perguntar por TODOS, poucos por vez e aproveitando o que o usuário já disse:
-- nome do evento (obrigatório; se faltar, sugira um nome)
-- categoria: uma entre ${CATEGORIAS.join(", ")} (obrigatório)
-- data (obrigatório) e horário (obrigatório)
-- local (obrigatório)
-- número de convidados: SEMPRE pergunte, mesmo que seja uma estimativa. Se o usuário não souber ou não quiser dizer, use 0.
-- orçamento inicial em reais: SEMPRE pergunte. Se o usuário não souber ou não quiser informar, use 0.
-- lista de presentes e criador de convites: NÃO pergunte sobre isso na conversa. O app mostra essas opções depois, em caixas de marcar. Deixe "listaPresentes" e "criadorConvites" como false.
-- descrição curta: SEMPRE ofereça (o usuário pode dizer que não quer; nesse caso deixe vazia).
-
-Só preencha "evento" depois de ter perguntado TODOS os itens acima que não sejam os dois itens que o app pergunta sozinho. Não faça perguntas específicas sobre o tipo de evento (tema, estilo etc.): o app faz isso depois. Nunca pule convidados, orçamento ou descrição por conta própria, nem os preencha com valores seus. Para não cansar o usuário, junte duas ou três perguntas por mensagem.
+COMO CONDUZIR A CONVERSA (seja rápido e não faça perguntas que já foram respondidas):
+1. Leia a mensagem do usuário e tire dela TUDO o que for possível. Releia também as mensagens anteriores: nunca pergunte de novo algo que o usuário já disse (idade, número de pessoas, local, tipo de comida, tema etc.).
+2. Campos obrigatórios do evento: nome, categoria (uma entre ${CATEGORIAS.join(", ")}), data, horário e local.
+   • NOME: NUNCA pergunte o nome. Crie você mesmo um nome curto e natural a partir do que o usuário disse (ex.: "churrasco de 40 anos" → "Churrasco de 40 anos"; "casamento da Ana e do Pedro" → "Casamento Ana e Pedro"; "festa de 15 anos da minha filha" → "Festa de 15 anos"). Se não houver nada a aproveitar, use algo simples como o tipo do evento.
+   • CATEGORIA: deduza sozinho; só pergunte se for impossível saber (na dúvida use "Outro").
+   • DATA, HORÁRIO e LOCAL: se faltar algum, pergunte SÓ o que falta, tudo em UMA única mensagem curta. "Em casa" é um local válido.
+3. Número de convidados e orçamento: se o usuário disse, preencha (ex.: "umas 40 pessoas" → 40). Se não disse, deixe 0. Não bloqueie o evento por causa disso.
+4. Descrição: não pergunte. Se der, escreva uma frase curta resumindo o evento; senão deixe vazia.
+5. "listaPresentes" e "criadorConvites": o app pergunta depois. Deixe false.
+6. Assim que tiver os cinco campos obrigatórios (mesmo na primeira mensagem), preencha "evento" na mesma resposta.
 
 Regras de resposta (sempre responda em JSON no formato pedido):
-- "resposta": o que você diz ao usuário.
-- "evento": deixe null enquanto faltar algum dado obrigatório. Quando tiver nome, categoria, data (AAAA-MM-DD), horário (HH:MM) e local, preencha o objeto e, em "resposta", diga que já tem os dados e que o app vai fazer mais algumas perguntas rápidas antes do resumo (não peça para conferir o resumo ainda). Se o usuário pedir uma mudança, devolva o evento atualizado.
-- "tarefas": só quando "evento" estiver preenchido, sugira de 4 a 6 tarefas iniciais curtas e práticas, adequadas ao tipo de evento. Caso contrário, lista vazia. Cada tarefa tem "titulo" e "servico".
+- "resposta": o que você diz ao usuário, em até 3 frases.
+  • Se ainda faltar algo obrigatório: comece com "Entendi: ..." resumindo o que já sabe e pergunte só o que falta.
+  • Se o evento já estiver completo: comece com "Entendi: ..." resumindo em uma frase (nome, data, horário, local, convidados se houver) e diga que o app vai fazer umas perguntas rápidas antes do resumo final. Não peça para conferir o resumo ainda. Se o usuário pedir uma mudança, devolva o evento atualizado.
+- "evento": null enquanto faltar dado obrigatório; depois, o objeto completo (data AAAA-MM-DD, horário HH:MM).
+- "detalhes": dentro do evento, um texto curto (máx. 600 caracteres) com TUDO que o usuário contou e que não cabe nos outros campos: idade, tema, cardápio, bebidas, atrações, crianças, restrições, preferências, quem faz o quê. Use só o que foi dito. Vazio se não houver nada.
+- "perguntasOpcionais": só quando "evento" estiver preenchido. De 0 a 2 perguntas curtas sobre informações que o usuário NÃO deu e que mudariam as tarefas (ex.: "Vai ter alguma restrição alimentar entre os convidados?", "Alguém vai ajudar com a comida ou vocês vão contratar?"). Nunca pergunte algo já dito, nem nome, data, local, idade ou tema se já foram ditos. Se não houver nada realmente útil, devolva lista vazia.
+- "tarefas": só quando "evento" estiver preenchido; senão, lista vazia. Sugira de 6 a 10 tarefas ESPECÍFICAS e ACIONÁVEIS para ESTE evento, baseadas no que o usuário contou (tipo de comida, bebidas, número de convidados, crianças, local, orçamento, data). Cada tarefa tem:
+  • "titulo": verbo no infinitivo + objeto concreto, até 70 caracteres (ex.: "Comprar carne e carvão para 40 pessoas", "Reservar mesas e cadeiras extras").
+  • "descricao": 1 ou 2 frases úteis, com quantidades estimadas quando fizer sentido (ex.: "Calcule cerca de 400 g de carne por adulto. Estimativa, ajuste ao seu grupo."). Deixe claro que números são estimativas.
+  • "prioridade": "alta", "media" ou "baixa".
+  • "diasAntes": quantos dias antes do evento a tarefa deve estar pronta (0 = no dia). Use prazos realistas e coerentes com a data (se o evento é em poucos dias, use prazos curtos).
+  Ordene da mais urgente para a menos urgente. NÃO invente tarefas genéricas de enfeite: só inclua "definir tema", "escolher decoração", "contratar buffet" etc. se o usuário falou disso. Não repita tarefas parecidas. Inclua uma tarefa de orçamento só se o usuário informou um valor (cite o valor na descrição).
 - "servico": o Plannexus já oferece ferramentas dentro do evento. Se a tarefa for justamente fazer algo que uma ferramenta resolve, preencha "servico" com UMA destas opções; senão, use null:
   • "presentes" = montar a lista de presentes do evento
   • "financeiro" = controlar o orçamento, receitas e gastos
@@ -269,6 +313,7 @@ const ESQUEMA_RESPOSTA = {
                 convidados:     { type: "NUMBER", nullable: true },
                 orcamento:      { type: "NUMBER", nullable: true },
                 descricao:      { type: "STRING", nullable: true },
+                detalhes:       { type: "STRING", nullable: true },
                 listaPresentes: { type: "BOOLEAN", nullable: true },
                 criadorConvites: { type: "BOOLEAN", nullable: true }
             },
@@ -279,12 +324,16 @@ const ESQUEMA_RESPOSTA = {
             items: {
                 type: "OBJECT",
                 properties: {
-                    titulo:  { type: "STRING" },
-                    servico: { type: "STRING", nullable: true, enum: SERVICOS }
+                    titulo:     { type: "STRING" },
+                    descricao:  { type: "STRING", nullable: true },
+                    prioridade: { type: "STRING", nullable: true, enum: PRIORIDADES },
+                    diasAntes:  { type: "NUMBER", nullable: true },
+                    servico:    { type: "STRING", nullable: true, enum: SERVICOS }
                 },
                 required: ["titulo"]
             }
-        }
+        },
+        perguntasOpcionais: { type: "ARRAY", items: { type: "STRING" } }
     },
     required: ["resposta", "tarefas"]
 };
@@ -509,7 +558,8 @@ export default async function handler(req, res) {
             return res.status(200).json({
                 resposta: resultado.resposta.slice(0, 1500),
                 evento,
-                tarefas: evento ? validarTarefas(resultado.tarefas) : []
+                tarefas: evento ? validarTarefas(resultado.tarefas, evento) : [],
+                perguntas: evento ? validarPerguntas(resultado.perguntasOpcionais) : []
             });
         }
         catch (erro) {
@@ -544,13 +594,13 @@ function chamarGemini(modelo, historico, modo = "criar", contexto = { pagina: "o
             "Content-Type": "application/json",
             "x-goog-api-key": process.env.GEMINI_API_KEY
         },
-        signal: AbortSignal.timeout(14000),
+        signal: AbortSignal.timeout(modo === "ajuda" ? 14000 : 22000),   // criar evento gera mais texto (tarefas)
         body: JSON.stringify({
             systemInstruction: { parts: [{ text: modo === "ajuda" ? instrucoesAjuda(contexto) : instrucoes() }] },
             contents: historico,
             generationConfig: {
                 temperature: 0.4,
-                maxOutputTokens: 1024,
+                maxOutputTokens: modo === "ajuda" ? 1024 : 2500,
                 responseMimeType: "application/json",
                 responseSchema: modo === "ajuda" ? ESQUEMA_AJUDA : ESQUEMA_RESPOSTA
             }

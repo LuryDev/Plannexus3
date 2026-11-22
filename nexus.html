@@ -123,22 +123,14 @@
         let tarefasAtuais = [];    // tarefas sugeridas
         let aguardando = false;
 
-        // ----- etapa extra: 2 perguntas opcionais + escolha das ferramentas -----
+        // ----- etapa extra: perguntas opcionais (0 a 2, vindas da IA) + escolha das ferramentas -----
         let extrasFeitos = false;           // já passou pelas perguntas e pela escolha?
         let extrasEmAndamento = false;
         let respostasExtras = [];           // [{ pergunta, resposta }]
         let escolhas = { listaPresentes: false, criadorConvites: false };
 
-        // 2 perguntas opcionais por tipo de evento
-        const PERGUNTAS_EXTRAS = {
-            "Casamento":          ["Vocês já têm um estilo ou paleta de cores em mente?", "Quantos padrinhos e madrinhas terão na cerimônia?"],
-            "Aniversário":        ["Qual é o tema da festa (se tiver um)?", "Quantos anos o aniversariante vai fazer?"],
-            "Formatura":          ["Qual é o curso e a instituição da turma?", "Vai ter baile ou só a colação de grau?"],
-            "Evento Corporativo": ["Qual é o objetivo do evento (treinamento, confraternização, lançamento)?", "Vai precisar de palestrante ou equipamentos (projetor, som)?"],
-            "Chá de Bebê":        ["Já sabem o sexo do bebê ou será surpresa?", "Vai ter algum tema ou cor para a decoração?"],
-            "Outro":              ["Qual é o principal objetivo do evento?", "Tem alguma exigência especial (acessibilidade, restrição alimentar)?"]
-        };
-
+        // perguntas opcionais: quem decide quais (0 a 2) é o Nexus, com base no que o usuário ainda não disse
+        let perguntasIA = [];
 
         // ================= MENSAGENS NA TELA =================
         function adicionarBalao(texto, quem, erro = false) {
@@ -162,6 +154,10 @@
         // ================= RESUMO DO EVENTO =================
         function linhaResumo(rotulo, valor) {
             return `<div class="linha-resumo"><span>${escaparHTML(rotulo)}</span><strong>${escaparHTML(valor)}</strong></div>`;
+        }
+
+        function rotuloPrioridade(p) {
+            return p === "alta" ? "Prioridade alta" : p === "baixa" ? "Prioridade baixa" : "Prioridade média";
         }
 
         function desenharResumo() {
@@ -189,7 +185,7 @@
             if (e.descricao) html += linhaResumo("Descrição", e.descricao);
             if (escolhas.listaPresentes) html += linhaResumo("Lista de presentes", "Sim");
             if (escolhas.criadorConvites) html += linhaResumo("Criador de convites", "Sim");
-            if (respostasExtras.length) html += linhaResumo("Notas do evento", respostasExtras.length + (respostasExtras.length === 1 ? " resposta" : " respostas"));
+            if (e.detalhes || respostasExtras.length) html += linhaResumo("Bloco de notas", "Detalhes do evento");
 
             dadosResumoEl.innerHTML = html;
 
@@ -200,6 +196,8 @@
                         <span>
                             ${escaparHTML(t.titulo)}
                             ${seloDoServico(t, null)}
+                            ${t.descricao ? `<small class="tarefa-detalhe">${escaparHTML(t.descricao)}</small>` : ""}
+                            <small class="tarefa-detalhe tarefa-meta">${rotuloPrioridade(t.prioridade)}${t.prazo ? " · até " + escaparHTML(formatarData(t.prazo)) : ""}</small>
                         </span>
                     </label>
                 `).join("");
@@ -257,6 +255,7 @@
 
                 eventoAtual = dados.evento || null;
                 tarefasAtuais = dados.tarefas || [];
+                if (!extrasFeitos && !extrasEmAndamento) perguntasIA = dados.perguntas || [];
 
                 // primeira vez que o evento fica pronto: perguntas opcionais e escolha das ferramentas
                 if (eventoAtual && !extrasFeitos && !extrasEmAndamento) {
@@ -311,10 +310,10 @@
         }
 
         // abre o pop-up e devolve o texto digitado ("" se cancelou)
-        function perguntarNoPopup(pergunta, numero) {
+        function perguntarNoPopup(pergunta, numero, total) {
             return new Promise((resolver) => {
                 perguntaPop.textContent = pergunta;
-                contadorPop.textContent = "Opcional " + numero + " de 2";
+                contadorPop.textContent = "Opcional " + numero + " de " + total;
                 respostaPop.value = "";
                 caracteresPop.textContent = "0/300";
                 fundoPop.classList.add("aberto");
@@ -339,10 +338,10 @@
         });
 
         // mostra uma pergunta como balão com Responder / Pular
-        function fazerPerguntaExtra(pergunta, numero) {
+        function fazerPerguntaExtra(pergunta, numero, total) {
             return new Promise((resolver) => {
                 const cartao = adicionarCartao(`
-                    <small class="selo">Opcional ${numero} de 2</small>
+                    <small class="selo">Opcional ${numero} de ${total}</small>
                     <div>${escaparHTML(pergunta)}</div>
                     <div class="acoes">
                         <button type="button" class="b-principal" data-acao="responder"><i class="fa-solid fa-pen"></i> Responder</button>
@@ -351,7 +350,7 @@
                 `);
 
                 cartao.querySelector('[data-acao="responder"]').addEventListener("click", async () => {
-                    const texto = await perguntarNoPopup(pergunta, numero);
+                    const texto = await perguntarNoPopup(pergunta, numero, total);
                     if (!texto) return;                       // fechou sem escrever: continua na pergunta
                     cartao.classList.add("feito");
                     adicionarBalao(texto, "usuario");
@@ -406,16 +405,24 @@
             botaoEnviar.disabled = true;
 
             try {
-                const perguntas = PERGUNTAS_EXTRAS[eventoAtual.categoria] || PERGUNTAS_EXTRAS["Outro"];
-
-                await pausa(300);
-                adicionarBalao("Antes de montar o resumo, tenho 2 perguntinhas opcionais sobre o seu evento. Responda só se quiser!", "nexus");
-
+                const perguntas = perguntasIA.slice(0, 2);
                 respostasExtras = [];
-                for (let i = 0; i < perguntas.length; i++) {
+
+                // só pergunta quando o Nexus achou algo realmente útil que o usuário ainda não disse
+                if (perguntas.length) {
                     await pausa(300);
-                    const resposta = await fazerPerguntaExtra(perguntas[i], i + 1);
-                    if (resposta) respostasExtras.push({ pergunta: perguntas[i], resposta });
+                    adicionarBalao(
+                        perguntas.length === 1
+                            ? "Só uma pergunta opcional, para deixar as tarefas mais certeiras. Responda só se quiser!"
+                            : "Tenho 2 perguntas opcionais, para deixar as tarefas mais certeiras. Responda só se quiser!",
+                        "nexus"
+                    );
+
+                    for (let i = 0; i < perguntas.length; i++) {
+                        await pausa(300);
+                        const resposta = await fazerPerguntaExtra(perguntas[i], i + 1, perguntas.length);
+                        if (resposta) respostasExtras.push({ pergunta: perguntas[i], resposta });
+                    }
                 }
 
                 await pausa(300);
@@ -423,8 +430,8 @@
 
                 await pausa(300);
                 adicionarBalao(
-                    respostasExtras.length
-                        ? "Anotei tudo! Vou guardar suas respostas no bloco de notas do evento. Confira o resumo abaixo e é só criar. ✅"
+                    (respostasExtras.length || (eventoAtual && eventoAtual.detalhes))
+                        ? "Anotei tudo! Vou guardar os detalhes no bloco de notas do evento. Confira o resumo abaixo e é só criar. ✅"
                         : "Perfeito! Confira o resumo abaixo e é só criar. ✅",
                     "nexus"
                 );
@@ -477,11 +484,15 @@
                     criadoEm: serverTimestamp()
                 });
 
-                // respostas das perguntas opcionais viram uma anotação no bloco de notas
-                if (respostasExtras.length) {
+                // o que o usuário contou + respostas das perguntas opcionais viram uma anotação no bloco de notas
+                const partesNota = [];
+                if (e.detalhes) partesNota.push(e.detalhes);
+                respostasExtras.forEach((r) => partesNota.push(r.pergunta + "\n" + r.resposta));
+
+                if (partesNota.length) {
                     await addDoc(collection(db, "eventos", referencia.id, "anotacoes"), {
                         titulo: "Detalhes do evento",
-                        conteudo: respostasExtras.map((r) => r.pergunta + "\n" + r.resposta).join("\n\n"),
+                        conteudo: partesNota.join("\n\n"),
                         dataCriacao: serverTimestamp(),
                         dataAtualizacao: serverTimestamp()
                     });
@@ -491,9 +502,9 @@
                     addDoc(collection(db, "eventos", referencia.id, "tarefas"), {
                         titulo: tarefa.titulo,
                         servico: servicoDaTarefa(tarefa),
-                        descricao: "",
-                        data: "",
-                        prioridade: "media",
+                        descricao: tarefa.descricao || "",
+                        data: tarefa.prazo || "",
+                        prioridade: tarefa.prioridade || "media",
                         concluida: false,
                         criadoEm: serverTimestamp()
                     })
