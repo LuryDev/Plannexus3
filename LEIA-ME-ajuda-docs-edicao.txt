@@ -145,3 +145,5 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 25) NOME: "PlanNexus" trocado por "Plannexus" em todo o projeto (inclui os prompts do Nexus em api/nexus.js, titulos e textos).
 - Fonte grande: o mascote de TODOS os banners da tela inicial encolhe (css/acessibilidade.css), para nao cobrir o texto das imagens.
 - tarefas.html: o texto "PLANNE XUS" (com espaco) virou "PLANNEXUS".
+
+26) LOGIN COM GOOGLE NO APP ("Database is closing/hidden"): login.html e cadastro.html agora usam initializeAuth com a sessao no localStorage (primeiro) e, se o erro aparecer, aproveitam o usuario que ja entrou ou tentam mais uma vez. As outras paginas continuam com getAuth e leem a mesma sessao.

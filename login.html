@@ -68,15 +68,36 @@
 <script type="module">
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { initializeAuth, browserLocalPersistence, indexedDBLocalPersistence, browserPopupRedirectResolver, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
     // FIREBASE_CONFIG vem do arquivo js/config.js
     const app  = initializeApp(FIREBASE_CONFIG);
-    const auth = getAuth(app);
+    const auth = initializeAuth(app, {
+        persistence: [browserLocalPersistence, indexedDBLocalPersistence],
+        popupRedirectResolver: browserPopupRedirectResolver
+    });
     const db   = getFirestore(app);
 
 const provider = new GoogleAuthProvider();
+
+    // Dentro do app Android (WebView/TWA) o IndexedDB pode ser fechado enquanto a janela do Google abre
+    // ("Database is closing/hidden"). Por isso a sessão fica no localStorage (primeiro da lista) e,
+    // se mesmo assim o erro aparecer, usamos o usuário que já entrou ou tentamos mais uma vez.
+    async function entrarComGoogle() {
+        try {
+            return await signInWithPopup(auth, provider);
+        } catch (erro) {
+            if (/closing|hidden|IndexedDB|Database/i.test((erro && erro.message) || "")) {
+                if (auth.currentUser) return { user: auth.currentUser };
+                await new Promise((r) => setTimeout(r, 700));
+                if (auth.currentUser) return { user: auth.currentUser };
+                return await signInWithPopup(auth, provider);
+            }
+            throw erro;
+        }
+    }
+
 
 const formulario = document.getElementById("loginForm");
 
@@ -164,10 +185,7 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
     try {
 
         const resultado =
-            await signInWithPopup(
-                auth,
-                provider
-            );
+            await entrarComGoogle();
 
         const user =
             resultado.user;
