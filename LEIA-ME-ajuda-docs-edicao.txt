@@ -158,3 +158,4 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Tarefas: 6 a 10, especificas, com titulo, descricao (quantidades como estimativa), prioridade e prazo (diasAntes convertido em data real, nunca no passado nem depois do evento). Tudo ja vai preenchido na tela de Tarefas do evento. validarTarefas/validarPerguntas continuam nao confiando na IA.
 - maxOutputTokens do modo "criar" subiu para 2500, timeout 22 s, e vercel.json ganhou maxDuration 60 para api/nexus.js.
 - Precisa de git push (pasta api/ e vercel.json). A qualidade real das respostas so aparece com o Gemini de verdade depois do deploy.
+- Chat de AJUDA (botao flutuante): se o usuario descreve um evento para organizar, o Nexus agora o leva ao "Criar com o Nexus" (destino nexus-criar) em vez de responder sobre orcamento. (api/nexus.js, instrucoesAjuda; precisa de git push)
