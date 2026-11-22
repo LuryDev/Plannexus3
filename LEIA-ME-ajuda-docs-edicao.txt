@@ -143,3 +143,4 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Fonte grande na tela inicial: mascote do banner encolhe para nao cobrir o texto.
 
 25) NOME: "PlanNexus" trocado por "Plannexus" em todo o projeto (inclui os prompts do Nexus em api/nexus.js, titulos e textos).
+- Fonte grande: o mascote de TODOS os banners da tela inicial encolhe (css/acessibilidade.css), para nao cobrir o texto das imagens.

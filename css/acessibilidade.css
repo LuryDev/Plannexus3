@@ -92,9 +92,10 @@ html.menos-movimento *::after {
 }
 
 
-/* Fonte grande: o mascote do banner da tela inicial encolhe para não cobrir o texto */
-html.fonte-grande .banner:not(.banner-extra)::after { width: 105px; height: 105px; }
-html.fonte-maior .banner:not(.banner-extra)::after { width: 88px; height: 88px; }
+/* Fonte grande: o mascote do banner da tela inicial encolhe e vai para o canto, para não cobrir o texto
+   (nos banners de imagem o texto vem desenhado na própria imagem, no lado esquerdo) */
+html.fonte-grande .banner::after { width: 100px; height: 100px; right: 0; bottom: 4px; }
+html.fonte-maior .banner::after { width: 80px; height: 80px; right: 0; bottom: 4px; }
 html.fonte-grande .banner:not(.banner-extra) .banner-overlay { padding-right: 96px; }
 html.fonte-maior .banner:not(.banner-extra) .banner-overlay { padding-right: 82px; }
 html.fonte-maior .banner:not(.banner-extra) .banner-overlay h2 { font-size: 15px; overflow-wrap: anywhere; }
