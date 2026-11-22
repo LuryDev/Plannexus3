@@ -10,7 +10,7 @@
     --cinza: #858095;
     --borda: #ECE9F5;
 
-    /* Sombras padronizadas PlanNexus */
+    /* Sombras padronizadas Plannexus */
     --sombra-roxa-suave: 0 4px 12px rgba(90, 50, 211, .08);
     --sombra-roxa-media: 0 6px 18px rgba(90, 50, 211, .13);
     --sombra-roxa-forte: 0 10px 25px rgba(90, 50, 211, .20);
@@ -829,7 +829,7 @@ header {
     white-space: pre-line;
 }
 
-/* Selo: tarefa que o PlanNexus já oferece como serviço */
+/* Selo: tarefa que o Plannexus já oferece como serviço */
 .selo-servico {
     display: inline-flex;
     align-items: center;

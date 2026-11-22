@@ -141,3 +141,5 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Tema escuro: a classe .evento (titulo "Evento / Nome" de Tarefas, Presentes, Convite e Financeiro) nao e mais tratada como o card roxo da tela inicial (o texto ficava escuro sobre escuro).
 - Tema escuro no login/cadastro: texto do topo volta a ficar branco (css/autenticacao.css).
 - Fonte grande na tela inicial: mascote do banner encolhe para nao cobrir o texto.
+
+25) NOME: "PlanNexus" trocado por "Plannexus" em todo o projeto (inclui os prompts do Nexus em api/nexus.js, titulos e textos).

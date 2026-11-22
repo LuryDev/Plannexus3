@@ -2,7 +2,7 @@
   "name": "plannexus",
   "private": true,
   "type": "module",
-  "description": "PlanNexus - a pasta api/ roda como funções da Vercel",
+  "description": "Plannexus - a pasta api/ roda como funções da Vercel",
   "engines": {
     "node": "22.x"
   },
