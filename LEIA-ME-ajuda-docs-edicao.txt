@@ -159,3 +159,4 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - maxOutputTokens do modo "criar" subiu para 2500, timeout 22 s, e vercel.json ganhou maxDuration 60 para api/nexus.js.
 - Precisa de git push (pasta api/ e vercel.json). A qualidade real das respostas so aparece com o Gemini de verdade depois do deploy.
 - Chat de AJUDA (botao flutuante): se o usuario descreve um evento para organizar, o Nexus agora o leva ao "Criar com o Nexus" (destino nexus-criar) em vez de responder sobre orcamento. (api/nexus.js, instrucoesAjuda; precisa de git push)
+- Nexus (criar evento): se o local vier vago ("em casa", "no salao"), ele pergunta o endereco exato (junto das outras perguntas que faltarem); se o usuario nao quiser informar, aceita o que foi dito. (api/nexus.js; precisa de git push)
