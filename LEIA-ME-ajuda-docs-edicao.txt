@@ -138,6 +138,8 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 
 23) TELA INICIAL: FILTRO, CARD CLICAVEL E EVENTO FEITO
 - inicio.html: filtro por categoria (Todos, Casamento, Aniversario, Formatura, Corporativo, Cha de Bebe, Outro) logo abaixo da busca; funciona junto com o texto digitado (a busca tambem acha pela categoria).
+- Segunda fileira de filtros: Todos, Em andamento, Concluidos (concluido = data+horario no passado).
 - O card inteiro abre o evento (antes so a setinha). Funciona tambem com teclado (Enter) e leitor de tela.
 - Evento que ja aconteceu (data + horario no passado) mostra o check verde no lugar do "!".
+- Filtro "Concluidos" mostra so os eventos que ja aconteceram.
 - css/style.css: estilos no final do arquivo.

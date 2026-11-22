@@ -138,12 +138,19 @@
 
     <div class="filtros-categoria" id="filtrosCategoria" role="group" aria-label="Filtrar por categoria">
         <button type="button" class="filtro-cat ativo" data-cat="">Todos</button>
+        <button type="button" class="filtro-cat" data-cat="__feito">✅ Concluídos</button>
         <button type="button" class="filtro-cat" data-cat="Casamento">Casamento</button>
         <button type="button" class="filtro-cat" data-cat="Aniversário">Aniversário</button>
         <button type="button" class="filtro-cat" data-cat="Formatura">Formatura</button>
         <button type="button" class="filtro-cat" data-cat="Evento Corporativo">Corporativo</button>
         <button type="button" class="filtro-cat" data-cat="Chá de Bebê">Chá de Bebê</button>
         <button type="button" class="filtro-cat" data-cat="Outro">Outro</button>
+    </div>
+
+    <div class="filtros-categoria" id="filtrosSituacao" role="group" aria-label="Filtrar por situação">
+        <button type="button" class="filtro-cat ativo" data-sit="">Todos</button>
+        <button type="button" class="filtro-cat" data-sit="andamento">Em andamento</button>
+        <button type="button" class="filtro-cat" data-sit="concluido">Concluídos</button>
     </div><br>
 
 
@@ -539,6 +546,8 @@
                 card.classList.add("evento");
                 card.dataset.id = evento.id;
                 card.dataset.categoria = evento.categoria || "";
+                card.dataset.situacao = eventoJaAconteceu(evento) ? "concluido" : "andamento";
+                if (eventoJaAconteceu(evento)) card.dataset.feito = "1";
                 card.setAttribute("role", "link");
                 card.tabIndex = 0;
                 card.setAttribute("aria-label", "Abrir evento " + (evento.nome || ""));
@@ -635,6 +644,7 @@
     // ==========================================
 
     let categoriaFiltro = "";
+    let situacaoFiltro = "";
 
     function aplicarFiltros() {
 
@@ -646,9 +656,12 @@
             const categoria = evento.dataset.categoria || "";
 
             const okTexto = nome.includes(texto) || categoria.toLowerCase().includes(texto);
-            const okCategoria = !categoriaFiltro || categoria === categoriaFiltro;
+            const okCategoria = !categoriaFiltro
+                || (categoriaFiltro === "__feito" ? evento.dataset.feito === "1" : categoria === categoriaFiltro);
 
-            evento.style.display = (okTexto && okCategoria) ? "" : "none";
+            const okSituacao = !situacaoFiltro || evento.dataset.situacao === situacaoFiltro;
+
+            evento.style.display = (okTexto && okCategoria && okSituacao) ? "" : "none";
 
         });
 
@@ -663,7 +676,25 @@
 
         categoriaFiltro = botao.dataset.cat;
 
-        document.querySelectorAll(".filtro-cat").forEach((b) => {
+        document.querySelectorAll("#filtrosCategoria .filtro-cat").forEach((b) => {
+            const ativo = b === botao;
+            b.classList.toggle("ativo", ativo);
+            b.setAttribute("aria-pressed", ativo ? "true" : "false");
+        });
+
+        aplicarFiltros();
+
+    });
+
+
+    document.getElementById("filtrosSituacao").addEventListener("click", function (e) {
+
+        const botao = e.target.closest(".filtro-cat");
+        if (!botao) return;
+
+        situacaoFiltro = botao.dataset.sit;
+
+        document.querySelectorAll("#filtrosSituacao .filtro-cat").forEach((b) => {
             const ativo = b === botao;
             b.classList.toggle("ativo", ativo);
             b.setAttribute("aria-pressed", ativo ? "true" : "false");
