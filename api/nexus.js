@@ -580,17 +580,22 @@ export default async function handler(req, res) {
 
     // modelo principal -> modelo reserva (mais leve) -> principal de novo
     const tentativas = reserva && reserva !== modelo
-        ? [modelo, reserva, modelo]
-        : [modelo, modelo];
+        ? [modelo, reserva, modelo, reserva]
+        : [modelo, modelo, modelo];
 
     let ultimoStatus = 0;
+    const inicio = Date.now();
+    const ORCAMENTO_MS = 52000;   // a função da Vercel para em 60 s; não começa tentativa que não cabe
 
     for (let i = 0; i < tentativas.length; i++) {
 
-        if (i > 0) await esperar(700);
+        if (i > 0) await esperar(i * 1200);   // espera um pouco mais a cada tentativa (503 costuma passar em segundos)
+
+        const restante = ORCAMENTO_MS - (Date.now() - inicio);
+        if (restante < 6000) break;
 
         try {
-            const resposta = await chamarGemini(tentativas[i], historico, modo, contexto);
+            const resposta = await chamarGemini(tentativas[i], historico, modo, contexto, restante);
             ultimoStatus = resposta.status;
 
             if (!resposta.ok) {
@@ -659,7 +664,7 @@ function esperar(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function chamarGemini(modelo, historico, modo = "criar", contexto = { pagina: "outra", temEvento: false }) {
+function chamarGemini(modelo, historico, modo = "criar", contexto = { pagina: "outra", temEvento: false }, restanteMs = 22000) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`;
 
     return fetch(url, {
@@ -668,7 +673,7 @@ function chamarGemini(modelo, historico, modo = "criar", contexto = { pagina: "o
             "Content-Type": "application/json",
             "x-goog-api-key": process.env.GEMINI_API_KEY
         },
-        signal: AbortSignal.timeout(modo === "ajuda" ? 14000 : 22000),   // criar evento gera mais texto (tarefas)
+        signal: AbortSignal.timeout(Math.min(restanteMs, modo === "ajuda" ? 14000 : 22000)),   // criar evento gera mais texto (tarefas)
         body: JSON.stringify({
             systemInstruction: { parts: [{ text: modo === "ajuda" ? instrucoesAjuda(contexto) : instrucoes() }] },
             contents: historico,

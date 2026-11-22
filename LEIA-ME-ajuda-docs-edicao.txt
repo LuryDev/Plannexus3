@@ -167,3 +167,5 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Perguntas opcionais: padrao e ZERO; so logistica que muda tarefa. validarPerguntas descarta perguntas de gosto (sabor, tema, cor, estilo...) e as que repetem palavras ja ditas pelo usuario.
 - O prompt ganhou 3 exemplos (chá de amigas, churrasco, casamento) e um unico "Entendi:" por resposta.
 - Precisa de git push (api/nexus.js). Qualidade real so com o Gemini depois do deploy.
+- Nexus "muito ocupado": as tentativas ao Gemini agora respeitam um orcamento de 52 s (a funcao da Vercel para em 60 s). Para saber a causa real: Vercel > Logs, procurar "NEXUS:" (429 = limite/cota do Gemini; 503 = Google sobrecarregado; "aborted/timeout" = demorou). (api/nexus.js; precisa de git push)
+- Nexus 503 (Gemini sobrecarregado): ate 4 tentativas alternando modelo principal e reserva, com espera crescente (1,2 s, 2,4 s, 3,6 s) dentro do orcamento de 52 s. Dica: em Vercel > Environment Variables, GEMINI_FALLBACK_MODEL pode apontar para outro modelo estavel do Gemini.
