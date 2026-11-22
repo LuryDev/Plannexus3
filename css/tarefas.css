@@ -777,3 +777,7 @@ main {
         0 5px 15px rgba(90, 50, 211, 0.714),
         0 10px 25px rgba(90, 50, 211, 0.10);
 }
+
+.selo-servico.selo-link { cursor: pointer; }
+.selo-servico.selo-link:hover { background: #DFD6FF; }
+.selo-servico.selo-link:focus-visible { outline: 2px solid #5A32D3; outline-offset: 2px; }

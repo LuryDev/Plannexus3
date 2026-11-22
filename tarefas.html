@@ -530,7 +530,7 @@
 
                     <div class="informacoes">
                         <h3>${escaparHTML(tarefa.titulo || "Sem título")}</h3>
-                        ${tarefa.servico ? `<small class="selo-servico"><i class="fa-solid fa-circle-check"></i> Plannexus oferece esse serviço!</small>` : ""}
+                        ${seloDoServico(tarefa, eventoId)}
                         ${tarefa.descricao ? `<p>${escaparHTML(tarefa.descricao)}</p>` : ""}
                         ${tarefa.data ? `
                             <small>

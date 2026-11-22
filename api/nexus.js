@@ -32,7 +32,19 @@ const CATEGORIAS = [
 ];
 
 // Serviços que o Plannexus já oferece (usados para marcar as tarefas sugeridas)
-const SERVICOS = ["presentes", "financeiro", "calendario", "notas", "pessoas"];
+const SERVICOS = ["presentes", "financeiro", "calendario", "notas", "pessoas", "convidados", "convites"];
+
+// A IA às vezes marca "serviço" onde não existe. Só vale se o título da tarefa realmente fala do assunto.
+// (mesma lista em js/utils.js, que também confere as tarefas já salvas)
+const SERVICO_PALAVRAS = {
+    presentes:  /presente/i,
+    financeiro: /or[çc]amento|gasto|despesa|custo|financ|verba|receita/i,
+    calendario: /\bdata\b|prazo|calend[áa]rio|agenda|cronograma|compromisso/i,
+    notas:      /anota|\bideias?\b|\bnotas?\b|brainstorm/i,
+    pessoas:    /ajud|colabor|equipe|respons[áa]ve|dividir|delegar/i,
+    convidados: /convidad|confirma[çc][ãa]o de presen|\brsvp\b/i,
+    convites:   /convite/i
+};
 
 const FUSO = "America/Sao_Paulo";
 
@@ -86,7 +98,8 @@ export function validarTarefas(bruto) {
         .map((t) => {
             // aceita texto simples ou { titulo, servico }
             const titulo = String(typeof t === "string" ? t : (t && t.titulo) || "").trim().slice(0, 80);
-            const servico = t && typeof t === "object" && SERVICOS.includes(t.servico) ? t.servico : null;
+            let servico = t && typeof t === "object" && SERVICOS.includes(t.servico) ? t.servico : null;
+            if (servico && !SERVICO_PALAVRAS[servico].test(titulo)) servico = null;
             return { titulo, servico };
         })
         .filter((t) => t.titulo)
@@ -233,7 +246,9 @@ Regras de resposta (sempre responda em JSON no formato pedido):
   • "calendario" = marcar datas, prazos e compromissos
   • "notas" = anotar ideias e informações importantes
   • "pessoas" = convidar pessoas para ajudar a organizar o evento
-  Não marque tarefas como "comprar", "contratar" ou "encomendar" (o app não faz isso) nem "lista de convidados" (o app não tem). Use null nesses casos.
+  • "convidados" = lista de convidados e confirmação de presença por link
+  • "convites" = criar o convite do evento em imagem para compartilhar
+  Só marque quando a própria tarefa for fazer exatamente isso. Não marque tarefas como "comprar", "contratar", "encomendar", "escolher local", "decoração", "cardápio" ou "buffet" (o app não faz isso). Na dúvida, use null.
 - Nunca invente dados que o usuário não informou (local, data, valores).
 - Você não cria o evento: quem cria é o app, depois que o usuário confirmar.`;
 }

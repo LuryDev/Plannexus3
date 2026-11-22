@@ -199,7 +199,7 @@
                         <input type="checkbox" data-indice="${i}" checked>
                         <span>
                             ${escaparHTML(t.titulo)}
-                            ${t.servico ? '<small class="selo-servico"><i class="fa-solid fa-circle-check"></i> Plannexus oferece esse serviço!</small>' : ""}
+                            ${seloDoServico(t, null)}
                         </span>
                     </label>
                 `).join("");
@@ -459,7 +459,7 @@
 
                 // se ficou uma tarefa de lista de presentes, já liga essa ferramenta no evento
                 const comListaPresentes = escolhas.listaPresentes === true ||
-                    marcadas.some((t) => t.servico === "presentes");
+                    marcadas.some((t) => servicoDaTarefa(t) === "presentes");
 
                 const referencia = await addDoc(collection(db, "eventos"), {
                     nome: e.nome,
@@ -490,7 +490,7 @@
                 await Promise.all(marcadas.map((tarefa) =>
                     addDoc(collection(db, "eventos", referencia.id, "tarefas"), {
                         titulo: tarefa.titulo,
-                        servico: tarefa.servico || "",
+                        servico: servicoDaTarefa(tarefa),
                         descricao: "",
                         data: "",
                         prioridade: "media",

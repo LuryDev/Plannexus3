@@ -587,7 +587,7 @@
                             <i class="${tarefa.concluida ? "fa-solid fa-circle-check" : "fa-regular fa-circle"}"></i>
                             <div class="tarefa-texto">
                                 <span>${escaparHTML(tarefa.titulo || "Tarefa sem título")}</span>
-                                ${tarefa.servico ? '<small class="selo-servico"><i class="fa-solid fa-circle-check"></i> Plannexus oferece esse serviço!</small>' : ""}
+                                ${seloDoServico(tarefa, eventoId)}
                             </div>
                         </div>
                     `).join("")

@@ -147,3 +147,6 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - tarefas.html: o texto "PLANNE XUS" (com espaco) virou "PLANNEXUS".
 
 26) LOGIN COM GOOGLE NO APP ("Database is closing/hidden"): login.html e cadastro.html agora usam initializeAuth com a sessao no localStorage (primeiro) e, se o erro aparecer, aproveitam o usuario que ja entrou ou tentam mais uma vez. As outras paginas continuam com getAuth e leem a mesma sessao.
+
+27) SELO "Plannexus oferece esse servico!": a IA marcava o selo em tarefas que o app nao faz (ex.: escolher local, contratar buffet). Agora o selo so aparece se o TITULO da tarefa fala da ferramenta (palavras em SERVICO_PALAVRAS, em api/nexus.js e js/utils.js). Vale tambem para tarefas antigas ja salvas. Tambem foram incluidos os servicos "convidados" e "convites", que o app ja tem. Para o Nexus novo valer, publique tambem a pasta api/ (git push).
+- Selo agora diz "Organize com Plannexus!" e, quando o evento ja existe (paginas Tarefas e Evento), e clicavel e leva a ferramenta (js/utils.js: SERVICO_PAGINAS, seloDoServico). Na tela de sugestoes do Nexus (evento ainda nao criado) o selo e so texto.

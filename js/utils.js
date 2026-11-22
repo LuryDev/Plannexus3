@@ -59,3 +59,50 @@ function exigirLogin(auth, onAuthStateChanged) {
         });
     });
 }
+
+
+// Selo "Plannexus oferece esse serviço!": só aparece se a tarefa realmente fala de uma ferramenta que o app tem.
+// (mesma lista em api/nexus.js; confere também tarefas antigas que a IA marcou errado)
+var SERVICO_PALAVRAS = {
+    presentes:  /presente/i,
+    financeiro: /or[çc]amento|gasto|despesa|custo|financ|verba|receita/i,
+    calendario: /\bdata\b|prazo|calend[áa]rio|agenda|cronograma|compromisso/i,
+    notas:      /anota|\bideias?\b|\bnotas?\b|brainstorm/i,
+    pessoas:    /ajud|colabor|equipe|respons[áa]ve|dividir|delegar/i,
+    convidados: /convidad|confirma[çc][ãa]o de presen|\brsvp\b/i,
+    convites:   /convite/i
+};
+
+function servicoDaTarefa(tarefa) {
+    if (!tarefa || !tarefa.servico || !SERVICO_PALAVRAS[tarefa.servico]) return "";
+    return SERVICO_PALAVRAS[tarefa.servico].test(String(tarefa.titulo || "")) ? tarefa.servico : "";
+}
+
+// Páginas das ferramentas que o selo leva (todas recebem ?id=ID_DO_EVENTO)
+var SERVICO_PAGINAS = {
+    presentes: "presentes.html",
+    financeiro: "controleFinanceiro.html",
+    calendario: "calendario.html",
+    notas: "blocoNotas.html",
+    pessoas: "pessoas.html",
+    convidados: "convidados.html",
+    convites: "convite.html"
+};
+
+function irParaServico(evento, el) {
+    evento.preventDefault();
+    evento.stopPropagation();
+    window.location.href = el.getAttribute("data-ir");
+}
+
+// Selo "Organize com Plannexus!": clicável (leva à ferramenta) quando já existe o evento.
+function seloDoServico(tarefa, eventoId) {
+    var servico = servicoDaTarefa(tarefa);
+    if (!servico) return "";
+    var texto = '<i class="fa-solid fa-circle-check"></i> Organize com Plannexus!';
+    if (!eventoId || !SERVICO_PAGINAS[servico]) return '<small class="selo-servico">' + texto + '</small>';
+    var url = SERVICO_PAGINAS[servico] + "?id=" + encodeURIComponent(eventoId);
+    return '<small class="selo-servico selo-link" role="link" tabindex="0" data-ir="' + url + '"' +
+        ' onclick="irParaServico(event, this)"' +
+        ' onkeydown="if (event.key === \'Enter\' || event.key === \' \') irParaServico(event, this)">' + texto + '</small>';
+}
