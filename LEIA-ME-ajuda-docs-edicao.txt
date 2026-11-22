@@ -121,7 +121,17 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    - Ao criar novas imagens, deixe livre o lado direito (PC: a partir de 900 px da esquerda; celular: a partir de 430 px, na arte de 700 px).
    - A imagem de celular só é usada em telas de até 480 px; tablets e PC usam a imagem larga.
 
-21) SOM NO VIDEO DE ABERTURA (js/splash.js)
-   O video animacoes/intro.mp4 ja tem trilha de audio. Agora o app tenta tocar COM som.
-   Se o navegador bloquear (acontece no navegador comum), ele toca mudo e o som liga no
-   primeiro toque na tela. No app instalado (TWA/PWA) o Chrome costuma permitir som direto.
+21) VIDEO DE ABERTURA SEM MUSICA (animacoes/intro.mp4, js/splash.js)
+   A trilha de audio foi removida do intro.mp4: o video de abertura agora e so imagem.
+   O splash.js toca o video sempre mudo. Para voltar a ter som, e preciso um intro.mp4
+   com audio e tirar o "muted" do splash.js.
+
+22) ACESSIBILIDADE: LEITOR DE TELA E AREA DE TOQUE (js/leitorTela.js + css/acessibilidade.css)
+   Um unico arquivo, incluido em todas as paginas (depois do preferencias.js):
+   - botoes so com icone ganham nome falado (aria-label). Para mudar os nomes: lista NOMES no arquivo;
+   - icones Font Awesome ficam "mudos" para o TalkBack (aria-hidden);
+   - mensagens de erro/sucesso sao lidas em voz alta (lista MENSAGENS no arquivo);
+   - botoes de filtro dizem se estao ativos (aria-pressed);
+   - botoes menores que 44x44 px ganham area de toque de 44x44 px, sem mudar o visual
+     (classes alvo-toque no css/acessibilidade.css). As bolinhas do carrossel ficam de fora.
+   Se criar uma pagina nova, basta incluir <script src="js/leitorTela.js" defer></script>.

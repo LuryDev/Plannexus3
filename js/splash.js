@@ -68,9 +68,7 @@
         video.className = "splash-video";
         video.src = c.video;
         video.autoplay = true;
-        // tenta tocar COM som; se o navegador bloquear, cai para mudo (veja abaixo)
-        video.muted = false;
-        video.volume = 1;
+        video.muted = video.defaultMuted = true;   // abertura sem som (necessário p/ autoplay funcionar)
         video.playsInline = true;
         video.setAttribute("playsinline", "");
         video.setAttribute("webkit-playsinline", "");
@@ -88,17 +86,7 @@
         video.addEventListener("ended", ir);
         video.addEventListener("error", ir);          // sem vídeo? segue direto
         var p = video.play();
-        if (p && p.catch) p.catch(function () {
-            // som bloqueado pelo navegador: toca mudo (o vídeo continua) e liga o som no 1º toque
-            video.muted = true;
-            var p2 = video.play();
-            if (p2 && p2.catch) p2.catch(ir);          // nem mudo tocou? segue direto
-            function ligarSom() {
-                tela.removeEventListener("pointerdown", ligarSom);
-                try { video.muted = false; video.volume = 1; } catch (e) {}
-            }
-            tela.addEventListener("pointerdown", ligarSom);
-        });
+        if (p && p.catch) p.catch(ir);                // autoplay bloqueado? segue direto
 
         // internet lenta: se o vídeo não começar a tocar a tempo, não prende o usuário na tela preta
         var comecou = false;

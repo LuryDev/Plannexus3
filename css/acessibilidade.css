@@ -89,3 +89,18 @@ html.menos-movimento *::after {
     transition-duration: .001ms !important;
     scroll-behavior: auto !important;
 }
+
+/* Área de toque mínima de 44x44 px (js/leitorTela.js marca os botões pequenos com estas classes).
+   O pseudo-elemento é invisível: o desenho do botão não muda, só a área que responde ao dedo. */
+.alvo-toque::after,
+.alvo-toque-b::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    height: 100%;
+    min-width: 44px;
+    min-height: 44px;
+    transform: translate(-50%, -50%);
+}
