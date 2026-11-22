@@ -4378,3 +4378,14 @@ pra eventos que não são seus mas você participa */
             0 5px 14px rgba(77, 47, 184, .20);
     }
 }
+
+
+/* filtro de categorias na busca + card inteiro clicável + evento feito */
+.filtros-categoria{display:flex;gap:8px;overflow-x:auto;padding:10px 2px 2px;scrollbar-width:none}
+.filtros-categoria::-webkit-scrollbar{display:none}
+.filtro-cat{flex:0 0 auto;border:1px solid #EAE5F4;background:#F7F5FB;color:#4D2FB2;border-radius:99px;padding:7px 13px;font:600 12px Poppins,'Segoe UI',sans-serif;cursor:pointer;transition:.2s ease}
+.filtro-cat.ativo{background:#5A32D3;border-color:#5A32D3;color:#fff}
+#listaEventos .evento{cursor:pointer;-webkit-tap-highlight-color:transparent}
+#listaEventos .evento:focus-visible{outline:3px solid #9A7CFF;outline-offset:2px}
+.bolinha-aviso.bolinha-feito{background:#fff;color:#1FA463;font-size:20px;line-height:22px;box-shadow:0 0 0 2px #1FA463,0 2px 8px rgba(0,0,0,.2)}
+.bolinha-feito i{display:block;line-height:22px}

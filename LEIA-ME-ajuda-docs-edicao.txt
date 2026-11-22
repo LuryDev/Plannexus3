@@ -135,3 +135,9 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
    - botoes menores que 44x44 px ganham area de toque de 44x44 px, sem mudar o visual
      (classes alvo-toque no css/acessibilidade.css). As bolinhas do carrossel ficam de fora.
    Se criar uma pagina nova, basta incluir <script src="js/leitorTela.js" defer></script>.
+
+23) TELA INICIAL: FILTRO, CARD CLICAVEL E EVENTO FEITO
+- inicio.html: filtro por categoria (Todos, Casamento, Aniversario, Formatura, Corporativo, Cha de Bebe, Outro) logo abaixo da busca; funciona junto com o texto digitado (a busca tambem acha pela categoria).
+- O card inteiro abre o evento (antes so a setinha). Funciona tambem com teclado (Enter) e leitor de tela.
+- Evento que ja aconteceu (data + horario no passado) mostra o check verde no lugar do "!".
+- css/style.css: estilos no final do arquivo.

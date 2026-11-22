@@ -134,6 +134,16 @@
             placeholder="Buscar seus eventos"
         >
 
+    </div>
+
+    <div class="filtros-categoria" id="filtrosCategoria" role="group" aria-label="Filtrar por categoria">
+        <button type="button" class="filtro-cat ativo" data-cat="">Todos</button>
+        <button type="button" class="filtro-cat" data-cat="Casamento">Casamento</button>
+        <button type="button" class="filtro-cat" data-cat="Aniversário">Aniversário</button>
+        <button type="button" class="filtro-cat" data-cat="Formatura">Formatura</button>
+        <button type="button" class="filtro-cat" data-cat="Evento Corporativo">Corporativo</button>
+        <button type="button" class="filtro-cat" data-cat="Chá de Bebê">Chá de Bebê</button>
+        <button type="button" class="filtro-cat" data-cat="Outro">Outro</button>
     </div><br>
 
 
@@ -383,6 +393,18 @@
     // Aparece se o evento tem funções que o usuário ainda não abriu ou se
     // alguém mexeu nele (avisos não lidos) depois da última visita dele.
     // ==========================================
+    // evento "feito": a data (e a hora, se tiver) já passou
+    function eventoJaAconteceu(evento) {
+        if (!evento.data) return false;
+        const partes = String(evento.data).split("-");
+        if (partes.length < 3) return false;
+        const hora = /^(\d{1,2}):(\d{2})/.exec(evento.horario || "");
+        const quando = hora
+            ? new Date(+partes[0], +partes[1] - 1, +partes[2], +hora[1], +hora[2])
+            : new Date(+partes[0], +partes[1] - 1, +partes[2], 23, 59);
+        return quando.getTime() < Date.now();
+    }
+
     async function marcarPontosDosEventos(usuario, eventos) {
         let avisos = [];
         try {
@@ -394,6 +416,15 @@
         eventos.forEach((evento) => {
             const card = listaEventos.querySelector('.evento[data-id="' + evento.id + '"]');
             if (!card) return;
+            if (eventoJaAconteceu(evento)) {
+                const feito = document.createElement("span");
+                feito.className = "bolinha-aviso bolinha-feito";
+                feito.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                feito.title = "Evento realizado";
+                feito.setAttribute("aria-label", "Evento realizado");
+                card.appendChild(feito);
+                return;
+            }
             const novidade = temNovidadeDesdeVisita(avisos, usuario.uid, evento.id);
             const pendencias = pendentesDoEvento(usuario.uid, evento, evento.papel === "dono").length;
             if (!novidade && !pendencias) return;
@@ -507,6 +538,10 @@
 
                 card.classList.add("evento");
                 card.dataset.id = evento.id;
+                card.dataset.categoria = evento.categoria || "";
+                card.setAttribute("role", "link");
+                card.tabIndex = 0;
+                card.setAttribute("aria-label", "Abrir evento " + (evento.nome || ""));
 
                 const seloPapel = evento.papel === "dono"
                     ? ""
@@ -548,7 +583,7 @@
                     </p>
 
                     <!-- BOTÃO PARA ABRIR O EVENTO -->
-                    <button class="abrirEvento" title="Ver evento">
+                    <button class="abrirEvento" title="Ver evento" tabindex="-1" aria-hidden="true">
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
 
@@ -556,13 +591,23 @@
 
                 listaEventos.appendChild(card);
 
-                const botao = card.querySelector(".abrirEvento");
-
-                botao.addEventListener("click", function () {
+                // o card inteiro abre o evento
+                const abrir = function () {
                     window.location.href = "evento.html?id=" + encodeURIComponent(evento.id);
+                };
+
+                card.addEventListener("click", abrir);
+
+                card.addEventListener("keydown", function (e) {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        abrir();
+                    }
                 });
 
             });
+
+            aplicarFiltros();
 
             // bolinha "!" nos eventos com pendências ou novidades (não trava a lista se falhar)
             marcarPontosDosEventos(usuario, todosEventos).catch((erro) => console.warn("Pontos dos eventos:", erro));
@@ -589,50 +634,44 @@
     // PESQUISA DE EVENTOS
     // ==========================================
 
-    pesquisaEvento.addEventListener(
-        "input",
-        function() {
+    let categoriaFiltro = "";
 
+    function aplicarFiltros() {
 
-            const texto =
-                pesquisaEvento.value
-                    .toLowerCase();
+        const texto = pesquisaEvento.value.toLowerCase();
 
+        document.querySelectorAll("#listaEventos .evento").forEach((evento) => {
 
-            const eventos =
-                document.querySelectorAll(
-                    ".evento"
-                );
+            const nome = evento.querySelector("h2").textContent.toLowerCase();
+            const categoria = evento.dataset.categoria || "";
 
+            const okTexto = nome.includes(texto) || categoria.toLowerCase().includes(texto);
+            const okCategoria = !categoriaFiltro || categoria === categoriaFiltro;
 
-            eventos.forEach((evento) => {
+            evento.style.display = (okTexto && okCategoria) ? "" : "none";
 
+        });
 
-                const nome =
-                    evento
-                        .querySelector("h2")
-                        .textContent
-                        .toLowerCase();
+    }
 
+    pesquisaEvento.addEventListener("input", aplicarFiltros);
 
-                if (nome.includes(texto)) {
+    document.getElementById("filtrosCategoria").addEventListener("click", function (e) {
 
-                    evento.style.display =
-                        "";
+        const botao = e.target.closest(".filtro-cat");
+        if (!botao) return;
 
-                }
+        categoriaFiltro = botao.dataset.cat;
 
-                else {
+        document.querySelectorAll(".filtro-cat").forEach((b) => {
+            const ativo = b === botao;
+            b.classList.toggle("ativo", ativo);
+            b.setAttribute("aria-pressed", ativo ? "true" : "false");
+        });
 
-                    evento.style.display =
-                        "none";
+        aplicarFiltros();
 
-                }
-
-            });
-
-        }
-    );
+    });
 
 
     // ==========================================
