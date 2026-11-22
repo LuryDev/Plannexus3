@@ -5,7 +5,7 @@
 //   1. Confere se quem chamou está logado (token do Firebase).
 //   2. Aplica um limite de mensagens por usuário por dia.
 //   3. Chama a API do Gemini (a chave fica só aqui, no servidor).
-//   4. Devolve { resposta, evento, tarefas, perguntas } já validado.
+//   4. Devolve { resposta, evento, regras, tarefas, perguntas } já validado.
 //
 //  (arquivo em formato ESM: package.json tem "type": "module")
 //
@@ -132,14 +132,46 @@ export function validarTarefas(bruto, evento = null) {
         .slice(0, 10);
 }
 
-// Perguntas opcionais que a IA acha úteis (0 a 2). Só texto curto.
-export function validarPerguntas(bruto) {
+function semAcento(t) {
+    return String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// Perguntas opcionais que a IA acha úteis (0 a 2). Descarta perguntas de gosto pessoal
+// e as que repetem o que o usuário já escreveu (a IA às vezes insiste nisso).
+export function validarPerguntas(bruto, textoUsuario = "") {
     if (!Array.isArray(bruto)) return [];
+
+    const dito = semAcento(textoUsuario);
+    const GOSTO = /\b(sabor|sabores|tema|estilo|cor|cores|prefer\w*|gosta\w*|favorit\w*)\b/;
 
     return bruto
         .map((p) => String(p || "").trim().slice(0, 160))
         .filter((p) => p.length >= 8)
+        .filter((p) => !GOSTO.test(semAcento(p)))
+        .filter((p) => {
+            const palavras = semAcento(p).split(/[^a-z0-9]+/).filter((w) => w.length >= 5);
+            if (!palavras.length) return true;
+            const repetidas = palavras.filter((w) => dito.includes(w.slice(0, 5))).length;
+            return repetidas / palavras.length < 0.4;
+        })
         .slice(0, 2);
+}
+
+// Regras de confirmação de presença (mesmas opções da tela "Regras de confirmação" do evento).
+const ALIMENTACAO = ["Vegetariana", "Vegana", "Sem glúten", "Sem lactose"];
+
+export function validarRegras(bruto) {
+    const r = bruto && typeof bruto === "object" ? bruto : {};
+    const ac = r.acompanhantes && typeof r.acompanhantes === "object" ? r.acompanhantes : {};
+    const soAdultos = r.soAdultos === true;
+
+    return {
+        soAdultos,
+        criancas: !soAdultos && r.criancas === true,
+        acompanhantes: { ativo: ac.ativo === true, max: Math.min(10, Math.max(1, Math.floor(Number(ac.max)) || 2)) },
+        alimentacao: ALIMENTACAO.filter((a) => Array.isArray(r.alimentacao) && r.alimentacao.includes(a)),
+        parentesco: r.parentesco === true
+    };
 }
 
 export function limparHistorico(mensagens) {
@@ -263,30 +295,42 @@ Sua única função é ajudar o usuário a CRIAR UM EVENTO. Se o usuário pedir 
 Hoje é ${hojeNoBrasil()} (fuso de São Paulo). Use isso para entender "amanhã", "sábado que vem" etc. A data do evento deve ser hoje ou futura.
 
 COMO CONDUZIR A CONVERSA (seja rápido e não faça perguntas que já foram respondidas):
-1. Leia a mensagem do usuário e tire dela TUDO o que for possível. Releia também as mensagens anteriores: nunca pergunte de novo algo que o usuário já disse (idade, número de pessoas, local, tipo de comida, tema etc.).
-2. Campos obrigatórios do evento: nome, categoria (uma entre ${CATEGORIAS.join(", ")}), data, horário e local.
-   • NOME: NUNCA pergunte o nome. Crie você mesmo um nome curto e natural a partir do que o usuário disse (ex.: "churrasco de 40 anos" → "Churrasco de 40 anos"; "casamento da Ana e do Pedro" → "Casamento Ana e Pedro"; "festa de 15 anos da minha filha" → "Festa de 15 anos"). Se não houver nada a aproveitar, use algo simples como o tipo do evento.
-   • CATEGORIA: deduza sozinho; só pergunte se for impossível saber (na dúvida use "Outro").
-   • DATA, HORÁRIO e LOCAL: se faltar algum, pergunte SÓ o que falta, tudo em UMA única mensagem curta.
-   • LOCAL VAGO: se o usuário disse só "em casa", "aqui", "na minha casa", "no salão", "na chácara" ou algo parecido, SEM endereço ou nome de lugar de verdade, pergunte o endereço exato (rua, número e bairro/cidade; para casa ou apartamento basta isso). Junte essa pergunta às outras perguntas que faltarem, na mesma mensagem, e deixe "evento" null até ele responder. Se o usuário disser que não quer informar o endereço, aceite e use o que ele disse (ex.: "Em casa"). Quando ele informar, use o endereço no campo "local" (ex.: "Em casa - Rua das Flores, 120, Bairro X, Praia Grande"). Não peça o endereço de novo se já o tiver.
-3. Número de convidados e orçamento: se o usuário disse, preencha (ex.: "umas 40 pessoas" → 40). Se não disse, deixe 0. Não bloqueie o evento por causa disso.
-4. Descrição: não pergunte. Se der, escreva uma frase curta resumindo o evento; senão deixe vazia.
-5. "listaPresentes" e "criadorConvites": o app pergunta depois. Deixe false.
-6. Assim que tiver os cinco campos obrigatórios (mesmo na primeira mensagem), preencha "evento" na mesma resposta.
+1. Leia a mensagem do usuário e tire dela TUDO o que ele REALMENTE disse. Releia também as mensagens anteriores: nunca pergunte de novo algo já dito (idade, número de pessoas, local, comida, quem pode ir etc.).
+2. NUNCA CHUTE data, horário ou local. "À tarde", "de noite", "chá da tarde" NÃO são um horário. "Hoje" só vale se o usuário escreveu "hoje". Se faltar data, horário exato ou local, pergunte. Nunca coloque no "Entendi:" algo que o usuário não disse.
+3. Campos obrigatórios do evento: nome, categoria (uma entre ${CATEGORIAS.join(", ")}), data, horário e local.
+   • NOME: NUNCA pergunte o nome. Crie um nome curto e natural a partir do que o usuário disse (ex.: "churrasco de 40 anos" → "Churrasco de 40 anos"; "chá da tarde entre amigas" → "Chá da tarde entre amigas").
+   • CATEGORIA: deduza sozinho (na dúvida, "Outro").
+   • DATA, HORÁRIO e LOCAL: pergunte SÓ o que falta, tudo em UMA única mensagem curta.
+   • LOCAL VAGO: se o usuário disse só "em casa", "aqui", "na minha casa", "no salão", "na chácara" ou algo parecido, SEM endereço ou nome de lugar de verdade, pergunte o endereço exato (rua, número e bairro/cidade) junto com as outras perguntas que faltarem, e deixe "evento" null até ele responder. Se ele disser que não quer informar o endereço (ou responder de novo só "casa"), aceite e use o que ele disse (ex.: "Em casa"); não insista. Se ele informar o endereço, use no campo "local" (ex.: "Em casa - Rua das Flores, 120, Centro, Praia Grande").
+4. Convidados e orçamento: se o usuário disse, preencha (ex.: "só 5 mulheres" → 5; "umas 40 pessoas" → 40). Se não disse, deixe 0. Não bloqueie o evento por isso.
+5. Descrição: não pergunte. Se der, uma frase curta; senão vazia.
+6. "listaPresentes" e "criadorConvites": o app pergunta depois. Deixe false.
+7. Assim que tiver os cinco campos obrigatórios (mesmo na primeira mensagem), preencha "evento" na mesma resposta.
 
 Regras de resposta (sempre responda em JSON no formato pedido):
-- "resposta": o que você diz ao usuário, em até 3 frases.
-  • Se ainda faltar algo obrigatório: comece com "Entendi: ..." resumindo o que já sabe e pergunte só o que falta.
-  • Se o evento já estiver completo: comece com "Entendi: ..." resumindo em uma frase (nome, data, horário, local, convidados se houver) e diga que o app vai fazer umas perguntas rápidas antes do resumo final. Não peça para conferir o resumo ainda. Se o usuário pedir uma mudança, devolva o evento atualizado.
+- "resposta": até 3 frases, com UM único "Entendi: ..." (não repita o resumo duas vezes).
+  • Se faltar algo obrigatório: "Entendi: ..." só com o que o usuário disse + pergunta só do que falta.
+  • Se o evento está completo: "Entendi: ..." em uma frase (nome, data, horário, local) e diga que o app vai mostrar as tarefas sugeridas. Não peça para conferir ainda. Se o usuário pedir uma mudança, devolva o evento atualizado.
 - "evento": null enquanto faltar dado obrigatório; depois, o objeto completo (data AAAA-MM-DD, horário HH:MM).
-- "detalhes": dentro do evento, um texto curto (máx. 600 caracteres) com TUDO que o usuário contou e que não cabe nos outros campos: idade, tema, cardápio, bebidas, atrações, crianças, restrições, preferências, quem faz o quê. Use só o que foi dito. Vazio se não houver nada.
-- "perguntasOpcionais": só quando "evento" estiver preenchido. De 0 a 2 perguntas curtas sobre informações que o usuário NÃO deu e que mudariam as tarefas (ex.: "Vai ter alguma restrição alimentar entre os convidados?", "Alguém vai ajudar com a comida ou vocês vão contratar?"). Nunca pergunte algo já dito, nem nome, data, local, idade ou tema se já foram ditos. Se não houver nada realmente útil, devolva lista vazia.
-- "tarefas": só quando "evento" estiver preenchido; senão, lista vazia. Sugira de 6 a 10 tarefas ESPECÍFICAS e ACIONÁVEIS para ESTE evento, baseadas no que o usuário contou (tipo de comida, bebidas, número de convidados, crianças, local, orçamento, data). Cada tarefa tem:
-  • "titulo": verbo no infinitivo + objeto concreto, até 70 caracteres (ex.: "Comprar carne e carvão para 40 pessoas", "Reservar mesas e cadeiras extras").
-  • "descricao": 1 ou 2 frases úteis, com quantidades estimadas quando fizer sentido (ex.: "Calcule cerca de 400 g de carne por adulto. Estimativa, ajuste ao seu grupo."). Deixe claro que números são estimativas.
+- "regras": só quando "evento" estiver preenchido. São as regras de confirmação de presença do evento. Preencha SOMENTE o que o usuário disse e deixe o resto desligado:
+  • "soAdultos": true se disse que é só para adultos / sem crianças.
+  • "criancas": true se disse que podem levar crianças/filhos (e não for só adultos).
+  • "acompanhantes": { "ativo": true, "max": N } se disse que podem levar acompanhante (N = máximo, 2 se não disse); "ativo": false se disse que ninguém pode levar ou se não falou nada.
+  • "alimentacao": opções que o anfitrião vai oferecer, entre "Vegetariana", "Vegana", "Sem glúten", "Sem lactose" (ex.: "cardápio vegetariano" → ["Vegetariana"]).
+  • "parentesco": deixe false.
+- "detalhes": dentro do evento, texto curto (máx. 600 caracteres) com o que o usuário contou e NÃO cabe em outro campo (cardápio, bebidas, atividades, idade, quem faz o quê). Não repita o que já foi para "regras". Vazio se não houver.
+- "perguntasOpcionais": só quando "evento" estiver preenchido. PADRÃO: lista VAZIA. Só faça uma pergunta (no máximo 2) se a resposta mudar de verdade uma tarefa ou um campo, sobre algo que o usuário NÃO disse e que é logística (quem leva ou prepara a comida, restrição alimentar não mencionada em evento com muita gente, equipamentos, estacionamento, orçamento em evento grande). NUNCA pergunte gosto pessoal (sabor, tema, cor, estilo, preferências), nem algo já dito ou óbvio pelo contexto. Eventos pequenos e informais (até uns 10 convidados, encontro entre amigos/família) quase sempre devem ter lista vazia.
+- "tarefas": só quando "evento" estiver preenchido; senão, lista vazia. De 6 a 10 tarefas ESPECÍFICAS e ACIONÁVEIS para ESTE evento, baseadas no que o usuário contou (comida, bebidas, número de convidados, crianças, local, orçamento, data). Em eventos pequenos e simples, prefira 6 tarefas curtas. Cada tarefa tem:
+  • "titulo": verbo no infinitivo + objeto concreto, até 70 caracteres (ex.: "Comprar carne e carvão para 40 pessoas").
+  • "descricao": 1 ou 2 frases úteis, com quantidades estimadas quando fizer sentido; deixe claro que números são estimativas.
   • "prioridade": "alta", "media" ou "baixa".
-  • "diasAntes": quantos dias antes do evento a tarefa deve estar pronta (0 = no dia). Use prazos realistas e coerentes com a data (se o evento é em poucos dias, use prazos curtos).
-  Ordene da mais urgente para a menos urgente. NÃO invente tarefas genéricas de enfeite: só inclua "definir tema", "escolher decoração", "contratar buffet" etc. se o usuário falou disso. Não repita tarefas parecidas. Inclua uma tarefa de orçamento só se o usuário informou um valor (cite o valor na descrição).
+  • "diasAntes": quantos dias antes do evento ela deve estar pronta (0 = no dia). Prazos realistas para a data.
+  Ordene da mais urgente à menos urgente. NÃO invente tarefas genéricas: só inclua "definir tema", "escolher decoração", "contratar buffet" etc. se o usuário falou disso. Não repita tarefas parecidas. Considere o que foi dito (ex.: cardápio vegetariano, crianças presentes). Inclua tarefa de orçamento só se o usuário informou um valor.
+
+EXEMPLOS (siga o estilo, não copie o texto):
+• Usuário: "Quero um chá da tarde com 5 amigas, sem acompanhantes, mas podem levar os filhos. Vai ter cardápio vegetariano." → faltam data, horário exato e local. Resposta: "Entendi: chá com 5 amigas, crianças bem-vindas, sem acompanhantes e cardápio vegetariano. Qual o dia, o horário e o endereço (ou só 'em casa')?" e evento null. Depois que ele responder: evento completo, regras { criancas: true, acompanhantes: { ativo: false }, alimentacao: ["Vegetariana"] }, perguntasOpcionais [] (evento pequeno), tarefas como "Combinar quem leva o bolo" e "Preparar opções vegetarianas de salgado e bolo".
+• Usuário: "Churrasco de 40 anos pra mim, sábado dia 28, 12h, em casa, umas 40 pessoas, com bebida e brinquedos pra criança" → nome "Churrasco de 40 anos"; convidados 40; criancas true; local vago, então pergunte o endereço exato; sem perguntar nome, idade nem número de pessoas. Quando tiver o endereço: tarefas de carne e carvão, bebidas, gelo, brinquedos e área das crianças, mesas e cadeiras.
+• Usuário: "Casamento da Ana e do Pedro dia 12/03/2027 às 17h no Espaço Jardim, 150 convidados, orçamento de 60 mil" → evento completo na hora, sem perguntar nada obrigatório; no máximo 1 pergunta opcional de logística (ex.: "Já têm cerimonialista ou vão organizar sozinhos?").
 - "servico": o Plannexus já oferece ferramentas dentro do evento. Se a tarefa for justamente fazer algo que uma ferramenta resolve, preencha "servico" com UMA destas opções; senão, use null:
   • "presentes" = montar a lista de presentes do evento
   • "financeiro" = controlar o orçamento, receitas e gastos
@@ -321,6 +365,24 @@ const ESQUEMA_RESPOSTA = {
                 criadorConvites: { type: "BOOLEAN", nullable: true }
             },
             required: ["nome", "categoria", "data", "horario", "local"]
+        },
+        regras: {
+            type: "OBJECT",
+            nullable: true,
+            properties: {
+                soAdultos:     { type: "BOOLEAN", nullable: true },
+                criancas:      { type: "BOOLEAN", nullable: true },
+                acompanhantes: {
+                    type: "OBJECT",
+                    nullable: true,
+                    properties: {
+                        ativo: { type: "BOOLEAN", nullable: true },
+                        max:   { type: "NUMBER", nullable: true }
+                    }
+                },
+                alimentacao:   { type: "ARRAY", items: { type: "STRING", enum: ALIMENTACAO } },
+                parentesco:    { type: "BOOLEAN", nullable: true }
+            }
         },
         tarefas: {
             type: "ARRAY",
@@ -562,7 +624,8 @@ export default async function handler(req, res) {
                 resposta: resultado.resposta.slice(0, 1500),
                 evento,
                 tarefas: evento ? validarTarefas(resultado.tarefas, evento) : [],
-                perguntas: evento ? validarPerguntas(resultado.perguntasOpcionais) : []
+                regras: evento ? validarRegras(resultado.regras) : null,
+                perguntas: evento ? validarPerguntas(resultado.perguntasOpcionais, textoDoUsuario(historico)) : []
             });
         }
         catch (erro) {
@@ -582,6 +645,14 @@ export default async function handler(req, res) {
     // "codigo" ajuda a achar o motivo: 400/403/404 = chave, modelo ou pedido inválido no Gemini;
     // 200 = o Gemini respondeu fora do formato esperado
     return res.status(502).json({ erro: "O Nexus não conseguiu responder. Tente de novo.", codigo: ultimoStatus });
+}
+
+// tudo que o usuário já escreveu na conversa (para descartar perguntas repetidas)
+function textoDoUsuario(historico) {
+    return historico
+        .filter((m) => m.role === "user")
+        .map((m) => (m.parts && m.parts[0] && m.parts[0].text) || "")
+        .join(" ");
 }
 
 function esperar(ms) {

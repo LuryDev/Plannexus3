@@ -160,3 +160,10 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Precisa de git push (pasta api/ e vercel.json). A qualidade real das respostas so aparece com o Gemini de verdade depois do deploy.
 - Chat de AJUDA (botao flutuante): se o usuario descreve um evento para organizar, o Nexus agora o leva ao "Criar com o Nexus" (destino nexus-criar) em vez de responder sobre orcamento. (api/nexus.js, instrucoesAjuda; precisa de git push)
 - Nexus (criar evento): se o local vier vago ("em casa", "no salao"), ele pergunta o endereco exato (junto das outras perguntas que faltarem); se o usuario nao quiser informar, aceita o que foi dito. (api/nexus.js; precisa de git push)
+
+29) NEXUS (criar evento) - REGRAS, SEM CHUTAR, PERGUNTAS MELHORES (api/nexus.js, nexus.html):
+- Regras de confirmacao: o Nexus agora devolve "regras" (so adultos, criancas, acompanhantes, alimentacao) com SO o que o usuario disse (ex.: "podem levar filhos", "sem acompanhantes", "cardapio vegetariano"). validarRegras confere tudo; depois de criar o evento, o app grava pelo /api/presenca (acao "regras"), igual a tela do evento. O resumo mostra uma linha "Regras de confirmacao".
+- Proibido chutar data/horario/local: "a tarde" nao e horario e "hoje" so vale se o usuario disse.
+- Perguntas opcionais: padrao e ZERO; so logistica que muda tarefa. validarPerguntas descarta perguntas de gosto (sabor, tema, cor, estilo...) e as que repetem palavras ja ditas pelo usuario.
+- O prompt ganhou 3 exemplos (chá de amigas, churrasco, casamento) e um unico "Entendi:" por resposta.
+- Precisa de git push (api/nexus.js). Qualidade real so com o Gemini depois do deploy.

@@ -121,6 +121,7 @@
         let historico = [];        // [{ role: "user" | "model", text }]
         let eventoAtual = null;    // evento proposto pelo Nexus
         let tarefasAtuais = [];    // tarefas sugeridas
+        let regrasAtuais = null;   // regras de confirmação ditas pelo usuário (crianças, acompanhantes, alimentação)
         let aguardando = false;
 
         // ----- etapa extra: perguntas opcionais (0 a 2, vindas da IA) + escolha das ferramentas -----
@@ -156,6 +157,21 @@
             return `<div class="linha-resumo"><span>${escaparHTML(rotulo)}</span><strong>${escaparHTML(valor)}</strong></div>`;
         }
 
+        // "Crianças: sim · Acompanhantes: não · Alimentação: Vegetariana" (vazio se nada foi dito)
+        function temRegras(r) {
+            return !!r && (r.soAdultos || r.criancas || r.acompanhantes?.ativo || (r.alimentacao || []).length || r.parentesco);
+        }
+
+        function resumoDasRegras(r) {
+            if (!temRegras(r)) return "";
+            const partes = [];
+            if (r.soAdultos) partes.push("só adultos");
+            else partes.push("crianças: " + (r.criancas ? "sim" : "não"));
+            partes.push("acompanhantes: " + (r.acompanhantes?.ativo ? "até " + r.acompanhantes.max : "não"));
+            if ((r.alimentacao || []).length) partes.push("alimentação: " + r.alimentacao.join(", ").toLowerCase());
+            return partes.join(" · ");
+        }
+
         function rotuloPrioridade(p) {
             return p === "alta" ? "Prioridade alta" : p === "baixa" ? "Prioridade baixa" : "Prioridade média";
         }
@@ -185,6 +201,8 @@
             if (e.descricao) html += linhaResumo("Descrição", e.descricao);
             if (escolhas.listaPresentes) html += linhaResumo("Lista de presentes", "Sim");
             if (escolhas.criadorConvites) html += linhaResumo("Criador de convites", "Sim");
+            const textoRegras = resumoDasRegras(regrasAtuais);
+            if (textoRegras) html += linhaResumo("Regras de confirmação", textoRegras);
             if (e.detalhes || respostasExtras.length) html += linhaResumo("Bloco de notas", "Detalhes do evento");
 
             dadosResumoEl.innerHTML = html;
@@ -255,6 +273,7 @@
 
                 eventoAtual = dados.evento || null;
                 tarefasAtuais = dados.tarefas || [];
+                regrasAtuais = dados.regras || null;
                 if (!extrasFeitos && !extrasEmAndamento) perguntasIA = dados.perguntas || [];
 
                 // primeira vez que o evento fica pronto: perguntas opcionais e escolha das ferramentas
@@ -483,6 +502,20 @@
                     usuarioId: usuarioAtual.uid,
                     criadoEm: serverTimestamp()
                 });
+
+                // regras de confirmação (pelo servidor, como na tela do evento); se falhar, o evento é criado do mesmo jeito
+                if (temRegras(regrasAtuais)) {
+                    try {
+                        const idToken = await usuarioAtual.getIdToken();
+                        await fetch("/api/presenca", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                            body: JSON.stringify({ acao: "regras", eventoId: referencia.id, regras: regrasAtuais })
+                        });
+                    } catch (erroRegras) {
+                        console.error("Não foi possível salvar as regras:", erroRegras);
+                    }
+                }
 
                 // o que o usuário contou + respostas das perguntas opcionais viram uma anotação no bloco de notas
                 const partesNota = [];
