@@ -193,3 +193,7 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Custo no Firestore: a primeira leitura e igual a antes; depois so os documentos que mudaram sao lidos (em geral menos leituras que rebuscar a lista a cada acao).
 - Os "carregarX()" chamados depois das acoes continuam existindo e agora nao fazem nova busca (a lista ja se atualiza sozinha).
 - So arquivos estaticos: basta git push. Nao precisa mudar as regras do Firestore (leituras sao as mesmas permitidas).
+
+33) VOLTAR PARA ONDE ESTAVA (js/rolagem.js novo; evento.html, inicio.html):
+- Ao abrir uma funcao (Tarefas, Financeiro...) e voltar, a tela do evento (e a inicial) volta para o mesmo ponto da rolagem em vez do topo. Guarda por aba (sessionStorage); se voce abrir o evento pela tela inicial, comeca no topo. Se voce rolar sozinho enquanto a pagina carrega, ele nao interfere.
+- So arquivos estaticos: git push.
