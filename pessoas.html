@@ -98,6 +98,7 @@
         deleteDoc,
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+    import { assistir } from "./js/tempoReal.js";
 
     const app = initializeApp(window.FIREBASE_CONFIG);
     const auth = getAuth(app);
@@ -185,8 +186,40 @@
         }
     }
 
-    async function carregarPessoas() {
+    // Em tempo real: quem aceita o convite aparece sozinho, e convidar/cancelar atualiza na hora
+    let docsMembros = null;
+    let docsConvites = null;
+    let ouvindoPessoas = false;
+
+    function carregarPessoas() {
+        if (ouvindoPessoas) return;
+        ouvindoPessoas = true;
         listaPessoas.innerHTML = '<p class="estado-lista">Carregando...</p>';
+
+        const aoErro = (erro) => {
+            console.error("Erro ao carregar pessoas do evento:", erro);
+            ouvindoPessoas = false;
+            listaPessoas.innerHTML = '<p class="estado-lista">Não foi possível carregar as pessoas do evento.</p>';
+        };
+
+        assistir("membros", collection(db, "eventos", eventoId, "membros"), (snap) => {
+            docsMembros = snap.docs;
+            desenharPessoas();
+        }).catch(aoErro);
+
+        assistir("convitesPendentes", query(
+            collection(db, "convites"),
+            where("eventoId", "==", eventoId),
+            where("status", "==", "pendente"),
+            where("donoId", "==", usuarioAtual.uid)
+        ), (snap) => {
+            docsConvites = snap.docs;
+            desenharPessoas();
+        }).catch(aoErro);
+    }
+
+    function desenharPessoas() {
+        if (!docsMembros || !docsConvites) return;   // espera as duas listas chegarem
 
         try {
             const partes = [];
@@ -201,25 +234,13 @@
             }));
 
             // Quem já aceitou o convite (colaboradores e visitantes)
-            const referenciaMembros = collection(db, "eventos", eventoId, "membros");
-            const resultadoMembros = await getDocs(referenciaMembros);
-
-            resultadoMembros.forEach((documento) => {
+            docsMembros.forEach((documento) => {
                 const membro = documento.data();
                 partes.push(cartaoMembro(membro, documento.id));
             });
 
             // Convites enviados e ainda não respondidos
-            const referenciaConvites = collection(db, "convites");
-            const consultaConvites = query(
-                referenciaConvites,
-                where("eventoId", "==", eventoId),
-                where("status", "==", "pendente"),
-                where("donoId", "==", usuarioAtual.uid)
-            );
-            const resultadoConvites = await getDocs(consultaConvites);
-
-            resultadoConvites.forEach((documento) => {
+            docsConvites.forEach((documento) => {
                 const convite = documento.data();
                 partes.push(`
                     <div class="pessoa-item">
@@ -248,8 +269,7 @@
                 botao.addEventListener("click", async () => {
                     botao.disabled = true;
                     try {
-                        await deleteDoc(doc(db, "convites", botao.dataset.id));
-                        carregarPessoas();
+                        await deleteDoc(doc(db, "convites", botao.dataset.id));   // a lista se atualiza sozinha
                     } catch (erro) {
                         console.error("Erro ao cancelar convite:", erro);
                         botao.disabled = false;

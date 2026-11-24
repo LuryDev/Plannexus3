@@ -151,6 +151,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { assistir, dadosDe, atualizarPeriodicamente } from "./js/tempoReal.js";
         import { avisarColaboracao } from "./js/avisos.js";
         import { FUNDOS, desenharTemplate, carregarImagem, carregarFontes, tituloListaPresentes, textoCompartilharLista, desenharListaPresentes, LARGURA_LISTA, ALTURA_LISTA } from "./js/templateImagem.js";
 
@@ -343,6 +344,8 @@
 
             desenhar();
             carregarPixAvisados().catch(() => {});
+            // avisos de transferência chegam pela API: confere de tempos em tempos enquanto a tela está aberta
+            if (!window.__pixPolling) window.__pixPolling = atualizarPeriodicamente(() => carregarPixAvisados(), 25000);
         }
 
         // abre o comprovante (só dono/colaborador conseguem; o servidor confere)
@@ -382,6 +385,9 @@
             const lista = dados.avisos || [];
             el.hidden = !lista.length;
             if (!lista.length) return;
+            const assinatura = JSON.stringify(dados);
+            if (el.dataset.assinatura === assinatura) return;   // nada mudou: não redesenha
+            el.dataset.assinatura = assinatura;
             el.innerHTML =
                 '<p class="pix-avisados-titulo">Transferências avisadas: ' + esc(dinheiroBR(dados.total)) + '</p>' +
                 lista.map((a) => '<div class="pix-linha"><span>' + (a.anonimo ? "Anônimo" : esc(a.nome)) + (a.comprovante ? ' <button type="button" class="ver-comp" data-id="' + esc(a.id) + '"><i class="fa-solid fa-paperclip"></i> comprovante</button>' : "") + '</span><b>' + (a.valor > 0 ? esc(dinheiroBR(a.valor)) : "valor não informado") + '</b></div>').join("") +
@@ -444,11 +450,14 @@
 
 
         // ================= CARREGAR =================
-        async function carregarPresentes() {
+        // Em tempo real: quando um convidado escolhe um presente, ele aparece aqui sozinho
+        function carregarPresentes() {
+            return assistir("presentes", collection(db, "eventos", eventoId, "presentes"), aoChegarPresentes);
+        }
 
-            const snap = await getDocs(collection(db, "eventos", eventoId, "presentes"));
+        function aoChegarPresentes(snap) {
 
-            presentes = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+            presentes = snap.docs.map((d) => ({ id: d.id, ...dadosDe(d) }));
 
             // Em ordem alfabética
             presentes.sort((a, b) =>

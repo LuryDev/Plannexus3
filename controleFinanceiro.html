@@ -142,6 +142,7 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { avisarColaboracao } from "./js/avisos.js";
         import { getFirestore, doc, getDoc, collection, getDocs, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { assistir, dadosDe } from "./js/tempoReal.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app = initializeApp(FIREBASE_CONFIG);
@@ -323,11 +324,15 @@
 
         });
 
-        async function carregarControleFinanceiro() {
-            const snap = await getDocs(collection(db, "eventos", eventoId, "controleFinanceiro"));
+        // Em tempo real: ações aparecem na hora e o que os colaboradores lançam chega sozinho
+        function carregarControleFinanceiro() {
+            return assistir("financeiro", collection(db, "eventos", eventoId, "controleFinanceiro"), aoChegarFinanceiro);
+        }
+
+        function aoChegarFinanceiro(snap) {
             itensOrcamento = snap.docs.map((itemDoc) => ({
                 id: itemDoc.id,
-                ...itemDoc.data()
+                ...dadosDe(itemDoc)
             }));
 
             const totais = itensOrcamento.reduce((saldo, item) => {

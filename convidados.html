@@ -99,6 +99,7 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { marcarVista, marcarAtividadeVista } from "./js/pendencias.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { atualizarPeriodicamente } from "./js/tempoReal.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app  = initializeApp(FIREBASE_CONFIG);
@@ -261,9 +262,18 @@
             }
         }
 
+        // Só redesenha quando algo mudou (assim detalhes abertos não fecham sozinhos)
+        let assinaturaLista = "";
+        let atualizacaoAuto = null;
         async function carregarLista() {
             const dados = await chamarPresenca({ acao: "lista", eventoId });
-            desenharLista(dados);
+            const assinatura = JSON.stringify(dados);
+            if (assinatura !== assinaturaLista) {
+                assinaturaLista = assinatura;
+                desenharLista(dados);
+            }
+            // novas confirmações chegam sozinhas, sem recarregar a página
+            if (!atualizacaoAuto) atualizacaoAuto = atualizarPeriodicamente(carregarLista, 15000);
         }
 
         // ---------- filtros e exportação ----------

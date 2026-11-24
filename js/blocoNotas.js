@@ -18,6 +18,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 import { avisarColaboracao } from "./avisos.js";
+import { assistir, dadosDe, naoRedesenharDigitando } from "./tempoReal.js";
 
 const app = initializeApp(window.FIREBASE_CONFIG);
 const auth = getAuth(app);
@@ -352,42 +353,15 @@ function criarSecaoComentarios(anotacao) {
     return secao;
 }
 
-async function carregarAnotacoes() {
-    const referenciaAnotacoes = collection(
-        db,
-        "eventos",
-        eventoId,
-        "anotacoes"
-    );
+// Em tempo real: anotações e comentários chegam sozinhos (de você e dos colaboradores).
+// Cada anotação tem a sua "escuta" de comentários; a lista só é redesenhada quando algo muda.
+let anotacoesBrutas = [];
+const comentariosPorAnotacao = {};
+const escutandoComentarios = new Set();
+let montagemInicial = true;
 
-    const resultado = await getDocs(referenciaAnotacoes);
-
-    anotacoes = await Promise.all(resultado.docs.map(async documento => {
-        const referenciaComentarios = collection(
-            db,
-            "eventos",
-            eventoId,
-            "anotacoes",
-            documento.id,
-            "comentarios"
-        );
-
-        const resultadoComentarios = await getDocs(referenciaComentarios);
-
-        const comentarios = resultadoComentarios.docs.map(comentario => ({
-            id: comentario.id,
-            ...comentario.data()
-        })).sort((a, b) => {
-            return (a.dataCriacao?.toMillis() || 0) -
-                (b.dataCriacao?.toMillis() || 0);
-        });
-
-        return {
-            id: documento.id,
-            ...documento.data(),
-            comentarios
-        };
-    }));
+function juntarAnotacoes() {
+    anotacoes = anotacoesBrutas.map((n) => ({ ...n, comentarios: comentariosPorAnotacao[n.id] || [] }));
 
     anotacoes.sort((a, b) => {
         const dataA = a.dataAtualizacao?.toMillis() || 0;
@@ -396,7 +370,42 @@ async function carregarAnotacoes() {
         return dataB - dataA;
     });
 
-    renderizarAnotacoes();
+    // se a pessoa está escrevendo um comentário, espera ela terminar para não apagar o texto
+    naoRedesenharDigitando(listaAnotacoes, renderizarAnotacoes);
+}
+
+function carregarAnotacoes() {
+    return assistir(
+        "anotacoes",
+        collection(db, "eventos", eventoId, "anotacoes"),
+        async (resultado) => {
+            anotacoesBrutas = resultado.docs.map((documento) => ({ id: documento.id, ...dadosDe(documento) }));
+
+            const novas = [];
+            anotacoesBrutas.forEach((n) => {
+                if (escutandoComentarios.has(n.id)) return;
+                escutandoComentarios.add(n.id);
+
+                novas.push(assistir(
+                    "comentarios-" + n.id,
+                    collection(db, "eventos", eventoId, "anotacoes", n.id, "comentarios"),
+                    (res) => {
+                        comentariosPorAnotacao[n.id] = res.docs
+                            .map((c) => ({ id: c.id, ...dadosDe(c) }))
+                            .sort((a, b) => (a.dataCriacao?.toMillis() || 0) - (b.dataCriacao?.toMillis() || 0));
+                        if (!montagemInicial) juntarAnotacoes();
+                    }
+                ).catch((erro) => console.warn("Comentários:", erro && erro.message)));
+            });
+
+            // na primeira vez, espera os comentários chegarem para desenhar tudo de uma vez (sem "piscar")
+            if (montagemInicial) {
+                await Promise.all(novas);
+                montagemInicial = false;
+            }
+            juntarAnotacoes();
+        }
+    );
 }
 
 async function comentar(anotacaoId, texto) {

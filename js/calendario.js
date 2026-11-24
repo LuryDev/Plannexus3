@@ -18,6 +18,7 @@ import {
 
 
 import { avisarColaboracao } from "./avisos.js";
+import { assistir, dadosDe } from "./tempoReal.js";
 
 const app = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
@@ -132,15 +133,16 @@ async function iniciar() {
 }
 
 
-async function carregarCalendario() {
+// Em tempo real: o que você ou os colaboradores marcam aparece sozinho, sem buscar a lista de novo
+function carregarCalendario() {
+    return assistir("calendario", collection(db, "eventos", eventoId, "calendario"), aoChegarCalendario);
+}
 
-    const snap = await getDocs(
-        collection(db, "eventos", eventoId, "calendario")
-    );
+function aoChegarCalendario(snap) {
 
     const itens = snap.docs.map((documento) => ({
         id: documento.id,
-        ...documento.data()
+        ...dadosDe(documento)
     }));
 
     itens.sort((a, b) => {

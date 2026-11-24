@@ -181,6 +181,7 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { avisarColaboracao } from "./js/avisos.js";
         import { getFirestore, doc, getDoc, collection, getDocs, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { assistir, dadosDe } from "./js/tempoReal.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app  = initializeApp(FIREBASE_CONFIG);
@@ -310,11 +311,15 @@
 
 
         // ================= CARREGAR =================
-        async function carregarTarefas() {
+        // Assiste a coleção em tempo real: ações aparecem na hora e o que os colaboradores fazem chega sozinho.
+        // Chamar de novo (depois de uma ação) não busca nada: a lista já se atualiza sozinha.
+        function carregarTarefas() {
+            return assistir("tarefas", collection(db, "eventos", eventoId, "tarefas"), aoChegarTarefas);
+        }
 
-            const snap = await getDocs(collection(db, "eventos", eventoId, "tarefas"));
+        function aoChegarTarefas(snap) {
 
-            tarefas = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+            tarefas = snap.docs.map((d) => ({ id: d.id, ...dadosDe(d) }));
 
             // Pendentes primeiro, depois pelo prazo mais próximo
             const ordemPrioridade = {

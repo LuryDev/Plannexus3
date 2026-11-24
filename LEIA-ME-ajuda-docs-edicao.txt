@@ -184,3 +184,12 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - O dono abre em Presentes > avisos > "comprovante": imagem aparece na tela; PDF aparece como cartao "Comprovante em PDF" com o botao "Abrir PDF" (o celular nao mostra PDF dentro da pagina). Avisos antigos continuam funcionando como imagem.
 - Precisa de git push (api/lista.js incluido).
 - Nexus flutuante arrastavel: ja existe em js/nexusFlutuante.js (segure o botao e arraste; a posicao fica salva no aparelho; um toque rapido abre o Nexus).
+
+32) ATUALIZACAO EM TEMPO REAL, SEM RECARREGAR (js/tempoReal.js novo; tarefas, controleFinanceiro, presentes, pessoas, convidados, evento, inicio, js/calendario.js, js/blocoNotas.js):
+- Antes: depois de cada acao o app buscava a lista inteira de novo e o que colaboradores faziam so aparecia ao reabrir a tela.
+- Agora: Tarefas, Controle financeiro, Presentes, Calendario, Notas (com comentarios) e Pessoas "assistem" o banco (onSnapshot). Sua acao aparece NA HORA (o Firestore avisa localmente antes de o servidor confirmar; se recusar, a tela volta sozinha) e o que outras pessoas fazem chega sozinho. Convite aceito aparece em Pessoas; presente escolhido aparece em Presentes.
+- Convidados, avisos de Pix (Presentes), previas da tela do evento e tela inicial (eventos + sininho) usam a API, entao conferem sozinhos a cada 15-30 s, so com a tela visivel e tambem ao voltar para o app. So redesenham quando algo mudou (detalhes abertos nao fecham; nao interrompe quem digita na pesquisa).
+- Notas: se voce esta digitando um comentario, a lista espera voce sair do campo antes de redesenhar.
+- Custo no Firestore: a primeira leitura e igual a antes; depois so os documentos que mudaram sao lidos (em geral menos leituras que rebuscar a lista a cada acao).
+- Os "carregarX()" chamados depois das acoes continuam existindo e agora nao fazem nova busca (a lista ja se atualiza sozinha).
+- So arquivos estaticos: basta git push. Nao precisa mudar as regras do Firestore (leituras sao as mesmas permitidas).

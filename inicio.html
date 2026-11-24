@@ -225,6 +225,7 @@
     import { categoriaDoAviso, carregarDesligadas } from "./js/avisos.js";
     import { pendentesDoEvento, temNovidadeDesdeVisita } from "./js/pendencias.js";
     import { pushDisponivel, pushAtivo } from "./js/push.js";
+    import { atualizarPeriodicamente } from "./js/tempoReal.js";
 
     // FIREBASE_CONFIG vem do arquivo js/config.js
     const app  = initializeApp(FIREBASE_CONFIG);
@@ -282,6 +283,14 @@
             // Carregar eventos
 
             carregarEventos(usuario);
+
+            // Mantém lista de eventos e sininho em dia sozinhos (tela visível / ao voltar para o app).
+            // Não roda enquanto a pessoa digita na pesquisa.
+            if (!window.__inicioAuto) window.__inicioAuto = atualizarPeriodicamente(async () => {
+                if (document.activeElement === pesquisaEvento) return;
+                await carregarEventos(usuario);
+                await atualizarSininho(usuario);
+            }, 30000);
 
 
             // Checar convites/avisos pendentes (só acende o sininho;

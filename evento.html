@@ -412,6 +412,7 @@
         } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
         import { FUNCOES, lerVistas, marcarVista, funcoesDoEvento, atividadeVista, marcarAtividadeVista, contarNovidades, marcarVisita } from "./js/pendencias.js";
         import { categoriaDoAviso, carregarDesligadas } from "./js/avisos.js";
+        import { atualizarPeriodicamente } from "./js/tempoReal.js";
 
         const app = initializeApp(window.FIREBASE_CONFIG);
         const auth = getAuth(app);
@@ -1123,6 +1124,19 @@
                     carregarPreviaNotas(),
                     ...(evento.listaPresentes ? [carregarPreviaPresentes()] : [])
                 ]);
+
+                // mantém as prévias em dia sozinho (a cada 20s com a tela visível e ao voltar para o app)
+                if (!window.__previasAuto) {
+                    window.__previasAuto = atualizarPeriodicamente(async () => {
+                        await Promise.allSettled([
+                            carregarPreviaCalendario(evento),
+                            carregarPreviaTarefas(),
+                            carregarPreviaFinanceiro(evento),
+                            carregarPreviaNotas(),
+                            ...(evento.listaPresentes ? [carregarPreviaPresentes()] : [])
+                        ]);
+                    }, 20000);
+                }
 
                 resultados.forEach((resultado, indice) => {
                     if (resultado.status === "rejected") {
