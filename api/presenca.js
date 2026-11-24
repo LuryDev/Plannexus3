@@ -307,6 +307,11 @@ export default async function handler(req, res) {
 
         const evento = eventoSnap.data();
 
+        // evento arquivado pelo organizador: o link para de aceitar qualquer resposta
+        if (evento.arquivado === true) {
+            return res.status(410).json({ erro: "Este evento foi arquivado pelo organizador e não está recebendo respostas no momento." });
+        }
+
         if (acao === "ver") {
             const organizador = await ehOrganizador(req, fb, eventoId);
             return res.status(200).json({

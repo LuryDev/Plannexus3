@@ -169,3 +169,11 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Precisa de git push (api/nexus.js). Qualidade real so com o Gemini depois do deploy.
 - Nexus "muito ocupado": as tentativas ao Gemini agora respeitam um orcamento de 52 s (a funcao da Vercel para em 60 s). Para saber a causa real: Vercel > Logs, procurar "NEXUS:" (429 = limite/cota do Gemini; 503 = Google sobrecarregado; "aborted/timeout" = demorou). (api/nexus.js; precisa de git push)
 - Nexus 503 (Gemini sobrecarregado): ate 4 tentativas alternando modelo principal e reserva, com espera crescente (1,2 s, 2,4 s, 3,6 s) dentro do orcamento de 52 s. Dica: em Vercel > Environment Variables, GEMINI_FALLBACK_MODEL pode apontar para outro modelo estavel do Gemini.
+
+30) ARQUIVAR EVENTO (sugestao da Yasha) - evento.html, inicio.html, css/evento.css, css/style.css, api/presenca.js, api/lista.js, api/lembretes.js, api/push.js, api/nexus.js:
+- Na pagina do evento (so o dono) o botao "Excluir evento" virou "Arquivar evento". Ao clicar abre um AVISO explicando o que acontece (some da tela inicial, convidados nao respondem pelos links, lembretes pausam, pode restaurar). Nada e apagado: o evento ganha arquivado/arquivadoEm/arquivadoPor.
+- Evento arquivado mostra uma faixa amarela (para todos que o abrem) e o dono ve "Restaurar evento" e "Excluir definitivamente". A exclusao definitiva so existe depois de arquivar, apaga tudo como antes e pede uma confirmacao no aviso.
+- Tela inicial: arquivados saem de "Todos" e das categorias; aparece o filtro "Arquivados" (so quando ha algum) e o cartao ganha o selo "Arquivado". Eventos antigos nao precisam de migracao.
+- Bloqueio de respostas: links publicos de presenca (api/presenca) e de lista de presentes (api/lista) respondem "evento arquivado" (HTTP 410) e nao aceitam nada; lembretes (api/lembretes) e avisos push (api/push) ignoram eventos arquivados.
+- O Nexus de ajuda sabe explicar como arquivar/restaurar.
+- Precisa de git push (pasta api/ incluida). Se ao arquivar aparecer "permissao negada", as regras do Firestore (console do Firebase) precisam permitir ao dono atualizar os campos arquivado/arquivadoEm/arquivadoPor do evento.

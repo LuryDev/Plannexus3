@@ -1094,3 +1094,96 @@ header {
 .selo-servico.selo-link { cursor: pointer; text-decoration: none; }
 .selo-servico.selo-link:hover { background: #DFD6FF; }
 .selo-servico.selo-link:focus-visible { outline: 2px solid #5A32D3; outline-offset: 2px; }
+
+/* ---------- arquivar evento ---------- */
+.botoes-gerenciar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.botoes-gerenciar [hidden] {
+    display: none;
+}
+
+.botao-arquivar-evento {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 20px;
+    height: 46px;
+    color: #5A32D3;
+    background: #fff;
+    border: 1px solid #D8CCF7;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Poppins', Arial, sans-serif;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.botao-arquivar-evento:hover {
+    color: #fff;
+    background: #5A32D3;
+    border-color: #5A32D3;
+    transform: translateY(-2px);
+}
+
+.botao-arquivar-evento:disabled {
+    opacity: .7;
+    cursor: default;
+    transform: none;
+}
+
+.faixa-arquivado {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #5A4A12;
+    background: #FFF6D6;
+    border: 1px solid #F0DC8A;
+    border-radius: 14px;
+}
+
+.faixa-arquivado[hidden] {
+    display: none;
+}
+
+.faixa-arquivado i {
+    margin-top: 3px;
+}
+
+.aviso-intro,
+.aviso-rodape {
+    margin: 6px 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #4A4458;
+}
+
+.aviso-lista {
+    margin: 6px 0;
+    padding-left: 20px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #4A4458;
+}
+
+.aviso-lista:empty {
+    display: none;
+}
+
+.salvar-editar.perigo {
+    background: #E0515B;
+    border-color: #E0515B;
+}
+
+.salvar-editar:disabled {
+    opacity: .5;
+    cursor: default;
+}

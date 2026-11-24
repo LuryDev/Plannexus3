@@ -70,6 +70,7 @@ export default async function handler(req, res) {
             if (!eventoSnap.exists) return res.status(404).json({ erro: "Evento não encontrado." });
 
             const evento = eventoSnap.data();
+            if (evento.arquivado === true) return res.status(200).json({ ok: true, enviados: 0, arquivado: true });   // arquivado: sem avisos
             const membros = await eventoRef.collection("membros").get();
 
             const colaboradores = new Set();

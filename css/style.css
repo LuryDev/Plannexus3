@@ -4389,3 +4389,9 @@ pra eventos que não são seus mas você participa */
 #listaEventos .evento:focus-visible{outline:3px solid #9A7CFF;outline-offset:2px}
 .bolinha-aviso.bolinha-feito{background:#fff;color:#1FA463;font-size:20px;line-height:22px;box-shadow:0 0 0 2px #1FA463,0 2px 8px rgba(0,0,0,.2)}
 .bolinha-feito i{display:block;line-height:22px}
+
+/* filtro "Arquivados" e aviso de lista vazia */
+.filtro-cat[hidden]{display:none}
+.sem-eventos-filtro{margin:6px 4px 14px;font-size:13px;color:#7A7488}
+.sem-eventos-filtro[hidden]{display:none}
+.selo-arquivado{background:#FFF6D6;color:#7A5B00;border-color:#F0DC8A}

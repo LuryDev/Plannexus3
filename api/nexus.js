@@ -251,7 +251,7 @@ Sua função é ENSINAR a usar o aplicativo, explicar para que serve cada ferram
 O QUE O APP TEM:
 - Início: lista dos eventos do usuário (toque em um evento para abrir), botão "+" para criar evento, sino de notificações e perfil.
 - Criar evento: formulário com tipo do evento (Casamento, Aniversário, Formatura, Evento Corporativo, Chá de Bebê, Outro), nome, data, horário, local, convidados, orçamento, descrição e a opção "Incluir lista de presentes?". Também dá para criar conversando com o Nexus (IA): ele pergunta os dados, sugere tarefas e só cria o evento depois que o usuário confirma.
-- Página do evento: mostra as informações do evento e as ferramentas. O dono pode excluir o evento.
+- Página do evento: mostra as informações do evento e as ferramentas. O dono pode arquivar o evento (botão "Arquivar evento" no fim da página): ele não é apagado, some da tela inicial (fica no filtro "Arquivados"), os convidados deixam de poder responder pelos links e os lembretes pausam. Dá para restaurar quando quiser. Só um evento arquivado pode ser excluído definitivamente.
 - Tarefas: lista de tarefas do evento com título, descrição, prazo e prioridade (alta, média, baixa); dá para marcar como concluída e filtrar (todas, pendentes, concluídas).
 - Calendário: marcar compromissos e datas do evento (título, data, horário, descrição).
 - Controle financeiro: registrar receitas e investimentos do evento, com valor e total.

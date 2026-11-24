@@ -227,6 +227,11 @@ export default async function handler(req, res) {
 
         const evento = eventoSnap.data();
 
+        // evento arquivado pelo organizador: a lista pública para de aceitar respostas
+        if (evento.arquivado === true) {
+            return res.status(410).json({ erro: "Este evento foi arquivado pelo organizador e a lista de presentes não está recebendo respostas no momento." });
+        }
+
         if (acao === "ver") {
             const snap = await eventoRef.collection("presentes").get();
 

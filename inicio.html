@@ -145,8 +145,11 @@
         <button type="button" class="filtro-cat" data-tipo="cat" data-valor="Evento Corporativo" aria-pressed="false">Corporativo</button>
         <button type="button" class="filtro-cat" data-tipo="cat" data-valor="Chá de Bebê" aria-pressed="false">Chá de Bebê</button>
         <button type="button" class="filtro-cat" data-tipo="cat" data-valor="Outro" aria-pressed="false">Outro</button>
+        <button type="button" class="filtro-cat" id="filtroArquivados" data-tipo="arq" aria-pressed="false" hidden><i class="fa-solid fa-box-archive"></i> Arquivados</button>
     </div><br>
 
+
+    <p class="sem-eventos-filtro" id="semResultados" hidden>Nenhum evento por aqui.</p>
 
     <div id="listaEventos">
 
@@ -540,6 +543,7 @@
                 card.classList.add("evento");
                 card.dataset.id = evento.id;
                 card.dataset.categoria = evento.categoria || "";
+                if (evento.arquivado === true) card.dataset.arquivado = "1";
                 card.dataset.situacao = eventoJaAconteceu(evento) ? "concluido" : "andamento";
                 if (eventoJaAconteceu(evento)) card.dataset.feito = "1";
                 card.setAttribute("role", "link");
@@ -558,6 +562,7 @@
                     </div>
 
                     ${seloPapel}
+                    ${evento.arquivado === true ? '<span class="selo-papel-evento selo-arquivado">Arquivado</span>' : ""}
 
                     <!-- NOME DO EVENTO -->
                     <h2>
@@ -610,6 +615,8 @@
 
             });
 
+            document.getElementById("filtroArquivados").hidden = !todosEventos.some((e) => e.arquivado === true);
+
             aplicarFiltros();
 
             // bolinha "!" nos eventos com pendências ou novidades (não trava a lista se falhar)
@@ -639,6 +646,7 @@
 
     let categoriaFiltro = "";
     let situacaoFiltro = "";
+    let arquivadoFiltro = false;   // true = mostra só os arquivados; false = esconde os arquivados
 
     function aplicarFiltros() {
 
@@ -654,9 +662,15 @@
 
             const okSituacao = !situacaoFiltro || evento.dataset.situacao === situacaoFiltro;
 
-            evento.style.display = (okTexto && okCategoria && okSituacao) ? "" : "none";
+            const okArquivo = arquivadoFiltro ? evento.dataset.arquivado === "1" : evento.dataset.arquivado !== "1";
+
+            evento.style.display = (okTexto && okCategoria && okSituacao && okArquivo) ? "" : "none";
 
         });
+
+        const algumVisivel = Array.from(document.querySelectorAll("#listaEventos .evento")).some((e) => e.style.display !== "none");
+        const temCards = document.querySelector("#listaEventos .evento");
+        document.getElementById("semResultados").hidden = !temCards || algumVisivel;
 
     }
 
@@ -675,6 +689,9 @@
         if (tipo === "todos") {
             situacaoFiltro = "";
             categoriaFiltro = "";
+            arquivadoFiltro = false;
+        } else if (tipo === "arq") {
+            arquivadoFiltro = !arquivadoFiltro;
         } else if (tipo === "sit") {
             situacaoFiltro = (situacaoFiltro === valor) ? "" : valor;
         } else {
@@ -683,7 +700,8 @@
 
         document.querySelectorAll("#filtrosEventos .filtro-cat").forEach((b) => {
             let ativo;
-            if (b.dataset.tipo === "todos") ativo = !situacaoFiltro && !categoriaFiltro;
+            if (b.dataset.tipo === "todos") ativo = !situacaoFiltro && !categoriaFiltro && !arquivadoFiltro;
+            else if (b.dataset.tipo === "arq") ativo = arquivadoFiltro;
             else if (b.dataset.tipo === "sit") ativo = b.dataset.valor === situacaoFiltro;
             else ativo = b.dataset.valor === categoriaFiltro;
             b.classList.toggle("ativo", ativo);

@@ -70,6 +70,7 @@ export default async function handler(req, res) {
     for (const docEvento of eventos.docs) {
         try {
             const evento = docEvento.data();
+            if (evento.arquivado === true) continue;   // arquivado: sem lembretes
             const ref = docEvento.ref;
 
             const [tarefas, calendario, financeiro, presentes, membros] = await Promise.all([

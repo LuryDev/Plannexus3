@@ -39,6 +39,10 @@
         </header>
 
         <main class="detalhesEvento">
+            <div class="faixa-arquivado" id="faixaArquivado" role="status" hidden>
+                <i class="fa-solid fa-box-archive"></i>
+                <span>Este evento está <b>arquivado</b>. Os convidados não conseguem responder pelos links e os lembretes estão pausados.</span>
+            </div>
 
             <section class="card-header-evento">
                 <div class="logo-evento">
@@ -330,14 +334,24 @@
                 <div class="titulo-secao">
                     <div>
                         <h2>Gerenciar evento</h2>
-                        <p>Essa ação não pode ser desfeita.</p>
+                        <p id="textoGerenciar">Arquivar não apaga nada: você pode restaurar quando quiser.</p>
                     </div>
                 </div>
 
-                <button type="button" class="botao-excluir-evento" id="botaoExcluirEvento">
-                    <i class="fa-solid fa-trash-can"></i>
-                    <span>Excluir evento</span>
-                </button>
+                <div class="botoes-gerenciar">
+                    <button type="button" class="botao-arquivar-evento" id="botaoArquivarEvento">
+                        <i class="fa-solid fa-box-archive"></i>
+                        <span>Arquivar evento</span>
+                    </button>
+                    <button type="button" class="botao-arquivar-evento" id="botaoRestaurarEvento" hidden>
+                        <i class="fa-solid fa-box-open"></i>
+                        <span>Restaurar evento</span>
+                    </button>
+                    <button type="button" class="botao-excluir-evento" id="botaoExcluirEvento" hidden>
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Excluir definitivamente</span>
+                    </button>
+                </div>
             </section>
         </main>
     </div>
@@ -361,6 +375,21 @@
         </form>
     </div>
 
+    <!-- AVISO ao arquivar / excluir definitivamente -->
+    <div class="fundo-editar" id="fundoAviso" hidden>
+        <div class="caixa-editar" role="dialog" aria-modal="true" aria-labelledby="avisoTitulo">
+            <h2 id="avisoTitulo"></h2>
+            <p class="aviso-intro" id="avisoIntro"></p>
+            <ul class="aviso-lista" id="avisoLista"></ul>
+            <p class="aviso-rodape" id="avisoRodape"></p>
+            <p class="msg-editar" id="avisoMsg" role="status"></p>
+            <div class="botoes-editar">
+                <button type="button" class="cancelar-editar" id="avisoCancelar">Cancelar</button>
+                <button type="button" class="salvar-editar" id="avisoConfirmar"></button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/icones.js"></script>
@@ -375,6 +404,7 @@
             getDoc,
             deleteDoc,
             updateDoc,
+            serverTimestamp,
             collection,
             getDocs,
             query,
@@ -405,6 +435,9 @@
 
         const secaoPerigo = document.getElementById("secaoPerigo");
         const botaoExcluirEvento = document.getElementById("botaoExcluirEvento");
+        const botaoArquivarEvento = document.getElementById("botaoArquivarEvento");
+        const botaoRestaurarEvento = document.getElementById("botaoRestaurarEvento");
+        const faixaArquivado = document.getElementById("faixaArquivado");
 
         const linkCalendario = document.getElementById("linkCalendario");
         const linkTarefas = document.getElementById("linkTarefas");
@@ -1076,6 +1109,7 @@
                 document.getElementById("linkDocumentos").href = `documentos.html?id=${encodeURIComponent(eventoId)}`;
 
                 eventoAtual = { id: eventoId, ...evento };
+                mostrarEstadoArquivo();
                 if (papelUsuario === "dono" || papelUsuario === "colaborador") iniciarEdicao();
                 souDonoAtual = souDono;
                 desenharPendencias();
@@ -1127,12 +1161,130 @@
             await Promise.all(resultado.docs.map(documento => deleteDoc(documento.ref)));
         }
 
-        async function excluirEvento() {
-            const nomeAtual = nomeEvento.textContent || "este evento";
+        // ---------- arquivar / restaurar / excluir definitivamente ----------
 
-            const confirmou = confirm(
-                `Tem certeza que deseja excluir "${nomeAtual}"? Essa ação não pode ser desfeita e vai apagar tarefas, calendário, financeiro, anotações e pessoas vinculadas a este evento.`
-            );
+        function mostrarEstadoArquivo() {
+            const arquivado = !!(eventoAtual && eventoAtual.arquivado === true);
+            faixaArquivado.hidden = !arquivado;
+            botaoArquivarEvento.hidden = arquivado;
+            botaoRestaurarEvento.hidden = !arquivado;
+            botaoExcluirEvento.hidden = !arquivado;
+            document.getElementById("textoGerenciar").textContent = arquivado
+                ? "Restaure para voltar a usar o evento. A exclusão definitiva apaga tudo e não pode ser desfeita."
+                : "Arquivar não apaga nada: você pode restaurar quando quiser.";
+        }
+
+        // Janela de aviso. Devolve true se a pessoa confirmou.
+        function abrirAviso({ titulo, intro, itens, rodape, confirmar, perigo }) {
+            return new Promise((resolver) => {
+                const fundo = document.getElementById("fundoAviso");
+                const btnOk = document.getElementById("avisoConfirmar");
+                const btnNao = document.getElementById("avisoCancelar");
+                const msg = document.getElementById("avisoMsg");
+
+                document.getElementById("avisoTitulo").textContent = titulo;
+                document.getElementById("avisoIntro").textContent = intro || "";
+                const lista = document.getElementById("avisoLista");
+                lista.innerHTML = "";
+                (itens || []).forEach((t) => { const li = document.createElement("li"); li.textContent = t; lista.appendChild(li); });
+                document.getElementById("avisoRodape").textContent = rodape || "";
+                btnOk.textContent = confirmar;
+                btnOk.classList.toggle("perigo", !!perigo);
+                msg.textContent = "";
+                btnOk.disabled = false;
+
+                function fechar(resultado) {
+                    fundo.hidden = true;
+                    btnOk.removeEventListener("click", aoConfirmar);
+                    btnNao.removeEventListener("click", aoCancelar);
+                    fundo.removeEventListener("click", aoFundo);
+                    document.removeEventListener("keydown", aoTecla);
+                    resolver(resultado);
+                }
+                function aoConfirmar() { fechar(true); }
+                function aoCancelar() { fechar(false); }
+                function aoFundo(e) { if (e.target === fundo) fechar(false); }
+                function aoTecla(e) { if (e.key === "Escape") fechar(false); }
+
+                btnOk.addEventListener("click", aoConfirmar);
+                btnNao.addEventListener("click", aoCancelar);
+                fundo.addEventListener("click", aoFundo);
+                document.addEventListener("keydown", aoTecla);
+                fundo.hidden = false;
+                btnNao.focus();
+            });
+        }
+
+        function nomeDoEvento() {
+            return (eventoAtual && eventoAtual.nome) || nomeEvento.textContent || "este evento";
+        }
+
+        async function arquivarEvento() {
+            const confirmou = await abrirAviso({
+                titulo: "Arquivar este evento?",
+                intro: `"${nomeDoEvento()}" não será apagado. Enquanto estiver arquivado:`,
+                itens: [
+                    "ele some da sua tela inicial e fica no filtro \"Arquivados\";",
+                    "os convidados não conseguem mais confirmar presença nem escolher presentes pelos links;",
+                    "você e as pessoas do evento deixam de receber lembretes e avisos dele."
+                ],
+                rodape: "Você pode restaurar quando quiser. A exclusão definitiva só fica disponível depois de arquivar.",
+                confirmar: "Arquivar"
+            });
+            if (!confirmou) return;
+
+            botaoArquivarEvento.disabled = true;
+            botaoArquivarEvento.querySelector("span").textContent = "Arquivando...";
+            try {
+                await updateDoc(doc(db, "eventos", eventoId), {
+                    arquivado: true,
+                    arquivadoEm: serverTimestamp(),
+                    arquivadoPor: usuarioAtual.uid
+                });
+                eventoAtual.arquivado = true;
+                mostrarEstadoArquivo();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } catch (erro) {
+                console.error("Erro ao arquivar evento:", erro);
+                alert("Não foi possível arquivar o evento: " + erro.message);
+            } finally {
+                botaoArquivarEvento.disabled = false;
+                botaoArquivarEvento.querySelector("span").textContent = "Arquivar evento";
+            }
+        }
+
+        async function restaurarEvento() {
+            botaoRestaurarEvento.disabled = true;
+            botaoRestaurarEvento.querySelector("span").textContent = "Restaurando...";
+            try {
+                await updateDoc(doc(db, "eventos", eventoId), {
+                    arquivado: false,
+                    arquivadoEm: null,
+                    arquivadoPor: null
+                });
+                eventoAtual.arquivado = false;
+                mostrarEstadoArquivo();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } catch (erro) {
+                console.error("Erro ao restaurar evento:", erro);
+                alert("Não foi possível restaurar o evento: " + erro.message);
+            } finally {
+                botaoRestaurarEvento.disabled = false;
+                botaoRestaurarEvento.querySelector("span").textContent = "Restaurar evento";
+            }
+        }
+
+        async function excluirEvento() {
+            const nomeAtual = nomeDoEvento();
+
+            const confirmou = await abrirAviso({
+                titulo: "Excluir definitivamente?",
+                intro: `Isso apaga "${nomeAtual}" para sempre, com tarefas, calendário, financeiro, anotações, presentes e pessoas vinculadas.`,
+                itens: [],
+                rodape: "Essa ação não pode ser desfeita. Se só quer tirar o evento da frente, deixe-o arquivado.",
+                confirmar: "Excluir para sempre",
+                perigo: true
+            });
             if (!confirmou) return;
 
             botaoExcluirEvento.disabled = true;
@@ -1166,10 +1318,12 @@
                 console.error("Erro ao excluir evento:", erro);
                 alert("Não foi possível excluir o evento: " + erro.message);
                 botaoExcluirEvento.disabled = false;
-                botaoExcluirEvento.querySelector("span").textContent = "Excluir evento";
+                botaoExcluirEvento.querySelector("span").textContent = "Excluir definitivamente";
             }
         }
 
+        botaoArquivarEvento.addEventListener("click", arquivarEvento);
+        botaoRestaurarEvento.addEventListener("click", restaurarEvento);
         botaoExcluirEvento.addEventListener("click", excluirEvento);
 
         carregarEvento();
