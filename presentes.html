@@ -354,9 +354,20 @@
                 const dados = await chamarLista({ acao: "pixcomp", eventoId, avisoId: b.dataset.id });
                 const visor = document.createElement("div");
                 visor.className = "visor-comp";
-                visor.innerHTML = '<button type="button" aria-label="Fechar">&times;</button><img alt="Comprovante enviado pelo convidado">';
-                visor.querySelector("img").src = dados.imagem;
-                visor.addEventListener("click", () => visor.remove());
+                if (dados.tipo === "pdf") {
+                    // PDF não abre dentro da página no celular: vira um arquivo para abrir/baixar
+                    const bytes = Uint8Array.from(atob(dados.pdf.split(",")[1]), (c) => c.charCodeAt(0));
+                    const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+                    visor.innerHTML = '<button type="button" class="fechar-visor" aria-label="Fechar">&times;</button>' +
+                        '<div class="visor-pdf"><i class="fa-solid fa-file-pdf"></i><p>Comprovante em PDF</p>' +
+                        '<a class="abrir-pdf" target="_blank" rel="noopener" download="comprovante.pdf">Abrir PDF</a></div>';
+                    visor.querySelector(".abrir-pdf").href = url;
+                    visor.addEventListener("click", (ev) => { if (!ev.target.closest(".abrir-pdf")) { URL.revokeObjectURL(url); visor.remove(); } });
+                } else {
+                    visor.innerHTML = '<button type="button" class="fechar-visor" aria-label="Fechar">&times;</button><img alt="Comprovante enviado pelo convidado">';
+                    visor.querySelector("img").src = dados.imagem;
+                    visor.addEventListener("click", () => visor.remove());
+                }
                 document.body.appendChild(visor);
             } catch (erro) {
                 alert("Não foi possível abrir o comprovante: " + erro.message);

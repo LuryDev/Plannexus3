@@ -111,6 +111,108 @@ if (typeof document !== "undefined") {
         return el;
     }
 
+    // ---------- arrastar o botão ----------
+    // O botão pode ser arrastado pela tela (para não ficar em cima de nada). Um toque rápido
+    // continua abrindo o Nexus. A posição fica guardada neste aparelho (deslocamento em
+    // relação ao canto original) e é sempre mantida dentro da tela.
+    const CHAVE_POSICAO = "plannexus_nexus_posicao";
+    const MARGEM = 8;     // folga até a borda da tela, em pixels
+
+    function lerPosicao() {
+        try {
+            const p = JSON.parse(localStorage.getItem(CHAVE_POSICAO) || "null");
+            if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) return p;
+        } catch (e) { /* sem armazenamento: usa a posição original */ }
+        return { x: 0, y: 0 };
+    }
+
+    function guardarPosicao(p) {
+        try { localStorage.setItem(CHAVE_POSICAO, JSON.stringify(p)); } catch (e) { /* tudo bem */ }
+    }
+
+    function tornarArrastavel(botao) {
+        let pos = lerPosicao();          // deslocamento em px do CSS
+        let arrastou = false;
+
+        function escala() {
+            // quantos pixels de tela vale 1 px do CSS (muda com o tamanho de fonte "zoom")
+            const w = botao.offsetWidth;
+            const r = botao.getBoundingClientRect();
+            return w && r.width ? r.width / w : 1;
+        }
+
+        function aplicar() {
+            botao.style.translate = pos.x + "px " + pos.y + "px";
+        }
+
+        // empurra o botão de volta para dentro da tela, se tiver saído
+        function manterNaTela() {
+            if (botao.hidden) return;
+            const k = escala();
+            let r = botao.getBoundingClientRect();
+            let dx = 0, dy = 0;
+            if (r.left < MARGEM) dx = MARGEM - r.left;
+            else if (r.right > window.innerWidth - MARGEM) dx = (window.innerWidth - MARGEM) - r.right;
+            if (r.top < MARGEM) dy = MARGEM - r.top;
+            else if (r.bottom > window.innerHeight - MARGEM) dy = (window.innerHeight - MARGEM) - r.bottom;
+            if (dx || dy) {
+                pos = { x: pos.x + dx / k, y: pos.y + dy / k };
+                aplicar();
+            }
+        }
+
+        aplicar();
+        requestAnimationFrame(manterNaTela);
+        window.addEventListener("resize", manterNaTela);
+        window.addEventListener("orientationchange", () => setTimeout(manterNaTela, 200));
+
+        let ponteiro = null;
+
+        botao.addEventListener("pointerdown", (e) => {
+            if (e.pointerType === "mouse" && e.button !== 0) return;
+            ponteiro = { id: e.pointerId, x: e.clientX, y: e.clientY, base: { ...pos }, k: escala(), moveu: false };
+            arrastou = false;
+        });
+
+        botao.addEventListener("pointermove", (e) => {
+            if (!ponteiro || e.pointerId !== ponteiro.id) return;
+            const dx = e.clientX - ponteiro.x;
+            const dy = e.clientY - ponteiro.y;
+
+            if (!ponteiro.moveu) {
+                if (Math.hypot(dx, dy) < 6) return;      // ainda é um toque
+                ponteiro.moveu = true;
+                arrastou = true;
+                botao.classList.add("arrastando");
+                try { botao.setPointerCapture(e.pointerId); } catch (erro) { /* ok */ }
+            }
+
+            pos = { x: ponteiro.base.x + dx / ponteiro.k, y: ponteiro.base.y + dy / ponteiro.k };
+            aplicar();
+            manterNaTela();
+            e.preventDefault();
+        });
+
+        function soltar(e) {
+            if (!ponteiro || e.pointerId !== ponteiro.id) return;
+            const moveu = ponteiro.moveu;
+            ponteiro = null;
+            botao.classList.remove("arrastando");
+            if (moveu) guardarPosicao(pos);
+        }
+        botao.addEventListener("pointerup", soltar);
+        botao.addEventListener("pointercancel", soltar);
+
+        // depois de arrastar, o "click" que o navegador dispara não deve abrir o Nexus
+        botao.addEventListener("click", (e) => {
+            if (arrastou) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                arrastou = false;
+            }
+        }, true);
+    }
+
     function montar() {
         if (montado) return;
         montado = true;
@@ -160,6 +262,8 @@ if (typeof document !== "undefined") {
         painel.append(topo, conversa, aviso, form);
         fundo.appendChild(painel);
         document.body.append(botao, fundo);
+
+        tornarArrastavel(botao);
 
         // ---------- conversa ----------
 

@@ -19,7 +19,7 @@
     var presenteAtual = null;
     var pixCartao = document.getElementById("pixCartao");
     var pixAvisado = false;
-    var comprovanteB64 = "";   // foto/print já reduzida para JPEG (opcional)
+    var comprovanteB64 = "";   // foto/print já reduzida para JPEG, ou PDF pequeno (opcional)
 
     function esc(t) {
         return String(t == null ? "" : t)
@@ -113,7 +113,7 @@
     // reduz a foto/print para JPEG pequeno (o servidor só aceita até ~400 KB)
     function reduzirImagem(arquivo) {
         return new Promise(function (ok, erro) {
-            if (!/^image\//.test(arquivo.type)) return erro(new Error("Escolha uma foto ou print (imagem)."));
+            if (!/^image\//.test(arquivo.type)) return erro(new Error("Escolha uma foto, print (imagem) ou PDF."));
             var img = new Image();
             var url = URL.createObjectURL(arquivo);
             img.onload = function () {
@@ -135,13 +135,28 @@
         });
     }
 
+    // PDF vai como está (o servidor confere o conteúdo e o tamanho: até ~400 KB)
+    function lerPdf(arquivo) {
+        return new Promise(function (ok, erro) {
+            if (arquivo.size > 400000) return erro(new Error("Esse PDF passa de 400 KB. Envie um print ou um PDF menor."));
+            var leitor = new FileReader();
+            leitor.onload = function () { ok(String(leitor.result).split(",")[1] || ""); };
+            leitor.onerror = function () { erro(new Error("Não consegui abrir esse PDF.")); };
+            leitor.readAsDataURL(arquivo);
+        });
+    }
+
+    function ehPdf(arquivo) {
+        return arquivo.type === "application/pdf" || /\.pdf$/i.test(arquivo.name || "");
+    }
+
     var arquivoInput = document.getElementById("pixArquivo");
     var anexarBotao = document.getElementById("pixAnexar");
     var anexarTexto = document.getElementById("pixAnexarTexto");
     anexarBotao.addEventListener("click", function () {
         if (comprovanteB64) {   // já anexado: o botão remove
             comprovanteB64 = ""; arquivoInput.value = "";
-            anexarTexto.textContent = "Anexar foto ou print do comprovante";
+            anexarTexto.textContent = "Anexar foto, print ou PDF do comprovante";
             anexarBotao.classList.remove("anexado");
             return;
         }
@@ -152,7 +167,7 @@
         if (!f) return;
         var msg = document.getElementById("pixMensagem");
         msg.textContent = "";
-        reduzirImagem(f).then(function (b64) {
+        (ehPdf(f) ? lerPdf(f) : reduzirImagem(f)).then(function (b64) {
             comprovanteB64 = b64;
             anexarTexto.textContent = "Comprovante anexado. Toque para remover";
             anexarBotao.classList.add("anexado");

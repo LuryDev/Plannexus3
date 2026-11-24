@@ -172,7 +172,10 @@ export default async function handler(req, res) {
                 if (!/^[A-Za-z0-9]{10,40}$/.test(avisoId)) return res.status(400).json({ erro: "Aviso inválido." });
                 const aviso = await fb.db.collection("pixEventos").doc(eventoId).collection("avisos").doc(avisoId).get();
                 if (!aviso.exists || !aviso.data().comprovante) return res.status(404).json({ erro: "Comprovante não encontrado." });
-                return res.status(200).json({ ok: true, imagem: "data:image/jpeg;base64," + aviso.data().comprovante });
+                if (aviso.data().comprovanteTipo === "pdf") {
+                    return res.status(200).json({ ok: true, tipo: "pdf", pdf: "data:application/pdf;base64," + aviso.data().comprovante });
+                }
+                return res.status(200).json({ ok: true, tipo: "jpeg", imagem: "data:image/jpeg;base64," + aviso.data().comprovante });
             }
 
             if (acao === "liberar") {
@@ -276,20 +279,24 @@ export default async function handler(req, res) {
             const quantos = (await pixRef.collection("avisos").count().get()).data().count;
             if (quantos >= 300) return res.status(429).json({ erro: "Muitos avisos neste evento. Fale com o organizador." });
 
-            // comprovante opcional: só JPEG (o navegador já reduz a foto), até ~400 KB, só o dono vê
+            // comprovante opcional: foto/print em JPEG (o navegador já reduz) ou PDF, até ~400 KB, só o dono vê
             let comprovante = "";
+            let comprovanteTipo = "jpeg";
             if (corpo.comprovante) {
                 if (pixSnap.data().comprovante === false) return res.status(400).json({ erro: "Este evento não aceita comprovante." });
                 const b64 = String(corpo.comprovante);
                 if (b64.length > 560000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(b64)) return res.status(400).json({ erro: "Comprovante inválido ou grande demais." });
                 const bytes = Buffer.from(b64, "base64");
-                if (bytes.length > 420000 || !(bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)) {
-                    return res.status(400).json({ erro: "Envie o comprovante como foto ou print (imagem)." });
+                const ehJpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+                const ehPdf = bytes.slice(0, 5).toString("latin1") === "%PDF-";
+                if (bytes.length > 420000 || !(ehJpeg || ehPdf)) {
+                    return res.status(400).json({ erro: "Envie o comprovante como foto, print (imagem) ou PDF de até 400 KB." });
                 }
                 comprovante = b64;
+                comprovanteTipo = ehPdf ? "pdf" : "jpeg";   // o tipo vem do conteúdo, nunca do que o app disse
             }
 
-            await pixRef.collection("avisos").add({ nome: anonimo ? "" : nome, anonimo, valor: valor > 0 ? valor : 0, comprovante, criadoEm: fb.FieldValue.serverTimestamp() });
+            await pixRef.collection("avisos").add({ nome: anonimo ? "" : nome, anonimo, valor: valor > 0 ? valor : 0, comprovante, comprovanteTipo, criadoEm: fb.FieldValue.serverTimestamp() });
 
             try {
                 const donoUid = evento.usuarioId;

@@ -177,3 +177,10 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Bloqueio de respostas: links publicos de presenca (api/presenca) e de lista de presentes (api/lista) respondem "evento arquivado" (HTTP 410) e nao aceitam nada; lembretes (api/lembretes) e avisos push (api/push) ignoram eventos arquivados.
 - O Nexus de ajuda sabe explicar como arquivar/restaurar.
 - Precisa de git push (pasta api/ incluida). Se ao arquivar aparecer "permissao negada", as regras do Firestore (console do Firebase) precisam permitir ao dono atualizar os campos arquivado/arquivadoEm/arquivadoPor do evento.
+
+31) COMPROVANTE EM PDF (lista.html, js/listaPublica.js, api/lista.js, presentes.html, css/presentes.css):
+- O convidado que avisa a Transferencia Instantanea agora pode anexar foto, print OU PDF do comprovante (PDF ate 400 KB; foto continua sendo reduzida sozinha).
+- O servidor confere o CONTEUDO do arquivo (JPEG ou "%PDF-") e o tamanho; o tipo nunca vem do que o app diz. Guarda comprovanteTipo no aviso.
+- O dono abre em Presentes > avisos > "comprovante": imagem aparece na tela; PDF aparece como cartao "Comprovante em PDF" com o botao "Abrir PDF" (o celular nao mostra PDF dentro da pagina). Avisos antigos continuam funcionando como imagem.
+- Precisa de git push (api/lista.js incluido).
+- Nexus flutuante arrastavel: ja existe em js/nexusFlutuante.js (segure o botao e arraste; a posicao fica salva no aparelho; um toque rapido abre o Nexus).

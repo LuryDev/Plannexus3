@@ -339,3 +339,16 @@
             0 0 40px rgba(90, 50, 211, .7);
     }
 }
+
+/* botão arrastável: o dedo move o botão em vez de rolar a página */
+.nxf-botao {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.nxf-botao.arrastando {
+    cursor: grabbing;
+    transition: none !important;
+    transform: scale(1.06);
+}
