@@ -205,3 +205,10 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Tela "Planos e limites" (planos.html), com link no Perfil: mostra o plano, quantos eventos ativos (barra) e a comparacao gratis x pago.
 - Precisa de git push (api/ incluida). Concluir a compra de verdade (Google Play Billing + gravar plano/planoAte pelo servidor) e a proxima etapa.
 - FASE DE TESTES: o limite de eventos ativos esta DESLIGADO (FASE_DE_TESTES = true em api/_plano.js e js/planos.js). Quem testa cria quantos eventos quiser. Para ligar o limite de 3, troque para false nos dois arquivos. Nexus (40/mes) e anexos (3 por evento) continuam valendo.
+
+34) NOVO PERFIL (perfilPessoal.html, css/perfilPessoal.css; css/perfilPessoalAdmin.css novo):
+- Visual novo seguindo o prototipo: foto, nome, e-mail e selo do plano; cartao "Seu uso do plano" (eventos ativos x limite + barra); atalhos (Preferencias e acessibilidade, Notificacoes, Planos e limites, Enviar feedback, Politica de privacidade); Sair; Excluir minha conta (discreto) e so o final do ID da conta (antes aparecia o UID inteiro).
+- Editar perfil: troca o NOME (updateProfile do Firebase Auth). O e-mail e o do login e fica bloqueado. Trocar a FOTO nao foi feito (precisa de um lugar para guardar a imagem); a foto continua a da conta Google ou o mascote.
+- Os links exigidos pelo Google Play (politica de privacidade e excluir conta) continuam na tela.
+- perfilPessoalAdmin.html continua igual: ganhou css/perfilPessoalAdmin.css (copia do estilo antigo) para nao mudar junto.
+- So arquivos estaticos: git push.

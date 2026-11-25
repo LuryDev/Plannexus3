@@ -3,14 +3,12 @@
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Perfil - Plannexus</title>
     <link rel="icon" href="fotos/logo.png">
 
     <link rel="stylesheet" href="css/perfilPessoal.css">
-
 
     <!-- PWA: manifest, cor do tema e service worker -->
     <link rel="manifest" href="manifest.json">
@@ -23,85 +21,203 @@
 
 <body>
 
-<div class="perfil-container">
+<main class="pagina">
 
-    <img id="foto" src="fotos/mascote.png" alt="Foto do usuário">
+    <div class="topo">
+        <button type="button" class="voltar" id="voltar" aria-label="Voltar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5A32D3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h1>Perfil</h1>
+    </div>
 
-    <h1 id="nome">Carregando...</h1>
+    <!-- IDENTIDADE -->
+    <section class="cartao identidade" id="telaPerfil">
+        <img id="foto" src="fotos/mascote.png" alt="Foto do usuário">
+        <h2 id="nome">Carregando...</h2>
+        <p id="email"></p>
+        <span class="selo" id="seloPlano">Plano Gratuito</span>
+        <button type="button" class="botao claro" id="botaoEditar">Editar perfil</button>
+    </section>
 
-    <p id="email"></p>
+    <!-- EDIÇÃO (aparece no lugar da identidade) -->
+    <form class="cartao identidade" id="telaEdicao" hidden>
+        <img id="fotoEdicao" src="fotos/mascote.png" alt="Foto atual">
+        <div class="campo">
+            <label for="campoNome">Nome</label>
+            <input id="campoNome" type="text" maxlength="60" autocomplete="name">
+        </div>
+        <div class="campo">
+            <label for="campoEmail">E-mail</label>
+            <input id="campoEmail" type="email" disabled>
+            <small>O e-mail é o do seu login e não pode ser alterado aqui.</small>
+        </div>
+        <p id="mensagemEdicao" role="status"></p>
+        <button type="submit" class="botao forte" id="botaoSalvar">Salvar alterações</button>
+        <button type="button" class="botao claro" id="botaoCancelar">Cancelar</button>
+    </form>
 
-    <p id="uid"></p>
+    <!-- USO DO PLANO -->
+    <section class="cartao" aria-live="polite">
+        <div class="uso-topo">
+            <h3>Seu uso do plano</h3>
+            <a href="planos.html">Ver planos</a>
+        </div>
+        <div class="uso-linha"><span>Eventos ativos</span><b id="textoEventos">...</b></div>
+        <div class="barra" id="barraEventos"><i></i></div>
+        <p class="nota">Convidados, tarefas, orçamento e notas não têm limite.</p>
+    </section>
 
-    <button id="voltar">
-        Voltar
-    </button>
+    <!-- ATALHOS -->
+    <nav class="cartao lista" aria-label="Atalhos do perfil">
+        <a class="linha" href="preferencias.html">
+            <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="#5A32D3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2 1.2L10 21h4l.6-2.6a7 7 0 0 0 2-1.2l2.3.9 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg></span>
+            <span class="texto">Preferências e acessibilidade</span>
+            <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="#9a96ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="linha" href="notificacoes.html">
+            <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="#5A32D3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></span>
+            <span class="texto">Notificações</span>
+            <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="#9a96ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="linha" href="planos.html">
+            <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="#5A32D3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/></svg></span>
+            <span class="texto">Planos e limites</span>
+            <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="#9a96ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <a class="linha" href="feedback.html">
+            <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="#5A32D3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12z"/></svg></span>
+            <span class="texto">Enviar feedback</span>
+            <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="#9a96ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+        <!-- Links exigidos pelo Google Play: política de privacidade e exclusão de conta -->
+        <a class="linha" href="privacidade.html">
+            <span class="icone"><svg viewBox="0 0 24 24" fill="none" stroke="#5A32D3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg></span>
+            <span class="texto">Política de privacidade</span>
+            <svg class="seta" viewBox="0 0 24 24" fill="none" stroke="#9a96ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+    </nav>
 
-    <button id="sair">
-        Sair
-    </button>
+    <button type="button" class="botao forte" id="sair">Sair</button>
 
-    <!-- Links exigidos pelo Google Play: política de privacidade e exclusão de conta -->
-    <p style="margin:22px 0 0; font-size:.85rem; line-height:1.9;">
-        <a href="planos.html" style="color:#5A32D3;">Planos e limites</a><br>
-        <a href="preferencias.html" style="color:#5A32D3;">Preferências e acessibilidade</a><br>
-        <a href="feedback.html" style="color:#5A32D3;">Enviar Feedback</a><br>
-        <a href="privacidade.html" style="color:#5A32D3;">Política de Privacidade</a><br>
-        <a href="excluir-conta.html" style="color:#b3261e;">Excluir minha conta</a>
-    </p>
+    <div class="rodape">
+        <a class="excluir" href="excluir-conta.html">Excluir minha conta</a>
+        <p class="id-conta" id="uid"></p>
+    </div>
 
-</div>
+</main>
 
 <script src="js/config.js"></script>
 <script type="module">
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+    import { situacaoEventos } from "./js/planos.js";
 
     // FIREBASE_CONFIG vem do arquivo js/config.js
     const app  = initializeApp(FIREBASE_CONFIG);
     const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-onAuthStateChanged(auth, (user) => {
+    const telaPerfil  = document.getElementById("telaPerfil");
+    const telaEdicao  = document.getElementById("telaEdicao");
+    const campoNome   = document.getElementById("campoNome");
+    const mensagem    = document.getElementById("mensagemEdicao");
+    const botaoSalvar = document.getElementById("botaoSalvar");
 
-    if (user) {
-
-        document.getElementById("nome").textContent =
-            user.displayName || "Usuário";
-
-        document.getElementById("email").textContent =
-            user.email;
-
-        document.getElementById("uid").textContent =
-            "UID: " + user.uid;
-
+    function mostrarUsuario(user) {
+        document.getElementById("nome").textContent  = user.displayName || "Usuário";
+        document.getElementById("email").textContent = user.email || "";
+        // só o final do ID, discreto (o ID completo não ajuda ninguém na tela)
+        document.getElementById("uid").textContent   = "ID da conta: ••••" + user.uid.slice(-4);
         if (user.photoURL) {
+            document.getElementById("foto").src = user.photoURL;
+            document.getElementById("fotoEdicao").src = user.photoURL;
+        }
+    }
 
-            document.getElementById("foto").src =
-                user.photoURL;
+    async function mostrarPlano(user) {
+        try {
+            const s = await situacaoEventos(db, user.uid);
+            document.getElementById("seloPlano").textContent = "Plano " + s.plano.nome;
+            const ilimitado = !Number.isFinite(s.limite);
+            document.getElementById("textoEventos").textContent = s.ativos + (ilimitado ? "" : " de " + s.limite);
+            const barra = document.getElementById("barraEventos");
+            if (ilimitado) { barra.hidden = true; return; }
+            barra.classList.toggle("cheia", s.noLimite);
+            barra.firstElementChild.style.width = Math.min(100, Math.round(s.ativos / s.limite * 100)) + "%";
+        } catch (erro) {
+            console.warn("Perfil: não foi possível carregar o plano:", erro && erro.message);
+            document.getElementById("textoEventos").textContent = "—";
+            document.getElementById("barraEventos").hidden = true;
+        }
+    }
 
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            mostrarUsuario(user);
+            mostrarPlano(user);
+        }
+        else {
+            window.location.href = "login.html";
+        }
+    });
+
+    // ---------- editar nome ----------
+    function abrirEdicao() {
+        const user = auth.currentUser;
+        if (!user) return;
+        campoNome.value = user.displayName || "";
+        document.getElementById("campoEmail").value = user.email || "";
+        mensagem.textContent = "";
+        telaPerfil.hidden = true;
+        telaEdicao.hidden = false;
+        campoNome.focus();
+    }
+
+    function fecharEdicao() {
+        telaEdicao.hidden = true;
+        telaPerfil.hidden = false;
+    }
+
+    document.getElementById("botaoEditar").addEventListener("click", abrirEdicao);
+    document.getElementById("botaoCancelar").addEventListener("click", fecharEdicao);
+
+    telaEdicao.addEventListener("submit", async (evento) => {
+        evento.preventDefault();
+        const user = auth.currentUser;
+        const nome = campoNome.value.trim();
+
+        if (!user) return;
+        if (nome.length < 2) {
+            mensagem.style.color = "#b3261e";
+            mensagem.textContent = "Digite um nome com pelo menos 2 letras.";
+            return;
         }
 
-    }
+        botaoSalvar.disabled = true;
+        botaoSalvar.textContent = "Salvando...";
+        try {
+            await updateProfile(user, { displayName: nome });
+            mostrarUsuario(user);
+            fecharEdicao();
+        } catch (erro) {
+            console.error("Erro ao salvar o nome:", erro);
+            mensagem.style.color = "#b3261e";
+            mensagem.textContent = "Não foi possível salvar agora. Tente de novo.";
+        } finally {
+            botaoSalvar.disabled = false;
+            botaoSalvar.textContent = "Salvar alterações";
+        }
+    });
 
-    else {
+    document.getElementById("voltar").addEventListener("click", () => {
+        window.location.href = "inicio.html";
+    });
 
-        window.location.href = "login.html";
-
-    }
-
-});
-
-document.getElementById("voltar").addEventListener("click", () => {
-
-    window.location.href = "inicio.html";
-
-});
-document.getElementById("sair").addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "index.html";
-});
-
+    document.getElementById("sair").addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = "index.html";
+    });
 </script>
 
 </body>
