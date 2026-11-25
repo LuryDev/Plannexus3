@@ -98,6 +98,7 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { anexarReporte } from "./js/reportarResposta.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { podeCriarEvento } from "./js/planos.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app  = initializeApp(FIREBASE_CONFIG);
@@ -471,6 +472,9 @@
 
             if (!eventoAtual || !usuarioAtual) return;
 
+            // limite do plano: confere antes de criar
+            if (!(await podeCriarEvento(db, usuarioAtual.uid))) return;
+
             botaoCriar.disabled = true;
             botaoCriar.textContent = "Criando evento...";
             mensagemCriar.textContent = "";
@@ -564,6 +568,9 @@
 
         if (usuario) {
             usuarioAtual = usuario;
+
+            // avisa do limite do plano antes de a conversa começar
+            podeCriarEvento(db, usuario.uid);
 
             adicionarBalao("Oi! Eu sou o Nexus 👋 Me conta que evento você quer organizar e eu te ajudo a criar.", "nexus");
         }

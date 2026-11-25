@@ -274,6 +274,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+    import { podeCriarEvento } from "./js/planos.js";
 
     // FIREBASE_CONFIG vem do arquivo js/config.js
     const app  = initializeApp(FIREBASE_CONFIG);
@@ -347,6 +348,8 @@
 
         usuarioAtual = usuario;
 
+        // avisa do limite do plano ANTES de a pessoa preencher o formulário
+        podeCriarEvento(db, usuario.uid);
 
         console.log("Usuário logado!");
 
@@ -413,6 +416,9 @@
         const descricao =
             document.getElementById("descricao").value.trim();
 
+
+        // limite do plano (confere de novo na hora de salvar)
+        if (!(await podeCriarEvento(db, usuarioAtual.uid))) return;
 
         // ======================================
         // DESABILITAR BOTÃO

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planos - Plannexus</title>
+    <link rel="icon" href="fotos/logo.png">
+    <link rel="stylesheet" href="css/planos.css">
+
+    <!-- PWA: manifest, cor do tema e service worker -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#5A32D3">
+    <script src="js/pwa.js" defer></script>
+    <link rel="stylesheet" href="css/responsivo.css">
+    <link rel="stylesheet" href="css/acessibilidade.css">
+    <script src="js/preferencias.js"></script>
+</head>
+<body>
+<main class="planos">
+
+    <div class="topo">
+        <a href="inicio.html" id="voltar">&larr; Voltar</a>
+        <h1>Planos</h1>
+    </div>
+
+    <section class="cartao" aria-live="polite">
+        <div class="seu-plano">
+            <div>
+                <h2>Seu plano</h2>
+                <p class="discreto" id="textoPlano">Carregando...</p>
+            </div>
+            <span class="selo" id="seloPlano">...</span>
+        </div>
+        <p style="margin-top:12px;"><b>Eventos ativos:</b> <span id="textoEventos">...</span></p>
+        <div class="barra" id="barraEventos"><i></i></div>
+        <p class="discreto">Arquivar um evento libera uma vaga. Eventos arquivados não somem: dá para restaurar.</p>
+    </section>
+
+    <section class="cartao">
+        <h2>O que é livre para todo mundo</h2>
+        <p>Convidados, tarefas, orçamento, calendário e notas <b>sem limite</b>. Também exportar a lista (PDF e planilha) e os 8 modelos de convite.</p>
+    </section>
+
+    <section class="cartao">
+        <h2>Grátis x planos pagos</h2>
+        <table>
+            <thead><tr><th>Recurso</th><th>Grátis</th><th>Pago</th></tr></thead>
+            <tbody>
+                <tr><td>Convidados</td><td class="ok">Ilimitados</td><td class="ok">Ilimitados</td></tr>
+                <tr><td>Eventos ativos</td><td>3 (sem limite durante os testes)</td><td>Ilimitados</td></tr>
+                <tr><td>Nexus (criar por IA)</td><td>40 mensagens por mês</td><td>Uso justo (mais mensagens)</td></tr>
+                <tr><td>Anexos por evento</td><td>3 arquivos</td><td>10 arquivos</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="cartao">
+        <h2>Planos pagos <span class="selo" style="margin-left:6px;">Em breve</span></h2>
+        <p class="discreto">Tudo liberado. Ainda não dá para contratar: estamos preparando o pagamento pelo Google Play.</p>
+        <div class="lista-planos">
+            <div class="plano">
+                <b>Passe de 1 evento</b><span class="preco">R$ 9,90</span>
+                <small>Tudo liberado em 1 evento.</small>
+                <button type="button" disabled>Em breve</button>
+            </div>
+            <div class="plano">
+                <b>Temporada de 3 meses</b><span class="preco">R$ 29,90</span>
+                <small>Tudo liberado, com eventos ilimitados por 3 meses.</small>
+                <button type="button" disabled>Em breve</button>
+            </div>
+            <div class="plano destaque">
+                <b>Anual</b><span class="preco">R$ 59,90</span>
+                <small>Tudo liberado, com eventos ilimitados por 12 meses (cerca de R$ 5 por mês).</small>
+                <button type="button" disabled>Em breve</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="cartao">
+        <h2>Nosso compromisso</h2>
+        <p>Nenhum evento seu é apagado se um plano acabar: ele fica disponível para leitura e exportação. Os limites são avisados antes de você investir tempo.</p>
+    </section>
+
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+    import { situacaoEventos } from "./js/planos.js";
+
+    const app  = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const usuario = await exigirLogin(auth, onAuthStateChanged);
+    if (usuario) {
+        try {
+            const s = await situacaoEventos(db, usuario.uid);
+            document.getElementById("seloPlano").textContent = s.plano.nome;
+            document.getElementById("textoPlano").textContent =
+                s.plano.tipo === "gratis" ? "Você usa o plano gratuito." : "Seu plano pago está ativo.";
+
+            const ilimitado = !Number.isFinite(s.limite);
+            document.getElementById("textoEventos").textContent =
+                s.ativos + (ilimitado ? " (sem limite)" : " de " + s.limite);
+
+            const barra = document.getElementById("barraEventos");
+            if (ilimitado) barra.hidden = true;
+            else {
+                barra.classList.toggle("cheia", s.noLimite);
+                barra.firstElementChild.style.width = Math.min(100, Math.round(s.ativos / s.limite * 100)) + "%";
+            }
+        } catch (erro) {
+            console.error("Planos:", erro);
+            document.getElementById("textoPlano").textContent = "Não foi possível carregar seu plano agora.";
+        }
+    }
+</script>
+</body>
+</html>

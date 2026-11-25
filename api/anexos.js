@@ -14,6 +14,7 @@
 // ==========================================================
 
 import { iniciarFirebase, verificarToken } from "./nexus.js";
+import { limitesDoUsuario } from "./_plano.js";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const MAX_ARQUIVOS = 10;
@@ -136,7 +137,14 @@ export default async function handler(req, res) {
             const nome = nomeLimpo(corpo.nome);
             const ext = extensaoDe(nome);
             if (!EXTENSOES.includes(ext)) return res.status(400).json({ erro: "Envie um arquivo PDF, Word (.doc/.docx) ou Excel (.xls/.xlsx)." });
-            if (todos.length >= MAX_ARQUIVOS) return res.status(400).json({ erro: "Limite de " + MAX_ARQUIVOS + " arquivos por evento." });
+            // o limite segue o plano do DONO do evento (quem paga é o organizador)
+            const plano = await limitesDoUsuario(fb.db, perm.evento.usuarioId);
+            const maxArquivos = Math.min(MAX_ARQUIVOS, plano.anexosPorEvento);
+            if (todos.length >= maxArquivos) {
+                return res.status(400).json({ erro: plano.tipo === "gratis"
+                    ? "O plano gratuito permite " + maxArquivos + " arquivos por evento. Apague um para enviar outro (os planos pagos permitem " + MAX_ARQUIVOS + ")."
+                    : "Limite de " + maxArquivos + " arquivos por evento." });
+            }
             const base64 = String(corpo.base64 || "").replace(/^data:[^,]*,/, "");
             if (!/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) return res.status(400).json({ erro: "Arquivo inválido." });
             const bytes = Buffer.from(base64, "base64");

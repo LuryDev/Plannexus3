@@ -16,6 +16,7 @@
 // ==========================================================
 
 import { createRemoteJWKSet, jwtVerify } from "jose";
+import { limitesDoUsuario } from "./_plano.js";
 
 const LIMITE_MENSAGENS_POR_DIA = 30;
 const LIMITE_AJUDA_POR_DIA     = 20;   // chat de ajuda (botão flutuante), contado à parte
@@ -478,6 +479,38 @@ function idUso(uid, modo) {
     return modo === "ajuda" ? `${uid}_${hojeNoBrasil()}_ajuda` : `${uid}_${hojeNoBrasil()}`;
 }
 
+// Contador do MÊS (só para criação de evento): o plano gratuito tem menos mensagens por mês.
+function mesNoBrasil() {
+    return hojeNoBrasil().slice(0, 7);   // "AAAA-MM"
+}
+
+async function registrarUsoMes(db, FieldValue, uid, limite) {
+    const ref = db.collection("nexusUso").doc(`${uid}_${mesNoBrasil()}_mes`);
+
+    return db.runTransaction(async (t) => {
+        const snap = await t.get(ref);
+        const usado = snap.exists ? (snap.data().total || 0) : 0;
+        if (usado >= limite) return false;
+
+        t.set(ref, {
+            usuarioId: uid,
+            total: usado + 1,
+            atualizadoEm: FieldValue.serverTimestamp(),
+            expiraEm: new Date(Date.now() + 70 * 24 * 60 * 60 * 1000)
+        }, { merge: true });
+        return true;
+    });
+}
+
+async function devolverUsoMes(db, FieldValue, uid) {
+    const ref = db.collection("nexusUso").doc(`${uid}_${mesNoBrasil()}_mes`);
+    await db.runTransaction(async (t) => {
+        const snap = await t.get(ref);
+        const usado = snap.exists ? (snap.data().total || 0) : 0;
+        if (usado > 0) t.set(ref, { total: usado - 1, atualizadoEm: FieldValue.serverTimestamp() }, { merge: true });
+    });
+}
+
 // Soma 1 ao contador do dia; devolve false se passou do limite.
 async function registrarUso(db, FieldValue, uid, modo = "criar") {
     const limite = modo === "ajuda" ? LIMITE_AJUDA_POR_DIA : LIMITE_MENSAGENS_POR_DIA;
@@ -557,11 +590,27 @@ export default async function handler(req, res) {
         return res.status(400).json({ erro: "Mensagem inválida." });
     }
 
-    // 3) limite diário
+    // 3) limites: mensal (conforme o plano) e diário
+    let usouMes = false;
     try {
+        if (modo === "criar") {
+            const plano = await limitesDoUsuario(db, usuario.uid);
+            const dentroDoMes = await registrarUsoMes(db, fb.FieldValue, usuario.uid, plano.nexusPorMes);
+            if (!dentroDoMes) {
+                return res.status(429).json({
+                    erro: plano.tipo === "gratis"
+                        ? `Você usou as ${plano.nexusPorMes} mensagens de criação do plano gratuito neste mês. Elas voltam no mês que vem; enquanto isso, crie o evento pelo formulário (é grátis e sem limite de convidados).`
+                        : `Você chegou ao limite de uso justo do Nexus neste mês. Ele volta no mês que vem; você pode criar o evento pelo formulário.`,
+                    limite: "mes"
+                });
+            }
+            usouMes = true;
+        }
+
         const permitido = await registrarUso(db, fb.FieldValue, usuario.uid, modo);
 
         if (!permitido) {
+            if (usouMes) await devolverUsoMes(db, fb.FieldValue, usuario.uid).catch(() => {});
             return res.status(429).json({
                 erro: modo === "ajuda"
                     ? `Você atingiu o limite de ${LIMITE_AJUDA_POR_DIA} mensagens de ajuda de hoje. Volte amanhã!`
@@ -642,6 +691,7 @@ export default async function handler(req, res) {
 
     // não deu certo: devolve a mensagem ao limite do usuário
     await devolverUso(db, fb.FieldValue, usuario.uid, modo).catch(() => {});
+    if (usouMes) await devolverUsoMes(db, fb.FieldValue, usuario.uid).catch(() => {});
 
     if ([429, 503, 504].includes(ultimoStatus)) {
         return res.status(503).json({ erro: "O Nexus está muito ocupado agora. Tente de novo em instantes." });
