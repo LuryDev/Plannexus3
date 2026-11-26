@@ -12,9 +12,10 @@
 import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 import { ofertaDePlanos } from "./planoPopup.js";
 
-// FASE DE TESTES: enquanto for true, o limite de eventos ativos NÃO é aplicado.
-// Para ligar o limite de 3 eventos no gratuito, troque para false (e faça o mesmo em api/_plano.js).
-export const FASE_DE_TESTES = true;
+// FASE DE TESTES: enquanto for true, o limite de eventos ativos NÃO é aplicado
+// (todo mundo cria quantos eventos quiser). Com false, vale o limite de 3 do gratuito.
+// Se mudar aqui, mude igual em api/_plano.js.
+export const FASE_DE_TESTES = false;
 
 export const LIMITES = {
     gratis: { eventosAtivos: FASE_DE_TESTES ? Infinity : 3, nexusPorMes: 40,  anexosPorEvento: 3 },

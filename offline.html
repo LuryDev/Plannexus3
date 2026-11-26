@@ -29,6 +29,12 @@
 
         p { max-width: 320px; line-height: 1.5; color: #5b5670; }
 
+        /* Tema escuro: fica aqui dentro (e nao em css/temaEscuro.css) porque esta
+           pagina precisa funcionar sem internet, quando as folhas de estilo de
+           fora nao carregam. */
+        html.tema-escuro body { background: #15122a; color: #e0dced; }
+        html.tema-escuro p { color: #b3aec4; }
+
         button {
             margin-top: 8px;
             padding: 12px 28px;
@@ -41,10 +47,11 @@
         }
     </style>
     <link rel="stylesheet" href="css/acessibilidade.css">
+    <link rel="stylesheet" href="css/temaEscuro.css">
     <script src="js/preferencias.js"></script>
 </head>
 
-<body>
+<body class="pagina-offline">
     <img src="icons/icon-192.png" alt="Plannexus">
     <h1>Você está sem internet</h1>
     <p>O Plannexus precisa de conexão para carregar seus eventos. Confira o Wi-Fi ou os dados móveis e tente de novo.</p>

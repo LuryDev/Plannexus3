@@ -223,3 +223,26 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - TESTES: na pagina de Perfil tem o cartao "Testes do app" com botoes para ver cada animacao (limite de eventos, do Nexus, de arquivos, o convite do Nexus+, o aviso curto) e "Zerar as 24 horas". Ele tambem diz se o pop-up esta liberado ou em silencio. Para esconder dos usuarios, apague a <section class="cartao testes"> e o bloco "testes das animacoes" no script de perfilPessoal.html.
 - O CSS do pop-up esta DENTRO do js/planoPopup.js (funcao estilos()), para funcionar em qualquer tela sem mexer no <head> de cada uma. Quem desliga animacoes no aparelho (prefers-reduced-motion) ve tudo parado.
 - Precisa de git push (api/anexos.js mudou junto).
+
+36) TEMA ESCURO DE VERDADE, PAGINA DE PLANOS NOVA, MODAL DE LIMITE E LIMITE DE EVENTOS LIGADO
+    (css/temaEscuro.css novo; css/acessibilidade.css, css/autenticacao.css, js/preferencias.js, planos.html, css/planos.css, js/planoPopup.js, js/planos.js, api/_plano.js, offline.html e o <head> das 32 paginas):
+
+- TEMA ESCURO: antes a pagina inteira levava um filtro que INVERTIA as cores (filter: invert), por isso tudo ficava com cara de negativo de foto. Isso acabou. Agora existe css/temaEscuro.css, com a versao escura de cada cor do app (1.525 regras), e ele so vale quando a classe tema-escuro esta no <html>.
+  . Como foi feito: para cada cor das outras folhas de estilo, a LUMINOSIDADE foi virada do avesso e o TOM foi mantido. O roxo continua roxo, verde continua verde. Fotos, videos e o mascote nao sao mexidos (nada e invertido).
+  . As superficies roxas da marca (banner, botoes, cabecalhos, as bolinhas brancas do banner) ficam iguais ao tema claro de proposito, para a identidade nao sumir.
+  . No claro o cartao branco fica por cima de um fundo cinza; no escuro isso se inverte (o fundo da pagina e o mais escuro e os cartoes vao clareando), que e como tema escuro funciona.
+  . As cores guardadas em variaveis (--roxo, --texto...) ganharam uma irma --nome-txt: a variavel continua roxa quando e fundo de botao, e a irma e o roxo clarinho que da para ler em cima do escuro.
+  . PARA MEXER NUMA COR: escreva a regra no FIM de css/temaEscuro.css, na parte "AJUSTES FINAIS". A ultima regra ganha das de cima. O resto do arquivo foi gerado de uma vez; se um dia voce mudar muita cor do app, o mais facil e ajustar la no fim.
+  . Conferido tela por tela: nas 32 paginas, nenhum texto ficou com contraste abaixo do minimo de leitura.
+  . css/acessibilidade.css perdeu o filtro de inversao e a lista de "reinverter"; js/preferencias.js perdeu o trecho que marcava cabecalhos para desinverter (nao serve mais para nada). css/autenticacao.css tinha uma inversao propria, que tambem saiu.
+
+- PAGINA DE PLANOS (planos.html refeita): menos texto e com a cara do app. Capa roxa com o Nexus, cartao "Seu plano" (eventos ativos + barra), ABAS que trocam a oferta na hora (1 evento / 3 meses / 1 ano, com preco, periodo, resumo e o que libera), comparacao "gratis x pago" enxuta e o recado de que nada e apagado, com o mascote. As abas andam com as setas do teclado e todo botao tem 44px de altura.
+  . Os NUMEROS da comparacao (3 eventos, 40 mensagens, 3 arquivos) sao lidos de js/planos.js na hora: a pagina nunca mais vai discordar do que o app aplica.
+  . Os PRECOS sao lidos do mesmo lugar que o pop-up usa (CATALOGO, em js/planoPopup.js). Para mudar preco, mude so ali e muda nos dois lugares.
+
+- MODAL DE LIMITE: o aviso de "limite do plano gratuito" era uma caixa branca sem identidade nenhuma. Agora e o MESMO modal do convite dos planos (Nexus, animacao, faiscas), e ele diz O QUE O PLANO PAGO RESOLVE NAQUELE limite que a pessoa esbarrou - quem estourou o limite de eventos ve "eventos ilimitados" em primeiro lugar, quem gastou o Nexus ve "Nexus liberado" em primeiro lugar, e assim por diante. Os 3 precos ficaram numa linha so, para o modal caber na tela. A regra das 24 horas continua igual.
+
+- LIMITE DE EVENTOS LIGADO: FASE_DE_TESTES virou false em api/_plano.js E em js/planos.js. Agora o plano gratuito para mesmo em 3 eventos ativos (arquivado nao conta). Para soltar de novo durante um teste, e so voltar os dois para true.
+  . Continua valendo o aviso do item 33: essa conferencia e feita no app, nao no servidor. Quem souber mexer no navegador ainda consegue passar. Para travar de verdade e preciso criar o evento por uma API ou escrever isso nas regras do Firestore.
+
+- Precisa de git push (api/_plano.js mudou junto).

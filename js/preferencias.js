@@ -35,15 +35,6 @@
         aplicar(p);
     }
 
-    // cabeçalhos com fundo degradê (ex.: confirmar, anotações) mantêm a cor da marca no tema escuro
-    document.addEventListener("DOMContentLoaded", function () {
-        var hs = document.querySelectorAll("header");
-        for (var i = 0; i < hs.length; i++) {
-            var bi = getComputedStyle(hs[i]).backgroundImage;
-            if (bi && bi.indexOf("gradient") > -1) hs[i].classList.add("reinverter");
-        }
-    });
-
     window.plannexusPreferencias = { ler: ler, salvar: salvar, aplicar: aplicar, padrao: PADRAO };
     aplicar(ler());
 })();

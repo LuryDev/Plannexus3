@@ -13,72 +13,68 @@
     <script src="js/pwa.js" defer></script>
     <link rel="stylesheet" href="css/responsivo.css">
     <link rel="stylesheet" href="css/acessibilidade.css">
+    <link rel="stylesheet" href="css/temaEscuro.css">
     <script src="js/preferencias.js"></script>
 </head>
 <body>
-<main class="planos">
 
-    <div class="topo">
-        <a href="inicio.html" id="voltar">&larr; Voltar</a>
+<main class="pagina">
+
+    <div class="topo sobe">
+        <a class="voltar" href="inicio.html" aria-label="Voltar">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M15 5l-7 7 7 7" stroke="#5A32D3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
         <h1>Planos</h1>
     </div>
 
-    <section class="cartao" aria-live="polite">
-        <div class="seu-plano">
-            <div>
-                <h2>Seu plano</h2>
-                <p class="discreto" id="textoPlano">Carregando...</p>
-            </div>
-            <span class="selo" id="seloPlano">...</span>
-        </div>
-        <p style="margin-top:12px;"><b>Eventos ativos:</b> <span id="textoEventos">...</span></p>
-        <div class="barra" id="barraEventos"><i></i></div>
-        <p class="discreto">Arquivar um evento libera uma vaga. Eventos arquivados não somem: dá para restaurar.</p>
-    </section>
-
-    <section class="cartao">
-        <h2>O que é livre para todo mundo</h2>
-        <p>Convidados, tarefas, orçamento, calendário e notas <b>sem limite</b>. Também exportar a lista (PDF e planilha) e os 8 modelos de convite.</p>
-    </section>
-
-    <section class="cartao">
-        <h2>Grátis x planos pagos</h2>
-        <table>
-            <thead><tr><th>Recurso</th><th>Grátis</th><th>Pago</th></tr></thead>
-            <tbody>
-                <tr><td>Convidados</td><td class="ok">Ilimitados</td><td class="ok">Ilimitados</td></tr>
-                <tr><td>Eventos ativos</td><td>3 (sem limite durante os testes)</td><td>Ilimitados</td></tr>
-                <tr><td>Nexus (criar por IA)</td><td>40 mensagens por mês</td><td>Uso justo (mais mensagens)</td></tr>
-                <tr><td>Anexos por evento</td><td>3 arquivos</td><td>10 arquivos</td></tr>
-            </tbody>
-        </table>
-    </section>
-
-    <section class="cartao">
-        <h2>Planos pagos <span class="selo" style="margin-left:6px;">Em breve</span></h2>
-        <p class="discreto">Tudo liberado. Ainda não dá para contratar: estamos preparando o pagamento pelo Google Play.</p>
-        <div class="lista-planos">
-            <div class="plano">
-                <b>Passe de 1 evento</b><span class="preco">R$ 9,90</span>
-                <small>Tudo liberado em 1 evento.</small>
-                <button type="button" disabled>Em breve</button>
-            </div>
-            <div class="plano">
-                <b>Temporada de 3 meses</b><span class="preco">R$ 29,90</span>
-                <small>Tudo liberado, com eventos ilimitados por 3 meses.</small>
-                <button type="button" disabled>Em breve</button>
-            </div>
-            <div class="plano destaque">
-                <b>Anual</b><span class="preco">R$ 59,90</span>
-                <small>Tudo liberado, com eventos ilimitados por 12 meses (cerca de R$ 5 por mês).</small>
-                <button type="button" disabled>Em breve</button>
-            </div>
+    <!-- capa: o Nexus explica a ideia em duas linhas -->
+    <section class="capa sobe">
+        <img src="fotos/comemorando.png" alt="Nexus, o assistente do Plannexus">
+        <div class="fala">
+            <h2>Tudo liberado, sem pegadinha</h2>
+            <p>O que é de graça continua de graça. O plano pago só tira os limites.</p>
         </div>
     </section>
 
-    <section class="cartao">
-        <h2>Nosso compromisso</h2>
-        <p>Nenhum evento seu é apagado se um plano acabar: ele fica disponível para leitura e exportação. Os limites são avisados antes de você investir tempo.</p>
+    <!-- onde a pessoa está hoje -->
+    <section class="cartao sobe" aria-live="polite">
+        <div class="meu-topo">
+            <h2>Seu plano</h2>
+            <span class="selo" id="seloPlano">Carregando</span>
+        </div>
+        <div class="uso-linha">
+            <span>Eventos ativos</span>
+            <b id="textoEventos">...</b>
+        </div>
+        <div class="barra" id="barraEventos" hidden><i></i></div>
+        <p class="nota" id="notaPlano">Arquivar um evento que já passou libera uma vaga, e ele pode voltar depois.</p>
+    </section>
+
+    <!-- escolha do plano: as abas trocam a oferta na hora -->
+    <section class="cartao sobe">
+        <div class="abas" role="tablist" aria-label="Escolha um plano" id="abas"></div>
+
+        <div class="oferta" id="oferta" role="tabpanel" tabindex="0">
+            <span class="preco" id="ofertaPreco"></span>
+            <span class="periodo" id="ofertaPeriodo"></span>
+            <p class="resumo" id="ofertaResumo"></p>
+            <ul class="ganhos" id="ofertaGanhos"></ul>
+            <button class="assinar" type="button" disabled>Em breve</button>
+            <p class="aviso-breve">A compra vai ser pela Google Play, dentro do app.</p>
+        </div>
+    </section>
+
+    <!-- comparação: os números vêm de js/planos.js, para nunca brigar com o app -->
+    <section class="cartao sobe">
+        <h2>Grátis e pago, lado a lado</h2>
+        <div class="compara" id="compara"></div>
+    </section>
+
+    <section class="cartao promessa sobe">
+        <img src="fotos/piscando.png" alt="">
+        <p>Se um plano acabar, <b>nada seu é apagado</b>: o evento continua aí para ler e exportar.</p>
     </section>
 
 </main>
@@ -89,33 +85,114 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-    import { situacaoEventos } from "./js/planos.js";
+    import { situacaoEventos, LIMITES } from "./js/planos.js";
+    import { CATALOGO } from "./js/planoPopup.js";
 
     const app  = initializeApp(FIREBASE_CONFIG);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
+    // Os três planos entregam a mesma coisa: tudo liberado. Muda só quanto tempo dura.
+    const GANHOS = [
+        "Eventos ativos ilimitados",
+        "Nexus liberado (uso justo)",
+        "Mais arquivos em cada evento",
+        "Convidados, tarefas e orçamento sem limite, como sempre"
+    ];
+
+    // ---------- abas ----------
+    const abas = document.getElementById("abas");
+    const oferta = document.getElementById("oferta");
+    let atual = CATALOGO.findIndex((p) => p.destaque);
+    if (atual < 0) atual = 0;
+
+    CATALOGO.forEach((p, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.id = "aba-" + p.id;
+        b.setAttribute("role", "tab");
+        b.setAttribute("aria-controls", "oferta");
+        b.innerHTML = p.nome + "<small>" + p.preco + "</small>";
+        b.addEventListener("click", () => escolher(i));
+        b.addEventListener("keydown", (e) => {
+            const passo = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+            if (!passo) return;
+            e.preventDefault();
+            escolher((i + passo + CATALOGO.length) % CATALOGO.length, true);
+        });
+        abas.appendChild(b);
+    });
+
+    function escolher(i, focar) {
+        atual = i;
+        const p = CATALOGO[i];
+
+        [...abas.children].forEach((b, n) => {
+            b.setAttribute("aria-selected", n === i ? "true" : "false");
+            b.tabIndex = n === i ? 0 : -1;
+        });
+        if (focar) abas.children[i].focus();
+
+        document.getElementById("ofertaPreco").textContent = p.preco;
+        document.getElementById("ofertaPeriodo").textContent = p.periodo;
+        document.getElementById("ofertaResumo").textContent = p.resumo;
+
+        document.getElementById("ofertaGanhos").innerHTML = GANHOS.map((g) =>
+            '<li><span class="tique" aria-hidden="true">&#10003;</span><span>' + g + "</span></li>").join("");
+
+        oferta.setAttribute("aria-labelledby", "aba-" + p.id);
+        oferta.classList.remove("trocando");
+        void oferta.offsetWidth;                 // reinicia a animação de entrada
+        oferta.classList.add("trocando");
+    }
+    escolher(atual);
+
+    // ---------- comparação (números reais, vindos de js/planos.js) ----------
+    const conta = (n) => (Number.isFinite(n) ? String(n) : "Livre");
+    const linhas = [
+        ["Convidados", "Livre", "Livre", true],
+        ["Tarefas, orçamento e notas", "Livre", "Livre", true],
+        ["Eventos ao mesmo tempo", conta(LIMITES.gratis.eventosAtivos), "Livre", false],
+        ["Mensagens do Nexus por mês", conta(LIMITES.gratis.nexusPorMes), "Uso justo", false],
+        ["Arquivos por evento", conta(LIMITES.gratis.anexosPorEvento), conta(LIMITES.pago.anexosPorEvento), false]
+    ];
+    document.getElementById("compara").innerHTML =
+        '<div class="cabeca"><span>Recurso</span><span>Grátis</span><span>Pago</span></div>' +
+        linhas.map(([nome, g, pago, livre]) =>
+            '<div class="linha"><span class="nome">' + nome + "</span>" +
+            '<span class="valor ' + (livre ? "livre" : "limite") + '">' + g + "</span>" +
+            '<span class="valor livre">' + pago + "</span></div>").join("");
+
+    // ---------- situação de quem está logado ----------
     const usuario = await exigirLogin(auth, onAuthStateChanged);
     if (usuario) {
+        const selo = document.getElementById("seloPlano");
         try {
             const s = await situacaoEventos(db, usuario.uid);
-            document.getElementById("seloPlano").textContent = s.plano.nome;
-            document.getElementById("textoPlano").textContent =
-                s.plano.tipo === "gratis" ? "Você usa o plano gratuito." : "Seu plano pago está ativo.";
+            selo.textContent = s.plano.nome;
+            selo.classList.toggle("pago", s.plano.tipo === "pago");
 
-            const ilimitado = !Number.isFinite(s.limite);
+            const semLimite = !Number.isFinite(s.limite);
             document.getElementById("textoEventos").textContent =
-                s.ativos + (ilimitado ? " (sem limite)" : " de " + s.limite);
+                semLimite ? s.ativos : s.ativos + " de " + s.limite;
 
-            const barra = document.getElementById("barraEventos");
-            if (ilimitado) barra.hidden = true;
-            else {
+            if (!semLimite) {
+                const barra = document.getElementById("barraEventos");
+                barra.hidden = false;
                 barra.classList.toggle("cheia", s.noLimite);
-                barra.firstElementChild.style.width = Math.min(100, Math.round(s.ativos / s.limite * 100)) + "%";
+                barra.firstElementChild.style.width =
+                    Math.min(100, Math.round((s.ativos / s.limite) * 100)) + "%";
+            }
+            if (s.plano.tipo === "pago") {
+                document.getElementById("notaPlano").textContent =
+                    "Seu plano está ativo: pode criar quantos eventos quiser.";
             }
         } catch (erro) {
             console.error("Planos:", erro);
-            document.getElementById("textoPlano").textContent = "Não foi possível carregar seu plano agora.";
+            selo.textContent = "—";
+            document.getElementById("textoEventos").textContent = "—";
+            document.getElementById("notaPlano").textContent =
+                "Não foi possível carregar seu plano agora. Tente de novo daqui a pouco.";
         }
     }
 </script>

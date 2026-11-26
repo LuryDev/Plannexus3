@@ -6,7 +6,7 @@
 //  você nunca fica preso numa versão antiga do site.
 // ==========================================================
 
-const CACHE = "plannexus-offline-v1";   // (o push não usa cache)
+const CACHE = "plannexus-offline-v2";   // (o push não usa cache)
 const ARQUIVOS_OFFLINE = ["offline.html", "icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {

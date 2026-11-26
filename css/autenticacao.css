@@ -72,8 +72,6 @@ label { display: block; font-size: 13px; font-weight: 600; color: #2b2250; margi
 }
 
 /* Tema escuro: a tela mantém o roxo da marca e só o cartão escurece */
-html.tema-escuro body { filter: invert(1) hue-rotate(180deg); }
-html.tema-escuro .cartao { filter: invert(1) hue-rotate(180deg); }
 html.tema-escuro .tela .topo { filter: none; }
 html.tema-escuro .topo .mascote, html.tema-escuro .topo .marca img, html.tema-escuro .cartao img { filter: none; }
 

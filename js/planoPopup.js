@@ -24,39 +24,74 @@
 const CHAVE_RECUSA = "plannexus_oferta_recusada";
 const HORAS_DE_SILENCIO = 24;
 
+// ---------- os planos (fonte única: a página planos.html usa esta mesma lista) ----------
+export const CATALOGO = [
+    {
+        id: "passe", nome: "1 evento", preco: "R$ 9,90", periodo: "pagamento único",
+        detalhe: "Tudo liberado em um evento",
+        resumo: "Para quem vai organizar uma festa só e quer tudo liberado nela."
+    },
+    {
+        id: "temporada", nome: "3 meses", preco: "R$ 29,90", periodo: "por 3 meses",
+        detalhe: "Eventos ilimitados por 3 meses",
+        resumo: "Para a temporada de festas: quantos eventos você quiser, por 3 meses."
+    },
+    {
+        id: "anual", nome: "1 ano", preco: "R$ 59,90", periodo: "por 12 meses", destaque: true,
+        detalhe: "Cerca de R$ 5 por mês",
+        resumo: "O ano inteiro liberado, por cerca de R$ 5 por mês."
+    }
+];
+
 // ---------- o que escrever em cada situação ----------
+// "ganhos" = o que o plano pago resolve NAQUELE limite que a pessoa esbarrou.
+// O primeiro item é sempre a resposta direta ao limite, e os outros vêm depois.
 const MOTIVOS = {
     eventos: {
         figura: "fotos/curioso.png",
         titulo: "Você chegou ao limite de eventos",
         texto: (d) => `O plano gratuito deixa ter <b>${d.limite || 3}</b> eventos ao mesmo tempo e você já tem <b>${d.ativos != null ? d.ativos : d.limite || 3}</b>.`,
-        dica: "Seus eventos continuam todos aí. Dá para arquivar um que já passou (ele sai da conta e pode voltar depois) ou liberar tudo com um plano."
+        dica: "Seus eventos continuam todos aí: dá para arquivar um que já passou (ele sai da conta e pode voltar depois).",
+        ganhos: [
+            "Eventos ativos <b>ilimitados</b> — sem precisar arquivar nada",
+            "Mais mensagens do Nexus por mês",
+            "Mais arquivos guardados em cada evento"
+        ]
     },
     nexus: {
         figura: "fotos/curioso.png",
         titulo: "As mensagens do Nexus acabaram",
         texto: () => "Você usou as mensagens de criação por IA que o plano gratuito dá neste mês.",
-        dica: "Elas voltam no mês que vem. Enquanto isso, criar o evento pelo formulário continua de graça e sem limite de convidados."
+        dica: "Elas voltam no mês que vem. Criar o evento pelo formulário continua de graça e sem limite de convidados.",
+        ganhos: [
+            "Nexus liberado o mês inteiro (uso justo)",
+            "Eventos ativos ilimitados",
+            "Mais arquivos guardados em cada evento"
+        ]
     },
     anexos: {
         figura: "fotos/curioso.png",
         titulo: "Limite de arquivos deste evento",
         texto: () => "O plano gratuito guarda menos arquivos por evento.",
-        dica: "Dá para apagar um arquivo que você não usa mais, ou liberar mais espaço com um plano."
+        dica: "Dá para apagar um arquivo que você não usa mais para liberar espaço.",
+        ganhos: [
+            "Mais arquivos em cada evento (contratos, recibos, PDF)",
+            "Eventos ativos ilimitados",
+            "Mais mensagens do Nexus por mês"
+        ]
     },
     convite: {
         figura: "fotos/comemorando.png",
         titulo: "Libere tudo no Plannexus",
-        texto: () => "Eventos ilimitados, mais mensagens do Nexus e mais arquivos por evento.",
-        dica: "Convidados, tarefas, orçamento e notas continuam sem limite no plano gratuito."
+        texto: () => "Os planos tiram os limites do plano gratuito. O resto do app continua igual.",
+        dica: "Convidados, tarefas, orçamento, calendário e notas são sem limite para todo mundo, sempre.",
+        ganhos: [
+            "Eventos ativos ilimitados",
+            "Mais mensagens do Nexus por mês",
+            "Mais arquivos guardados em cada evento"
+        ]
     }
 };
-
-const PLANOS = [
-    { nome: "1 evento", preco: "R$ 9,90", detalhe: "Tudo liberado em um evento" },
-    { nome: "3 meses", preco: "R$ 29,90", detalhe: "Eventos ilimitados por 3 meses" },
-    { nome: "1 ano", preco: "R$ 59,90", detalhe: "Cerca de R$ 5 por mês", destaque: true }
-];
 
 // ---------- memória da recusa (24 h) ----------
 export function recusouRecentemente() {
@@ -101,10 +136,10 @@ function estilos() {
 #pnx-oferta .cartao{position:relative;width:100%;max-width:380px;background:#fff;color:#25213a;border-radius:26px;
     padding:0 22px 22px;box-shadow:0 20px 60px rgba(32,16,80,.35);animation:pnx-sobe .42s cubic-bezier(.22,1.2,.36,1) both;
     max-height:92vh;overflow:auto}
-#pnx-oferta .palco{position:relative;height:104px;margin:0 -22px 2px;border-radius:26px 26px 0 0;overflow:hidden;
+#pnx-oferta .palco{position:relative;height:92px;margin:0 -22px 2px;border-radius:26px 26px 0 0;overflow:hidden;
     background:radial-gradient(circle at 50% 120%,rgba(164,145,249,.45),transparent 70%),#f3efff;
     display:flex;align-items:flex-end;justify-content:center}
-#pnx-oferta .palco img{height:92px;object-fit:contain;animation:pnx-flutua 3.2s ease-in-out .3s infinite}
+#pnx-oferta .palco img{height:82px;object-fit:contain;animation:pnx-flutua 3.2s ease-in-out .3s infinite}
 #pnx-oferta .faisca{position:absolute;width:12px;height:12px;opacity:0;
     background:conic-gradient(from 0deg,transparent 0 12%,#a491f9 12% 13%,transparent 13% 37%,#a491f9 37% 38%,transparent 38% 62%,#a491f9 62% 63%,transparent 63% 87%,#a491f9 87% 88%,transparent 88%);
     border-radius:50%;animation:pnx-brilha 2.4s ease-in-out infinite}
@@ -114,16 +149,27 @@ function estilos() {
 #pnx-oferta h2{margin:12px 0 6px;font-size:1.15rem;line-height:1.3;color:#34206f;font-weight:700}
 #pnx-oferta p{margin:0 0 8px;font-size:.93rem;line-height:1.5}
 #pnx-oferta .dica{color:#5b5473;font-size:.85rem}
-#pnx-oferta .planos{display:grid;gap:8px;margin:14px 0 16px}
-#pnx-oferta .plano{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e9e4f7;border-radius:14px;
+#pnx-oferta .titulo-ganhos{margin:14px 0 8px;font-size:.84rem;font-weight:700;color:#34206f;
+    text-transform:uppercase;letter-spacing:.4px}
+#pnx-oferta .ganhos{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+#pnx-oferta .ganhos li{display:flex;align-items:flex-start;gap:9px;font-size:.88rem;line-height:1.4;
+    opacity:0;animation:pnx-item .32s ease forwards}
+#pnx-oferta .ganhos li:nth-child(1){animation-delay:.14s}
+#pnx-oferta .ganhos li:nth-child(2){animation-delay:.2s}
+#pnx-oferta .ganhos li:nth-child(3){animation-delay:.26s}
+#pnx-oferta .ganhos li:nth-child(4){animation-delay:.32s}
+#pnx-oferta .ganhos .tique{flex:none;width:21px;height:21px;border-radius:7px;background:#e8f7ee;color:#1c7a43;
+    display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;margin-top:1px}
+#pnx-oferta .planos{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:16px 0}
+#pnx-oferta .plano{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    padding:10px 6px;border:1px solid #e9e4f7;border-radius:14px;text-align:center;
     background:#fdfcff;opacity:0;animation:pnx-item .32s ease forwards}
-#pnx-oferta .plano:nth-child(1){animation-delay:.18s}
-#pnx-oferta .plano:nth-child(2){animation-delay:.26s}
-#pnx-oferta .plano:nth-child(3){animation-delay:.34s}
-#pnx-oferta .plano.destaque{border-color:#5A32D3;background:#faf8ff}
-#pnx-oferta .plano b{font-size:.92rem;color:#34206f}
-#pnx-oferta .plano small{display:block;color:#6b6585;font-size:.78rem;line-height:1.35}
-#pnx-oferta .plano .preco{margin-left:auto;font-weight:800;color:#5A32D3;white-space:nowrap}
+#pnx-oferta .plano:nth-child(1){animation-delay:.34s}
+#pnx-oferta .plano:nth-child(2){animation-delay:.4s}
+#pnx-oferta .plano:nth-child(3){animation-delay:.46s}
+#pnx-oferta .plano.destaque{border-color:#5A32D3;background:#faf8ff;box-shadow:0 4px 14px rgba(90,50,211,.14)}
+#pnx-oferta .plano b{font-size:.8rem;color:#6b6585;font-weight:600}
+#pnx-oferta .plano .preco{font-weight:800;font-size:.92rem;color:#5A32D3;white-space:nowrap}
 #pnx-oferta .botoes{display:flex;flex-direction:column;gap:8px}
 #pnx-oferta .botoes a,#pnx-oferta .botoes button{min-height:48px;border:0;border-radius:14px;font-family:inherit;
     font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none}
@@ -159,9 +205,25 @@ function estilos() {
     box-shadow:0 2px 6px rgba(45,25,100,.25);animation:pnx-pulsa 2.6s ease-in-out infinite}
 @keyframes pnx-pulsa{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 
+/* tema escuro (este CSS mora aqui dentro, entao nao entra em css/temaEscuro.css) */
+html.tema-escuro #pnx-oferta .cartao{background:#1e1a35;color:#e7e4f2;box-shadow:0 20px 60px rgba(5,2,16,.6)}
+html.tema-escuro #pnx-oferta .palco{background:radial-gradient(circle at 50% 120%,rgba(164,145,249,.3),transparent 70%),#241f3d}
+html.tema-escuro #pnx-oferta h2{color:#cdbcff}
+html.tema-escuro #pnx-oferta .dica{color:#a9a2c4}
+html.tema-escuro #pnx-oferta .titulo-ganhos{color:#cdbcff}
+html.tema-escuro #pnx-oferta .ganhos .tique{background:#1c3a2b;color:#7fd8a4}
+html.tema-escuro #pnx-oferta .plano{background:#221d3a;border-color:#332b52}
+html.tema-escuro #pnx-oferta .plano.destaque{background:#271f47;border-color:#7a5cf0}
+html.tema-escuro #pnx-oferta .plano b{color:#ddd3ff}
+html.tema-escuro #pnx-oferta .plano small{color:#a9a2c4}
+html.tema-escuro #pnx-oferta .plano .preco{color:#b9a4f6}
+html.tema-escuro #pnx-oferta .depois{background:#2a2447;color:#cfc9e6}
+html.tema-escuro #pnx-oferta .fechar{background:rgba(40,33,66,.9);color:#cfc9e6}
+html.tema-escuro #pnx-oferta .aviso-24h{color:#8e86a8}
+
 @media (prefers-reduced-motion:reduce){
     #pnx-oferta,#pnx-oferta .cartao,#pnx-oferta .palco img,#pnx-oferta .faisca,#pnx-oferta .plano,
-    #pnx-recado,.nexus-mais .mais{animation:none !important;opacity:1 !important}
+    #pnx-oferta .ganhos li,#pnx-recado,.nexus-mais .mais{animation:none !important;opacity:1 !important}
 }`;
     document.head.appendChild(tag);
 }
@@ -214,10 +276,14 @@ export function ofertaDePlanos(motivo = "convite", opcoes = {}) {
             <h2>${dados.titulo}</h2>
             <p>${dados.texto(opcoes)}</p>
             <p class="dica">${dados.dica}</p>
+            <p class="titulo-ganhos">Com um plano pago você tem:</p>
+            <ul class="ganhos">
+                ${dados.ganhos.map((g) => `<li><span class="tique" aria-hidden="true">&#10003;</span><span>${g}</span></li>`).join("")}
+            </ul>
             <div class="planos">
-                ${PLANOS.map((p) => `
+                ${CATALOGO.map((p) => `
                     <div class="plano${p.destaque ? " destaque" : ""}">
-                        <span><b>${p.nome}</b><small>${p.detalhe}</small></span>
+                        <b>${p.nome}</b>
                         <span class="preco">${p.preco}</span>
                     </div>`).join("")}
             </div>
