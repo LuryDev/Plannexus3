@@ -1,0 +1,192 @@
+/* ==========================================================
+   css/escuro/blocoNotas.css  -  versao escura de css/blocoNotas.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    color: var(--texto-txt);
+}
+html.tema-escuro body > header {
+    color: #e7e6ea;
+    background: linear-gradient(115deg, #32147A 0%, #462a9a 55%, #4c20df 100%);
+    box-shadow: 0 10px 25px rgba(9, 5, 18, 0.34);
+}
+html.tema-escuro body > header a {
+    color: #e7e6ea;
+}
+html.tema-escuro main > section:first-child {
+    background: #302940;
+}
+html.tema-escuro main > section:first-child h2 {
+    color: var(--texto-txt);
+}
+html.tema-escuro main > section:first-child p {
+    color: var(--cinza-txt);
+}
+html.tema-escuro main label {
+    color: #bcb8cc;
+}
+html.tema-escuro main input,
+html.tema-escuro #modalAnotacao input,
+html.tema-escuro #modalAnotacao textarea {
+    border: 1px solid #e7e2f2;
+    background: #faf9fd;
+    color: var(--texto-txt);
+}
+html.tema-escuro main input:focus,
+html.tema-escuro #modalAnotacao input:focus,
+html.tema-escuro #modalAnotacao textarea:focus {
+    box-shadow: 0 0 0 3px rgba(90, 50, 211, 0.918);
+}
+html.tema-escuro main > section:first-child > div:nth-child(2) i {
+    color: #b9b1d2;
+}
+html.tema-escuro main > section:first-child > button,
+html.tema-escuro #botaoSalvar,
+html.tema-escuro #botaoConfirmarMensagem {
+    color: white;
+    box-shadow: 0 7px 16px rgba(90, 50, 211, 0.711);
+}
+html.tema-escuro main > section:first-child > button:hover,
+html.tema-escuro #botaoSalvar:hover,
+html.tema-escuro #botaoConfirmarMensagem:hover {
+    box-shadow: 0 10px 20px rgba(90, 50, 211, 0.699);
+}
+html.tema-escuro #listaAnotacoes > * {
+    background: #302940;
+    box-shadow: 0 6px 18px rgba(9, 5, 18, 0.6);
+}
+html.tema-escuro #mensagemVazia {
+    background: #302940;
+    border: 1px dashed #3d325d;
+    color: var(--cinza-txt);
+}
+html.tema-escuro #mensagemVazia h3 {
+    color: var(--texto-txt);
+}
+html.tema-escuro #modalAnotacao,
+html.tema-escuro #modalMensagem {
+    background: rgba(28, 18, 58, .55);
+}
+html.tema-escuro #modalAnotacao > div,
+html.tema-escuro #modalMensagem > div {
+    background: white;
+    box-shadow: 0 20px 60px rgba(20, 10, 50, 0.699);
+}
+html.tema-escuro #modalAnotacao h2,
+html.tema-escuro #modalMensagem h2 {
+    color: var(--texto-txt);
+}
+html.tema-escuro #botaoFecharAnotacao,
+html.tema-escuro #botaoFecharMensagem {
+    color: #bdb7cc;
+    background: #3a2d58;
+}
+html.tema-escuro #botaoCancelar,
+html.tema-escuro #botaoCancelarMensagem {
+    border: 1px solid #40325d;
+    color: #bebac9;
+    background: #302940;
+}
+html.tema-escuro #textoMensagem {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .secaoComentarios h4 {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .comentarioItem p {
+    color: var(--texto-txt);
+}
+html.tema-escuro .comentarioItem small {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .comentarioItem button {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .comentarioVazio {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .formComentario button {
+    color: #e7e6ea;
+}
+html.tema-escuro main input,
+html.tema-escuro #modalAnotacao input,
+html.tema-escuro #modalAnotacao textarea,
+html.tema-escuro .formComentario textarea {
+    border: 1px solid #ded8ed;
+    background: #faf9fd;
+    box-shadow: 0 4px 9px rgba(76, 48, 145, 0.83), 0 2px 5px rgba(106, 58, 249, 0.889);
+}
+html.tema-escuro main input:hover,
+html.tema-escuro #modalAnotacao input:hover,
+html.tema-escuro #modalAnotacao textarea:hover,
+html.tema-escuro .formComentario textarea:hover {
+    border-color: #c9baf0;
+    box-shadow: 0 5px 12px rgba(76, 48, 145, 0.838), 0 2px 6px rgba(90, 50, 211, .20);
+}
+html.tema-escuro main input:focus,
+html.tema-escuro #modalAnotacao input:focus,
+html.tema-escuro #modalAnotacao textarea:focus,
+html.tema-escuro .formComentario textarea:focus {
+    border-color: #A491F9;
+    box-shadow: 0 4px 12px rgba(79, 29, 207, 0.575), 0 0 0 3px rgba(164, 145, 249, .18);
+}
+html.tema-escuro main > section {
+    border: 1px solid #3d325d;
+    background: #302940;
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.6), 0 3px 7px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro #listaAnotacoes > * {
+    border: 1px solid #3d325d;
+    background: #302940;
+    box-shadow: 0 5px 11px rgba(9, 5, 18, 0.6), 0 2px 5px rgba(9, 5, 18, 0.6);
+}
+html.tema-escuro .comentarioItem {
+    border: 1px solid #3d325d;
+    box-shadow: 0 4px 9px rgba(9, 5, 18, 0.6), 0 2px 4px rgba(9, 5, 18, 0.6);
+}
+html.tema-escuro #mensagemVazia {
+    box-shadow: 0 5px 12px rgba(112, 56, 252, 0.681), 0 2px 5px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro #modalAnotacao > div,
+html.tema-escuro #modalMensagem > div {
+    box-shadow: 0 12px 30px rgba(76, 48, 145, 0.796), 0 4px 12px rgba(90, 50, 211, .12);
+}
+html.tema-escuro button,
+html.tema-escuro #botaoSalvar,
+html.tema-escuro #botaoConfirmarMensagem,
+html.tema-escuro .formComentario button {
+    background: linear-gradient(135deg, #5e3fe8, #3d2984);
+    color: #fff;
+    box-shadow: 0 6px 15px rgba(90, 50, 211, .20);
+}
+html.tema-escuro button:hover,
+html.tema-escuro #botaoSalvar:hover,
+html.tema-escuro #botaoConfirmarMensagem:hover,
+html.tema-escuro .formComentario button:hover {
+    box-shadow: 0 9px 20px rgba(90, 50, 211, .28);
+}
+html.tema-escuro #botaoCancelar,
+html.tema-escuro #botaoCancelarMensagem,
+html.tema-escuro #botaoFecharAnotacao,
+html.tema-escuro #botaoFecharMensagem {
+    background: #382d58;
+    color: #ae9ae9;
+    border: 1px solid #3e325d;
+    box-shadow: 0 3px 9px rgba(9, 5, 18, 0.102);
+}
+html.tema-escuro #botaoCancelar:hover,
+html.tema-escuro #botaoCancelarMensagem:hover,
+html.tema-escuro #botaoFecharAnotacao:hover,
+html.tema-escuro #botaoFecharMensagem:hover {
+    background: #382d58;
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.204);
+}

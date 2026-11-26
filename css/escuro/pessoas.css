@@ -1,0 +1,121 @@
+/* ==========================================================
+   css/escuro/pessoas.css  -  versao escura de css/pessoas.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro {
+    --roxo: #462a9a;
+    --roxo-escuro: #3d2984;
+    --roxo-claro: #5e3fe8;
+    --fundo: #2d2d58;
+    --branco: #302940;
+    --texto: #eaeaea;
+    --cinza: #c5c5c5;
+    --sombra: 0 8px 20px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro body {
+    color: var(--texto-txt);
+}
+html.tema-escuro header h2 {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .voltar {
+    background: #352d58;
+    color: var(--roxo-txt);
+}
+html.tema-escuro .voltar:hover {
+    color: #e7e6ea;
+}
+html.tema-escuro .campo label {
+    color: var(--texto-txt);
+}
+html.tema-escuro .campo input,
+html.tema-escuro .campo select {
+    border: 1px solid #443f50;
+    background: #2d2d58;
+    color: var(--texto-txt);
+}
+html.tema-escuro .campo input:focus,
+html.tema-escuro .campo select:focus {
+    background: #302940;
+    box-shadow: 0 0 0 3px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .opcao-papel .cartao-papel {
+    border: 2px solid #443f50;
+    background: #2d2d58;
+}
+html.tema-escuro .opcao-papel .cartao-papel span {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .opcao-papel input:checked + .cartao-papel {
+    background: #382d58;
+    box-shadow: 0 0 0 3px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .opcao-papel input:checked + .cartao-papel i {
+    color: var(--roxo-txt);
+}
+html.tema-escuro button.principal {
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+    color: #FFFFFF;
+    box-shadow: 0 6px 15px rgba(77, 47, 184, .20);
+}
+html.tema-escuro button.principal:hover {
+    box-shadow: 0 9px 20px rgba(77, 47, 184, .25);
+}
+html.tema-escuro .secao-equipe h3 {
+    color: var(--texto-txt);
+}
+html.tema-escuro .estado-lista {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .pessoa-item {
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .pessoa-avatar {
+    background: #352d58;
+    color: var(--roxo-txt);
+}
+html.tema-escuro .pessoa-info span {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .selo-colaborador {
+    background: #2d5848;
+    color: #95dac7;
+}
+html.tema-escuro .selo-visitante {
+    background: #58492d;
+    color: #dfbf90;
+}
+html.tema-escuro .selo-pendente {
+    background: #3a2d58;
+    color: var(--cinza-txt);
+}
+html.tema-escuro .seletor-papel {
+    border: 1px solid #3b325d;
+    background: #362d58;
+    color: var(--texto-txt);
+}
+html.tema-escuro .botao-cancelar-convite {
+    background: #3a2d58;
+    color: var(--cinza-txt);
+}
+html.tema-escuro .botao-cancelar-convite:hover {
+    background: #582d2d;
+    color: #e5938a;
+}
+@media (max-width: 768px) {
+html.tema-escuro body {
+    background: #302940;
+}
+html.tema-escuro form {
+    box-shadow: 0 5px 18px rgba(9, 5, 18, 0.17);
+}
+}

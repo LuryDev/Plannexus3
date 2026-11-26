@@ -10,15 +10,20 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/presentes.css">
+    <link rel="stylesheet" href="css/escuro/presentes.css">
     <link rel="stylesheet" href="css/convidados.css">
+    <link rel="stylesheet" href="css/escuro/convidados.css">
     <link rel="stylesheet" href="css/documentos.css">
+    <link rel="stylesheet" href="css/escuro/documentos.css">
     <link rel="stylesheet" href="css/ajuda.css">
+    <link rel="stylesheet" href="css/escuro/ajuda.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#5A32D3">
     <script src="js/pwa.js" defer></script>
     <link rel="stylesheet" href="css/nexusFlutuante.css">
+    <link rel="stylesheet" href="css/escuro/nexusFlutuante.css">
     <link rel="stylesheet" href="css/responsivo.css">
     <link rel="stylesheet" href="css/acessibilidade.css">
     <link rel="stylesheet" href="css/temaEscuro.css">
@@ -174,7 +179,7 @@
                 } catch (err) {
                     msgEl.textContent = err.message;
                     // bateu no limite de arquivos do plano: oferece os planos
-                    if (err.limite === "anexos") ofertaDePlanos("anexos", { recado: "Este evento chegou ao limite de arquivos do plano gratuito." });
+                    if (err.limite === "anexos") ofertaDePlanos("anexos", { recado: "Este evento ficou sem espaço. Apagar um arquivo antigo já resolve." });
                 }
             };
             leitor.onerror = () => { msgEl.textContent = "Não foi possível ler o arquivo."; };

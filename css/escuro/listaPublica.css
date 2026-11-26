@@ -1,0 +1,156 @@
+/* ==========================================================
+   css/escuro/listaPublica.css  -  versao escura de css/listaPublica.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    background: #2d2d58;
+    color: #e9e9e9;
+}
+html.tema-escuro .app {
+    background: #2d2d58;
+}
+html.tema-escuro header {
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+    color: #e7e6ea;
+}
+html.tema-escuro .intro {
+    color: #bebac9;
+}
+html.tema-escuro .presente {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .icone {
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .info h3 {
+    color: #dddbe6;
+}
+html.tema-escuro .info p {
+    color: #c5c5c5;
+}
+html.tema-escuro .info a {
+    color: #ae9ae9;
+}
+html.tema-escuro .valor {
+    color: #ad9ee6;
+}
+html.tema-escuro .botao-dar {
+    color: #fff;
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+    box-shadow: 0 4px 10px rgba(77,47,184,.2);
+}
+html.tema-escuro .tag-escolhido {
+    color: #94dcb5;
+    background: #2d5840;
+}
+html.tema-escuro .aviso {
+    background: #302940;
+    color: #c5c5c5;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .aviso.erro {
+    color: #e08f8f;
+}
+html.tema-escuro .rodape {
+    color: #bcb7cd;
+}
+html.tema-escuro .rodape a {
+    color: #ae9ae9;
+}
+html.tema-escuro .caixa {
+    background: #302940;
+}
+html.tema-escuro .caixa h2 {
+    color: #ad9ee6;
+}
+html.tema-escuro .caixa .qual {
+    color: #bebac9;
+}
+html.tema-escuro .caixa label {
+    color: #dbdbdb;
+}
+html.tema-escuro .caixa input[type=text] {
+    border: 1px solid #3c325d;
+}
+html.tema-escuro .caixa input[type=text]:disabled {
+    background: #392d58;
+}
+html.tema-escuro .anonimo {
+    color: #dbdbdb;
+}
+html.tema-escuro .dica {
+    color: #bcb7cd;
+}
+html.tema-escuro .confirmar {
+    color: #fff;
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+}
+html.tema-escuro .cancelar {
+    color: #bebac9;
+}
+html.tema-escuro .mensagem {
+    color: #e08f8f;
+}
+html.tema-escuro .toast {
+    background: #2b2250;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+html.tema-escuro .pix-cartao {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .pix-cartao h2 {
+    color: #ad9ee6;
+}
+html.tema-escuro .pix-para {
+    color: #bebac9;
+}
+html.tema-escuro .pix-chave {
+    background: #372d58;
+    color: #ad9ee6;
+}
+html.tema-escuro .pix-ja {
+    border: 1.5px solid #3b325d;
+    background: #302940;
+    color: #ad9ee6;
+}
+html.tema-escuro .pix-form label {
+    color: #dbdbdb;
+}
+html.tema-escuro .pix-form input[type=text] {
+    border: 1px solid #3c325d;
+}
+html.tema-escuro .pix-ok {
+    background: #2d5840;
+    color: #dbe6e0;
+}
+html.tema-escuro .pix-aviso {
+    background: #655834;
+}
+html.tema-escuro .pix-aviso i {
+    color: #efd080;
+}
+html.tema-escuro .pix-aviso p {
+    color: #e6e3db;
+}
+html.tema-escuro .pix-anexar {
+    border: 1.5px dashed #3b325d;
+    background: #362d58;
+    color: #ad9ee6;
+}
+html.tema-escuro .pix-anexar.anexado {
+    background: #2d5840;
+    color: #dbe6e0;
+}

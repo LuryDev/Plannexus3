@@ -1,0 +1,236 @@
+/* ==========================================================
+   css/escuro/tarefas.css  -  versao escura de css/tarefas.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    background: #2d2d58;
+    color: #e9e9e9;
+}
+html.tema-escuro .app {
+    background: #2d2d58;
+}
+html.tema-escuro header {
+    background: #302940;
+    border-bottom: 1px solid #443f50;
+}
+html.tema-escuro header h1 {
+    color: #ad9ee6;
+}
+html.tema-escuro .voltar {
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .voltar:hover {
+    background: #403465;
+}
+html.tema-escuro .evento span {
+    color: #bcb7cd;
+}
+html.tema-escuro .evento h2 {
+    color: #ad9ee6;
+}
+html.tema-escuro .titulo h2 {
+    color: #e9e9e9;
+}
+html.tema-escuro .nova-tarefa {
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+    color: white;
+    box-shadow: 0 4px 10px rgba(77, 47, 184, 0.20);
+}
+html.tema-escuro .nova-tarefa:hover {
+    box-shadow: 0 6px 14px rgba(77, 47, 184, 0.25);
+}
+html.tema-escuro .tarefa {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.136), 0 1px 3px rgba(9, 5, 18, 0.068);
+}
+html.tema-escuro .tarefa:hover {
+    box-shadow: 0 7px 16px rgba(9, 5, 18, 0.204), 0 2px 5px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .check {
+    border: 2px solid #b8afd2;
+    color: white;
+}
+html.tema-escuro .check:hover {
+    border-color: #5A32D3;
+}
+html.tema-escuro .concluida .check {
+    background: #462a9a;
+    border-color: #5A32D3;
+}
+html.tema-escuro .informacoes h3 {
+    color: #dfdbe6;
+}
+html.tema-escuro .informacoes p {
+    color: #c5c5c5;
+}
+html.tema-escuro .informacoes small {
+    color: #b7b7b7;
+}
+html.tema-escuro .informacoes small i {
+    color: #ae9ae9;
+}
+html.tema-escuro .concluida .informacoes h3 {
+    color: #b7b7b7;
+}
+html.tema-escuro .concluida .informacoes p {
+    color: #b0b0b0;
+}
+html.tema-escuro .alta {
+    background: #f12222;
+    color: #f0f0f0;
+}
+html.tema-escuro .media {
+    background: #f1c61e;
+    color: #f0f0f0;
+}
+html.tema-escuro .baixa {
+    background: #7ff124;
+    color: #f0f0f0;
+}
+html.tema-escuro .progresso {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .progresso-texto {
+    color: #bebac9;
+}
+html.tema-escuro .progresso-texto strong {
+    color: #ad9ee6;
+}
+html.tema-escuro .barra {
+    background: #372d58;
+}
+html.tema-escuro .barra-preenchida {
+    background: linear-gradient(90deg, #5e3fe8, #3d2984);
+}
+html.tema-escuro .filtro {
+    border: 1px solid #3c325d;
+    background: #302940;
+    color: #bebac9;
+}
+html.tema-escuro .excluir:hover {
+    color: #ea8585;
+}
+html.tema-escuro .aviso {
+    background: #302940;
+    color: #c5c5c5;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .aviso.erro {
+    color: #e08f8f;
+}
+html.tema-escuro .modal-caixa {
+    background: #302940;
+}
+html.tema-escuro .modal-topo h2 {
+    color: #ad9ee6;
+}
+html.tema-escuro .fechar {
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .modal-caixa label {
+    color: #bebac9;
+}
+html.tema-escuro .modal-caixa input,
+html.tema-escuro .modal-caixa textarea,
+html.tema-escuro .modal-caixa select {
+    border: 1px solid #3c325d;
+    background: #342d58;
+    color: #e9e9e9;
+}
+html.tema-escuro .salvar {
+    color: white;
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+}
+html.tema-escuro .mensagem {
+    color: #e08f8f;
+}
+html.tema-escuro .informacoes .selo-servico {
+    color: #ad9ee6;
+    background: #372d58;
+}
+html.tema-escuro .selo-servico i {
+    color: #ae9ae9;
+}
+html.tema-escuro .sugestoes {
+    background: #362d58;
+    border: 1px solid #3b325d;
+}
+html.tema-escuro .sugestoes-legenda {
+    color: #b3a2e1;
+}
+html.tema-escuro .sugestoes-topo h2 {
+    color: #dddbe6;
+}
+html.tema-escuro .sugestoes-topo p {
+    color: #c8c5cf;
+}
+html.tema-escuro .sugestoes-topo > i {
+    color: #b3a2e1;
+}
+html.tema-escuro .item-sugestao {
+    background: #302940;
+}
+html.tema-escuro .informacoes-sugestao strong {
+    color: #dddbe6;
+}
+html.tema-escuro .informacoes-sugestao small {
+    color: #c5c5c5;
+}
+html.tema-escuro .acoes-sugestoes button {
+    background: linear-gradient(135deg, #543a9b, #3d2984);
+    color: #e7e6ea;
+    box-shadow: 0 4px 10px rgba(9, 5, 18, 0.306);
+}
+html.tema-escuro .acoes-sugestoes button:first-child {
+    background: #302940;
+    color: #b3a2e1;
+}
+html.tema-escuro .acoes-sugestoes button:hover {
+    box-shadow: 0 6px 14px rgba(9, 5, 18, 0.374);
+}
+html.tema-escuro .modal-confirmacao > p {
+    color: #d4d4d4;
+}
+html.tema-escuro .botao-cancelar {
+    background: #3a324e;
+    color: #e2e2e2;
+}
+html.tema-escuro .botao-cancelar:hover {
+    background: #4a425c;
+}
+html.tema-escuro .botao-excluir {
+    background: #a32929;
+    color: white;
+}
+html.tema-escuro .botao-excluir:hover {
+    background: #842222;
+}
+html.tema-escuro .tarefa,
+html.tema-escuro .progresso,
+html.tema-escuro .aviso,
+html.tema-escuro .sugestoes,
+html.tema-escuro .item-sugestao {
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.6), 0 8px 22px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .tarefa:hover,
+html.tema-escuro .item-sugestao:hover {
+    box-shadow: 0 6px 15px rgba(9, 5, 18, 0.6), 0 10px 26px rgba(9, 5, 18, 0.238);
+}
+html.tema-escuro .sugestoes {
+    box-shadow: 0 5px 15px rgba(9, 5, 18, 0.6), 0 10px 25px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .selo-servico.selo-link:hover {
+    background: #3f3465;
+}

@@ -1,0 +1,144 @@
+/* ==========================================================
+   css/escuro/confirmarPublica.css  -  versao escura de css/confirmarPublica.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro .detalhes {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .detalhe {
+    color: #dddbe6;
+}
+html.tema-escuro .detalhe i {
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .cartao {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .cartao h2 {
+    color: #ad9ee6;
+}
+html.tema-escuro .cartao label {
+    color: #dbdbdb;
+}
+html.tema-escuro .cartao input[type=text],
+html.tema-escuro .cartao input[type=email] {
+    border: 1px solid #3c325d;
+    background: #302940;
+}
+html.tema-escuro .cartao input:focus {
+    box-shadow: 0 0 0 3px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro .dica {
+    color: #bcb7cd;
+}
+html.tema-escuro .mensagem {
+    color: #e08f8f;
+}
+html.tema-escuro .mensagem.info {
+    color: #e6e2db;
+    background: #655834;
+}
+html.tema-escuro .confirmar {
+    color: #fff;
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+    box-shadow: 0 4px 10px rgba(77,47,184,.25);
+}
+html.tema-escuro .resultado p {
+    color: #bebac9;
+}
+html.tema-escuro .icone-resultado {
+    color: #94dcb5;
+}
+html.tema-escuro .icone-resultado.aviso-ja {
+    color: #efd080;
+}
+html.tema-escuro .nao-vou {
+    border: 1.5px solid #3d325d;
+    color: #bebac9;
+    background: #302940;
+}
+html.tema-escuro .icone-resultado.aviso-nao {
+    color: #bab3d0;
+}
+html.tema-escuro .aviso-publico {
+    background: #655834;
+    color: #e6e3db;
+}
+html.tema-escuro .aviso-publico i {
+    color: #efd080;
+}
+html.tema-escuro .opcao {
+    border: 1px solid #3d325d;
+    background: #362d58;
+}
+html.tema-escuro .opcao-linha b {
+    color: #dddbe6;
+}
+html.tema-escuro .opcao-linha small {
+    color: #bcb7cd;
+}
+html.tema-escuro .contador button {
+    border: 1.5px solid #3b325d;
+    background: #302940;
+    color: #ad9ee6;
+}
+html.tema-escuro .contador span {
+    color: #dddbe6;
+}
+html.tema-escuro .ficha {
+    border: 1.5px solid #3b325d;
+    background: #302940;
+    color: #ad9ee6;
+}
+html.tema-escuro .ficha.on {
+    background: #462a9a;
+    border-color: #5A32D3;
+    color: #fff;
+}
+html.tema-escuro .total-pessoas {
+    color: #bebac9;
+}
+html.tema-escuro .total-pessoas b {
+    color: #ad9ee6;
+}
+html.tema-escuro .mudanca h2 {
+    color: #efc280;
+}
+html.tema-escuro .linha-mudanca {
+    background: #392d58;
+}
+html.tema-escuro .linha-mudanca b {
+    color: #ad9ee6;
+}
+html.tema-escuro .linha-mudanca .antes {
+    color: #bcb7cd;
+}
+html.tema-escuro .linha-mudanca .depois {
+    color: #dddbe6;
+}
+html.tema-escuro .docs-publicos {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .docs-publicos h3 {
+    color: #ad9ee6;
+}
+html.tema-escuro .doc-pub {
+    background: #382d58;
+    color: #dddbe6;
+}
+html.tema-escuro .doc-pub i {
+    color: #ae9ae9;
+}

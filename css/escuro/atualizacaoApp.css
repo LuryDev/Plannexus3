@@ -1,0 +1,54 @@
+/* ==========================================================
+   css/escuro/atualizacaoApp.css  -  versao escura de css/atualizacaoApp.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro .aviso-atualizacao {
+    color: #fff;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+    box-shadow: 0 6px 18px rgba(77, 47, 184, .3);
+}
+html.tema-escuro .aviso-atualizacao-nexus {
+    background: rgba(255, 255, 255, .92);
+}
+html.tema-escuro .aviso-atualizacao-botao {
+    color: #4D2FB8;
+    background: #fff;
+}
+html.tema-escuro .aviso-atualizacao-fechar {
+    color: #fff;
+    background: rgba(255, 255, 255, .18);
+}
+html.tema-escuro .pop-atualizacao-fundo {
+    background: rgba(20, 12, 45, .55);
+}
+html.tema-escuro .pop-atualizacao {
+    background: #302940;
+}
+html.tema-escuro .pop-atualizacao h3 {
+    color: #ae9ae9;
+}
+html.tema-escuro .pop-atualizacao p {
+    color: #d4d4d4;
+}
+html.tema-escuro .pop-atualizacao li {
+    color: #e2e2e2;
+}
+html.tema-escuro .pop-atualizacao li i {
+    color: #ae9ae9;
+}
+html.tema-escuro .pop-atualizacao-principal {
+    color: #fff;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+}
+html.tema-escuro .pop-atualizacao-depois {
+    color: #c5c5c5;
+}

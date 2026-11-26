@@ -1,0 +1,146 @@
+/* ==========================================================
+   css/escuro/criarEvento.css  -  versao escura de css/criarEvento.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro {
+    --roxo: #462a9a;
+    --roxo-escuro: #3d2984;
+    --roxo-claro: #5e3fe8;
+    --roxo-hover: #463093;
+    --fundo: #2d2d58;
+    --branco: #302940;
+    --texto: #eaeaea;
+    --cinza: #c5c5c5;
+    --sombra: 0 8px 20px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro body {
+    color: var(--texto-txt);
+}
+html.tema-escuro header h2 {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .voltar {
+    background: #352d58;
+    color: var(--roxo-txt);
+}
+html.tema-escuro .voltar:hover {
+    color: #e7e6ea;
+}
+html.tema-escuro .campo label {
+    color: var(--texto-txt);
+}
+html.tema-escuro .campo input,
+html.tema-escuro .campo select,
+html.tema-escuro .campo textarea {
+    border: 1px solid #443f50;
+    background: #2d2d58;
+    color: var(--texto-txt);
+}
+html.tema-escuro .campo input:focus,
+html.tema-escuro .campo textarea:focus,
+html.tema-escuro .campo select:focus {
+    background: #302940;
+    box-shadow: 0 0 0 3px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro button {
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+    color: #e7e6ea;
+    box-shadow: 0 6px 15px rgba(9, 5, 18, 0.34);
+}
+html.tema-escuro button:hover {
+    background: linear-gradient(135deg, #4b29b3, #463093);
+    box-shadow: 0 9px 20px rgba(9, 5, 18, 0.425);
+}
+@media (max-width: 768px) {
+html.tema-escuro body {
+    background: #302940;
+}
+html.tema-escuro form {
+    box-shadow: 0 5px 18px rgba(9, 5, 18, 0.17);
+}
+}
+html.tema-escuro .tipo-evento {
+    border: 2px solid #443f50;
+    background: #2d2d58;
+    color: var(--texto-txt);
+}
+html.tema-escuro .tipo-evento i {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .tipo-evento:hover {
+    background: #362d58;
+}
+html.tema-escuro .tipo-evento.ativo,
+html.tema-escuro .tipo-evento.ativo:hover {
+    color: var(--roxo-escuro-txt);
+}
+html.tema-escuro .opcao-presentes {
+    border: 1px solid #443f50;
+    background: #2d2d58;
+    color: var(--texto-txt);
+}
+html.tema-escuro .opcao-presentes i {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .atalho-nexus {
+    color: #FFFFFF;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+    box-shadow: 0 6px 15px rgba(23, 10, 67, 0.286);
+}
+html.tema-escuro .atalho-nexus:hover {
+    box-shadow: 0 9px 20px rgba(77, 47, 184, .30);
+}
+html.tema-escuro .atalho-nexus img {
+    background: rgba(255, 255, 255, .15);
+}
+html.tema-escuro .atalho-nexus-texto small {
+    color: #E7DFFF;
+}
+html.tema-escuro #formEvento {
+    box-shadow: 0 8px 25px rgba(9, 5, 18, 0.6), 0 2px 8px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .campo input,
+html.tema-escuro .campo select,
+html.tema-escuro .campo textarea {
+    box-shadow: 0 3px 10px rgba(9, 5, 18, 0.6), 0 1px 3px rgba(9, 5, 18, 0.6);
+    border: 1px solid #3e325d;
+}
+html.tema-escuro .campo input:hover,
+html.tema-escuro .campo select:hover,
+html.tema-escuro .campo textarea:hover {
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.6);
+}
+html.tema-escuro .campo input:focus,
+html.tema-escuro .campo select:focus,
+html.tema-escuro .campo textarea:focus {
+    box-shadow: 0 0 0 3px rgba(9, 5, 18, 0.17), 0 5px 14px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro .tipo-evento {
+    box-shadow: 0 3px 10px rgba(9, 5, 18, 0.153);
+}
+html.tema-escuro .tipo-evento:hover {
+    box-shadow: 0 5px 14px rgba(9, 5, 18, 0.272);
+}
+html.tema-escuro .tipo-evento.ativo {
+    box-shadow: 0 5px 15px rgba(9, 5, 18, 0.306);
+}
+html.tema-escuro .opcao-presentes {
+    box-shadow: 0 3px 10px rgba(9, 5, 18, 0.6);
+}
+html.tema-escuro .opcao-presentes:hover {
+    box-shadow: 0 5px 14px rgba(9, 5, 18, 0.6);
+}
+@media (max-width: 768px) {
+html.tema-escuro #formEvento {
+    box-shadow: 0 5px 18px rgba(9, 5, 18, 0.204);
+}
+}

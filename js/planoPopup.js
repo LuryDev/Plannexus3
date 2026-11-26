@@ -44,51 +44,60 @@ export const CATALOGO = [
 ];
 
 // ---------- o que escrever em cada situação ----------
-// "ganhos" = o que o plano pago resolve NAQUELE limite que a pessoa esbarrou.
-// O primeiro item é sempre a resposta direta ao limite, e os outros vêm depois.
+// Quem fala aqui é o NEXUS, em primeira pessoa. A ordem do texto é sempre a mesma,
+// e ela existe para a pessoa não se sentir cobrada:
+//   1. titulo  - acolhe o que aconteceu, sem dar bronca
+//   2. texto   - explica e garante que NADA do que ela fez se perdeu
+//   3. dica    - a saída de graça, sempre antes de falar em dinheiro
+//   4. convite - só então convida a olhar os planos, em forma de pergunta
+//   5. ganhos  - o que muda naquele limite específico que ela esbarrou
 const MOTIVOS = {
     eventos: {
         figura: "fotos/curioso.png",
-        titulo: "Você chegou ao limite de eventos",
-        texto: (d) => `O plano gratuito deixa ter <b>${d.limite || 3}</b> eventos ao mesmo tempo e você já tem <b>${d.ativos != null ? d.ativos : d.limite || 3}</b>.`,
-        dica: "Seus eventos continuam todos aí: dá para arquivar um que já passou (ele sai da conta e pode voltar depois).",
+        titulo: "Opa! Seus eventos estão lotados",
+        texto: (d) => `Sou eu, o Nexus! Você já cuida de <b>${d.ativos != null ? d.ativos : d.limite || 3}</b> eventos ao mesmo tempo, que é o tanto que o plano gratuito guarda. Fica tranquilo: <b>nenhum deles sumiu</b>.`,
+        dica: "Para seguir de graça, é só arquivar um que já passou: ele sai da conta na hora e volta quando você quiser.",
+        convite: "E se você quiser criar quantos eventos quiser, sem precisar pensar nisso:",
         ganhos: [
-            "Eventos ativos <b>ilimitados</b> — sem precisar arquivar nada",
-            "Mais mensagens do Nexus por mês",
-            "Mais arquivos guardados em cada evento"
+            "Eventos <b>ilimitados</b>, sem ter que arquivar nada",
+            "Mais mensagens minhas por mês para te ajudar",
+            "Mais espaço para contratos, recibos e fotos"
         ]
     },
     nexus: {
-        figura: "fotos/curioso.png",
-        titulo: "As mensagens do Nexus acabaram",
-        texto: () => "Você usou as mensagens de criação por IA que o plano gratuito dá neste mês.",
-        dica: "Elas voltam no mês que vem. Criar o evento pelo formulário continua de graça e sem limite de convidados.",
+        figura: "fotos/piscando.png",
+        titulo: "Puxa, minhas mensagens deste mês acabaram",
+        texto: () => "Eu adorei te ajudar a montar seus eventos! Só que as mensagens de criação por IA que o plano gratuito me dá <b>acabaram neste mês</b>.",
+        dica: "Elas voltam no dia 1º sozinhas, sem você fazer nada. E criar o evento pelo formulário continua de graça, com convidados à vontade.",
+        convite: "Se quiser me ter por perto o mês inteiro:",
         ganhos: [
-            "Nexus liberado o mês inteiro (uso justo)",
-            "Eventos ativos ilimitados",
-            "Mais arquivos guardados em cada evento"
+            "Eu liberado o mês todo, dentro do uso justo",
+            "Eventos ilimitados ao mesmo tempo",
+            "Mais espaço para arquivos em cada evento"
         ]
     },
     anexos: {
         figura: "fotos/curioso.png",
-        titulo: "Limite de arquivos deste evento",
-        texto: () => "O plano gratuito guarda menos arquivos por evento.",
-        dica: "Dá para apagar um arquivo que você não usa mais para liberar espaço.",
+        titulo: "Esse evento ficou sem espaço",
+        texto: () => "Este evento chegou ao número de arquivos que o plano gratuito guarda. <b>Nada do que você já enviou foi apagado</b>, viu?",
+        dica: "Dá para abrir espaço agora mesmo apagando algum arquivo que não serve mais. Leva dois toques.",
+        convite: "Ou, se preferir guardar tudo sem ter que escolher o que fica:",
         ganhos: [
             "Mais arquivos em cada evento (contratos, recibos, PDF)",
-            "Eventos ativos ilimitados",
-            "Mais mensagens do Nexus por mês"
+            "Eventos ilimitados ao mesmo tempo",
+            "Mais mensagens minhas por mês"
         ]
     },
     convite: {
         figura: "fotos/comemorando.png",
-        titulo: "Libere tudo no Plannexus",
-        texto: () => "Os planos tiram os limites do plano gratuito. O resto do app continua igual.",
-        dica: "Convidados, tarefas, orçamento, calendário e notas são sem limite para todo mundo, sempre.",
+        titulo: "Oi! Quer ver o que eu posso liberar?",
+        texto: () => "Sou o Nexus. O Plannexus é de graça e vai continuar sendo: convidados, tarefas, orçamento, calendário e notas são sem limite para todo mundo.",
+        dica: "Os planos existem só para tirar os pouquinhos limites que sobram. Dar uma olhada não compromete nada.",
+        convite: "Com um plano, o que muda é isto:",
         ganhos: [
-            "Eventos ativos ilimitados",
-            "Mais mensagens do Nexus por mês",
-            "Mais arquivos guardados em cada evento"
+            "Eventos ilimitados ao mesmo tempo",
+            "Mais mensagens minhas por mês",
+            "Mais espaço para arquivos em cada evento"
         ]
     }
 };
@@ -149,8 +158,7 @@ function estilos() {
 #pnx-oferta h2{margin:12px 0 6px;font-size:1.15rem;line-height:1.3;color:#34206f;font-weight:700}
 #pnx-oferta p{margin:0 0 8px;font-size:.93rem;line-height:1.5}
 #pnx-oferta .dica{color:#5b5473;font-size:.85rem}
-#pnx-oferta .titulo-ganhos{margin:14px 0 8px;font-size:.84rem;font-weight:700;color:#34206f;
-    text-transform:uppercase;letter-spacing:.4px}
+#pnx-oferta .titulo-ganhos{margin:15px 0 9px;font-size:.92rem;font-weight:700;line-height:1.4;color:#34206f}
 #pnx-oferta .ganhos{list-style:none;margin:0;padding:0;display:grid;gap:7px}
 #pnx-oferta .ganhos li{display:flex;align-items:flex-start;gap:9px;font-size:.88rem;line-height:1.4;
     opacity:0;animation:pnx-item .32s ease forwards}
@@ -178,6 +186,8 @@ function estilos() {
 #pnx-oferta .fechar{position:absolute;top:10px;right:10px;width:36px;height:36px;border:0;border-radius:50%;
     background:rgba(255,255,255,.85);color:#5b5473;font-size:20px;line-height:1;cursor:pointer}
 #pnx-oferta .aviso-24h{margin:10px 0 0;text-align:center;font-size:.76rem;color:#8c86a3}
+#pnx-oferta .cartao:focus{outline:none}
+#pnx-oferta a:focus-visible,#pnx-oferta button:focus-visible{outline:3px solid rgba(90,50,211,.5);outline-offset:3px}
 
 #pnx-recado{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:100000;max-width:min(92vw,420px);
     display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:#2b2347;color:#fff;
@@ -217,6 +227,7 @@ html.tema-escuro #pnx-oferta .plano.destaque{background:#271f47;border-color:#7a
 html.tema-escuro #pnx-oferta .plano b{color:#ddd3ff}
 html.tema-escuro #pnx-oferta .plano small{color:#a9a2c4}
 html.tema-escuro #pnx-oferta .plano .preco{color:#b9a4f6}
+html.tema-escuro #pnx-oferta .ver{background:linear-gradient(135deg,#8a71e6,#412a9e);box-shadow:0 8px 20px rgba(30,16,80,.5)}
 html.tema-escuro #pnx-oferta .depois{background:#2a2447;color:#cfc9e6}
 html.tema-escuro #pnx-oferta .fechar{background:rgba(40,33,66,.9);color:#cfc9e6}
 html.tema-escuro #pnx-oferta .aviso-24h{color:#8e86a8}
@@ -267,7 +278,7 @@ export function ofertaDePlanos(motivo = "convite", opcoes = {}) {
     fundo.setAttribute("aria-label", dados.titulo);
 
     fundo.innerHTML = `
-        <div class="cartao">
+        <div class="cartao" tabindex="-1">
             <div class="palco">
                 <span class="faisca f1"></span><span class="faisca f2"></span><span class="faisca f3"></span>
                 <img src="${dados.figura}" alt="Nexus, o assistente do Plannexus">
@@ -276,7 +287,7 @@ export function ofertaDePlanos(motivo = "convite", opcoes = {}) {
             <h2>${dados.titulo}</h2>
             <p>${dados.texto(opcoes)}</p>
             <p class="dica">${dados.dica}</p>
-            <p class="titulo-ganhos">Com um plano pago você tem:</p>
+            <p class="titulo-ganhos">${dados.convite}</p>
             <ul class="ganhos">
                 ${dados.ganhos.map((g) => `<li><span class="tique" aria-hidden="true">&#10003;</span><span>${g}</span></li>`).join("")}
             </ul>
@@ -288,10 +299,10 @@ export function ofertaDePlanos(motivo = "convite", opcoes = {}) {
                     </div>`).join("")}
             </div>
             <div class="botoes">
-                <a class="ver" href="planos.html">Ver os planos</a>
-                <button type="button" class="depois">Agora não</button>
+                <a class="ver" href="planos.html">Conhecer os planos</a>
+                <button type="button" class="depois">Agora não, obrigado</button>
             </div>
-            <p class="aviso-24h">Se escolher "Agora não", a gente não mostra isso de novo por 24 horas.</p>
+            <p class="aviso-24h">Nada é cobrado por aqui. Se clicar em "Agora não", eu não apareço com isso de novo por 24 horas.</p>
         </div>`;
 
     function fechar(recusou) {
@@ -307,7 +318,7 @@ export function ofertaDePlanos(motivo = "convite", opcoes = {}) {
     document.addEventListener("keydown", aoTeclar);
 
     document.body.appendChild(fundo);
-    fundo.querySelector(".ver").focus();
+    fundo.querySelector(".cartao").focus();   // leva o foco para dentro do modal, sem deixar nenhum botão "aceso"
     return true;
 }
 

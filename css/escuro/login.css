@@ -1,0 +1,56 @@
+/* ==========================================================
+   css/escuro/login.css  -  versao escura de css/login.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    background: linear-gradient(135deg, #3d2980, #2d1d66);
+}
+html.tema-escuro h1 {
+    color: #e7e6ea;
+}
+html.tema-escuro h3 {
+    color: rgba(231, 230, 234, 0.8);
+}
+html.tema-escuro p {
+    color: rgba(231, 230, 234, 0.85);
+}
+html.tema-escuro input {
+    background-color: rgba(48, 41, 64, 0.95);
+    color: #e9e9e9;
+}
+html.tema-escuro input:focus {
+    border-color: #443f50;
+}
+html.tema-escuro input::placeholder {
+    color: #bebebe;
+}
+html.tema-escuro #enter {
+    color: #e7e6ea;
+    background-color: #302940;
+}
+html.tema-escuro #enter:hover {
+    box-shadow: 0 8px 20px rgba(9, 5, 18, 0.34);
+}
+html.tema-escuro #adminLogin {
+    color: #e7e6ea;
+}
+html.tema-escuro #adminLogin:hover {
+    box-shadow: 0 6px 15px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro #googleLogin {
+    color: #e2e2e2;
+    background-color: #302940;
+    border: 1px solid #443f50;
+}
+html.tema-escuro #googleLogin:hover {
+    background-color: #231e2f;
+}

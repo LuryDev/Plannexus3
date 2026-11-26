@@ -1,0 +1,133 @@
+/* ==========================================================
+   css/escuro/nexus.css  -  versao escura de css/nexus.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro {
+    --roxo: #462a9a;
+    --roxo-escuro: #3d2984;
+    --lilas: #5e3fe8;
+    --fundo: #2d2d58;
+    --texto: #dddbe6;
+    --cinza: #bbb7c3;
+    --borda: #3d325d;
+}
+html.tema-escuro body {
+    color: var(--texto-txt);
+}
+html.tema-escuro header {
+    color: #e7e6ea;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+    box-shadow: 0 4px 14px rgba(9, 5, 18, 0.425);
+}
+html.tema-escuro .voltar {
+    color: #e7e6ea;
+}
+html.tema-escuro .balao-nexus {
+    background: #302940;
+    box-shadow: 0 4px 14px rgba(9, 5, 18, 0.119);
+}
+html.tema-escuro .balao-usuario {
+    color: #fff;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+}
+html.tema-escuro .balao-erro {
+    color: #e5938a;
+    border-color: #5d3232;
+}
+html.tema-escuro .resumo-evento {
+    background: #302940;
+    box-shadow: 0 6px 18px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .resumo-evento h2 {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .resumo-icone {
+    color: var(--roxo-txt);
+    background: #372d58;
+}
+html.tema-escuro .linha-resumo span {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .botao-criar {
+    color: #fff;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+    box-shadow: 0 6px 15px rgba(90, 50, 211, .30);
+}
+html.tema-escuro .barra-mensagem input {
+    border: 1px solid #443f50;
+    background: #302940;
+    color: var(--texto-txt);
+}
+html.tema-escuro .barra-mensagem input:focus {
+    box-shadow: 0 0 0 3px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .barra-mensagem button {
+    color: #e7e6ea;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+    box-shadow: 0 6px 15px rgba(9, 5, 18, 0.51);
+}
+html.tema-escuro .aviso-ia {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .selo-servico {
+    color: #ad9ee6;
+    background: #372d58;
+}
+html.tema-escuro .selo-servico i {
+    color: #ae9ae9;
+}
+html.tema-escuro .aviso-ia a {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .cartao-extra {
+    background: #302940;
+    box-shadow: 0 4px 14px rgba(9, 5, 18, 0.119);
+}
+html.tema-escuro .cartao-extra small.selo {
+    color: var(--roxo-txt);
+    background: #382d58;
+}
+html.tema-escuro .cartao-extra .b-principal {
+    color: #fff;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+}
+html.tema-escuro .cartao-extra .b-secundario {
+    color: var(--roxo-txt);
+    background: #372d58;
+}
+html.tema-escuro .escolha-ferramenta span {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .fundo-pop {
+    background: rgba(20, 12, 45, .5);
+}
+html.tema-escuro .pop {
+    background: #302940;
+}
+html.tema-escuro .pop .topo img {
+    background: #382d58;
+}
+html.tema-escuro .pop .topo b {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .pop .topo span {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .pop .rodape-pop {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .tarefa-detalhe {
+    color: #cdcdcd;
+}
+html.tema-escuro .tarefa-detalhe.tarefa-meta {
+    color: #ae9ae9;
+}

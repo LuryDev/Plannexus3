@@ -1,0 +1,67 @@
+/* ==========================================================
+   css/escuro/preferencias.css  -  versao escura de css/preferencias.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro .rotulo {
+    color: #dddbe6;
+}
+html.tema-escuro .op {
+    border: 1.5px solid #3d325d;
+    background: #362d58;
+    color: #dddbe6;
+}
+html.tema-escuro .op .a {
+    color: #ae9ae9;
+}
+html.tema-escuro .op.on {
+    background: #372d58;
+    color: #ad9ee6;
+    box-shadow: 0 0 0 3px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro .linha-chave {
+    border-top: 1px solid #40325d;
+}
+html.tema-escuro .linha-chave .txt b {
+    color: #dddbe6;
+}
+html.tema-escuro .linha-chave .txt small {
+    color: #bebac9;
+}
+html.tema-escuro .chave {
+    background: #d9d3ee;
+}
+html.tema-escuro .chave::after {
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+}
+html.tema-escuro .linha-chave input:checked + .chave {
+    background: #462a9a;
+}
+html.tema-escuro .linha-chave input:focus-visible + .chave {
+    outline: 3px solid #5A32D3;
+}
+html.tema-escuro .previa {
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+    color: #fff;
+}
+html.tema-escuro .previa-botao {
+    background: #fff;
+    color: #4D2FB8;
+}
+html.tema-escuro .restaurar {
+    border: 1.5px solid #3d325d;
+    background: #302940;
+    color: #ad9ee6;
+}
+html.tema-escuro .op-tema i {
+    color: #ae9ae9;
+}

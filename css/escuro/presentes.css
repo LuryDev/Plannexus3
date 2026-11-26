@@ -1,0 +1,389 @@
+/* ==========================================================
+   css/escuro/presentes.css  -  versao escura de css/presentes.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    background: #2d2d58;
+    color: #e9e9e9;
+}
+html.tema-escuro .app {
+    background: #2d2d58;
+}
+html.tema-escuro header {
+    background: #302940;
+    border-bottom: 1px solid #443f50;
+}
+html.tema-escuro header h1 {
+    color: #ad9ee6;
+}
+html.tema-escuro .voltar {
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .voltar:hover {
+    background: #403465;
+}
+html.tema-escuro .evento span {
+    color: #bcb7cd;
+}
+html.tema-escuro .evento h2 {
+    color: #ad9ee6;
+}
+html.tema-escuro .titulo h2 {
+    color: #e9e9e9;
+}
+html.tema-escuro .novo-presente {
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+    color: white;
+    box-shadow: 0 4px 10px rgba(77, 47, 184, 0.20);
+}
+html.tema-escuro .novo-presente:hover {
+    box-shadow: 0 6px 14px rgba(77, 47, 184, 0.25);
+}
+html.tema-escuro .presente {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.136), 0 1px 3px rgba(9, 5, 18, 0.068);
+}
+html.tema-escuro .presente:hover {
+    box-shadow: 0 7px 16px rgba(9, 5, 18, 0.204), 0 2px 5px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .check {
+    border: 2px solid #b8afd2;
+    color: white;
+}
+html.tema-escuro .check:hover {
+    border-color: #5A32D3;
+}
+html.tema-escuro .concluida .check {
+    background: #462a9a;
+    border-color: #5A32D3;
+}
+html.tema-escuro .informacoes h3 {
+    color: #dfdbe6;
+}
+html.tema-escuro .informacoes p {
+    color: #c5c5c5;
+}
+html.tema-escuro .informacoes small {
+    color: #b7b7b7;
+}
+html.tema-escuro .informacoes small i {
+    color: #ae9ae9;
+}
+html.tema-escuro .concluida .informacoes h3 {
+    color: #b7b7b7;
+}
+html.tema-escuro .concluida .informacoes p {
+    color: #b0b0b0;
+}
+html.tema-escuro .progresso {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .progresso-texto {
+    color: #bebac9;
+}
+html.tema-escuro .progresso-texto strong {
+    color: #ad9ee6;
+}
+html.tema-escuro .barra {
+    background: #372d58;
+}
+html.tema-escuro .barra-preenchida {
+    background: linear-gradient(90deg, #5e3fe8, #3d2984);
+}
+html.tema-escuro .filtro {
+    border: 1px solid #3c325d;
+    background: #302940;
+    color: #bebac9;
+}
+html.tema-escuro .filtro.ativo {
+    background: #462a9a;
+    border-color: #5A32D3;
+    color: white;
+}
+html.tema-escuro .excluir:hover {
+    color: #ea8585;
+}
+html.tema-escuro .aviso {
+    background: #302940;
+    color: #c5c5c5;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .aviso.erro {
+    color: #e08f8f;
+}
+html.tema-escuro .modal-caixa {
+    background: #302940;
+}
+html.tema-escuro .modal-topo h2 {
+    color: #ad9ee6;
+}
+html.tema-escuro .fechar {
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .modal-caixa label {
+    color: #bebac9;
+}
+html.tema-escuro .modal-caixa input,
+html.tema-escuro .modal-caixa textarea,
+html.tema-escuro .modal-caixa select {
+    border: 1px solid #3c325d;
+    background: #342d58;
+    color: #e9e9e9;
+}
+html.tema-escuro .salvar {
+    color: white;
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+}
+html.tema-escuro .mensagem {
+    color: #e08f8f;
+}
+html.tema-escuro .valor-presente {
+    background: #372d58;
+    color: #ad9ee6;
+}
+html.tema-escuro .link-presente {
+    color: #ae9ae9;
+}
+html.tema-escuro .botao-compartilhar {
+    color: #ae9ae9;
+    background: #302940;
+}
+html.tema-escuro .icone-presente {
+    color: #ae9ae9;
+    background: #372d58;
+}
+html.tema-escuro .painel-link {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .painel-titulo {
+    color: #ad9ee6;
+}
+html.tema-escuro .painel-texto {
+    color: #c5c5c5;
+}
+html.tema-escuro .painel-botoes button {
+    border: 1px solid #3c325d;
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .painel-botoes button.perigo {
+    background: #302940;
+    color: #e08f8f;
+    border-color: #5d3232;
+}
+html.tema-escuro .presente.escolhido .informacoes h3 {
+    color: #bcb7cd;
+}
+html.tema-escuro .quem-vai-dar {
+    color: #94dcb5;
+}
+html.tema-escuro .quem-vai-dar strong {
+    color: #dbe6e0;
+}
+html.tema-escuro .liberar {
+    border: 1px solid #3c325d;
+    background: #302940;
+    color: #ae9ae9;
+}
+html.tema-escuro .pix-campos label {
+    color: #cdcdcd;
+}
+html.tema-escuro .pix-campos input,
+html.tema-escuro .pix-campos select {
+    border: 1px solid #3c325d;
+    background: #302940;
+}
+html.tema-escuro .pix-status {
+    color: #bcb7cd;
+}
+html.tema-escuro .pix-avisados {
+    border-top: 1px solid #3c325d;
+}
+html.tema-escuro .pix-avisados-titulo {
+    color: #ad9ee6;
+}
+html.tema-escuro .pix-linha {
+    color: #dddbe6;
+}
+html.tema-escuro .pix-linha b {
+    color: #ad9ee6;
+}
+html.tema-escuro .pix-opcao {
+    color: #b1a4e0 !important;
+}
+html.tema-escuro .pix-aviso {
+    background: #655834;
+}
+html.tema-escuro .pix-aviso i {
+    color: #efd080;
+}
+html.tema-escuro .pix-aviso p {
+    color: #e6e3db;
+}
+html.tema-escuro .ver-comp {
+    border: 1px solid #3c325d;
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .visor-comp {
+    background: rgba(20,12,50,.85);
+}
+html.tema-escuro .visor-comp img {
+    background: #fff;
+}
+html.tema-escuro .visor-comp button {
+    color: #fff;
+}
+html.tema-escuro .pix-confirma-msg {
+    background: #655834;
+    color: #e6e3db;
+}
+html.tema-escuro .pix-resumo {
+    background: #372d58;
+    color: #bebac9;
+}
+html.tema-escuro .pix-resumo b {
+    color: #ad9ee6;
+}
+html.tema-escuro .pix-botao {
+    color: #fff;
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+    box-shadow: 0 4px 10px rgba(77,47,184,.25);
+}
+html.tema-escuro .pix-botao.certo {
+    background: linear-gradient(135deg, #287250 0%, #1b573c 100%);
+    box-shadow: 0 4px 10px rgba(31,122,80,.25);
+}
+html.tema-escuro .presente,
+html.tema-escuro .progresso,
+html.tema-escuro .aviso,
+html.tema-escuro .painel-link {
+    border: 1px solid #3d325d;
+    box-shadow: 0 4px 10px rgba(9, 5, 18, 0.34), 0 2px 5px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro .presente:hover,
+html.tema-escuro .progresso:hover,
+html.tema-escuro .painel-link:hover {
+    box-shadow: 0 7px 15px rgba(9, 5, 18, 0.425), 0 3px 7px rgba(9, 5, 18, 0.272);
+}
+html.tema-escuro .aviso {
+    box-shadow: 0 4px 10px rgba(9, 5, 18, 0.306), 0 2px 5px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .modal-caixa input,
+html.tema-escuro .modal-caixa textarea,
+html.tema-escuro .modal-caixa select,
+html.tema-escuro .pix-campos input,
+html.tema-escuro .pix-campos select {
+    border: 1px solid #3e325d;
+    box-shadow: 0 4px 9px rgba(9, 5, 18, 0.374), 0 2px 5px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro .modal-caixa input:hover,
+html.tema-escuro .modal-caixa textarea:hover,
+html.tema-escuro .modal-caixa select:hover,
+html.tema-escuro .pix-campos input:hover,
+html.tema-escuro .pix-campos select:hover {
+    border-color: #3e325d;
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.442), 0 2px 6px rgba(9, 5, 18, 0.306);
+}
+html.tema-escuro .modal-caixa input:focus,
+html.tema-escuro .modal-caixa textarea:focus,
+html.tema-escuro .modal-caixa select:focus,
+html.tema-escuro .pix-campos input:focus,
+html.tema-escuro .pix-campos select:focus {
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.408), 0 0 0 3px rgba(164, 145, 249, .18);
+}
+html.tema-escuro .painel-link {
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.34), 0 2px 5px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro .modal-caixa {
+    box-shadow: 0 12px 30px rgba(9, 5, 18, 0.374), 0 4px 12px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro .novo-presente,
+html.tema-escuro .salvar,
+html.tema-escuro .pix-botao {
+    box-shadow: 0 5px 12px rgba(76, 48, 145, .25), 0 2px 5px rgba(90, 50, 211, .15);
+}
+html.tema-escuro .botao-compartilhar {
+    box-shadow: 0 4px 10px rgba(9, 5, 18, 0.272), 0 2px 5px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .pix-aviso,
+html.tema-escuro .pix-resumo {
+    box-shadow: 0 4px 9px rgba(9, 5, 18, 0.204), 0 2px 4px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .presente,
+html.tema-escuro .pix-cartao,
+html.tema-escuro .aviso {
+    border: 1px solid #3d325d;
+    box-shadow: 0 4px 10px rgba(9, 5, 18, 0.34), 0 2px 5px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro .presente:hover,
+html.tema-escuro .pix-cartao:hover {
+    box-shadow: 0 7px 15px rgba(9, 5, 18, 0.425), 0 3px 7px rgba(9, 5, 18, 0.272);
+}
+html.tema-escuro .caixa input[type="text"],
+html.tema-escuro .pix-form input[type="text"] {
+    border: 1px solid #3e325d;
+    background: #382d58;
+    box-shadow: 0 4px 9px rgba(9, 5, 18, 0.374), 0 2px 5px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro .caixa input[type="text"]:hover,
+html.tema-escuro .pix-form input[type="text"]:hover {
+    border-color: #3e325d;
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.442), 0 2px 6px rgba(9, 5, 18, 0.306);
+}
+html.tema-escuro .caixa input[type="text"]:focus,
+html.tema-escuro .pix-form input[type="text"]:focus {
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.408), 0 0 0 3px rgba(164, 145, 249, .18);
+}
+html.tema-escuro .caixa {
+    box-shadow: 0 12px 30px rgba(9, 5, 18, 0.374), 0 4px 12px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro .botao-dar,
+html.tema-escuro .confirmar,
+html.tema-escuro .pix-ja {
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.425), 0 2px 5px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro .botao-dar:hover,
+html.tema-escuro .confirmar:hover,
+html.tema-escuro .pix-ja:hover {
+    box-shadow: 0 8px 16px rgba(9, 5, 18, 0.476), 0 3px 7px rgba(9, 5, 18, 0.306);
+}
+html.tema-escuro .pix-chave,
+html.tema-escuro .pix-ok {
+    box-shadow: 0 4px 9px rgba(9, 5, 18, 0.221), 0 2px 4px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .pix-aviso {
+    box-shadow: 0 4px 9px rgba(9, 5, 18, 0.204), 0 2px 4px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .pix-anexar {
+    box-shadow: 0 4px 9px rgba(9, 5, 18, 0.255), 0 2px 4px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .toast {
+    box-shadow: 0 6px 18px rgba(9, 5, 18, 0.51), 0 2px 6px rgba(9, 5, 18, 0.306);
+}
+html.tema-escuro .visor-pdf {
+    background: #302940;
+}
+html.tema-escuro .visor-pdf i {
+    color: #e9868d;
+}
+html.tema-escuro .visor-pdf p {
+    color: #dcdbe6;
+}
+html.tema-escuro .abrir-pdf {
+    background: #462a9a;
+    color: #fff;
+}

@@ -9,13 +9,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/nexus.css">
+    <link rel="stylesheet" href="css/escuro/nexus.css">
     <link rel="stylesheet" href="css/nexusFlutuante.css">
+    <link rel="stylesheet" href="css/escuro/nexusFlutuante.css">
 
     <!-- PWA: manifest, cor do tema e service worker -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#5A32D3">
     <script src="js/pwa.js" defer></script>
     <link rel="stylesheet" href="css/transicao.css">
+    <link rel="stylesheet" href="css/escuro/transicao.css">
     <script src="js/transicao.js" defer></script>
     <link rel="stylesheet" href="css/responsivo.css">
     <link rel="stylesheet" href="css/acessibilidade.css">
@@ -265,7 +268,7 @@
                     historico.pop();   // essa mensagem não foi processada
                     adicionarBalao((dados.erro || "O Nexus não conseguiu responder agora.") + (dados.codigo ? " (código " + dados.codigo + ")" : ""), "nexus", true);
                     // acabaram as mensagens do mês: oferece os planos
-                    if (dados.limite === "mes") ofertaDePlanos("nexus", { recado: "As mensagens do Nexus deste mês acabaram." });
+                    if (dados.limite === "mes") ofertaDePlanos("nexus", { recado: "Minhas mensagens deste mês acabaram, mas voltam no dia 1º." });
                     return;
                 }
 

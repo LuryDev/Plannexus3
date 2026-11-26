@@ -1,0 +1,127 @@
+/* ==========================================================
+   css/escuro/notificacoes.css  -  versao escura de css/notificacoes.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro {
+    --roxo: #462a9a;
+    --roxo-escuro: #3d2984;
+    --roxo-claro: #5e3fe8;
+    --fundo: #2d2d58;
+    --branco: #302940;
+    --texto: #eaeaea;
+    --cinza: #c5c5c5;
+    --sombra: 0 8px 20px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro body {
+    color: var(--texto-txt);
+}
+html.tema-escuro header h2 {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .voltar {
+    background: #352d58;
+    color: var(--roxo-txt);
+}
+html.tema-escuro .voltar:hover {
+    color: #e7e6ea;
+}
+html.tema-escuro .paginaNotificacoes h3 {
+    color: var(--texto-txt);
+}
+html.tema-escuro .estado-notificacoes {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .btn-aceitar {
+    color: #e7e6ea;
+}
+html.tema-escuro .btn-recusar {
+    background: #3a2d58;
+    color: var(--cinza-txt);
+}
+html.tema-escuro .btn-recusar:hover {
+    background: #413465;
+}
+html.tema-escuro .btn-marcar-lido {
+    background: #3a2d58;
+    color: var(--roxo-txt);
+}
+html.tema-escuro .btn-marcar-lido:hover {
+    background: #413465;
+}
+html.tema-escuro .btn-ver-aviso {
+    color: #fff;
+    background: #462a9a;
+}
+html.tema-escuro .preferencias label {
+    background: #302940;
+    box-shadow: 0 2px 8px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .cartao-push {
+    background: #302940;
+    box-shadow: 0 2px 8px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .btn-push {
+    color: #fff;
+    background: #462a9a;
+}
+html.tema-escuro .dica-atualizar {
+    color: #ad9ee6;
+    background: #382d58;
+}
+html.tema-escuro .dica-atualizar a {
+    color: #ae9ae9;
+}
+html.tema-escuro .aviso-rotulo {
+    color: var(--cinza-txt);
+}
+html.tema-escuro .aviso-icone.cor-roxo {
+    color: #ae9ae9;
+    background: #382d58;
+}
+html.tema-escuro .aviso-icone.cor-azul {
+    color: #80a3ef;
+    background: #2d3b58;
+}
+html.tema-escuro .aviso-icone.cor-verde {
+    color: #dbe6df;
+    background: #346544;
+}
+html.tema-escuro .aviso-icone.cor-laranja {
+    color: #efa080;
+    background: #583f2d;
+}
+html.tema-escuro .aviso-icone.cor-vermelho {
+    color: #ec8383;
+    background: #582d2d;
+}
+html.tema-escuro .aviso-icone.cor-amarelo {
+    color: #efc280;
+    background: #655b34;
+}
+html.tema-escuro .btn-todas-lidas {
+    color: #ae9ae9;
+    background: #382d58;
+}
+html.tema-escuro header .btn-config {
+    color: var(--roxo-txt);
+    background: #352d58;
+}
+html.tema-escuro header .btn-config[aria-expanded="true"] {
+    color: #e7e6ea;
+}
+html.tema-escuro .btn-lido {
+    color: var(--roxo-txt);
+    background: #362d58;
+}
+html.tema-escuro .btn-lido:hover {
+    color: #e7e6ea;
+}

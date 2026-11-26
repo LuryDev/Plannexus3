@@ -1,0 +1,54 @@
+/* ==========================================================
+   css/escuro/documentos.css  -  versao escura de css/documentos.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro .lista-docs li {
+    background: #302940;
+    border: 1px solid #3d325d;
+    box-shadow: 0 4px 10px rgba(9, 5, 18, 0.34), 0 2px 5px rgba(9, 5, 18, 0.204);
+    color: #dddbe6;
+}
+html.tema-escuro .lista-docs li:hover {
+    box-shadow: 0 7px 15px rgba(9, 5, 18, 0.425), 0 3px 7px rgba(9, 5, 18, 0.272);
+}
+html.tema-escuro .doc-icone.pdf {
+    background: #582d2d;
+    color: #e08f8f;
+}
+html.tema-escuro .doc-icone.xls {
+    background: #2d583d;
+    color: #8ae5b0;
+}
+html.tema-escuro .doc-icone.doc {
+    background: #2d3d58;
+    color: #89aae6;
+}
+html.tema-escuro .doc-info small {
+    color: #bcb7cd;
+}
+html.tema-escuro .doc-visivel {
+    color: #ad9ee6;
+}
+html.tema-escuro .doc-acoes button {
+    background: #382d58;
+    color: #ad9ee6;
+}
+html.tema-escuro .doc-acoes .remover {
+    color: #bcb7cd;
+}
+html.tema-escuro .doc-acoes .remover:hover {
+    color: #e08f8f;
+    background: #582d2d;
+}
+html.tema-escuro .msg-doc {
+    color: #bebac9;
+}

@@ -70,7 +70,7 @@ export async function situacaoEventos(db, uid) {
 // Mostra a oferta dos planos (pop-up animado em js/planoPopup.js).
 // Quem já tem eventos além do limite continua com todos eles.
 export function mostrarAvisoLimite({ ativos, limite }) {
-    ofertaDePlanos("eventos", { ativos, limite, recado: "Você chegou ao limite de eventos do plano gratuito." });
+    ofertaDePlanos("eventos", { ativos, limite, recado: "Seus eventos estão lotados. Arquivar um que já passou abre vaga na hora." });
 }
 
 // Atalho para as telas de criar evento: confere o limite e, se estourou, mostra o aviso.

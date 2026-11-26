@@ -1,0 +1,19 @@
+/* ==========================================================
+   css/escuro/inicioPc.css  -  versao escura de css/inicioPc.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+@media (min-width: 769px) {
+html.tema-escuro body.pagina-inicio .bottom-nav {
+    background: #433465;
+    box-shadow: 0 10px 30px rgba(9, 5, 18, 0.306);
+}
+}

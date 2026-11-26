@@ -1,0 +1,49 @@
+/* ==========================================================
+   css/escuro/perfilPessoalAdmin.css  -  versao escura de css/perfilPessoalAdmin.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    color: #dddbe6;
+    background: radial-gradient(circle at 15% 15%, rgba(164,145,249,.25), transparent 30%), radial-gradient(circle at 85% 85%, rgba(90,50,211,.13), transparent 32%), #2d2d58;
+}
+html.tema-escuro .perfil-container {
+    background: #302940;
+    border: 1px solid #3d325d;
+    box-shadow: 0 16px 42px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro #foto {
+    border: 5px solid #eee9ff;
+    background: linear-gradient(135deg, #5e3fe8, #3d2984);
+    box-shadow: 0 8px 22px rgba(90,50,211,.18);
+}
+html.tema-escuro #nome {
+    color: #dedbe6;
+}
+html.tema-escuro #email {
+    color: #c0bdc8;
+}
+html.tema-escuro #uid {
+    color: #b8b4c2;
+    background: #392d58;
+}
+html.tema-escuro #voltar {
+    color: #ae9ae9;
+    background: #362d58;
+}
+html.tema-escuro #sair {
+    color: white;
+    background: linear-gradient(135deg, #5e3fe8, #3d2984);
+    box-shadow: 0 7px 16px rgba(90,50,211,.2);
+}
+html.tema-escuro .perfil-container button:hover {
+    box-shadow: 0 9px 20px rgba(9, 5, 18, 0.272);
+}

@@ -1,0 +1,177 @@
+/* ==========================================================
+   css/escuro/convite.css  -  versao escura de css/convite.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    background: #9153dc;
+    color: #e9e9e9;
+}
+html.tema-escuro .app {
+    background: #402d58;
+}
+html.tema-escuro header {
+    background: #302940;
+    border-bottom: 1px solid #443f50;
+}
+html.tema-escuro header h1 {
+    color: #ad9ee6;
+}
+html.tema-escuro .voltar {
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .voltar:hover {
+    background: #403465;
+}
+html.tema-escuro .evento span {
+    color: #bcb7cd;
+}
+html.tema-escuro .evento h2 {
+    color: #ad9ee6;
+}
+html.tema-escuro .previa-convite {
+    background: #302940;
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.6), 0 3px 7px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .bloco {
+    background: #302940;
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.6), 0 3px 7px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .bloco h3 {
+    color: #ad9ee6;
+}
+html.tema-escuro .opcoes {
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.6), 0 3px 7px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .opcao {
+    border: 2px solid #3c325d;
+    background: #2d2d58;
+    color: #ad9ee6;
+    box-shadow: 0 5px 12px rgba(9, 5, 18, 0.6), 0 3px 7px rgba(9, 5, 18, 0.17);
+}
+html.tema-escuro .opcao.ativa {
+    background: #372d58;
+}
+html.tema-escuro .cor {
+    border: 3px solid #443f50;
+}
+html.tema-escuro .cor.ativa {
+    box-shadow: 0 0 0 3px rgba(9, 5, 18, 0.6);
+}
+html.tema-escuro .bloco label {
+    color: #d4d4d4;
+}
+html.tema-escuro .bloco input[type="text"],
+html.tema-escuro .bloco textarea {
+    border: 1px solid #443f50;
+    background: #2d2d58;
+    color: #e9e9e9;
+}
+html.tema-escuro .bloco input[type="text"]:focus,
+html.tema-escuro .bloco textarea:focus {
+    background: #302940;
+}
+html.tema-escuro .botao-principal {
+    color: white;
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+    box-shadow: 0 4px 10px rgba(77, 47, 184, 0.25);
+}
+html.tema-escuro .botao-secundario {
+    color: #ae9ae9;
+    background: #302940;
+}
+html.tema-escuro .mensagem {
+    color: #88e7c1;
+}
+html.tema-escuro .mensagem.erro {
+    color: #e5938a;
+}
+html.tema-escuro .dica-modelos {
+    color: #bebac9;
+}
+html.tema-escuro .grupo-modelos {
+    color: #dddbe6;
+}
+html.tema-escuro .tag-sugerido {
+    background: #2d5840;
+    color: #94dcb5;
+}
+html.tema-escuro .card-modelo {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.102);
+}
+html.tema-escuro .card-modelo canvas {
+    background: #382d58;
+}
+html.tema-escuro .card-simples {
+    border: 1px dashed #3d325d;
+    background: #302940;
+}
+html.tema-escuro .card-simples i {
+    color: #ae9ae9;
+}
+html.tema-escuro .card-simples small {
+    color: #bebac9;
+}
+html.tema-escuro .dica-campos {
+    color: #bebac9;
+}
+html.tema-escuro .tag-auto {
+    background: #2d5840;
+    color: #94dcb5;
+}
+html.tema-escuro .refazer-campo {
+    color: #ae9ae9;
+}
+html.tema-escuro .linha-campo select {
+    border: 1px solid #3c325d;
+    background: #372d58;
+    color: #ad9ee6;
+}
+html.tema-escuro .botao-trocar {
+    color: #ae9ae9;
+}
+html.tema-escuro .aviso-modelos {
+    border: 1px dashed #3d325d;
+    background: #302940;
+    color: #bebac9;
+}
+html.tema-escuro .ideias-titulo {
+    color: #bebac9;
+}
+html.tema-escuro .outras-ideias {
+    color: #ae9ae9;
+}
+html.tema-escuro .ideia {
+    border: 1px solid #3c325d;
+    background: #382d58;
+    color: #dedbe6;
+}
+html.tema-escuro .ideia:focus-visible,
+html.tema-escuro .outras-ideias:focus-visible {
+    outline: 3px solid #3c325d;
+}
+html.tema-escuro .incluir-link {
+    color: #dedbe6;
+}
+html.tema-escuro .ideias {
+    border: 1px solid #3d325d;
+    background: #392d58;
+}
+html.tema-escuro .ideias summary {
+    color: #ae9ae9;
+}
+html.tema-escuro .botao-pequeno {
+    border: 1px solid #3c325d;
+    background: #302940;
+    color: #ae9ae9;
+}

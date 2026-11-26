@@ -1,0 +1,99 @@
+/* ==========================================================
+   css/escuro/autenticacao.css  -  versao escura de css/autenticacao.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    background: linear-gradient(160deg, #462a9a 0%, #3d2984 55%, #2d1d66 100%);
+}
+html.tema-escuro .topo {
+    color: #e7e6ea;
+}
+html.tema-escuro .topo h1 {
+    color: #e7e6ea;
+}
+html.tema-escuro .topo p {
+    color: #e7e6ea;
+}
+html.tema-escuro .topo .mascote {
+    filter: drop-shadow(0 8px 14px rgba(9, 5, 18, 0.425));
+}
+html.tema-escuro .cartao {
+    background: #302940;
+    box-shadow: 0 -10px 30px rgba(9, 5, 18, 0.425);
+}
+html.tema-escuro .abas {
+    background: #372d58;
+}
+html.tema-escuro .abas a {
+    color: #bab5cf;
+}
+html.tema-escuro .abas a.on {
+    background: #302940;
+    color: #ad9ee6;
+    box-shadow: 0 3px 10px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro label {
+    color: #dddbe6;
+}
+html.tema-escuro .campo input {
+    border: 1.5px solid #3d325d;
+    background: #362d58;
+    color: #dddbe6;
+}
+html.tema-escuro .campo input::placeholder {
+    color: #bab4cf;
+}
+html.tema-escuro .campo input:focus {
+    background: #302940;
+    box-shadow: 0 0 0 4px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro .ver {
+    color: #bab5cf;
+}
+html.tema-escuro .pri {
+    background: linear-gradient(135deg, #4d2fab, #3d2984);
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(90, 50, 211, .35);
+}
+html.tema-escuro .ou {
+    color: #bab4cf;
+}
+html.tema-escuro .ou::before,
+html.tema-escuro .ou::after {
+    background: #382d58;
+}
+html.tema-escuro .google {
+    border: 1.5px solid #3d325d;
+    background: #302940;
+    color: #dddbe6;
+}
+html.tema-escuro .google:hover {
+    background: #362d58;
+}
+html.tema-escuro #mensagem {
+    color: #e08f8f;
+}
+@media (min-width: 520px) {
+html.tema-escuro .tela {
+    box-shadow: 0 24px 60px rgba(9, 5, 18, 0.6);
+}
+}
+html.tema-escuro .aceite {
+    color: #bbb7cc;
+}
+html.tema-escuro .aceite a,
+html.tema-escuro .concordo a {
+    color: #ae9ae9;
+}
+html.tema-escuro .concordo {
+    color: #b9b5cf;
+}

@@ -1,0 +1,95 @@
+/* ==========================================================
+   css/escuro/nexusFlutuante.css  -  versao escura de css/nexusFlutuante.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro .nxf-botao {
+    background: rgba(70, 42, 154, 0.75);
+    box-shadow: 0 6px 18px rgba(77, 47, 184, .35);
+}
+html.tema-escuro .nxf-painel {
+    background: #2d2d58;
+    box-shadow: 0 -8px 30px rgba(9, 5, 18, 0.425);
+    color: #dddbe6;
+}
+html.tema-escuro .nxf-topo {
+    color: #fff;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+}
+html.tema-escuro .nxf-topo img {
+    background: rgba(255, 255, 255, .15);
+}
+html.tema-escuro .nxf-topo-texto span {
+    color: #E7DFFF;
+}
+html.tema-escuro .nxf-fechar {
+    color: #e7e6ea;
+}
+html.tema-escuro .nxf-balao-nexus {
+    background: #302940;
+    border: 1px solid #3d325d;
+}
+html.tema-escuro .nxf-balao-usuario {
+    color: #fff;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+}
+html.tema-escuro .nxf-balao-erro {
+    color: #e5938a;
+    border-color: #5d3232;
+}
+html.tema-escuro .nxf-ir {
+    color: #fff;
+    background: #462a9a;
+}
+html.tema-escuro .nxf-sugestao {
+    color: #ae9ae9;
+    background: #302940;
+}
+html.tema-escuro .nxf-digitando {
+    background: #302940;
+    border: 1px solid #3d325d;
+}
+html.tema-escuro .nxf-digitando span {
+    background: #5e3fe8;
+}
+html.tema-escuro .nxf-aviso {
+    color: #bbb7c3;
+}
+html.tema-escuro .nxf-campo {
+    border: 1px solid #3d325d;
+    background: #302940;
+    color: #dddbe6;
+}
+html.tema-escuro .nxf-enviar {
+    color: #fff;
+    background: #462a9a;
+}
+html.tema-escuro .nxf-reportar-link {
+    color: #bbb7c3;
+}
+html.tema-escuro .nxf-reportar-texto {
+    color: #bbb7c3;
+}
+html.tema-escuro .nxf-reportar-motivo {
+    border: 1px solid #3d325d;
+    color: #ae9ae9;
+    background: #302940;
+}
+html.tema-escuro .nxf-botao {
+    border: 2px solid #A491F9 !important;
+    box-shadow: 0 0 8px #A491F9, 0 0 18px rgba(164, 145, 249, .8), 0 0 32px rgba(90, 50, 211, .7), 0 0 50px rgba(90, 50, 211, .4) !important;
+}
+html.tema-escuro .nxf-botao img {
+    filter: drop-shadow(0 0 4px #FFFFFF) drop-shadow(0 0 8px #A491F9);
+}
+html.tema-escuro .nxf-botao:hover {
+    box-shadow: 0 0 12px #FFFFFF, 0 0 24px #A491F9, 0 0 45px #5A32D3, 0 0 65px rgba(90, 50, 211, .8) !important;
+}

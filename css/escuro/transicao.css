@@ -1,0 +1,50 @@
+/* ==========================================================
+   css/escuro/transicao.css  -  versao escura de css/transicao.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro .transicao,
+html.tema-escuro .splash {
+    --roxo: #53259c;
+    --roxo-claro: #663aea;
+    --roxo-fundo: #f5f3fe;
+}
+html.tema-escuro .splash {
+    background: #0b0b17;
+}
+html.tema-escuro .splash-dica {
+    color: #fff;
+    background: rgba(83, 37, 156, 0.75);
+}
+html.tema-escuro .transicao-mensagem {
+    color: var(--roxo-txt);
+}
+html.tema-escuro .voo-onda {
+    background: linear-gradient(100deg, transparent 0%, rgba(167,139,250,.55) 45%, rgba(83, 37, 156, 0.85) 100%);
+}
+html.tema-escuro .voo-personagem {
+    filter: drop-shadow(0 12px 18px rgba(9, 5, 18, 0.6));
+}
+html.tema-escuro .voo-trilha {
+    background: linear-gradient(90deg, transparent, rgba(102, 58, 234, 0.8));
+}
+html.tema-escuro .evento-brilho {
+    background: radial-gradient(circle, rgba(102, 58, 234, 0.7), transparent 65%);
+}
+html.tema-escuro .evento-personagem {
+    filter: drop-shadow(0 14px 18px rgba(9, 5, 18, 0.6));
+}
+html.tema-escuro .lixo-brilho {
+    background: radial-gradient(circle, rgba(102, 58, 234, 0.65), transparent 65%);
+}
+html.tema-escuro .lixo-personagem {
+    filter: drop-shadow(0 12px 18px rgba(9, 5, 18, 0.6));
+}

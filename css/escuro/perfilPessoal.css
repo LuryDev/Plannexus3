@@ -1,0 +1,117 @@
+/* ==========================================================
+   css/escuro/perfilPessoal.css  -  versao escura de css/perfilPessoal.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    color: #dddbe6;
+    background: radial-gradient(circle at 15% 8%, rgba(164,145,249,.28), transparent 32%), radial-gradient(circle at 90% 60%, rgba(90,50,211,.10), transparent 34%), #2d2d58;
+}
+html.tema-escuro .topo h1 {
+    color: #dedbe6;
+}
+html.tema-escuro .voltar {
+    background: #302940;
+    border: 1px solid #3d325d;
+}
+html.tema-escuro .cartao {
+    background: #302940;
+    border: 1px solid #3d325d;
+    box-shadow: 0 10px 28px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .cartao h2,
+html.tema-escuro .cartao h3 {
+    color: #dedbe6;
+}
+html.tema-escuro .identidade {
+    box-shadow: 0 16px 42px rgba(9, 5, 18, 0.204);
+}
+html.tema-escuro #foto {
+    border: 5px solid #eee9ff;
+    background: linear-gradient(135deg, #5e3fe8, #3d2984);
+    box-shadow: 0 8px 22px rgba(90,50,211,.18);
+}
+html.tema-escuro #nome {
+    color: #dedbe6;
+}
+html.tema-escuro #email {
+    color: #c0bdc8;
+}
+html.tema-escuro .selo {
+    background: #372d58;
+    color: #aca0e3;
+}
+html.tema-escuro .botao:hover {
+    box-shadow: 0 9px 20px rgba(9, 5, 18, 0.272);
+}
+html.tema-escuro .botao.claro {
+    color: #ae9ae9;
+    background: #362d58;
+}
+html.tema-escuro .botao.forte {
+    color: #fff;
+    background: linear-gradient(135deg, #5e3fe8, #3d2984);
+    box-shadow: 0 7px 16px rgba(90,50,211,.2);
+}
+html.tema-escuro .uso-topo a {
+    color: #ae9ae9;
+}
+html.tema-escuro .barra {
+    background: #372d58;
+}
+html.tema-escuro .barra i {
+    background: linear-gradient(90deg, #5e3fe8, #462a9a);
+}
+html.tema-escuro .barra.cheia i {
+    background: #9d6226;
+}
+html.tema-escuro .nota {
+    color: #bdb9ca;
+}
+html.tema-escuro .linha {
+    color: #dddbe6;
+}
+html.tema-escuro .linha:hover {
+    background: #392d58;
+}
+html.tema-escuro .linha .icone {
+    background: #372d58;
+}
+html.tema-escuro .excluir {
+    color: #eb8a85;
+}
+html.tema-escuro .id-conta {
+    color: #b8b4c2;
+}
+html.tema-escuro .campo label {
+    color: #dedbe6;
+}
+html.tema-escuro .campo input {
+    border: 1.5px solid #3b325d;
+    color: #dddbe6;
+    background: #362d58;
+}
+html.tema-escuro .campo input:disabled {
+    color: #b8b4c2;
+    background: #382d58;
+    border-color: #3d325d;
+}
+html.tema-escuro .campo small {
+    color: #bdb9ca;
+}
+html.tema-escuro .botoes-teste button {
+    border: 1px solid #3b325d;
+    background: #392d58;
+    color: #aca0e3;
+}
+html.tema-escuro .botoes-teste button:hover {
+    background: #362d58;
+}

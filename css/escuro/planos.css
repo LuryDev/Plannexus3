@@ -1,0 +1,127 @@
+/* ==========================================================
+   css/escuro/planos.css  -  versao escura de css/planos.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro body {
+    color: #dddbe6;
+    background: radial-gradient(circle at 15% 8%, rgba(164,145,249,.28), transparent 32%), radial-gradient(circle at 90% 55%, rgba(90,50,211,.10), transparent 34%), #2d2d58;
+}
+html.tema-escuro .topo h1 {
+    color: #dedbe6;
+}
+html.tema-escuro .voltar {
+    background: #302940;
+    border: 1px solid #3d325d;
+}
+html.tema-escuro .cartao {
+    background: #302940;
+    border: 1px solid #3d325d;
+    box-shadow: 0 10px 28px rgba(9, 5, 18, 0.136);
+}
+html.tema-escuro .cartao h2 {
+    color: #dedbe6;
+}
+html.tema-escuro .nota {
+    color: #bdb9ca;
+}
+html.tema-escuro .capa {
+    color: #fff;
+    background: linear-gradient(135deg, #5e3fe8, #3d2984);
+    box-shadow: 0 16px 42px rgba(58,35,130,.22);
+}
+html.tema-escuro .capa::after {
+    background: rgba(255,255,255,.12);
+}
+html.tema-escuro .capa h2 {
+    color: #fff;
+}
+html.tema-escuro .capa p {
+    color: #efeaff;
+}
+html.tema-escuro .selo {
+    background: #372d58;
+    color: #aca0e3;
+}
+html.tema-escuro .selo.pago {
+    color: #fff;
+    background: linear-gradient(135deg, #5e3fe8, #3d2984);
+}
+html.tema-escuro .uso-linha b {
+    color: #dedbe6;
+}
+html.tema-escuro .barra {
+    background: #372d58;
+}
+html.tema-escuro .barra i {
+    background: linear-gradient(90deg, #5e3fe8, #462a9a);
+}
+html.tema-escuro .barra.cheia i {
+    background: #9d6226;
+}
+html.tema-escuro .abas {
+    background: #372d58;
+}
+html.tema-escuro .abas button {
+    color: #bbb5ce;
+}
+html.tema-escuro .abas button small {
+    color: #bdb8cc;
+}
+html.tema-escuro .abas button[aria-selected="true"] {
+    color: #e7e6ea;
+    background: linear-gradient(135deg, #5e3fe8, #3d2984);
+    box-shadow: 0 6px 14px rgba(9, 5, 18, 0.374);
+}
+html.tema-escuro .oferta .preco {
+    color: #ae9ae9;
+}
+html.tema-escuro .oferta .periodo {
+    color: #bdb9ca;
+}
+html.tema-escuro .oferta .resumo {
+    color: #dddbe6;
+}
+html.tema-escuro .ganhos li {
+    color: #dddbe6;
+}
+html.tema-escuro .ganhos .tique {
+    background: #2d583e;
+    color: #dbe6df;
+}
+html.tema-escuro .assinar {
+    color: #bdb9ca;
+    background: #392d58;
+}
+html.tema-escuro .aviso-breve {
+    color: #bdb9ca;
+}
+html.tema-escuro .compara .cabeca {
+    color: #bdb8cc;
+}
+html.tema-escuro .compara .linha {
+    border-top: 1px solid #3f325d;
+}
+html.tema-escuro .compara .linha .nome {
+    color: #dedbe6;
+}
+html.tema-escuro .compara .valor {
+    color: #dddbe6;
+}
+html.tema-escuro .compara .valor.livre {
+    color: #dbe6df;
+}
+html.tema-escuro .compara .valor.limite {
+    color: #efbd80;
+}
+html.tema-escuro .promessa p {
+    color: #dddbe6;
+}

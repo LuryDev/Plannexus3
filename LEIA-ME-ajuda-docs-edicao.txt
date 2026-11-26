@@ -246,3 +246,26 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
   . Continua valendo o aviso do item 33: essa conferencia e feita no app, nao no servidor. Quem souber mexer no navegador ainda consegue passar. Para travar de verdade e preciso criar o evento por uma API ou escrever isso nas regras do Firestore.
 
 - Precisa de git push (api/_plano.js mudou junto).
+
+37) TEMA ESCURO MAIS CALMO, SEPARADO POR TELA, E O MODAL NA VOZ DO NEXUS
+    (css/escuro/ nova pasta com 34 folhas; css/temaEscuro.css virou so a base; js/planoPopup.js, js/planos.js, nexus.html, documentos.html, index.html e o <head> das 32 paginas):
+
+- CAIXAS PRETAS: no escuro, as superficies brancas estavam virando quase preto, e caixa preta em cima de fundo roxo fica com cara de buraco. Agora toda superficie puxa para o mesmo violeta do fundo da pagina, so que mais clara: o que se quer e profundidade, nao contraste de cor.
+- ROXO QUE MACHUCAVA A VISTA: no claro o roxo forte fica bem em cima do branco; no escuro, a mesma cor acesa vira um bloco que cansa o olho (o preview do calendario, por exemplo). Todo fundo de cor forte agora perde um pouco de brilho no escuro - o bastante para descansar a vista e pouco o bastante para continuar sendo a cor da marca. O branco puro do texto tambem virou um branco levemente quebrado.
+- UM ARQUIVO POR TELA (importante): o tema escuro era um arquivo so, carregado por todas as paginas, e isso fazia a regra de uma tela VAZAR para outra - as abas da tela de Planos estavam pegando o botao roxo do css/criarEvento.css, e ficava impossivel ver qual aba estava escolhida. Agora cada folha clara tem a sua folha escura em css/escuro/ com o mesmo nome, e cada pagina carrega so as suas, logo depois da clara correspondente.
+  . css/temaEscuro.css continua existindo e toda pagina carrega: virou a BASE (fundo da pagina, campos, as variaveis de cor e os AJUSTES FINAIS).
+  . PARA CORRIGIR UMA COR: escreva no fim de css/temaEscuro.css, em AJUSTES FINAIS. As regras de la repetem a classe (.tema-escuro.tema-escuro) de proposito - e isso que faz elas mandarem mais que as folhas de css/escuro/, seja qual for a ordem dos arquivos.
+  . Se um dia voce criar uma folha de estilo nova, ela precisa da irma em css/escuro/ e do <link> na pagina, senao aquela tela fica sem tema escuro.
+- CONFERIDO: as 32 paginas carregam sem erro no claro e no escuro, e nenhum texto ficou com contraste abaixo do minimo de leitura.
+
+- MODAL DO LIMITE NA VOZ DO NEXUS: quem fala agora e o mascote, em primeira pessoa, e a ordem do texto e sempre a mesma, de proposito, para a pessoa nao se sentir cobrada:
+    1. o titulo acolhe o que aconteceu, sem dar bronca ("Opa! Seus eventos estao lotados")
+    2. o Nexus explica e garante que NADA do que ela fez se perdeu
+    3. vem a saida de graca (arquivar um evento, esperar o dia 1o, apagar um arquivo) - sempre ANTES de falar em dinheiro
+    4. so entao o convite, em forma de pergunta ("E se voce quiser criar quantos eventos quiser...")
+    5. o que muda naquele limite, os 3 precos e os botoes
+  . Os botoes viraram "Conhecer os planos" e "Agora nao, obrigado", e embaixo fica escrito que nada e cobrado ali.
+  . Cada situacao tem a figura do Nexus que combina: curioso quando os eventos lotaram ou faltou espaco, piscando quando as mensagens dele acabaram, comemorando no convite do botao Nexus+.
+  . Os avisinhos curtos (os que aparecem dentro das 24 horas de silencio) foram reescritos no mesmo tom.
+  . Ao abrir, o foco vai para o modal inteiro e nao mais para o botao, que ficava com uma borda preta de "ja clicado".
+- Precisa de git push. Nenhuma mudanca em api/ desta vez.

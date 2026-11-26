@@ -1,0 +1,116 @@
+/* ==========================================================
+   css/escuro/convidados.css  -  versao escura de css/convidados.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro .titulo-lista {
+    color: #ad9ee6;
+}
+html.tema-escuro .contagem {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .contagem strong {
+    color: #ad9ee6;
+}
+html.tema-escuro .contagem span {
+    color: #bebac9;
+}
+html.tema-escuro .barra {
+    background: #382d58;
+}
+html.tema-escuro .barra i {
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+}
+html.tema-escuro .subtitulo-lista {
+    color: #dddbe6;
+}
+html.tema-escuro .lista-confirmados li {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+    color: #dddbe6;
+}
+html.tema-escuro .posicao {
+    color: #bcb7cd;
+}
+html.tema-escuro .remover {
+    background: #382d58;
+    color: #bcb7cd;
+}
+html.tema-escuro .remover:hover {
+    color: #e08f8f;
+    background: #582d2d;
+}
+html.tema-escuro .remover:focus-visible {
+    outline: 3px solid #3c325d;
+}
+html.tema-escuro .lista-ausentes li {
+    background: #3b2d58;
+    color: #bebac9;
+}
+html.tema-escuro .detalhe-conf {
+    color: #bcb7cd;
+}
+html.tema-escuro .resumo-evento {
+    background: #302940;
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .resumo-titulo {
+    color: #ad9ee6;
+}
+html.tema-escuro .resumo-numeros div {
+    background: #382d58;
+}
+html.tema-escuro .resumo-numeros b {
+    color: #ad9ee6;
+}
+html.tema-escuro .resumo-numeros span {
+    color: #bcb7cd;
+}
+html.tema-escuro .resumo-alim {
+    color: #bebac9;
+}
+html.tema-escuro .resumo-alim b {
+    color: #ad9ee6;
+}
+html.tema-escuro .filtro {
+    border: 1px solid #3d325d;
+    background: #302940;
+    color: #bebac9;
+}
+html.tema-escuro .filtro.ativo {
+    background: #462a9a;
+    border-color: #5A32D3;
+    color: #fff;
+}
+html.tema-escuro .btn-exportar {
+    background: #382d58;
+    color: #ad9ee6;
+}
+html.tema-escuro .menu-exportar {
+    background: #302940;
+    box-shadow: 0 8px 24px rgba(9, 5, 18, 0.306);
+}
+html.tema-escuro .menu-exportar button {
+    color: #dddbe6;
+}
+html.tema-escuro .menu-exportar button:hover {
+    background: #382d58;
+}
+html.tema-escuro .detalhes-conf {
+    border-top: 1px solid #40325d;
+}
+html.tema-escuro .detalhes-conf dt {
+    color: #bcb7cd;
+}
+html.tema-escuro .detalhes-conf dd {
+    color: #dddbe6;
+}

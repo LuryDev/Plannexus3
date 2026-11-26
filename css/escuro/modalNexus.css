@@ -1,0 +1,37 @@
+/* ==========================================================
+   css/escuro/modalNexus.css  -  versao escura de css/modalNexus.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro .modal-nexus {
+    background: rgba(38, 20, 90, .55);
+}
+html.tema-escuro .modal-nexus-caixa {
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(90, 50, 211, .16), 0 15px 35px rgba(90, 50, 211, .20), 0 0 18px rgba(164, 145, 249, .16);
+}
+html.tema-escuro .modal-nexus-sim {
+    color: #fff;
+    background: linear-gradient(135deg, #462a9a, #3d2984);
+    box-shadow: 0 6px 15px rgba(90, 50, 211, .30);
+}
+html.tema-escuro .modal-nexus-nao {
+    color: #5A32D3;
+    background: #fff;
+    border: 2px solid #5A32D3;
+}
+html.tema-escuro .modal-nexus-caixa .modal-nexus-nao:hover {
+    color: #5A32D3;
+    background: #F3F0FF;
+}
+html.tema-escuro .modal-nexus-caixa h2 {
+    color: #29243D;
+}

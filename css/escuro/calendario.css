@@ -1,0 +1,163 @@
+/* ==========================================================
+   css/escuro/calendario.css  -  versao escura de css/calendario.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro {
+    --bg-app: #2d2d58;
+    --purple-light: #5e3fe8;
+    --purple: #462a9a;
+    --purple-dark: #3d2984;
+    --card-bg: linear-gradient(135deg, #5e3fe8 0%, #3d2984 100%);
+    --card-hover: linear-gradient(135deg, #6849ee 0%, #463093 100%);
+    --text-dark: #eaeaea;
+    --text-gray: #c5c5c5;
+    --text-light: #b7b7b7;
+    --white: #302940;
+    --shadow: 0 8px 20px rgba(9, 5, 18, 0.255);
+}
+html.tema-escuro body {
+    color: var(--text-dark-txt);
+}
+html.tema-escuro .app {
+    background: #302940;
+    box-shadow: 0 0 30px rgba(9, 5, 18, 0.085);
+}
+html.tema-escuro .voltar {
+    background: #2d2d58;
+    color: var(--purple-dark-txt);
+}
+html.tema-escuro .voltar:hover {
+    background: #332d58;
+}
+html.tema-escuro header h1 {
+    color: var(--text-dark-txt);
+}
+html.tema-escuro .titulo h2 {
+    color: var(--text-dark-txt);
+}
+html.tema-escuro .card-compromisso {
+    color: var(--#e7e6ea);
+    box-shadow: 0 20px 24px rgba(9, 5, 18, 0.6);
+}
+html.tema-escuro .card-compromisso:hover {
+    box-shadow: 0 20px 24px rgba(9, 5, 18, 0.6);
+}
+html.tema-escuro .data-hora span {
+    color: #e7e6ea;
+}
+html.tema-escuro .detalhes h3 {
+    color: #e7e6ea;
+}
+html.tema-escuro .detalhes p {
+    color: rgba(231, 230, 234, 0.85);
+}
+html.tema-escuro .aviso {
+    background: #302940;
+    color: var(--text-#c2c2c2);
+    box-shadow: 0 4px 12px rgba(9, 5, 18, 0.085);
+}
+@media (min-width: 769px) {
+html.tema-escuro body {
+    background: #2d3658;
+}
+html.tema-escuro .app {
+    box-shadow: 0 0 40px rgba(9, 5, 18, 0.102);
+}
+}
+html.tema-escuro .novo {
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+    color: white;
+    box-shadow: 0 4px 10px rgba(77, 47, 184, 0.20);
+}
+html.tema-escuro .mes {
+    color: var(--purple-dark-txt);
+}
+html.tema-escuro .data-hora .hoje {
+    background: #302940;
+    color: var(--purple-dark-txt);
+}
+html.tema-escuro .card-compromisso .excluir {
+    color: #e7e6ea;
+}
+html.tema-escuro .aviso.erro {
+    color: #e08f8f;
+}
+html.tema-escuro .modal-caixa {
+    background: #302940;
+}
+html.tema-escuro .modal-topo h2 {
+    color: #ad9ee6;
+}
+html.tema-escuro .fechar {
+    background: #372d58;
+    color: #ae9ae9;
+}
+html.tema-escuro .modal-caixa label {
+    color: #bebac9;
+}
+html.tema-escuro .modal-caixa input,
+html.tema-escuro .modal-caixa textarea,
+html.tema-escuro .modal-caixa select {
+    border: 1px solid #3c325d;
+    background: #342d58;
+    color: #e9e9e9;
+}
+html.tema-escuro .salvar {
+    color: white;
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+}
+html.tema-escuro .mensagem {
+    color: #e08f8f;
+}
+html.tema-escuro .contagem {
+    color: #e7e6ea;
+}
+html.tema-escuro .cal {
+    background: #302940;
+    border: 1px solid #3b325d;
+    box-shadow: 0 4px 14px rgba(9, 5, 18, 0.119);
+}
+html.tema-escuro .cal-nav {
+    background: #2d2d58;
+    color: var(--purple-dark-txt);
+}
+html.tema-escuro .cal-mes {
+    color: var(--text-dark-txt);
+}
+html.tema-escuro .cal-semana span {
+    color: var(--text-light-txt);
+}
+html.tema-escuro .cal-dia {
+    color: var(--text-dark-txt);
+}
+html.tema-escuro .cal-dia:hover {
+    background: #362d58;
+}
+html.tema-escuro .cal-dia.hoje {
+    color: var(--purple-dark-txt);
+}
+html.tema-escuro .cal-dia.selecionado {
+    color: #e7e6ea;
+}
+html.tema-escuro .cal-dia.selecionado .ponto {
+    background: #302940;
+}
+html.tema-escuro .cal-legenda {
+    color: var(--text-#c2c2c2);
+}
+html.tema-escuro .filtro-dia {
+    background: #362d58;
+    color: var(--purple-dark-txt);
+}
+html.tema-escuro .filtro-dia button {
+    color: var(--purple-txt);
+}

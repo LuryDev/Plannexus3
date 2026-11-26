@@ -1,0 +1,40 @@
+/* ==========================================================
+   css/escuro/ajuda.css  -  versao escura de css/ajuda.css
+   ----------------------------------------------------------
+   ARQUIVO GERADO. Cada cor clara daquela folha tem aqui a sua
+   versao escura, com o mesmo tom. So vale com o tema escuro
+   ligado (a classe tema-escuro no <html>).
+
+   Fica separado por tela de proposito: num arquivo so, a regra
+   de uma tela vazava para as outras.
+
+   Para corrigir uma cor pontual, escreva no fim de
+   css/temaEscuro.css - la manda mais que aqui.
+   ========================================================== */
+html.tema-escuro .ajuda-btn {
+    background: #302940;
+    color: #ae9ae9;
+}
+html.tema-escuro .ajuda-btn:focus-visible {
+    outline: 3px solid #3c325d;
+}
+html.tema-escuro .ajuda-flutuante {
+    color: #fff;
+    background: linear-gradient(135deg, #4d2fab 0%, #3d2984 100%);
+    box-shadow: 0 6px 16px rgba(77, 47, 184, .4);
+}
+html.tema-escuro .ajuda-caixa {
+    background: #302940;
+    border: 1px solid #3b325d;
+    box-shadow: 0 10px 30px rgba(9, 5, 18, 0.374);
+    color: #dddbe6;
+}
+html.tema-escuro .ajuda-caixa b {
+    color: #ad9ee6;
+}
+html.tema-escuro .ajuda-caixa a {
+    color: #ae9ae9;
+}
+html.tema-escuro .ajuda-fechar {
+    color: #bcb7cd;
+}
