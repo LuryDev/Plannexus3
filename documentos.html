@@ -57,6 +57,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { ofertaDePlanos } from "./js/planoPopup.js";
 
         const app = initializeApp(FIREBASE_CONFIG);
         const auth = getAuth(app);
@@ -80,7 +81,11 @@
                 body: JSON.stringify(corpo)
             });
             const d = await r.json().catch(() => ({}));
-            if (!r.ok) throw new Error(d.erro || "Erro " + r.status);
+            if (!r.ok) {
+                const falha = new Error(d.erro || "Erro " + r.status);
+                falha.limite = d.limite;          // "anexos" quando o plano não permite mais arquivos
+                throw falha;
+            }
             return d;
         }
 
@@ -165,7 +170,11 @@
                     await chamar({ acao: "enviar", eventoId, nome: f.name, base64: String(leitor.result).split(",")[1] || "" });
                     msgEl.textContent = "Enviado! Use o botão de compartilhar para mandar a quem quiser.";
                     await carregar();
-                } catch (err) { msgEl.textContent = err.message; }
+                } catch (err) {
+                    msgEl.textContent = err.message;
+                    // bateu no limite de arquivos do plano: oferece os planos
+                    if (err.limite === "anexos") ofertaDePlanos("anexos", { recado: "Este evento chegou ao limite de arquivos do plano gratuito." });
+                }
             };
             leitor.onerror = () => { msgEl.textContent = "Não foi possível ler o arquivo."; };
             leitor.readAsDataURL(f);

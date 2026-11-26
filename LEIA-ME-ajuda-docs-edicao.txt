@@ -212,3 +212,14 @@ Testado com Firestore simulado; ainda não testado no Firebase real.
 - Os links exigidos pelo Google Play (politica de privacidade e excluir conta) continuam na tela.
 - perfilPessoalAdmin.html continua igual: ganhou css/perfilPessoalAdmin.css (copia do estilo antigo) para nao mudar junto.
 - So arquivos estaticos: git push.
+
+35) OFERTA DOS PLANOS: BOTAO NEXUS+ E POP-UP COM ANIMACAO (js/planoPopup.js novo; js/planos.js, inicio.html, nexus.html, documentos.html, perfilPessoal.html, css/perfilPessoal.css, api/anexos.js):
+- BOTAO NEXUS+: o simbolo do Nexus (fotos/logo.png) com um "+" roxo pulsando no canto, ao lado da engrenagem, no topo da tela inicial. Clicou, abre a oferta dos planos. Some sozinho para quem ja tem plano pago.
+- POP-UP: quando alguem do plano gratuito esbarra num limite (eventos, mensagens do Nexus no mes, arquivos do evento), aparece um pop-up com o Nexus, animacao de entrada, faiscas, os 3 planos e os botoes "Ver os planos" e "Agora não".
+- REGRA DAS 24 HORAS: clicou em "Agora não" (ou fechou no X, no Esc ou clicando fora), o pop-up NAO aparece mais por 24 horas; depois volta a aparecer sozinho. Fica guardado no proprio aparelho (localStorage "plannexus_oferta_recusada").
+  Dentro dessas 24 horas, em vez do pop-up aparece um avisinho discreto embaixo ("... Ver planos") - senao o botao pareceria quebrado.
+  Quem CLICA no Nexus+ esta pedindo para ver: nesse caso o pop-up aparece sempre, mesmo dentro das 24 horas, e nao reinicia a contagem se fechar.
+- ONDE JA ESTA LIGADO: criar evento (criarEvento.html e nexus.html, pelo js/planos.js), mensagens do Nexus acabando no mes (nexus.html, quando a API responde limite "mes") e envio de arquivos (documentos.html, quando a API responde limite "anexos"; api/anexos.js agora manda esse aviso).
+- TESTES: na pagina de Perfil tem o cartao "Testes do app" com botoes para ver cada animacao (limite de eventos, do Nexus, de arquivos, o convite do Nexus+, o aviso curto) e "Zerar as 24 horas". Ele tambem diz se o pop-up esta liberado ou em silencio. Para esconder dos usuarios, apague a <section class="cartao testes"> e o bloco "testes das animacoes" no script de perfilPessoal.html.
+- O CSS do pop-up esta DENTRO do js/planoPopup.js (funcao estilos()), para funcionar em qualquer tela sem mexer no <head> de cada uma. Quem desliga animacoes no aparelho (prefers-reduced-motion) ve tudo parado.
+- Precisa de git push (api/anexos.js mudou junto).

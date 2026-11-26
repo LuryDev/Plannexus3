@@ -97,6 +97,23 @@
         </a>
     </nav>
 
+    <!-- TESTES: para ver as animações e as mensagens sem precisar bater nos limites.
+         Para esconder isso dos usuários, basta apagar esta <section> e o bloco
+         "testes das animações" no script lá embaixo. -->
+    <section class="cartao testes">
+        <h3>Testes do app</h3>
+        <p class="nota">Veja as animações e as mensagens que aparecem quando um recurso do plano gratuito está no limite.</p>
+        <div class="botoes-teste">
+            <button type="button" data-teste="eventos">Limite de eventos</button>
+            <button type="button" data-teste="nexus">Limite do Nexus</button>
+            <button type="button" data-teste="anexos">Limite de arquivos</button>
+            <button type="button" data-teste="convite">Convite dos planos (botão Nexus+)</button>
+            <button type="button" data-teste="recado">Aviso curto (quando já recusou)</button>
+            <button type="button" data-teste="limpar">Zerar as 24 horas</button>
+        </div>
+        <p class="nota" id="estado24h" role="status"></p>
+    </section>
+
     <button type="button" class="botao forte" id="sair">Sair</button>
 
     <div class="rodape">
@@ -112,6 +129,7 @@
     import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
     import { situacaoEventos } from "./js/planos.js";
+    import { ofertaDePlanos, recadoCurto, limparRecusa, horasAteVoltar } from "./js/planoPopup.js";
 
     // FIREBASE_CONFIG vem do arquivo js/config.js
     const app  = initializeApp(FIREBASE_CONFIG);
@@ -208,6 +226,35 @@
             botaoSalvar.disabled = false;
             botaoSalvar.textContent = "Salvar alterações";
         }
+    });
+
+    // ---------- testes das animações ----------
+    const estado24h = document.getElementById("estado24h");
+
+    function mostrarEstado24h() {
+        const horas = horasAteVoltar();
+        estado24h.textContent = horas > 0
+            ? "Agora o pop-up está em silêncio: volta a aparecer em cerca de " + horas + (horas === 1 ? " hora." : " horas.")
+            : "O pop-up está liberado: aparece na próxima vez que um limite for atingido.";
+    }
+    mostrarEstado24h();
+
+    document.querySelectorAll("[data-teste]").forEach((botao) => {
+        botao.addEventListener("click", () => {
+            const qual = botao.dataset.teste;
+
+            if (qual === "limpar") { limparRecusa(); mostrarEstado24h(); return; }
+            if (qual === "recado") { recadoCurto("Você chegou ao limite de eventos do plano gratuito."); return; }
+            if (qual === "convite") { ofertaDePlanos("convite", { forcar: true }); return; }
+
+            // estes respeitam as 24 horas, igual acontece de verdade no app
+            ofertaDePlanos(qual, { ativos: 3, limite: 3 });
+            setTimeout(mostrarEstado24h, 300);
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+        if (e.target.closest && e.target.closest("#pnx-oferta .depois, #pnx-oferta .fechar")) setTimeout(mostrarEstado24h, 50);
     });
 
     document.getElementById("voltar").addEventListener("click", () => {

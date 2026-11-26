@@ -141,9 +141,12 @@ export default async function handler(req, res) {
             const plano = await limitesDoUsuario(fb.db, perm.evento.usuarioId);
             const maxArquivos = Math.min(MAX_ARQUIVOS, plano.anexosPorEvento);
             if (todos.length >= maxArquivos) {
-                return res.status(400).json({ erro: plano.tipo === "gratis"
-                    ? "O plano gratuito permite " + maxArquivos + " arquivos por evento. Apague um para enviar outro (os planos pagos permitem " + MAX_ARQUIVOS + ")."
-                    : "Limite de " + maxArquivos + " arquivos por evento." });
+                return res.status(400).json({
+                    limite: "anexos",
+                    erro: plano.tipo === "gratis"
+                        ? "O plano gratuito permite " + maxArquivos + " arquivos por evento. Apague um para enviar outro (os planos pagos permitem " + MAX_ARQUIVOS + ")."
+                        : "Limite de " + maxArquivos + " arquivos por evento."
+                });
             }
             const base64 = String(corpo.base64 || "").replace(/^data:[^,]*,/, "");
             if (!/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) return res.status(400).json({ erro: "Arquivo inválido." });

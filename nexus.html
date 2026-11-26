@@ -99,6 +99,7 @@
         import { anexarReporte } from "./js/reportarResposta.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
         import { podeCriarEvento } from "./js/planos.js";
+        import { ofertaDePlanos } from "./js/planoPopup.js";
 
         // FIREBASE_CONFIG vem do arquivo js/config.js
         const app  = initializeApp(FIREBASE_CONFIG);
@@ -262,6 +263,8 @@
                 if (!resposta.ok) {
                     historico.pop();   // essa mensagem não foi processada
                     adicionarBalao((dados.erro || "O Nexus não conseguiu responder agora.") + (dados.codigo ? " (código " + dados.codigo + ")" : ""), "nexus", true);
+                    // acabaram as mensagens do mês: oferece os planos
+                    if (dados.limite === "mes") ofertaDePlanos("nexus", { recado: "As mensagens do Nexus deste mês acabaram." });
                     return;
                 }
 

@@ -10,6 +10,7 @@
 // ==========================================================
 
 import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+import { ofertaDePlanos } from "./planoPopup.js";
 
 // FASE DE TESTES: enquanto for true, o limite de eventos ativos NÃO é aplicado.
 // Para ligar o limite de 3 eventos no gratuito, troque para false (e faça o mesmo em api/_plano.js).
@@ -65,26 +66,10 @@ export async function situacaoEventos(db, uid) {
     return { plano, ativos, limite: plano.eventosAtivos, noLimite: ativos >= plano.eventosAtivos };
 }
 
-// Mostra o aviso de limite. Quem já tem eventos além do limite continua com todos eles.
-export function mostrarAvisoLimite({ ativos, limite, aoVoltar }) {
-    if (document.getElementById("avisoLimitePlano")) return;
-
-    const fundo = document.createElement("div");
-    fundo.id = "avisoLimitePlano";
-    fundo.setAttribute("role", "dialog");
-    fundo.setAttribute("aria-modal", "true");
-    fundo.style.cssText = "position:fixed;inset:0;z-index:99999;background:rgba(20,16,40,.55);display:flex;align-items:center;justify-content:center;padding:20px;";
-    fundo.innerHTML =
-        '<div style="background:#fff;color:#2b2540;border-radius:18px;max-width:380px;width:100%;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:inherit;">' +
-        '<h2 style="margin:0 0 8px;font-size:1.15rem;">Você chegou ao limite do plano gratuito</h2>' +
-        '<p style="margin:0 0 10px;line-height:1.45;">Você tem <b>' + ativos + '</b> eventos ativos e o plano gratuito permite <b>' + limite + '</b> ao mesmo tempo.</p>' +
-        '<p style="margin:0 0 16px;line-height:1.45;font-size:.92rem;color:#5b5473;">Seus eventos continuam todos aí. Para criar outro, <b>arquive</b> um evento que já passou (ele sai da conta, mas pode ser restaurado) ou conheça os planos.</p>' +
-        '<div style="display:flex;flex-direction:column;gap:8px;">' +
-        '<a href="planos.html" style="text-align:center;padding:12px;border-radius:12px;background:#5A32D3;color:#fff;text-decoration:none;font-weight:600;">Ver planos</a>' +
-        '<a href="inicio.html" style="text-align:center;padding:12px;border-radius:12px;background:#efeaff;color:#3b2a8f;text-decoration:none;font-weight:600;">Ir para meus eventos</a>' +
-        '</div></div>';
-    document.body.appendChild(fundo);
-    if (typeof aoVoltar === "function") fundo.addEventListener("click", (e) => { if (e.target === fundo) aoVoltar(); });
+// Mostra a oferta dos planos (pop-up animado em js/planoPopup.js).
+// Quem já tem eventos além do limite continua com todos eles.
+export function mostrarAvisoLimite({ ativos, limite }) {
+    ofertaDePlanos("eventos", { ativos, limite, recado: "Você chegou ao limite de eventos do plano gratuito." });
 }
 
 // Atalho para as telas de criar evento: confere o limite e, se estourou, mostra o aviso.

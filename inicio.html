@@ -44,11 +44,17 @@
 
     <header>
 
-        <a class="notification" id="botaoPreferencias" href="preferencias.html" title="Preferências e acessibilidade" aria-label="Preferências e acessibilidade">
+        <div class="icones-topo">
 
-            <i class="fa-solid fa-gear"></i>
+            <a class="notification" id="botaoPreferencias" href="preferencias.html" title="Preferências e acessibilidade" aria-label="Preferências e acessibilidade">
 
-        </a>
+                <i class="fa-solid fa-gear"></i>
+
+            </a>
+
+            <!-- o botão Nexus+ entra aqui, ao lado da engrenagem (js/planoPopup.js) -->
+
+        </div>
 
 
         <div class="icones-topo">
@@ -226,6 +232,8 @@
     import { pendentesDoEvento, temNovidadeDesdeVisita } from "./js/pendencias.js";
     import { pushDisponivel, pushAtivo } from "./js/push.js";
     import { atualizarPeriodicamente } from "./js/tempoReal.js";
+    import { planoDoUsuario } from "./js/planos.js";
+    import { botaoNexusMais } from "./js/planoPopup.js";
 
     // FIREBASE_CONFIG vem do arquivo js/config.js
     const app  = initializeApp(FIREBASE_CONFIG);
@@ -283,6 +291,11 @@
             // Carregar eventos
 
             carregarEventos(usuario);
+
+            // Botão Nexus+ ao lado da engrenagem (quem já tem plano pago não precisa ver)
+            planoDoUsuario(db, usuario.uid)
+                .then((plano) => botaoNexusMais(document.getElementById("botaoPreferencias"), { escondidoSe: plano.tipo === "pago" }))
+                .catch(() => botaoNexusMais(document.getElementById("botaoPreferencias")));
 
             // Mantém lista de eventos e sininho em dia sozinhos (tela visível / ao voltar para o app).
             // Não roda enquanto a pessoa digita na pesquisa.

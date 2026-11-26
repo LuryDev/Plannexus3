@@ -96,3 +96,13 @@ a { text-decoration: none; }
 .campo input:disabled { color: #89839c; background: #f3f1f9; border-color: #ece9f5; }
 .campo small { font-size: 12px; color: #6b6585; line-height: 1.4; }
 #mensagemEdicao { margin: 10px 0 0; font-size: 13px; min-height: 18px; text-align: center; }
+
+/* testes das animações (pode apagar junto com a seção no HTML) */
+.testes h3 { font-size: 16px; }
+.botoes-teste { display: grid; gap: 8px; margin-top: 12px; }
+.botoes-teste button {
+    min-height: 44px; padding: 0 14px; border: 1px solid #e3def5; border-radius: 13px;
+    background: #faf8ff; color: #3b2a8f; font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; text-align: left;
+}
+.botoes-teste button:hover { background: #f0ecff; }
